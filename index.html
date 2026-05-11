@@ -523,9 +523,7 @@
            └─────────────────────────────────────────────────────────┘ -->
       <div class="bio-box" id="contact">
         <div class="section-label">About</div>
-        <p class="bio-text">
-          🎸 Guitarist | 🎛️ Live Looping Artist | 🔊 Crafting full-band soundscapes
-        </p>
+        <p class="bio-text" id="bio-decrypt">🎸 Guitarist | 🎛️ Live Looping Artist | 🔊 Crafting full-band soundscapes</p>
       </div>
 
     </div><!-- end .right-col -->
@@ -641,6 +639,71 @@
 
       draw();
     }
+    // ── BIO DECRYPT ANIMATION ─────────────────────────────────────
+    // Scrambles the bio text on load, then resolves it letter by letter.
+    // Emojis are treated as single characters and never scrambled —
+    // they jump straight in when their position is revealed.
+    (function decryptBio() {
+      const el      = document.getElementById('bio-decrypt');
+      const target  = el.textContent.trim();
+      const chars   = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*';
+
+      // Split into array of characters, keeping emojis whole
+      const segments = [...target]; // spread handles multi-byte emoji correctly
+
+      // Track which positions are "locked in" (revealed)
+      const locked = new Array(segments.length).fill(false);
+      let resolved = 0;
+
+      // How many scramble frames before locking the next character
+      const scrambleFrames  = 6;   // lower = faster reveal
+      const delayBetween    = 40;  // ms between each character locking in
+      let   frameCount      = 0;
+
+      // Is this segment an emoji or non-Latin symbol? Don't scramble those.
+      function isSpecial(ch) {
+        return ch.trim() === '' || /[^\x00-\x7F]/.test(ch);
+      }
+
+      function randomChar() {
+        return chars[Math.floor(Math.random() * chars.length)];
+      }
+
+      function render() {
+        return segments.map((ch, i) => {
+          if (locked[i])   return ch;           // revealed — show real char
+          if (isSpecial(ch)) return ch;          // emoji/space — always real
+          return randomChar();                   // still scrambling
+        }).join('');
+      }
+
+      function tick() {
+        frameCount++;
+
+        // Every N frames, lock in the next un-locked non-special character
+        if (frameCount % scrambleFrames === 0) {
+          for (let i = 0; i < segments.length; i++) {
+            if (!locked[i]) {
+              locked[i] = true;
+              resolved++;
+              break;
+            }
+          }
+        }
+
+        el.textContent = render();
+
+        if (resolved < segments.length) {
+          setTimeout(tick, delayBetween);
+        } else {
+          el.textContent = target; // ensure final text is perfect
+        }
+      }
+
+      // Short pause before starting so the page has painted first
+      setTimeout(tick, 600);
+    })();
+
   </script>
 
 </body>
