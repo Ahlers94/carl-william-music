@@ -6,20 +6,18 @@
 
   <!-- SEO & SOCIAL PREVIEW METADATA -->
   <meta name="description" content="Official site for Carl William Music. Live looping, raw guitar captures, and no-nonsense performance.">
-  <meta name="author"      content="Carl William Music">
+  <meta name="author" content="Carl William Music">
 
-  <!-- Open Graph — Controls the "Link Preview Card" in Discord, iMessage, etc. -->
-  <meta property="og:type"        content="website">
-  <meta property="og:title"       content="Carl William Music | Substance Over Style">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Carl William Music | Substance Over Style">
   <meta property="og:description" content="Live looping guitarist. Covers and originals. One take, no excuses.">
-  <meta property="og:url"         content="https://ahlers94.github.io/carl-william-music/">
-  <meta property="og:image"       content="https://ahlers94.github.io/carl-william-music/preview.jpg">
+  <meta property="og:url" content="https://ahlers94.github.io/carl-william-music/">
+  <meta property="og:image" content="https://ahlers94.github.io/carl-william-music/preview.jpg">
 
-  <!-- Twitter / X Card -->
-  <meta name="twitter:card"        content="summary_large_image">
-  <meta name="twitter:title"       content="Carl William Music | Substance Over Style">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Carl William Music | Substance Over Style">
   <meta name="twitter:description" content="Live looping guitarist. One take, no excuses.">
-  <meta name="twitter:image"       content="https://ahlers94.github.io/carl-william-music/preview.jpg">
+  <meta name="twitter:image" content="https://ahlers94.github.io/carl-william-music/preview.jpg">
 
   <title>Carl William Music | Substance Over Style</title>
 
@@ -91,14 +89,11 @@
 
     .artist-name {
       font-family: 'VT323', monospace;
-      font-size: clamp(56px, 10vw, 96px);
+      font-size: clamp(42px, 10vw, 96px);
       color: var(--green);
       letter-spacing: 6px;
       line-height: 1;
-      text-shadow: 
-        0 0 10px rgba(0,255,65,0.4),
-        2px 0 1px rgba(255,0,120,0.3), 
-        -2px 0 1px rgba(0,245,255,0.3);
+      text-shadow: 0 0 10px rgba(0,255,65,0.4), 2px 0 1px rgba(255,0,120,0.3), -2px 0 1px rgba(0,245,255,0.3);
       filter: blur(0.4px);
     }
 
@@ -117,10 +112,12 @@
       border-bottom: 1px solid #ffffff15;
       position: sticky;
       top: 0; z-index: 10;
+      overflow-x: auto;
+      white-space: nowrap;
     }
     nav a {
-      display: block;
-      padding: 12px 24px;
+      display: inline-block;
+      padding: 14px 24px;
       font-size: 11px;
       letter-spacing: 2px;
       text-transform: uppercase;
@@ -136,10 +133,13 @@
     #nav-matrix:hover { color: var(--green); border-bottom: 2px solid var(--green); }
 
     .page { display: grid; grid-template-columns: 1fr 280px; min-height: calc(100vh - 200px); }
+
+    /* MOBILE RESPONSIVENESS */
     @media (max-width: 720px) {
       .page { grid-template-columns: 1fr; }
       header { padding: 24px; }
-      nav { overflow-x: auto; }
+      .left-col { padding: 24px; border-right: none; border-bottom: 1px solid #ff2d7822; }
+      .video-grid { grid-template-columns: 1fr !important; gap: 24px; }
     }
 
     .left-col { padding: 36px 36px 36px 48px; border-right: 1px solid #ff2d7822; }
@@ -161,7 +161,7 @@
     }
 
     .video-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 8px; }
-    .video-small { position: relative; padding-bottom: 56.25%; height: 0; border: 1px solid #ffd70033; }
+    .video-small { position: relative; padding-bottom: 56.25%; height: 0; border: 1px solid #ffd70033; background: #000; }
 
     .social-links { display: flex; flex-direction: column; gap: 10px; margin-bottom: 28px; }
     .social-link {
@@ -175,6 +175,8 @@
     .gh { color: #99cc77; border-color: #99cc7755; }
 
     .gear-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-top: 8px; }
+    @media (max-width: 600px) { .gear-grid { grid-template-columns: 1fr; } }
+    
     .gear-item { border: 1px solid #ff2d7822; padding: 16px; background: var(--surface); }
     .gear-photo-placeholder {
       width: 100%; aspect-ratio: 4/3; background: #06060f; border: 1px dashed #ff2d7833;
