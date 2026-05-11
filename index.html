@@ -2,38 +2,61 @@
 layout: null
 ---
 <!DOCTYPE html>
+<!--
+  ╔══════════════════════════════════════════════════════════════════╗
+  ║  CARL WILLIAM MUSIC — index.html (Jekyll)                       ║
+  ║  Hosted on GitHub Pages                                         ║
+  ║                                                                  ║
+  ║  CONTENT LIVES IN _data/ — edit those files, not this one:      ║
+  ║    _data/videos.yml  — featured + more video IDs                ║
+  ║    _data/gear.yml    — gear items, photos, descriptions         ║
+  ║    _data/social.yml  — social media links                       ║
+  ║                                                                  ║
+  ║  QUICK EDIT CHECKLIST:                                           ║
+  ║  [ ] OG preview image   (search: preview.jpg)                   ║
+  ║  [ ] Footer year        (search: 2026)                          ║
+  ╚══════════════════════════════════════════════════════════════════╝
+-->
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <!-- SEO & SOCIAL PREVIEW METADATA -->
+  <!-- ── SEO & SOCIAL PREVIEW ──────────────────────────────────── -->
   <meta name="description" content="Official site for Carl William Music. Live looping, raw guitar captures, and no-nonsense performance.">
-  <meta name="author" content="Carl William Music">
+  <meta name="author"      content="Carl William Music">
 
-  <meta property="og:type" content="website">
-  <meta property="og:title" content="Carl William Music | Substance Over Style">
+  <meta property="og:type"        content="website">
+  <meta property="og:title"       content="Carl William Music | Substance Over Style">
   <meta property="og:description" content="Live looping guitarist. Covers and originals. One take, no excuses.">
-  <meta property="og:url" content="https://github.io">
-  <meta property="og:image" content="https://github.iopreview.jpg">
+  <meta property="og:url"         content="https://ahlers94.github.io/carl-william-music/">
+  <meta property="og:image"       content="https://ahlers94.github.io/carl-william-music/preview.jpg">
 
-  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:card"        content="summary_large_image">
+  <meta name="twitter:title"       content="Carl William Music | Substance Over Style">
+  <meta name="twitter:description" content="Live looping guitarist. Covers and originals. One take, no excuses.">
+  <meta name="twitter:image"       content="https://ahlers94.github.io/carl-william-music/preview.jpg">
+
   <title>Carl William Music | Substance Over Style</title>
 
-  <link rel="preconnect" href="https://googleapis.com">
-  <link href="https://googleapis.com/css2?family=VT323&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+  <!-- ── FONTS ─────────────────────────────────────────────────── -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=VT323&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
 
   <style>
+
+    /* ── COLOR PALETTE ──────────────────────────────────────────── */
     :root {
-      --bg: #0a0a12;
+      --bg:      #0a0a12;
       --surface: #0d0d1a;
-      --pink: #ff2d78;
-      --cyan: #00f5ff;
-      --gold: #ffd700;
-      --green: #00ff41;
-      --text: #e0d8f0;
-      --muted: #9988aa;
-      --dim: #443355;
+      --pink:    #ff2d78;
+      --cyan:    #00f5ff;
+      --gold:    #ffd700;
+      --purple:  #b06aff;
+      --green:   #99cc77;
+      --text:    #e0d8f0;
+      --muted:   #9988aa;
+      --dim:     #443355;
     }
 
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -43,152 +66,598 @@ layout: null
       color: var(--text);
       font-family: 'Space Mono', monospace;
       min-height: 100vh;
-      overflow-x: hidden;
     }
 
-    .crt-static {
-      position: fixed;
-      top: 0; left: 0; width: 100%; height: 100%;
-      opacity: 0.08;
-      z-index: 998;
-      pointer-events: none;
-      background: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://w3.org id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
-    }
-
+    /* ── CRT SCANLINE OVERLAY ───────────────────────────────────── */
     body::before {
       content: '';
       position: fixed;
       inset: 0;
-      background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,245,255,0.02) 3px);
+      background: repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 3px,
+        rgba(0,245,255,0.015) 3px,
+        rgba(0,245,255,0.015) 4px
+      );
       pointer-events: none;
       z-index: 999;
     }
 
-    @keyframes intense-flicker {
-      0% { opacity: 1; filter: brightness(1); }
-      3% { opacity: 0.8; filter: brightness(1.4); transform: skewX(0.5deg); }
-      5% { opacity: 1; filter: brightness(1); transform: skewX(0); }
-      100% { opacity: 1; }
-    }
-
+    /* ── HEADER ─────────────────────────────────────────────────── */
     header {
       border-bottom: 2px solid var(--cyan);
       padding: 36px 48px 24px;
-      animation: intense-flicker 0.2s infinite;
     }
-
     .artist-name {
       font-family: 'VT323', monospace;
-      font-size: clamp(42px, 10vw, 96px);
-      color: var(--green);
+      font-size: clamp(56px, 10vw, 96px);
+      color: #00ff41;
       letter-spacing: 6px;
       line-height: 1;
-      text-shadow: 0 0 10px rgba(0,255,65,0.4), 2px 0 1px rgba(255,0,120,0.3);
+      text-shadow: 3px 3px 0 #003d10, 0 0 40px #00ff4155;
+    }
+    .artist-tagline {
+      font-size: 11px;
+      color: var(--cyan);
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      margin-top: 8px;
+      opacity: 0.8;
     }
 
-    nav { display: flex; background: #10101e; border-bottom: 1px solid #ffffff15; position: sticky; top: 0; z-index: 10; }
-    nav a { padding: 14px 24px; font-size: 11px; color: #9988cc; text-decoration: none; text-transform: uppercase; }
-
-    .page { display: grid; grid-template-columns: 1fr 280px; }
-    .left-col { padding: 36px 48px; border-right: 1px solid #ff2d7822; }
-    .right-col { padding: 28px 24px; background: var(--surface); }
-
-    .section-label {
-      font-size: 10px; color: var(--cyan); letter-spacing: 3px;
-      text-transform: uppercase; margin-bottom: 20px;
-      display: flex; align-items: center; gap: 10px;
+    /* ── NAVIGATION ─────────────────────────────────────────────── */
+    nav {
+      display: flex;
+      background: #10101e;
+      border-bottom: 1px solid #ffffff15;
+      position: sticky;
+      top: 0;
+      z-index: 10;
     }
-    .section-label::after { content: ''; flex: 1; height: 1px; background: #00f5ff33; }
+    nav a {
+      display: block;
+      padding: 12px 24px;
+      font-size: 11px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: #9988cc;
+      text-decoration: none;
+      border-right: 1px solid #ffffff0d;
+      transition: color 0.2s, border-bottom-color 0.2s;
+    }
 
-    /* VIDEO BLOCKS */
-    .video-container { position: relative; padding-bottom: 56.25%; height: 0; margin-bottom: 20px; border: 1px solid var(--pink); }
-    .video-container iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; }
-    
-    .video-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 40px; }
+    /* Per-tab colors with glow */
+    #nav-videos        { color: #cc3333; text-shadow: 0 0 8px #cc333388; }
+    #nav-videos:hover,
+    #nav-videos.active { color: #ff4444; border-bottom: 2px solid #ff4444; text-shadow: 0 0 12px #ff444499; }
 
-    /* GEAR BLOCKS */
-    .gear-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
-    .gear-item { border: 1px solid #ff2d7822; padding: 16px; background: var(--surface); }
-    .gear-photo { width: 100%; aspect-ratio: 4/3; background: #06060f; border: 1px dashed #ff2d7833; object-fit: cover; }
+    #nav-music         { color: #3366cc; text-shadow: 0 0 8px #3366cc88; }
+    #nav-music:hover,
+    #nav-music.active  { color: #4488ff; border-bottom: 2px solid #4488ff; text-shadow: 0 0 12px #4488ff99; }
 
-    .bio-text { font-size: 12px; line-height: 1.6; color: var(--muted); margin-top: 10px; }
+    #nav-gear          { color: #ccaa00; text-shadow: 0 0 8px #ccaa0088; }
+    #nav-gear:hover,
+    #nav-gear.active   { color: #ffd700; border-bottom: 2px solid #ffd700; text-shadow: 0 0 12px #ffd70099; }
 
+    #nav-matrix        { color: #00cc33; text-shadow: 0 0 8px #00cc3388; }
+    #nav-matrix:hover,
+    #nav-matrix.active { color: #00ff41; border-bottom: 2px solid #00ff41; text-shadow: 0 0 12px #00ff4199; }
+
+    /* ── TWO-COLUMN LAYOUT ──────────────────────────────────────── */
+    .page {
+      display: grid;
+      grid-template-columns: 1fr 280px;
+      min-height: calc(100vh - 200px);
+    }
     @media (max-width: 720px) {
-      .page { grid-template-columns: 1fr; }
-      .video-grid, .gear-grid { grid-template-columns: 1fr; }
+      .page  { grid-template-columns: 1fr; }
+      header { padding: 24px; }
     }
+    .left-col {
+      padding: 36px 36px 36px 48px;
+      border-right: 1px solid #ff2d7822;
+    }
+    .right-col {
+      padding: 28px 24px;
+      background: var(--surface);
+    }
+
+    /* ── SECTION LABELS ─────────────────────────────────────────── */
+    .section-label {
+      font-size: 10px;
+      color: var(--cyan);
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .section-label::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: #00f5ff33;
+    }
+
+    /* ── FEATURED VIDEO ─────────────────────────────────────────── */
+    .video-featured {
+      position: relative;
+      padding-bottom: 56.25%;
+      height: 0;
+      background: #06060f;
+      border: 1px solid #ff2d7855;
+      margin-bottom: 10px;
+      overflow: hidden;
+    }
+    .video-featured::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--pink), var(--cyan), transparent);
+      z-index: 1;
+    }
+    .video-featured iframe {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      border: none;
+    }
+    .video-caption {
+      font-size: 10px;
+      color: var(--dim);
+      letter-spacing: 1px;
+      margin-bottom: 20px;
+    }
+
+    /* ── SMALLER VIDEO GRID ─────────────────────────────────────── */
+    .video-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-top: 8px;
+    }
+    @media (max-width: 720px) { .video-grid { grid-template-columns: 1fr; } }
+    .video-small {
+      position: relative;
+      padding-bottom: 56.25%;
+      height: 0;
+      background: #06060f;
+      border: 1px solid #ffd70033;
+      overflow: hidden;
+    }
+    .video-small::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--gold), transparent);
+      z-index: 1;
+    }
+    .video-small iframe {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      border: none;
+    }
+
+    /* ── SOCIAL LINKS ───────────────────────────────────────────── */
+    .social-links {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 28px;
+    }
+    .social-link {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 14px;
+      border: 1px solid;
+      font-size: 11px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      text-decoration: none;
+      transition: background 0.15s;
+    }
+    .social-link:hover { background: #ffffff08; }
+    .social-link svg {
+      width: 15px; height: 15px;
+      flex-shrink: 0;
+      stroke: currentColor;
+    }
+
+    /* Per-platform colors + glow */
+    .yt { color: var(--pink);  border-color: #ff2d7855; text-shadow: 0 0 8px #ff2d7888; }
+    .ig { color: var(--gold);  border-color: #ffd70055; text-shadow: 0 0 8px #ffd70088; }
+    .sc { color: var(--cyan);  border-color: #00f5ff55; text-shadow: 0 0 8px #00f5ff88; }
+    .gh { color: var(--green); border-color: #99cc7755; text-shadow: 0 0 8px #99cc7788; }
+    .em { color: var(--cyan);  border-color: #00f5ff55; text-shadow: 0 0 8px #00f5ff88; text-transform: none; letter-spacing: 0; }
+
+    .yt:hover { text-shadow: 0 0 14px #ff2d78bb; }
+    .ig:hover { text-shadow: 0 0 14px #ffd700bb; }
+    .sc:hover { text-shadow: 0 0 14px #00f5ffbb; }
+    .gh:hover { text-shadow: 0 0 14px #99cc77bb; }
+    .em:hover { text-shadow: 0 0 14px #00f5ffbb; }
+
+    /* ── BIO ────────────────────────────────────────────────────── */
+    .bio-box {
+      padding-top: 22px;
+      border-top: 1px solid #ffffff0d;
+    }
+    .bio-text {
+      font-size: 11px;
+      line-height: 1.8;
+      color: var(--muted);
+      font-style: italic;
+    }
+
+    /* ── GEAR SECTION ───────────────────────────────────────────── */
+    .gear-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+      margin-top: 8px;
+    }
+    @media (max-width: 720px) { .gear-grid { grid-template-columns: 1fr; } }
+    .gear-item {
+      border: 1px solid #ff2d7822;
+      padding: 16px;
+      background: var(--surface);
+    }
+    .gear-photo-placeholder {
+      width: 100%;
+      aspect-ratio: 4/3;
+      background: #06060f;
+      border: 1px dashed #ff2d7833;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+      color: var(--dim);
+      letter-spacing: 2px;
+      margin-bottom: 12px;
+    }
+    .gear-item img {
+      width: 100%;
+      aspect-ratio: 4/3;
+      object-fit: cover;
+      display: block;
+      margin-bottom: 12px;
+      border: 1px solid #ff2d7833;
+    }
+    .gear-label {
+      font-size: 10px;
+      color: var(--cyan);
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+    .gear-desc {
+      font-size: 11px;
+      color: var(--muted);
+      line-height: 1.7;
+    }
+
+    /* ── FOOTER ─────────────────────────────────────────────────── */
+    footer {
+      border-top: 1px solid #00f5ff22;
+      padding: 14px 48px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #07070f;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    footer span {
+      font-size: 10px;
+      color: var(--dim);
+      letter-spacing: 2px;
+      text-transform: uppercase;
+    }
+    .blink { animation: blink 1.2s step-end infinite; }
+    @keyframes blink { 50% { opacity: 0; } }
+
+    /* ── MATRIX SECTION ─────────────────────────────────────────── */
+    #matrix-section {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: #000;
+      overflow: hidden;
+      z-index: 100;
+      cursor: pointer;
+    }
+    #matrix-section.active { display: block; }
+    #matrix-canvas { display: block; width: 100%; height: 100%; }
+    #matrix-msg {
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      font-family: 'VT323', monospace;
+      font-size: clamp(28px, 5vw, 52px);
+      color: #00ff41;
+      text-shadow: 0 0 20px #00ff41, 0 0 40px #00ff4188;
+      letter-spacing: 4px;
+      text-align: center;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 1.5s ease;
+    }
+    #matrix-msg.show { opacity: 1; }
+    #matrix-hint {
+      position: absolute;
+      bottom: 28px; left: 50%;
+      transform: translateX(-50%);
+      font-family: 'Space Mono', monospace;
+      font-size: 11px;
+      color: #00ff4188;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 1.5s ease;
+    }
+    #matrix-hint.show { opacity: 1; }
+
+    .page.hidden  { display: none; }
+    #gear-section { display: none; padding: 36px 48px; }
+
   </style>
 </head>
 <body>
-  <div class="crt-static"></div>
 
-  <header>
+  <header id="site-header">
     <div class="artist-name">CARL WILLIAM MUSIC</div>
-    <div class="artist-tagline">Live Looping // Substance Over Style</div>
+    <div class="artist-tagline">Substance Over Style &nbsp;//&nbsp; No Edits &nbsp;//&nbsp; No Posing</div>
   </header>
 
-  <nav>
-    <a href="#originals">Originals</a>
-    <a href="#covers">Covers</a>
-    <a href="#gear">Hardware</a>
+  <nav id="site-nav">
+    <a href="#videos" class="active" id="nav-videos">Videos</a>
+    <a href="#music"  id="nav-music">Music</a>
+    <a href="#"       id="nav-gear">Gear</a>
+    <a href="#"       id="nav-matrix">The Matrix</a>
   </nav>
 
+  <!-- ── MAIN TWO-COLUMN LAYOUT ──────────────────────────────────── -->
   <div class="page">
-    <div class="left-col">
-      
-      <!-- ORIGINALS -->
-      <section id="originals">
-        <div class="section-label">Original Content // Master Signal</div>
-        {% for video in site.data.originals %}
-          <div class="video-container">
-            <iframe src="https://youtube.com{{ video.id }}" allowfullscreen></iframe>
-          </div>
-          <p class="bio-text" style="margin-bottom: 30px;">{{ video.description }}</p>
+
+    <div class="left-col" id="videos">
+
+      <div class="section-label">Featured</div>
+
+      <!-- Featured video from _data/videos.yml -->
+      {% for video in site.data.videos.featured %}
+      <div class="video-featured">
+        <iframe
+          src="https://www.youtube-nocookie.com/embed/{{ video.id }}"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+          allowfullscreen>
+        </iframe>
+      </div>
+      <div class="video-caption">&gt; {{ video.caption }}</div>
+      {% endfor %}
+
+      <div class="section-label" style="margin-top: 28px;">More</div>
+
+      <!-- Smaller videos from _data/videos.yml -->
+      <div class="video-grid">
+        {% for video in site.data.videos.more %}
+        <div class="video-small">
+          <iframe
+            src="https://www.youtube-nocookie.com/embed/{{ video.id }}"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowfullscreen>
+          </iframe>
+        </div>
         {% endfor %}
-      </section>
-
-      <!-- COVERS -->
-      <section id="covers" style="margin-top: 50px;">
-        <div class="section-label">Covers // Relayed Signal</div>
-        <div class="video-grid">
-          {% for video in site.data.covers %}
-            <div class="video-container" style="margin-bottom: 0;">
-              <iframe src="https://youtube.com{{ video.id }}" allowfullscreen></iframe>
-            </div>
-          {% endfor %}
-        </div>
-      </section>
-
-      <!-- GEAR -->
-      <section id="gear" style="margin-top: 50px;">
-        <div class="section-label">The Vault // Hardware Inventory</div>
-        <div class="gear-grid">
-          {% for item in site.data.gear %}
-            <div class="gear-item">
-              {% if item.image %}
-                <img src="{{ item.image }}" class="gear-photo" alt="{{ item.model }}">
-              {% else %}
-                <div class="gear-photo" style="display:flex; align-items:center; justify-content:center;">[ NO SIGNAL ]</div>
-              {% endif %}
-              <div class="section-label" style="margin-top:15px; border:none;">{{ item.model }}</div>
-              <p class="bio-text">{{ item.story }}</p>
-            </div>
-          {% endfor %}
-        </div>
-      </section>
+      </div>
 
     </div>
 
+    <!-- ── SIDEBAR ──────────────────────────────────────────────── -->
     <div class="right-col">
-        <div class="section-label">Links</div>
-        <!-- Add your social links back here -->
-        <p class="bio-text">Ready for the stage. One take. No excuses.</p>
+
+      <div class="section-label" id="music">Find Me</div>
+
+      <!-- Social links from _data/social.yml -->
+      <div class="social-links">
+        {% for link in site.data.social %}
+        <a class="social-link {{ link.class }}" href="{{ link.url }}" data-icon="{{ link.icon }}" {% if link.class != 'em' %}target="_blank" rel="noopener"{% endif %}>
+          {{ link.label }}
+        </a>
+        {% endfor %}
+      </div>
+
+      <div class="bio-box">
+        <div class="section-label">About</div>
+        <p class="bio-text" id="bio-decrypt">🎸 Guitarist | 🎛️ Live Looping Artist | 🔊 Crafting full-band soundscapes</p>
+      </div>
+
     </div>
   </div>
 
-  <footer style="padding: 20px 48px; font-size: 10px; color: var(--dim); border-top: 1px solid #ffffff15;">
-    &copy; 2026 CARL WILLIAM MUSIC // TERMINAL ACTIVE
+  <!-- ── GEAR SECTION (shown via nav tab) ──────────────────────── -->
+  <div id="gear-section">
+    <div class="section-label">The Rig</div>
+    <div class="gear-grid">
+      {% for item in site.data.gear %}
+      <div class="gear-item">
+        {% if item.image %}
+          <img src="{{ item.image }}" alt="{{ item.label }}">
+        {% else %}
+          <div class="gear-photo-placeholder">[ PHOTO COMING SOON ]</div>
+        {% endif %}
+        <div class="gear-label">{{ item.label }}</div>
+        <div class="gear-desc">{{ item.description }}</div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <footer>
+    <span>Carl William Music &copy; 2026</span>
+    <span>Hosted on GitHub Pages <span class="blink">_</span></span>
   </footer>
+
+  <!-- ── MATRIX OVERLAY ────────────────────────────────────────── -->
+  <div id="matrix-section" role="button" aria-label="Exit Matrix mode">
+    <canvas id="matrix-canvas"></canvas>
+    <div id="matrix-msg">WAKE UP, NEO...<br>THE MUSIC HAS YOU.</div>
+    <div id="matrix-hint">[ click, tap, or press any key to exit ]</div>
+  </div>
+
+  <script>
+    // ── INLINE SVG ICONS ──────────────────────────────────────────
+    // Icons injected directly — no CDN dependency.
+    const iconMap = {
+      youtube:   `<svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 17a24.12 24.12 0 0 1 0-10 2 2 0 0 1 1.4-1.4 49.56 49.56 0 0 1 16.2 0A2 2 0 0 1 21.5 7a24.12 24.12 0 0 1 0 10 2 2 0 0 1-1.4 1.4 49.55 49.55 0 0 1-16.2 0A2 2 0 0 1 2.5 17"/><polygon points="10 15 15 12 10 9"/></svg>`,
+      instagram: `<svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="20" x="2" y="2" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" x2="17.51" y1="6.5" y2="6.5"/></svg>`,
+      radio:     `<svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4.9 19.1C1 15.2 1 8.8 4.9 4.9"/><path d="M7.8 16.2c-2.3-2.3-2.3-6.1 0-8.5"/><circle cx="12" cy="12" r="2"/><path d="M16.2 7.8c2.3 2.3 2.3 6.1 0 8.5"/><path d="M19.1 4.9C23 8.8 23 15.2 19.1 19.1"/></svg>`,
+      github:    `<svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"/><path d="M9 18c-4.51 2-5-2-7-2"/></svg>`,
+      mail:      `<svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>`
+    };
+
+    // Inject icons into social links
+    document.querySelectorAll('.social-link').forEach(el => {
+      const icon = el.getAttribute('data-icon');
+      if (icon && iconMap[icon]) {
+        el.insertAdjacentHTML('afterbegin', iconMap[icon]);
+      }
+    });
+
+    // ── NAV SWITCHING ─────────────────────────────────────────────
+    const page        = document.querySelector('.page');
+    const gearSection = document.getElementById('gear-section');
+    const siteHeader  = document.getElementById('site-header');
+    const siteNav     = document.getElementById('site-nav');
+    const matrixEl    = document.getElementById('matrix-section');
+    const matrixMsg   = document.getElementById('matrix-msg');
+    const matrixHint  = document.getElementById('matrix-hint');
+    const allNavLinks = document.querySelectorAll('nav a');
+
+    let matrixRunning = false;
+    let animFrame;
+
+    function showPage() { page.classList.remove('hidden'); gearSection.style.display = 'none'; }
+    function showGear() { page.classList.add('hidden');    gearSection.style.display = 'block'; }
+
+    allNavLinks.forEach(link => {
+      link.addEventListener('click', function() {
+        allNavLinks.forEach(l => l.classList.remove('active'));
+        this.classList.add('active');
+      });
+    });
+
+    document.getElementById('nav-videos').addEventListener('click', function(e) { showPage(); });
+    document.getElementById('nav-music').addEventListener('click',  function(e) { showPage(); });
+    document.getElementById('nav-gear').addEventListener('click',   function(e) { e.preventDefault(); showGear(); });
+
+    // ── ENTER MATRIX ──────────────────────────────────────────────
+    document.getElementById('nav-matrix').addEventListener('click', function(e) {
+      e.preventDefault();
+      page.classList.add('hidden');
+      gearSection.style.display    = 'none';
+      siteHeader.style.display     = 'none';
+      siteNav.style.display        = 'none';
+      matrixEl.classList.add('active');
+      if (!matrixRunning) startMatrix();
+      setTimeout(() => {
+        matrixMsg.classList.add('show');
+        matrixHint.classList.add('show');
+      }, 1800);
+    });
+
+    // ── EXIT MATRIX ───────────────────────────────────────────────
+    function exitMatrix() {
+      if (!matrixRunning) return;
+      matrixEl.classList.remove('active');
+      matrixMsg.classList.remove('show');
+      matrixHint.classList.remove('show');
+      siteHeader.style.display = '';
+      siteNav.style.display    = '';
+      matrixRunning = false;
+      cancelAnimationFrame(animFrame);
+      showPage();
+      allNavLinks.forEach(l => l.classList.remove('active'));
+      document.getElementById('nav-videos').classList.add('active');
+    }
+
+    matrixEl.addEventListener('click', exitMatrix);
+    document.addEventListener('keydown', exitMatrix);
+    document.getElementById('nav-videos').addEventListener('click', exitMatrix);
+    document.getElementById('nav-music').addEventListener('click',  exitMatrix);
+    document.getElementById('nav-gear').addEventListener('click',   exitMatrix);
+
+    // ── MATRIX RAIN ───────────────────────────────────────────────
+    function startMatrix() {
+      matrixRunning = true;
+      const canvas = document.getElementById('matrix-canvas');
+      const ctx    = canvas.getContext('2d');
+      const chars  = 'アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲン0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+      const fontSize = 16;
+      let cols, drops;
+
+      function resize() {
+        canvas.width  = canvas.offsetWidth;
+        canvas.height = canvas.offsetHeight;
+        cols  = Math.floor(canvas.width / fontSize);
+        drops = Array(cols).fill(1);
+      }
+      resize();
+      window.addEventListener('resize', resize);
+
+      function draw() {
+        if (!matrixRunning) return;
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.font = fontSize + 'px VT323, monospace';
+        drops.forEach((y, i) => {
+          ctx.fillStyle = Math.random() > 0.95 ? '#ccffcc' : '#00ff41';
+          ctx.fillText(chars[Math.floor(Math.random() * chars.length)], i * fontSize, y * fontSize);
+          if (y * fontSize > canvas.height && Math.random() > 0.975) drops[i] = 0;
+          drops[i]++;
+        });
+        animFrame = requestAnimationFrame(draw);
+      }
+      draw();
+    }
+
+    // ── BIO DECRYPT ANIMATION ─────────────────────────────────────
+    (function decryptBio() {
+      const el     = document.getElementById('bio-decrypt');
+      const target = el.textContent.trim();
+      const pool   = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*';
+      const segments = [...target];
+      const locked   = new Array(segments.length).fill(false);
+      let resolved   = 0;
+      let lastTime   = 0;
+      const msPerChar = 55;
+
+      function isSpecial(ch) { return ch.trim() === '' || /[^\x00-\x7F]/.test(ch); }
+      function randChar()    { return pool[Math.floor(Math.random() * pool.length)]; }
+      function render() {
+        return segments.map((ch, i) => (locked[i] || isSpecial(ch)) ? ch : randChar()).join('');
+      }
+
+      function tick(timestamp) {
+        if (resolved >= segments.length) { el.textContent = target; return; }
+        if (timestamp - lastTime >= msPerChar) {
+          for (let i = 0; i < segments.length; i++) {
+            if (!locked[i]) { locked[i] = true; resolved++; break; }
+          }
+          lastTime = timestamp;
+        }
+        el.textContent = render();
+        requestAnimationFrame(tick);
+      }
+      setTimeout(() => requestAnimationFrame(tick), 600);
+    })();
+
+  </script>
 
 </body>
 </html>
