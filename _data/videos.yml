@@ -2,9 +2,14 @@
   id: "dQw4w9WgXcQ"
   type: "original"
   featured: true
-  desc: "A deep dive into ambient looping."
-- title: "Cover"
-  id: "VIDEO_ID_HERE"
-  type: "cover"
+  desc: "First cassette demo of I Just Want My Soul."
+- title: "I Just Want My Soul Loop Demo"
+  id: "lPXEJwQdX2U"
+  type: "original"
   featured: false
-  desc: "Funk layering on a single guitar."
+  desc: "Building and layering the loop version of I Just Want My Soul."
+- title: "I Just Want My Soul Loop Demo"
+  id: "LSE20O-vyhY"
+  type: "original"
+  featured: false
+  desc: "I Just Want My Soul Live 12 String Version."
