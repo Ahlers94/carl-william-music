@@ -1,57 +1,68 @@
 <!DOCTYPE html>
 <!--
   ╔══════════════════════════════════════════════════════════════════╗
-  ║  JUNK LORD — index.html                                         ║
+  ║  CARL WILLIAM MUSIC — index.html                                ║
   ║  Hosted on GitHub Pages (free, no build step required)          ║
   ║                                                                  ║
   ║  HOW TO DEPLOY:                                                  ║
-  ║  1. Create a GitHub repo (e.g. "carl-william-music")                ║
+  ║  1. Create a GitHub repo (e.g. "carl-william-music")            ║
   ║  2. Drop this file in the root as "index.html"                  ║
   ║  3. Go to Settings → Pages → set source to main branch          ║
-  ║  4. Live at: ahlers94.github.io/carl-william-music          ║
+  ║  4. Live at: ahlers94.github.io/carl-william-music              ║
   ║                                                                  ║
   ║  QUICK EDIT CHECKLIST:                                           ║
-  ║  [ ] Artist name / tagline  (search: CARL AHLERS)                 ║
+  ║  [ ] Artist name / tagline  (search: CARL WILLIAM MUSIC)        ║
   ║  [ ] 3x YouTube video IDs   (search: YOUR_VIDEO_ID_HERE)        ║
-  ║  [ ] Social media URLs      (search: href="#")                   ║
-  ║  [ ] Bio text               (search: One rig.)                   ║
-  ║  [ ] Footer year            (search: 2026)                       ║
+  ║  [ ] Social media URLs      (search: href="https)               ║
+  ║  [ ] Bio text               (search: bio-decrypt)               ║
+  ║  [ ] OG preview image       (search: preview.jpg)               ║
+  ║  [ ] Footer year            (search: 2026)                      ║
   ╚══════════════════════════════════════════════════════════════════╝
 -->
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-
-  <!-- Makes the site scale correctly on phones -->
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <!-- ── BROWSER TAB TITLE ─────────────────────────────────────────
-       This shows up in the browser tab and in Google search results. -->
+  <!-- ── SEO & SOCIAL PREVIEW METADATA ─────────────────────────────
+       These tags control how your link looks when shared on Discord,
+       X, iMessage, Instagram DMs, etc. — a "link preview card."
+       og:image requires a real image file in your GitHub repo.
+       Recommended: add a "preview.jpg" (1200×630px) to the repo root. -->
+  <meta name="description" content="Official site for Carl William Music. Live looping, raw guitar captures, and no-nonsense performance.">
+  <meta name="author"      content="Carl William Music">
+
+  <!-- Open Graph — used by Facebook, Discord, iMessage, most apps -->
+  <meta property="og:type"        content="website">
+  <meta property="og:title"       content="Carl William Music | Substance Over Style">
+  <meta property="og:description" content="Live looping guitarist. Covers and originals. One take, no excuses.">
+  <meta property="og:url"         content="https://ahlers94.github.io/carl-william-music/">
+  <meta property="og:image"       content="https://ahlers94.github.io/carl-william-music/preview.jpg">
+
+  <!-- Twitter / X card -->
+  <meta name="twitter:card"        content="summary_large_image">
+  <meta name="twitter:title"       content="Carl William Music | Substance Over Style">
+  <meta name="twitter:description" content="Live looping guitarist. Covers and originals. One take, no excuses.">
+  <meta name="twitter:image"       content="https://ahlers94.github.io/carl-william-music/preview.jpg">
+
+  <!-- ── BROWSER TAB TITLE ── -->
   <title>Carl William Music | Substance Over Style</title>
 
   <!-- ── FONTS ─────────────────────────────────────────────────────
-       VT323      = the big retro pixel display font for your name
-       Space Mono = the monospace body font for everything else
-       Both are free from Google Fonts. Requires an internet connection. -->
+       VT323      = retro pixel display font (your name, Matrix msg)
+       Space Mono = monospace body font                              -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=VT323&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
 
+  <!-- ── LUCIDE ICONS ──────────────────────────────────────────────
+       Lightweight SVG icon library. No build step required.
+       Icons used: youtube, instagram, headphones (soundcloud),
+       music (bandcamp), github. One script tag, that's it.         -->
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+
   <style>
 
-    /* ── COLOR PALETTE ──────────────────────────────────────────────
-       All colors live here as CSS variables (--variable-name).
-       Change a value once and it updates everywhere on the page.
-
-       --bg      = main page background (near-black navy)
-       --surface = slightly lighter bg used in the right sidebar
-       --pink    = hot pink — your name, featured video border
-       --cyan    = neon cyan — section labels, header underline
-       --gold    = used for nav hover and smaller video accents
-       --purple  = Bandcamp link color
-       --green   = GitHub link color
-       --text    = main body text (soft lavender-white)
-       --muted   = dimmer text used for the bio paragraph
-       --dim     = dimmest text used for footer and captions         */
+    /* ── COLOR PALETTE ──────────────────────────────────────────── */
     :root {
       --bg:       #0a0a12;
       --surface:  #0d0d1a;
@@ -65,10 +76,8 @@
       --dim:      #443355;
     }
 
-    /* Reset — strips default browser margin/padding from everything */
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-    /* Base page styles */
     body {
       background: var(--bg);
       color: var(--text);
@@ -76,10 +85,7 @@
       min-height: 100vh;
     }
 
-    /* ── SCANLINE OVERLAY ───────────────────────────────────────────
-       A fixed layer over the entire page that creates faint horizontal
-       lines — like an old CRT monitor screen. Pure CSS illusion.
-       To remove it, delete this entire block.                        */
+    /* ── SCANLINE OVERLAY (CRT effect) ──────────────────────────── */
     body::before {
       content: '';
       position: fixed;
@@ -91,34 +97,25 @@
         rgba(0,245,255,0.015) 3px,
         rgba(0,245,255,0.015) 4px
       );
-      pointer-events: none; /* Decoration only — clicks pass through */
+      pointer-events: none;
       z-index: 999;
     }
 
-    /* ── HEADER ─────────────────────────────────────────────────────
-       The top section containing your name and tagline.             */
+    /* ── HEADER ─────────────────────────────────────────────────── */
     header {
       border-bottom: 2px solid var(--cyan);
       padding: 36px 48px 24px;
       position: relative;
+      transition: display 0s;
     }
-
-    /* Your main artist name in the big pixel font */
     .artist-name {
       font-family: 'VT323', monospace;
-      /* clamp(min, preferred, max) = responsive font sizing         */
-      /* Scales with viewport width, never smaller than 56px         */
       font-size: clamp(56px, 10vw, 96px);
       color: var(--pink);
       letter-spacing: 6px;
       line-height: 1;
-      /* Two layered shadows:                                         */
-      /* 1st: hard dark offset 3px right + 3px down (retro 3D look) */
-      /* 2nd: soft wide pink glow (the neon effect)                  */
       text-shadow: 3px 3px 0 #7a0030, 0 0 40px #ff2d7855;
     }
-
-    /* The subtitle / motto line under your name */
     .artist-tagline {
       font-size: 11px;
       color: var(--cyan);
@@ -128,10 +125,7 @@
       opacity: 0.8;
     }
 
-    /* ── NAVIGATION BAR ─────────────────────────────────────────────
-       The dark strip of links below the header.
-       These are in-page anchor links — they scroll to id="..." sections.
-       Add class="active" to whichever link matches the current page.  */
+    /* ── NAVIGATION ─────────────────────────────────────────────── */
     nav {
       display: flex;
       background: #10101e;
@@ -151,9 +145,7 @@
     nav a:hover  { color: var(--gold); }
     nav a.active { color: var(--gold); border-bottom: 2px solid var(--gold); }
 
-    /* ── TWO-COLUMN LAYOUT ──────────────────────────────────────────
-       CSS Grid: left column is flexible (1fr), right sidebar is 280px.
-       On screens narrower than 720px (phones) it stacks to one column. */
+    /* ── TWO-COLUMN LAYOUT ──────────────────────────────────────── */
     .page {
       display: grid;
       grid-template-columns: 1fr 280px;
@@ -163,22 +155,16 @@
       .page  { grid-template-columns: 1fr; }
       header { padding: 24px; }
     }
-
-    /* Left column holds the video embeds */
     .left-col {
       padding: 36px 36px 36px 48px;
       border-right: 1px solid #ff2d7822;
     }
-
-    /* Right column is the sidebar (social links + bio) */
     .right-col {
       padding: 28px 24px;
       background: var(--surface);
     }
 
-    /* ── SECTION LABELS ─────────────────────────────────────────────
-       The small ALL-CAPS cyan headers (Featured, More, Find Me, About).
-       The ::after draws the horizontal rule that stretches after the text. */
+    /* ── SECTION LABELS ─────────────────────────────────────────── */
     .section-label {
       font-size: 10px;
       color: var(--cyan);
@@ -196,13 +182,10 @@
       background: #00f5ff33;
     }
 
-    /* ── FEATURED VIDEO (large) ─────────────────────────────────────
-       The padding-bottom: 56.25% trick locks the box to a 16:9 ratio
-       at any width. The iframe is then absolutely positioned to fill it.
-       The ::before element is the pink-to-cyan gradient bar at the top. */
+    /* ── FEATURED VIDEO ─────────────────────────────────────────── */
     .video-featured {
       position: relative;
-      padding-bottom: 56.25%; /* 9 ÷ 16 = 0.5625 → locks 16:9 aspect ratio */
+      padding-bottom: 56.25%;
       height: 0;
       background: #06060f;
       border: 1px solid #ff2d7855;
@@ -223,8 +206,6 @@
       width: 100%; height: 100%;
       border: none;
     }
-
-    /* Small italic caption line under the featured video */
     .video-caption {
       font-size: 10px;
       color: var(--dim);
@@ -232,22 +213,19 @@
       margin-bottom: 20px;
     }
 
-    /* ── SMALLER VIDEO GRID ──────────────────────────────────────────
-       Two smaller embeds displayed side by side below the featured one.
-       To add more videos: copy a .video-small block and paste it
-       inside the .video-grid div. The grid handles the layout.       */
+    /* ── SMALLER VIDEO GRID ─────────────────────────────────────── */
     .video-grid {
       display: grid;
-      grid-template-columns: 1fr 1fr; /* Two equal-width columns */
+      grid-template-columns: 1fr 1fr;
       gap: 12px;
       margin-top: 8px;
     }
     .video-small {
       position: relative;
-      padding-bottom: 56.25%; /* Same 16:9 trick as above */
+      padding-bottom: 56.25%;
       height: 0;
       background: #06060f;
-      border: 1px solid #ffd70033; /* Gold border instead of pink */
+      border: 1px solid #ffd70033;
       overflow: hidden;
     }
     .video-small::before {
@@ -265,12 +243,10 @@
       border: none;
     }
 
-    /* ── SOCIAL LINKS ───────────────────────────────────────────────
-       Each link is a styled <a> tag. The color per platform is set
-       below using short utility classes (.yt, .ig, .sc, etc.).
-       To remove a platform: delete its <a>...</a> block in the HTML.
-       To add a new one: copy any <a> block, change the class name,
-       add a new color rule in the CSS below, update the label.       */
+    /* ── SOCIAL LINKS WITH ICONS ────────────────────────────────────
+       Icons are rendered by Lucide via <i data-lucide="..."> tags.
+       The lucide.createIcons() call at the bottom of the script
+       replaces those tags with real inline SVGs automatically.       */
     .social-links {
       display: flex;
       flex-direction: column;
@@ -280,9 +256,9 @@
     .social-link {
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 12px;
       padding: 10px 14px;
-      border: 1px solid; /* Color supplied by per-platform class */
+      border: 1px solid;
       font-size: 11px;
       letter-spacing: 2px;
       text-transform: uppercase;
@@ -290,25 +266,22 @@
       transition: background 0.15s;
     }
     .social-link:hover { background: #ffffff08; }
-    .social-link .dot {
-      width: 6px; height: 6px;
-      border-radius: 50%;
-      background: currentColor; /* Inherits the link's text color */
+
+    /* Lucide SVG icons inherit currentColor automatically */
+    .social-link svg {
+      width: 15px;
+      height: 15px;
       flex-shrink: 0;
+      stroke: currentColor;
     }
 
-    /* Per-platform color definitions                                 */
-    /* The hex values ending in 55 are semi-transparent (1/3 opacity) */
-    .yt  { color: var(--pink);   border-color: #ff2d7855; } /* YouTube    */
-    .ig  { color: var(--gold);   border-color: #ffd70055; } /* Instagram  */
-    .sc  { color: var(--cyan);   border-color: #00f5ff55; } /* SoundCloud */
-    .bc  { color: var(--purple); border-color: #b06aff55; } /* Bandcamp   */
-    .tk  { color: #e0d8f0;       border-color: #e0d8f055; } /* TikTok     */
-    .gh  { color: var(--green);  border-color: #99cc7755; } /* GitHub     */
+    /* Per-platform colors */
+    .yt  { color: var(--pink);   border-color: #ff2d7855; }
+    .ig  { color: var(--gold);   border-color: #ffd70055; }
+    .sc  { color: var(--cyan);   border-color: #00f5ff55; }
+    .gh  { color: var(--green);  border-color: #99cc7755; }
 
-    /* ── BIO / ABOUT ────────────────────────────────────────────────
-       The text block at the bottom of the sidebar.
-       Edit the <p> content in the HTML below.                        */
+    /* ── BIO ────────────────────────────────────────────────────── */
     .bio-box {
       padding-top: 22px;
       border-top: 1px solid #ffffff0d;
@@ -320,8 +293,7 @@
       font-style: italic;
     }
 
-    /* ── FOOTER ─────────────────────────────────────────────────────
-       The bar at the very bottom. Update the year in the HTML below. */
+    /* ── FOOTER ─────────────────────────────────────────────────── */
     footer {
       border-top: 1px solid #00f5ff22;
       padding: 14px 48px;
@@ -338,25 +310,25 @@
       letter-spacing: 2px;
       text-transform: uppercase;
     }
-
-    /* The blinking underscore cursor after "GitHub Pages"           */
     .blink { animation: blink 1.2s step-end infinite; }
     @keyframes blink { 50% { opacity: 0; } }
 
     /* ── MATRIX SECTION ─────────────────────────────────────────────
-       Hidden by default. Shown when the Matrix nav tab is clicked.  */
+       display:none by default. Toggled by the nav tab.
+       header is also hidden in matrix mode for true full-screen feel. */
     #matrix-section {
       display: none;
-      position: relative;
-      width: 100%;
-      height: calc(100vh - 160px);
+      position: fixed;
+      inset: 0;
       background: #000;
       overflow: hidden;
+      z-index: 100;
+      cursor: pointer; /* signals it's clickable */
     }
     #matrix-section.active { display: block; }
     #matrix-canvas { display: block; width: 100%; height: 100%; }
 
-    /* "Wake up, Neo..." message in the centre of the rain */
+    /* Centre message */
     #matrix-msg {
       position: absolute;
       top: 50%;
@@ -374,58 +346,53 @@
     }
     #matrix-msg.show { opacity: 1; }
 
-    /* Hide the normal page grid when Matrix mode is on */
+    /* "press any key" exit hint at the bottom */
+    #matrix-hint {
+      position: absolute;
+      bottom: 28px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-family: 'Space Mono', monospace;
+      font-size: 11px;
+      color: #00ff4188;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 1.5s ease;
+    }
+    #matrix-hint.show { opacity: 1; }
+
     .page.hidden { display: none; }
 
   </style>
 </head>
 <body>
 
-  <!-- ══════════════════════════════════════════════════════════════
-       HEADER — your name and motto
-       ══════════════════════════════════════════════════════════════ -->
-  <header>
-    <!-- Your artist name. Change "JUNK LORD" to whatever you want.  -->
+  <header id="site-header">
     <div class="artist-name">CARL WILLIAM MUSIC</div>
-
-    <!-- Tagline. &nbsp; = non-breaking space (keeps // spaced nicely) -->
     <div class="artist-tagline">Substance Over Style &nbsp;//&nbsp; No Edits &nbsp;//&nbsp; No Posing</div>
   </header>
 
-  <!-- ══════════════════════════════════════════════════════════════
-       NAVIGATION BAR
-       Anchor links scroll to matching id="..." sections on the page.
-       Add class="active" to the link that matches the current section.
-       ══════════════════════════════════════════════════════════════ -->
-  <nav>
+  <nav id="site-nav">
     <a href="#videos" class="active" id="nav-videos">Videos</a>
-    <a href="#music" id="nav-music">Music</a>
+    <a href="#music"  id="nav-music">Music</a>
     <a href="#contact" id="nav-contact">Contact</a>
     <a href="#" id="nav-matrix" style="color:#00ff41; border-color:#00ff4133;">The Matrix</a>
   </nav>
 
-  <!-- ══════════════════════════════════════════════════════════════
-       MAIN TWO-COLUMN LAYOUT
-       ══════════════════════════════════════════════════════════════ -->
   <div class="page">
 
-    <!-- ── LEFT COLUMN: VIDEO EMBEDS ────────────────────────────── -->
+    <!-- ── LEFT: VIDEOS ─────────────────────────────────────────── -->
     <div class="left-col" id="videos">
 
       <div class="section-label">Featured</div>
 
-      <!-- ┌─────────────────────────────────────────────────────────┐
-           │ FEATURED VIDEO (large embed)                             │
-           │                                                          │
-           │ How to get your YouTube embed URL:                       │
-           │   Option A: Go to the video → Share → Embed             │
-           │             Copy the URL inside src="..."               │
-           │   Option B: Grab the video ID from the YouTube URL:     │
-           │             youtube.com/watch?v=dQw4w9WgXcQ             │
-           │             Use: https://www.youtube.com/embed/dQw4w9WgXcQ │
-           │                                                          │
-           │ Replace YOUR_VIDEO_ID_HERE with your actual video ID.   │
-           └─────────────────────────────────────────────────────────┘ -->
+      <!--
+        FEATURED VIDEO — replace the video ID in the src URL.
+        YouTube embed format: https://www.youtube-nocookie.com/embed/VIDEO_ID
+        The -nocookie domain prevents YouTube from setting tracking cookies.
+      -->
       <div class="video-featured">
         <iframe
           src="https://www.youtube-nocookie.com/embed/3vUA2VvzTKs"
@@ -433,32 +400,24 @@
           allowfullscreen>
         </iframe>
       </div>
-
-      <!-- Caption under the featured video. Edit freely.            -->
       <div class="video-caption">&gt; Raw capture. One take. Verified human performance.</div>
 
       <div class="section-label" style="margin-top: 28px;">More</div>
 
-      <!-- ┌─────────────────────────────────────────────────────────┐
-           │ SMALLER VIDEOS (two side-by-side)                        │
-           │ Same embed process as above.                             │
-           │                                                          │
-           │ To add more videos: copy one .video-small block and      │
-           │ paste it inside this .video-grid div. The grid will      │
-           │ automatically adjust the layout.                         │
-           └─────────────────────────────────────────────────────────┘ -->
+      <!--
+        SMALLER VIDEOS — same embed format as above.
+        To add more: copy a .video-small block and paste it inside .video-grid.
+      -->
       <div class="video-grid">
 
-        <!-- Smaller video #2 -->
         <div class="video-small">
           <iframe
-          src="https://www.youtube-nocookie.com/embed/LSE20O-vyhY"
-          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-          allowfullscreen>
+            src="https://www.youtube-nocookie.com/embed/LSE20O-vyhY"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowfullscreen>
           </iframe>
         </div>
 
-        <!-- Smaller video #3 -->
         <div class="video-small">
           <iframe
             src="https://www.youtube-nocookie.com/embed/lPXEJwQdX2U"
@@ -470,49 +429,44 @@
       </div>
     </div><!-- end .left-col -->
 
-    <!-- ── RIGHT COLUMN: SIDEBAR ────────────────────────────────── -->
+    <!-- ── RIGHT: SIDEBAR ───────────────────────────────────────── -->
     <div class="right-col">
 
       <div class="section-label" id="music">Find Me</div>
 
-      <!-- ┌─────────────────────────────────────────────────────────┐
-           │ SOCIAL LINKS                                             │
-           │                                                          │
-           │ Replace href="#" with your actual profile URL.           │
-           │ Example: href="https://youtube.com/@yourhandle"          │
-           │                                                          │
-           │ To REMOVE a platform: delete that <a>...</a> block.      │
-           │ To ADD a platform:                                        │
-           │   1. Copy any <a> block below                            │
-           │   2. Give it a new class, e.g. class="social-link tw"   │
-           │   3. Add a color rule in the CSS: .tw { color: #1da1f2; }│
-           │   4. Update the label text inside the <a>                │
-           └─────────────────────────────────────────────────────────┘ -->
+      <!--
+        SOCIAL LINKS
+        Icons: data-lucide="..." sets the Lucide icon name.
+        Full icon list: https://lucide.dev/icons
+        Replace href values with your actual profile URLs.
+        To remove a platform: delete its <a> block.
+        To add one: copy a block, change class + icon name + label.
+      -->
       <div class="social-links">
 
         <a class="social-link yt" href="https://www.youtube.com/@CarlWilliamMusic" target="_blank" rel="noopener">
-          <span class="dot"></span> YouTube
+          <i data-lucide="youtube"></i> YouTube
         </a>
 
         <a class="social-link ig" href="https://www.instagram.com/carlwilliammusic/" target="_blank" rel="noopener">
-          <span class="dot"></span> Instagram
+          <i data-lucide="instagram"></i> Instagram
         </a>
 
+        <!-- SoundCloud has no Lucide icon — "radio" fits the vibe -->
         <a class="social-link sc" href="https://soundcloud.com/carl-william-music" target="_blank" rel="noopener">
-          <span class="dot"></span> SoundCloud
+          <i data-lucide="radio"></i> SoundCloud
         </a>
 
         <a class="social-link gh" href="https://github.com/Ahlers94" target="_blank" rel="noopener">
-          <span class="dot"></span> GitHub
+          <i data-lucide="github"></i> GitHub
         </a>
 
       </div>
 
-      <!-- ┌─────────────────────────────────────────────────────────┐
-           │ BIO / ABOUT                                              │
-           │ Edit the text inside the <p class="bio-text"> tag.      │
-           │ &mdash; renders as an em dash (—)                        │
-           └─────────────────────────────────────────────────────────┘ -->
+      <!--
+        BIO TEXT — edit the content inside this <p> tag.
+        The decrypt animation will scramble and reveal it on page load.
+      -->
       <div class="bio-box" id="contact">
         <div class="section-label">About</div>
         <p class="bio-text" id="bio-decrypt">🎸 Guitarist | 🎛️ Live Looping Artist | 🔊 Crafting full-band soundscapes</p>
@@ -522,74 +476,101 @@
 
   </div><!-- end .page -->
 
-  <!-- ══════════════════════════════════════════════════════════════
-       FOOTER — update the year if needed
-       ══════════════════════════════════════════════════════════════ -->
   <footer>
     <span>Carl William Music &copy; 2026</span>
     <span>Hosted on GitHub Pages <span class="blink">_</span></span>
   </footer>
 
   <!-- ══════════════════════════════════════════════════════════════
-       THE MATRIX — canvas rain animation
-       Shown/hidden by the nav tab. Canvas is drawn with JavaScript.
+       THE MATRIX
+       Full-screen fixed overlay. Exit by: clicking, tapping, or
+       pressing any key. Header + nav are hidden while active.
        ══════════════════════════════════════════════════════════════ -->
-  <div id="matrix-section">
+  <div id="matrix-section" role="button" aria-label="Exit Matrix mode">
     <canvas id="matrix-canvas"></canvas>
     <div id="matrix-msg">WAKE UP, NEO...<br>THE MUSIC HAS YOU.</div>
+    <div id="matrix-hint">[ click, tap, or press any key to exit ]</div>
   </div>
 
   <script>
-    // ── NAV TAB SWITCHING ──────────────────────────────────────────
-    const page          = document.querySelector('.page');
-    const matrixSection = document.getElementById('matrix-section');
-    const matrixMsg     = document.getElementById('matrix-msg');
-    const navMatrix     = document.getElementById('nav-matrix');
-    const allNavLinks   = document.querySelectorAll('nav a');
+
+    // ── LUCIDE ICONS ───────────────────────────────────────────────
+    // Replaces all <i data-lucide="..."> tags with inline SVGs.
+    // Must run after the DOM is ready (it is — scripts are at bottom).
+    lucide.createIcons();
+
+    // ── ELEMENT REFS ───────────────────────────────────────────────
+    const page        = document.querySelector('.page');
+    const siteHeader  = document.getElementById('site-header');
+    const siteNav     = document.getElementById('site-nav');
+    const matrixEl    = document.getElementById('matrix-section');
+    const matrixMsg   = document.getElementById('matrix-msg');
+    const matrixHint  = document.getElementById('matrix-hint');
+    const allNavLinks = document.querySelectorAll('nav a');
 
     let matrixRunning = false;
     let animFrame;
 
-    // Clicking any nav link clears the active class first
+    // ── NAV ACTIVE STATE ───────────────────────────────────────────
     allNavLinks.forEach(link => {
-      link.addEventListener('click', function(e) {
+      link.addEventListener('click', function() {
         allNavLinks.forEach(l => l.classList.remove('active'));
         this.classList.add('active');
       });
     });
 
-    // Matrix tab: show canvas, hide main page
-    navMatrix.addEventListener('click', function(e) {
+    // ── ENTER MATRIX ───────────────────────────────────────────────
+    document.getElementById('nav-matrix').addEventListener('click', function(e) {
       e.preventDefault();
+
+      // Hide main content and chrome; show Matrix overlay
       page.classList.add('hidden');
-      matrixSection.classList.add('active');
+      siteHeader.style.display = 'none';
+      siteNav.style.display    = 'none';
+      matrixEl.classList.add('active');
+
       if (!matrixRunning) startMatrix();
-      // Fade in the message after a short delay
-      setTimeout(() => matrixMsg.classList.add('show'), 1800);
+
+      // Fade in message and exit hint after a moment
+      setTimeout(() => {
+        matrixMsg.classList.add('show');
+        matrixHint.classList.add('show');
+      }, 1800);
     });
 
-    // Any other nav tab: show main page, stop Matrix
+    // ── EXIT MATRIX ────────────────────────────────────────────────
+    function exitMatrix() {
+      if (!matrixRunning) return;
+
+      matrixEl.classList.remove('active');
+      matrixMsg.classList.remove('show');
+      matrixHint.classList.remove('show');
+      page.classList.remove('hidden');
+      siteHeader.style.display = '';
+      siteNav.style.display    = '';
+      matrixRunning = false;
+      cancelAnimationFrame(animFrame);
+
+      // Return active state to Videos tab
+      allNavLinks.forEach(l => l.classList.remove('active'));
+      document.getElementById('nav-videos').classList.add('active');
+    }
+
+    // Exit on: click/tap the canvas, press any key, other nav tabs
+    matrixEl.addEventListener('click', exitMatrix);
+    document.addEventListener('keydown', exitMatrix);
     document.getElementById('nav-videos').addEventListener('click',  exitMatrix);
     document.getElementById('nav-music').addEventListener('click',   exitMatrix);
     document.getElementById('nav-contact').addEventListener('click', exitMatrix);
 
-    function exitMatrix() {
-      matrixSection.classList.remove('active');
-      matrixMsg.classList.remove('show');
-      page.classList.remove('hidden');
-      matrixRunning = false;
-      cancelAnimationFrame(animFrame);
-    }
-
-    // ── MATRIX RAIN ───────────────────────────────────────────────
+    // ── MATRIX RAIN ────────────────────────────────────────────────
     function startMatrix() {
       matrixRunning = true;
-      const canvas  = document.getElementById('matrix-canvas');
-      const ctx     = canvas.getContext('2d');
+      const canvas = document.getElementById('matrix-canvas');
+      const ctx    = canvas.getContext('2d');
 
-      // Katakana + Latin + digits — classic Matrix character set
+      // Classic Matrix character set: Katakana + Latin + digits
       const chars = 'アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲン0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-
       const fontSize = 16;
       let cols, drops;
 
@@ -605,95 +586,90 @@
       function draw() {
         if (!matrixRunning) return;
 
-        // Semi-transparent black overlay — creates the fade trail
+        // Semi-transparent overlay creates the fading trail effect
         ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
         ctx.fillRect(0, 0, canvas.width, canvas.height);
 
         ctx.font = fontSize + 'px VT323, monospace';
 
         drops.forEach((y, i) => {
-          // Brightest (white) character at the head of each stream
-          const isHead = Math.random() > 0.95;
-          ctx.fillStyle = isHead ? '#ccffcc' : '#00ff41';
-
+          // Brighter "head" character at the tip of each stream
+          ctx.fillStyle = Math.random() > 0.95 ? '#ccffcc' : '#00ff41';
           const char = chars[Math.floor(Math.random() * chars.length)];
           ctx.fillText(char, i * fontSize, y * fontSize);
 
-          // Reset drop to top (randomly, to stagger streams)
           if (y * fontSize > canvas.height && Math.random() > 0.975) {
             drops[i] = 0;
           }
           drops[i]++;
         });
 
+        // requestAnimationFrame syncs to monitor refresh rate (smooth on 144Hz+)
         animFrame = requestAnimationFrame(draw);
       }
 
       draw();
     }
-    // ── BIO DECRYPT ANIMATION ─────────────────────────────────────
-    // Scrambles the bio text on load, then resolves it letter by letter.
-    // Emojis are treated as single characters and never scrambled —
-    // they jump straight in when their position is revealed.
+
+    // ── BIO DECRYPT ANIMATION ──────────────────────────────────────
+    // On page load: bio text scrambles then resolves left-to-right.
+    // Emojis and spaces are never scrambled — they appear cleanly.
+    // Uses requestAnimationFrame for smooth rendering at any refresh rate.
     (function decryptBio() {
-      const el      = document.getElementById('bio-decrypt');
-      const target  = el.textContent.trim();
-      const chars   = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*';
+      const el     = document.getElementById('bio-decrypt');
+      const target = el.textContent.trim();
+      const pool   = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*';
 
-      // Split into array of characters, keeping emojis whole
-      const segments = [...target]; // spread handles multi-byte emoji correctly
+      // [...str] correctly splits multi-byte emoji into single segments
+      const segments = [...target];
+      const locked   = new Array(segments.length).fill(false);
 
-      // Track which positions are "locked in" (revealed)
-      const locked = new Array(segments.length).fill(false);
-      let resolved = 0;
+      let resolved   = 0;
+      let lastTime   = 0;
+      const msPerChar = 55;   // ms between each character locking in — raise to slow down
+      const scrambleHz = 8;   // random chars refresh this many times per locked char
 
-      // How many scramble frames before locking the next character
-      const scrambleFrames  = 6;   // lower = faster reveal
-      const delayBetween    = 40;  // ms between each character locking in
-      let   frameCount      = 0;
-
-      // Is this segment an emoji or non-Latin symbol? Don't scramble those.
+      // Emojis, spaces, and non-ASCII chars are never scrambled
       function isSpecial(ch) {
         return ch.trim() === '' || /[^\x00-\x7F]/.test(ch);
       }
-
-      function randomChar() {
-        return chars[Math.floor(Math.random() * chars.length)];
+      function randChar() {
+        return pool[Math.floor(Math.random() * pool.length)];
       }
-
       function render() {
         return segments.map((ch, i) => {
-          if (locked[i])   return ch;           // revealed — show real char
-          if (isSpecial(ch)) return ch;          // emoji/space — always real
-          return randomChar();                   // still scrambling
+          if (locked[i] || isSpecial(ch)) return ch;
+          return randChar();
         }).join('');
       }
 
-      function tick() {
-        frameCount++;
+      function tick(timestamp) {
+        if (resolved >= segments.length) {
+          el.textContent = target; // guarantee clean final state
+          return;
+        }
 
-        // Every N frames, lock in the next un-locked non-special character
-        if (frameCount % scrambleFrames === 0) {
+        // Lock in one new character every msPerChar milliseconds
+        if (timestamp - lastTime >= msPerChar) {
           for (let i = 0; i < segments.length; i++) {
-            if (!locked[i]) {
+            if (!locked[i] && !isSpecial(segments[i])) {
               locked[i] = true;
               resolved++;
               break;
+            } else if (!locked[i] && isSpecial(segments[i])) {
+              // Auto-lock specials so they don't hold up the sequence
+              locked[i] = true;
             }
           }
+          lastTime = timestamp;
         }
 
         el.textContent = render();
-
-        if (resolved < segments.length) {
-          setTimeout(tick, delayBetween);
-        } else {
-          el.textContent = target; // ensure final text is perfect
-        }
+        requestAnimationFrame(tick);
       }
 
-      // Short pause before starting so the page has painted first
-      setTimeout(tick, 600);
+      // Short delay so the page finishes painting before animating
+      setTimeout(() => requestAnimationFrame(tick), 600);
     })();
 
   </script>
