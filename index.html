@@ -111,10 +111,10 @@
     .artist-name {
       font-family: 'VT323', monospace;
       font-size: clamp(56px, 10vw, 96px);
-      color: var(--pink);
+      color: #00ff41;
       letter-spacing: 6px;
       line-height: 1;
-      text-shadow: 3px 3px 0 #7a0030, 0 0 40px #ff2d7855;
+      text-shadow: 3px 3px 0 #003d10, 0 0 40px #00ff4155;
     }
     .artist-tagline {
       font-size: 11px;
@@ -140,10 +140,25 @@
       color: #9988cc;
       text-decoration: none;
       border-right: 1px solid #ffffff0d;
-      transition: color 0.2s;
+      transition: color 0.2s, border-bottom-color 0.2s;
     }
-    nav a:hover  { color: var(--gold); }
-    nav a.active { color: var(--gold); border-bottom: 2px solid var(--gold); }
+
+    /* Per-tab colors — resting, hover, and active states */
+    #nav-videos        { color: #cc3333; text-shadow: 0 0 8px #cc333388; }
+    #nav-videos:hover,
+    #nav-videos.active { color: #ff4444; border-bottom: 2px solid #ff4444; text-shadow: 0 0 12px #ff444499; }
+
+    #nav-music         { color: #3366cc; text-shadow: 0 0 8px #3366cc88; }
+    #nav-music:hover,
+    #nav-music.active  { color: #4488ff; border-bottom: 2px solid #4488ff; text-shadow: 0 0 12px #4488ff99; }
+
+    #nav-gear          { color: #ccaa00; text-shadow: 0 0 8px #ccaa0088; }
+    #nav-gear:hover,
+    #nav-gear.active   { color: #ffd700; border-bottom: 2px solid #ffd700; text-shadow: 0 0 12px #ffd70099; }
+
+    #nav-matrix        { color: #00cc33; text-shadow: 0 0 8px #00cc3388; }
+    #nav-matrix:hover,
+    #nav-matrix.active { color: #00ff41; border-bottom: 2px solid #00ff41; text-shadow: 0 0 12px #00ff4199; }
 
     /* ── TWO-COLUMN LAYOUT ──────────────────────────────────────── */
     .page {
@@ -275,11 +290,16 @@
       stroke: currentColor;
     }
 
-    /* Per-platform colors */
-    .yt  { color: var(--pink);   border-color: #ff2d7855; }
-    .ig  { color: var(--gold);   border-color: #ffd70055; }
-    .sc  { color: var(--cyan);   border-color: #00f5ff55; }
-    .gh  { color: var(--green);  border-color: #99cc7755; }
+    /* Per-platform colors + glow */
+    .yt  { color: var(--pink);   border-color: #ff2d7855; text-shadow: 0 0 8px #ff2d7888; }
+    .ig  { color: var(--gold);   border-color: #ffd70055; text-shadow: 0 0 8px #ffd70088; }
+    .sc  { color: var(--cyan);   border-color: #00f5ff55; text-shadow: 0 0 8px #00f5ff88; }
+    .gh  { color: var(--green);  border-color: #99cc7755; text-shadow: 0 0 8px #99cc7788; }
+
+    .yt:hover  { text-shadow: 0 0 14px #ff2d78bb; }
+    .ig:hover  { text-shadow: 0 0 14px #ffd700bb; }
+    .sc:hover  { text-shadow: 0 0 14px #00f5ffbb; }
+    .gh:hover  { text-shadow: 0 0 14px #99cc77bb; }
 
     /* ── EMAIL LINK ─────────────────────────────────────────────── */
     .email-link {
@@ -446,7 +466,7 @@
     <a href="#videos" class="active" id="nav-videos">Videos</a>
     <a href="#music"  id="nav-music">Music</a>
     <a href="#gear"   id="nav-gear">Gear</a>
-    <a href="#" id="nav-matrix" style="color:#00ff41; border-color:#00ff4133;">The Matrix</a>
+    <a href="#" id="nav-matrix">The Matrix</a>
   </nav>
 
   <div class="page">
