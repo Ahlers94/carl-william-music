@@ -1,14 +1,21 @@
 # VIDEOS DATA FILE
 # ─────────────────────────────────────────────────────────────────
-# Add or remove videos by copying/deleting entries below.
-# id: the YouTube video ID only (the part after watch?v=)
-# caption: short description shown under the featured video
-# featured: true = shown large at the top (only set ONE as true)
+# originals: your own compositions and performances
+# covers:    your cover versions of other artists' songs
+#
+# id:          YouTube video ID (the part after watch?v=)
+# title:       short display title shown under the video
+# featured:    true = displayed large (only set ONE original as true)
 
-featured:
+originals:
   - id: 3vUA2VvzTKs
-    caption: "Raw capture. One take. Verified human performance."
-
-more:
+    title: "I Just Want My Soul Cassette Demo"
+    featured: true
   - id: LSE20O-vyhY
+    title: "I Just Want My Soul 12 String Version"
   - id: lPXEJwQdX2U
+    title: "I Just Want My Soul Loop Demo"
+covers:
+  - id: 0FAf-lEccIA
+    title: "I Belong To The Movement Mandolin cover"
+  # Add more covers below — copy the two lines above and paste
