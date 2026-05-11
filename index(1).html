@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<!--
+  ╔══════════════════════════════════════════════════════════════════╗
+  ║  JUNK LORD — index.html                                         ║
+  ║  Hosted on GitHub Pages (free, no build step required)          ║
+  ║                                                                  ║
+  ║  HOW TO DEPLOY:                                                  ║
+  ║  1. Create a GitHub repo (e.g. "junk-lord-site")                ║
+  ║  2. Drop this file in the root as "index.html"                  ║
+  ║  3. Go to Settings → Pages → set source to main branch          ║
+  ║  4. Live at: yourusername.github.io/junk-lord-site              ║
+  ║                                                                  ║
+  ║  QUICK EDIT CHECKLIST:                                           ║
+  ║  [ ] Artist name / tagline  (search: JUNK LORD)                 ║
+  ║  [ ] 3x YouTube video IDs   (search: YOUR_VIDEO_ID_HERE)        ║
+  ║  [ ] Social media URLs      (search: href="#")                   ║
+  ║  [ ] Bio text               (search: One rig.)                   ║
+  ║  [ ] Footer year            (search: 2025)                       ║
+  ╚══════════════════════════════════════════════════════════════════╝
+-->
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+
+  <!-- Makes the site scale correctly on phones -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- ── BROWSER TAB TITLE ─────────────────────────────────────────
+       This shows up in the browser tab and in Google search results. -->
+  <title>Junk Lord | Substance Over Style</title>
+
+  <!-- ── FONTS ─────────────────────────────────────────────────────
+       VT323      = the big retro pixel display font for your name
+       Space Mono = the monospace body font for everything else
+       Both are free from Google Fonts. Requires an internet connection. -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=VT323&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+
+  <style>
+
+    /* ── COLOR PALETTE ──────────────────────────────────────────────
+       All colors live here as CSS variables (--variable-name).
+       Change a value once and it updates everywhere on the page.
+
+       --bg      = main page background (near-black navy)
+       --surface = slightly lighter bg used in the right sidebar
+       --pink    = hot pink — your name, featured video border
+       --cyan    = neon cyan — section labels, header underline
+       --gold    = used for nav hover and smaller video accents
+       --purple  = Bandcamp link color
+       --green   = GitHub link color
+       --text    = main body text (soft lavender-white)
+       --muted   = dimmer text used for the bio paragraph
+       --dim     = dimmest text used for footer and captions         */
+    :root {
+      --bg:       #0a0a12;
+      --surface:  #0d0d1a;
+      --pink:     #ff2d78;
+      --cyan:     #00f5ff;
+      --gold:     #ffd700;
+      --purple:   #b06aff;
+      --green:    #99cc77;
+      --text:     #e0d8f0;
+      --muted:    #9988aa;
+      --dim:      #443355;
+    }
+
+    /* Reset — strips default browser margin/padding from everything */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    /* Base page styles */
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Space Mono', monospace;
+      min-height: 100vh;
+    }
+
+    /* ── SCANLINE OVERLAY ───────────────────────────────────────────
+       A fixed layer over the entire page that creates faint horizontal
+       lines — like an old CRT monitor screen. Pure CSS illusion.
+       To remove it, delete this entire block.                        */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background: repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 3px,
+        rgba(0,245,255,0.015) 3px,
+        rgba(0,245,255,0.015) 4px
+      );
+      pointer-events: none; /* Decoration only — clicks pass through */
+      z-index: 999;
+    }
+
+    /* ── HEADER ─────────────────────────────────────────────────────
+       The top section containing your name and tagline.             */
+    header {
+      border-bottom: 2px solid var(--cyan);
+      padding: 36px 48px 24px;
+      position: relative;
+    }
+
+    /* Your main artist name in the big pixel font */
+    .artist-name {
+      font-family: 'VT323', monospace;
+      /* clamp(min, preferred, max) = responsive font sizing         */
+      /* Scales with viewport width, never smaller than 56px         */
+      font-size: clamp(56px, 10vw, 96px);
+      color: var(--pink);
+      letter-spacing: 6px;
+      line-height: 1;
+      /* Two layered shadows:                                         */
+      /* 1st: hard dark offset 3px right + 3px down (retro 3D look) */
+      /* 2nd: soft wide pink glow (the neon effect)                  */
+      text-shadow: 3px 3px 0 #7a0030, 0 0 40px #ff2d7855;
+    }
+
+    /* The subtitle / motto line under your name */
+    .artist-tagline {
+      font-size: 11px;
+      color: var(--cyan);
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      margin-top: 8px;
+      opacity: 0.8;
+    }
+
+    /* ── NAVIGATION BAR ─────────────────────────────────────────────
+       The dark strip of links below the header.
+       These are in-page anchor links — they scroll to id="..." sections.
+       Add class="active" to whichever link matches the current page.  */
+    nav {
+      display: flex;
+      background: #10101e;
+      border-bottom: 1px solid #ffffff15;
+    }
+    nav a {
+      display: block;
+      padding: 12px 24px;
+      font-size: 11px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: #9988cc;
+      text-decoration: none;
+      border-right: 1px solid #ffffff0d;
+      transition: color 0.2s;
+    }
+    nav a:hover  { color: var(--gold); }
+    nav a.active { color: var(--gold); border-bottom: 2px solid var(--gold); }
+
+    /* ── TWO-COLUMN LAYOUT ──────────────────────────────────────────
+       CSS Grid: left column is flexible (1fr), right sidebar is 280px.
+       On screens narrower than 720px (phones) it stacks to one column. */
+    .page {
+      display: grid;
+      grid-template-columns: 1fr 280px;
+      min-height: calc(100vh - 200px);
+    }
+    @media (max-width: 720px) {
+      .page  { grid-template-columns: 1fr; }
+      header { padding: 24px; }
+    }
+
+    /* Left column holds the video embeds */
+    .left-col {
+      padding: 36px 36px 36px 48px;
+      border-right: 1px solid #ff2d7822;
+    }
+
+    /* Right column is the sidebar (social links + bio) */
+    .right-col {
+      padding: 28px 24px;
+      background: var(--surface);
+    }
+
+    /* ── SECTION LABELS ─────────────────────────────────────────────
+       The small ALL-CAPS cyan headers (Featured, More, Find Me, About).
+       The ::after draws the horizontal rule that stretches after the text. */
+    .section-label {
+      font-size: 10px;
+      color: var(--cyan);
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .section-label::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: #00f5ff33;
+    }
+
+    /* ── FEATURED VIDEO (large) ─────────────────────────────────────
+       The padding-bottom: 56.25% trick locks the box to a 16:9 ratio
+       at any width. The iframe is then absolutely positioned to fill it.
+       The ::before element is the pink-to-cyan gradient bar at the top. */
+    .video-featured {
+      position: relative;
+      padding-bottom: 56.25%; /* 9 ÷ 16 = 0.5625 → locks 16:9 aspect ratio */
+      height: 0;
+      background: #06060f;
+      border: 1px solid #ff2d7855;
+      margin-bottom: 10px;
+      overflow: hidden;
+    }
+    .video-featured::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--pink), var(--cyan), transparent);
+      z-index: 1;
+    }
+    .video-featured iframe {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      border: none;
+    }
+
+    /* Small italic caption line under the featured video */
+    .video-caption {
+      font-size: 10px;
+      color: var(--dim);
+      letter-spacing: 1px;
+      margin-bottom: 20px;
+    }
+
+    /* ── SMALLER VIDEO GRID ──────────────────────────────────────────
+       Two smaller embeds displayed side by side below the featured one.
+       To add more videos: copy a .video-small block and paste it
+       inside the .video-grid div. The grid handles the layout.       */
+    .video-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr; /* Two equal-width columns */
+      gap: 12px;
+      margin-top: 8px;
+    }
+    .video-small {
+      position: relative;
+      padding-bottom: 56.25%; /* Same 16:9 trick as above */
+      height: 0;
+      background: #06060f;
+      border: 1px solid #ffd70033; /* Gold border instead of pink */
+      overflow: hidden;
+    }
+    .video-small::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--gold), transparent);
+      z-index: 1;
+    }
+    .video-small iframe {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      border: none;
+    }
+
+    /* ── SOCIAL LINKS ───────────────────────────────────────────────
+       Each link is a styled <a> tag. The color per platform is set
+       below using short utility classes (.yt, .ig, .sc, etc.).
+       To remove a platform: delete its <a>...</a> block in the HTML.
+       To add a new one: copy any <a> block, change the class name,
+       add a new color rule in the CSS below, update the label.       */
+    .social-links {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 28px;
+    }
+    .social-link {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 14px;
+      border: 1px solid; /* Color supplied by per-platform class */
+      font-size: 11px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      text-decoration: none;
+      transition: background 0.15s;
+    }
+    .social-link:hover { background: #ffffff08; }
+    .social-link .dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: currentColor; /* Inherits the link's text color */
+      flex-shrink: 0;
+    }
+
+    /* Per-platform color definitions                                 */
+    /* The hex values ending in 55 are semi-transparent (1/3 opacity) */
+    .yt  { color: var(--pink);   border-color: #ff2d7855; } /* YouTube    */
+    .ig  { color: var(--gold);   border-color: #ffd70055; } /* Instagram  */
+    .sc  { color: var(--cyan);   border-color: #00f5ff55; } /* SoundCloud */
+    .bc  { color: var(--purple); border-color: #b06aff55; } /* Bandcamp   */
+    .tk  { color: #e0d8f0;       border-color: #e0d8f055; } /* TikTok     */
+    .gh  { color: var(--green);  border-color: #99cc7755; } /* GitHub     */
+
+    /* ── BIO / ABOUT ────────────────────────────────────────────────
+       The text block at the bottom of the sidebar.
+       Edit the <p> content in the HTML below.                        */
+    .bio-box {
+      padding-top: 22px;
+      border-top: 1px solid #ffffff0d;
+    }
+    .bio-text {
+      font-size: 11px;
+      line-height: 1.8;
+      color: var(--muted);
+      font-style: italic;
+    }
+
+    /* ── FOOTER ─────────────────────────────────────────────────────
+       The bar at the very bottom. Update the year in the HTML below. */
+    footer {
+      border-top: 1px solid #00f5ff22;
+      padding: 14px 48px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #07070f;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    footer span {
+      font-size: 10px;
+      color: var(--dim);
+      letter-spacing: 2px;
+      text-transform: uppercase;
+    }
+
+    /* The blinking underscore cursor after "GitHub Pages"           */
+    .blink { animation: blink 1.2s step-end infinite; }
+    @keyframes blink { 50% { opacity: 0; } }
+
+  </style>
+</head>
+<body>
+
+  <!-- ══════════════════════════════════════════════════════════════
+       HEADER — your name and motto
+       ══════════════════════════════════════════════════════════════ -->
+  <header>
+    <!-- Your artist name. Change "JUNK LORD" to whatever you want.  -->
+    <div class="artist-name">JUNK LORD</div>
+
+    <!-- Tagline. &nbsp; = non-breaking space (keeps // spaced nicely) -->
+    <div class="artist-tagline">Substance Over Style &nbsp;//&nbsp; No Edits &nbsp;//&nbsp; No Posing</div>
+  </header>
+
+  <!-- ══════════════════════════════════════════════════════════════
+       NAVIGATION BAR
+       Anchor links scroll to matching id="..." sections on the page.
+       Add class="active" to the link that matches the current section.
+       ══════════════════════════════════════════════════════════════ -->
+  <nav>
+    <a href="#videos" class="active">Videos</a>
+    <a href="#music">Music</a>
+    <a href="#contact">Contact</a>
+  </nav>
+
+  <!-- ══════════════════════════════════════════════════════════════
+       MAIN TWO-COLUMN LAYOUT
+       ══════════════════════════════════════════════════════════════ -->
+  <div class="page">
+
+    <!-- ── LEFT COLUMN: VIDEO EMBEDS ────────────────────────────── -->
+    <div class="left-col" id="videos">
+
+      <div class="section-label">Featured</div>
+
+      <!-- ┌─────────────────────────────────────────────────────────┐
+           │ FEATURED VIDEO (large embed)                             │
+           │                                                          │
+           │ How to get your YouTube embed URL:                       │
+           │   Option A: Go to the video → Share → Embed             │
+           │             Copy the URL inside src="..."               │
+           │   Option B: Grab the video ID from the YouTube URL:     │
+           │             youtube.com/watch?v=dQw4w9WgXcQ             │
+           │             Use: https://www.youtube.com/embed/dQw4w9WgXcQ │
+           │                                                          │
+           │ Replace YOUR_VIDEO_ID_HERE with your actual video ID.   │
+           └─────────────────────────────────────────────────────────┘ -->
+      <div class="video-featured">
+        <iframe
+          src="https://www.youtube.com/embed/YOUR_VIDEO_ID_HERE"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+          allowfullscreen>
+        </iframe>
+      </div>
+
+      <!-- Caption under the featured video. Edit freely.            -->
+      <div class="video-caption">&gt; Raw capture. One take. Verified human performance.</div>
+
+      <div class="section-label" style="margin-top: 28px;">More</div>
+
+      <!-- ┌─────────────────────────────────────────────────────────┐
+           │ SMALLER VIDEOS (two side-by-side)                        │
+           │ Same embed process as above.                             │
+           │                                                          │
+           │ To add more videos: copy one .video-small block and      │
+           │ paste it inside this .video-grid div. The grid will      │
+           │ automatically adjust the layout.                         │
+           └─────────────────────────────────────────────────────────┘ -->
+      <div class="video-grid">
+
+        <!-- Smaller video #2 -->
+        <div class="video-small">
+          <iframe
+            src="https://www.youtube.com/embed/YOUR_VIDEO_ID_HERE"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowfullscreen>
+          </iframe>
+        </div>
+
+        <!-- Smaller video #3 -->
+        <div class="video-small">
+          <iframe
+            src="https://www.youtube.com/embed/YOUR_VIDEO_ID_HERE"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowfullscreen>
+          </iframe>
+        </div>
+
+      </div>
+    </div><!-- end .left-col -->
+
+    <!-- ── RIGHT COLUMN: SIDEBAR ────────────────────────────────── -->
+    <div class="right-col">
+
+      <div class="section-label" id="music">Find Me</div>
+
+      <!-- ┌─────────────────────────────────────────────────────────┐
+           │ SOCIAL LINKS                                             │
+           │                                                          │
+           │ Replace href="#" with your actual profile URL.           │
+           │ Example: href="https://youtube.com/@yourhandle"          │
+           │                                                          │
+           │ To REMOVE a platform: delete that <a>...</a> block.      │
+           │ To ADD a platform:                                        │
+           │   1. Copy any <a> block below                            │
+           │   2. Give it a new class, e.g. class="social-link tw"   │
+           │   3. Add a color rule in the CSS: .tw { color: #1da1f2; }│
+           │   4. Update the label text inside the <a>                │
+           └─────────────────────────────────────────────────────────┘ -->
+      <div class="social-links">
+
+        <a class="social-link yt" href="#" target="_blank" rel="noopener">
+          <span class="dot"></span> YouTube
+        </a>
+
+        <a class="social-link ig" href="#" target="_blank" rel="noopener">
+          <span class="dot"></span> Instagram
+        </a>
+
+        <a class="social-link sc" href="#" target="_blank" rel="noopener">
+          <span class="dot"></span> SoundCloud
+        </a>
+
+        <a class="social-link bc" href="#" target="_blank" rel="noopener">
+          <span class="dot"></span> Bandcamp
+        </a>
+
+        <a class="social-link tk" href="#" target="_blank" rel="noopener">
+          <span class="dot"></span> TikTok
+        </a>
+
+        <a class="social-link gh" href="#" target="_blank" rel="noopener">
+          <span class="dot"></span> GitHub
+        </a>
+
+      </div>
+
+      <!-- ┌─────────────────────────────────────────────────────────┐
+           │ BIO / ABOUT                                              │
+           │ Edit the text inside the <p class="bio-text"> tag.      │
+           │ &mdash; renders as an em dash (—)                        │
+           └─────────────────────────────────────────────────────────┘ -->
+      <div class="bio-box" id="contact">
+        <div class="section-label">About</div>
+        <p class="bio-text">
+          One rig. One take. Built from scratch and ridden in on a bike.
+          Technically demanding covers and originals &mdash; acoustic rock,
+          video game music, and everything in between &mdash; performed live,
+          unedited, and exactly as it happened. No cuts. No posing.
+          Just a human playing music.
+        </p>
+      </div>
+
+    </div><!-- end .right-col -->
+
+  </div><!-- end .page -->
+
+  <!-- ══════════════════════════════════════════════════════════════
+       FOOTER — update the year if needed
+       ══════════════════════════════════════════════════════════════ -->
+  <footer>
+    <span>Junk Lord &copy; 2025</span>
+    <span>Hosted on GitHub Pages <span class="blink">_</span></span>
+  </footer>
+
+</body>
+</html>
