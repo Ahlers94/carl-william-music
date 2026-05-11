@@ -1,68 +1,25 @@
 <!DOCTYPE html>
-<!--
-  ╔══════════════════════════════════════════════════════════════════╗
-  ║  CARL WILLIAM MUSIC — index.html                                ║
-  ║  Hosted on GitHub Pages (free, no build step required)          ║
-  ║                                                                  ║
-  ║  HOW TO DEPLOY:                                                  ║
-  ║  1. Create a GitHub repo (e.g. "carl-william-music")            ║
-  ║  2. Drop this file in the root as "index.html"                  ║
-  ║  3. Go to Settings → Pages → set source to main branch          ║
-  ║  4. Live at: ahlers94.github.io/carl-william-music              ║
-  ║                                                                  ║
-  ║  QUICK EDIT CHECKLIST:                                           ║
-  ║  [ ] Artist name / tagline  (search: CARL WILLIAM MUSIC)        ║
-  ║  [ ] 3x YouTube video IDs   (search: YOUR_VIDEO_ID_HERE)        ║
-  ║  [ ] Social media URLs      (search: href="https)               ║
-  ║  [ ] Bio text               (search: bio-decrypt)               ║
-  ║  [ ] OG preview image       (search: preview.jpg)               ║
-  ║  [ ] Footer year            (search: 2026)                      ║
-  ╚══════════════════════════════════════════════════════════════════╝
--->
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <!-- ── SEO & SOCIAL PREVIEW METADATA ─────────────────────────────
-       These tags control how your link looks when shared on Discord,
-       X, iMessage, Instagram DMs, etc. — a "link preview card."
-       og:image requires a real image file in your GitHub repo.
-       Recommended: add a "preview.jpg" (1200×630px) to the repo root. -->
   <meta name="description" content="Official site for Carl William Music. Live looping, raw guitar captures, and no-nonsense performance.">
   <meta name="author"      content="Carl William Music">
 
-  <!-- Open Graph — used by Facebook, Discord, iMessage, most apps -->
+  <!-- Open Graph -->
   <meta property="og:type"        content="website">
   <meta property="og:title"       content="Carl William Music | Substance Over Style">
   <meta property="og:description" content="Live looping guitarist. Covers and originals. One take, no excuses.">
   <meta property="og:url"         content="https://ahlers94.github.io/carl-william-music/">
   <meta property="og:image"       content="https://ahlers94.github.io/carl-william-music/preview.jpg">
 
-  <!-- Twitter / X card -->
-  <meta name="twitter:card"        content="summary_large_image">
-  <meta name="twitter:title"       content="Carl William Music | Substance Over Style">
-  <meta name="twitter:description" content="Live looping guitarist. Covers and originals. One take, no excuses.">
-  <meta name="twitter:image"       content="https://ahlers94.github.io/carl-william-music/preview.jpg">
-
-  <!-- ── BROWSER TAB TITLE ── -->
   <title>Carl William Music | Substance Over Style</title>
 
-  <!-- ── FONTS ─────────────────────────────────────────────────────
-       VT323      = retro pixel display font (your name, Matrix msg)
-       Space Mono = monospace body font                              -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=VT323&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
 
-  <!-- ── LUCIDE ICONS ──────────────────────────────────────────────
-       Lightweight SVG icon library. No build step required.
-       Icons used: youtube, instagram, headphones (soundcloud),
-       music (bandcamp), github. One script tag, that's it.         -->
-
-
   <style>
-
-    /* ── COLOR PALETTE ──────────────────────────────────────────── */
     :root {
       --bg:       #0a0a12;
       --surface:  #0d0d1a;
@@ -83,9 +40,10 @@
       color: var(--text);
       font-family: 'Space Mono', monospace;
       min-height: 100vh;
+      overflow-x: hidden;
     }
 
-    /* ── SCANLINE OVERLAY (CRT effect) ──────────────────────────── */
+    /* CRT SCANLINE EFFECT */
     body::before {
       content: '';
       position: fixed;
@@ -101,13 +59,24 @@
       z-index: 999;
     }
 
-    /* ── HEADER ─────────────────────────────────────────────────── */
+    /* HARDWARE FLICKER ANIMATION */
+    @keyframes hardware-flicker {
+      0%, 100% { opacity: 1; text-shadow: 0 0 10px rgba(0,255,65,0.6); }
+      33% { opacity: 0.95; }
+      34% { opacity: 0.70; text-shadow: 0 0 2px rgba(0,255,65,0.2); }
+      35% { opacity: 0.98; }
+      88% { opacity: 1; }
+      89% { opacity: 0.85; text-shadow: 0 0 15px rgba(0,255,65,0.8); }
+      90% { opacity: 1; }
+    }
+
     header {
       border-bottom: 2px solid var(--cyan);
       padding: 36px 48px 24px;
       position: relative;
-      transition: display 0s;
+      animation: hardware-flicker 4s linear infinite;
     }
+
     .artist-name {
       font-family: 'VT323', monospace;
       font-size: clamp(56px, 10vw, 96px);
@@ -116,6 +85,7 @@
       line-height: 1;
       text-shadow: 3px 3px 0 #003d10, 0 0 40px #00ff4155;
     }
+
     .artist-tagline {
       font-size: 11px;
       color: var(--cyan);
@@ -125,11 +95,13 @@
       opacity: 0.8;
     }
 
-    /* ── NAVIGATION ─────────────────────────────────────────────── */
     nav {
       display: flex;
       background: #10101e;
       border-bottom: 1px solid #ffffff15;
+      position: sticky;
+      top: 0;
+      z-index: 10;
     }
     nav a {
       display: block;
@@ -140,46 +112,32 @@
       color: #9988cc;
       text-decoration: none;
       border-right: 1px solid #ffffff0d;
-      transition: color 0.2s, border-bottom-color 0.2s;
+      transition: all 0.2s;
     }
 
-    /* Per-tab colors — resting, hover, and active states */
-    #nav-videos        { color: #cc3333; text-shadow: 0 0 8px #cc333388; }
-    #nav-videos:hover,
-    #nav-videos.active { color: #ff4444; border-bottom: 2px solid #ff4444; text-shadow: 0 0 12px #ff444499; }
+    #nav-videos { color: #cc3333; }
+    #nav-videos:hover, #nav-videos.active { color: #ff4444; border-bottom: 2px solid #ff4444; }
+    #nav-music { color: #3366cc; }
+    #nav-music:hover, #nav-music.active { color: #4488ff; border-bottom: 2px solid #4488ff; }
+    #nav-gear { color: #ccaa00; }
+    #nav-gear:hover, #nav-gear.active { color: #ffd700; border-bottom: 2px solid #ffd700; }
+    #nav-matrix { color: #00cc33; }
+    #nav-matrix:hover { color: #00ff41; border-bottom: 2px solid #00ff41; }
 
-    #nav-music         { color: #3366cc; text-shadow: 0 0 8px #3366cc88; }
-    #nav-music:hover,
-    #nav-music.active  { color: #4488ff; border-bottom: 2px solid #4488ff; text-shadow: 0 0 12px #4488ff99; }
-
-    #nav-gear          { color: #ccaa00; text-shadow: 0 0 8px #ccaa0088; }
-    #nav-gear:hover,
-    #nav-gear.active   { color: #ffd700; border-bottom: 2px solid #ffd700; text-shadow: 0 0 12px #ffd70099; }
-
-    #nav-matrix        { color: #00cc33; text-shadow: 0 0 8px #00cc3388; }
-    #nav-matrix:hover,
-    #nav-matrix.active { color: #00ff41; border-bottom: 2px solid #00ff41; text-shadow: 0 0 12px #00ff4199; }
-
-    /* ── TWO-COLUMN LAYOUT ──────────────────────────────────────── */
     .page {
       display: grid;
       grid-template-columns: 1fr 280px;
       min-height: calc(100vh - 200px);
     }
     @media (max-width: 720px) {
-      .page  { grid-template-columns: 1fr; }
+      .page { grid-template-columns: 1fr; }
       header { padding: 24px; }
-    }
-    .left-col {
-      padding: 36px 36px 36px 48px;
-      border-right: 1px solid #ff2d7822;
-    }
-    .right-col {
-      padding: 28px 24px;
-      background: var(--surface);
+      nav { overflow-x: auto; }
     }
 
-    /* ── SECTION LABELS ─────────────────────────────────────────── */
+    .left-col { padding: 36px 36px 36px 48px; border-right: 1px solid #ff2d7822; }
+    .right-col { padding: 28px 24px; background: var(--surface); }
+
     .section-label {
       font-size: 10px;
       color: var(--cyan);
@@ -190,14 +148,8 @@
       align-items: center;
       gap: 10px;
     }
-    .section-label::after {
-      content: '';
-      flex: 1;
-      height: 1px;
-      background: #00f5ff33;
-    }
+    .section-label::after { content: ''; flex: 1; height: 1px; background: #00f5ff33; }
 
-    /* ── FEATURED VIDEO ─────────────────────────────────────────── */
     .video-featured {
       position: relative;
       padding-bottom: 56.25%;
@@ -205,254 +157,56 @@
       background: #06060f;
       border: 1px solid #ff2d7855;
       margin-bottom: 10px;
-      overflow: hidden;
     }
-    .video-featured::before {
-      content: '';
+    .video-featured iframe, .video-small iframe {
       position: absolute;
-      top: 0; left: 0; right: 0;
-      height: 2px;
-      background: linear-gradient(90deg, transparent, var(--pink), var(--cyan), transparent);
-      z-index: 1;
-    }
-    .video-featured iframe {
-      position: absolute;
-      top: 0; left: 0;
-      width: 100%; height: 100%;
-      border: none;
-    }
-    .video-caption {
-      font-size: 10px;
-      color: var(--dim);
-      letter-spacing: 1px;
-      margin-bottom: 20px;
+      top: 0; left: 0; width: 100%; height: 100%; border: none;
     }
 
-    /* ── SMALLER VIDEO GRID ─────────────────────────────────────── */
-    .video-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 12px;
-      margin-top: 8px;
-    }
-    .video-small {
-      position: relative;
-      padding-bottom: 56.25%;
-      height: 0;
-      background: #06060f;
-      border: 1px solid #ffd70033;
-      overflow: hidden;
-    }
-    .video-small::before {
-      content: '';
-      position: absolute;
-      top: 0; left: 0; right: 0;
-      height: 1px;
-      background: linear-gradient(90deg, transparent, var(--gold), transparent);
-      z-index: 1;
-    }
-    .video-small iframe {
-      position: absolute;
-      top: 0; left: 0;
-      width: 100%; height: 100%;
-      border: none;
-    }
+    .video-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 8px; }
+    .video-small { position: relative; padding-bottom: 56.25%; height: 0; border: 1px solid #ffd70033; }
 
-    /* ── SOCIAL LINKS WITH ICONS ────────────────────────────────────
-       Icons are rendered by Lucide via <i data-lucide="..."> tags.
-       The lucide.createIcons() call at the bottom of the script
-       replaces those tags with real inline SVGs automatically.       */
-    .social-links {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      margin-bottom: 28px;
-    }
+    .social-links { display: flex; flex-direction: column; gap: 10px; margin-bottom: 28px; }
     .social-link {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      padding: 10px 14px;
-      border: 1px solid;
-      font-size: 11px;
-      letter-spacing: 2px;
-      text-transform: uppercase;
-      text-decoration: none;
-      transition: background 0.15s;
-    }
-    .social-link:hover { background: #ffffff08; }
-
-    /* Lucide SVG icons inherit currentColor automatically */
-    .social-link svg {
-      width: 15px;
-      height: 15px;
-      flex-shrink: 0;
-      stroke: currentColor;
+      display: flex; align-items: center; gap: 12px; padding: 10px 14px; border: 1px solid;
+      font-size: 11px; letter-spacing: 2px; text-transform: uppercase; text-decoration: none;
     }
 
-    /* Per-platform colors + glow */
-    .yt  { color: var(--pink);   border-color: #ff2d7855; text-shadow: 0 0 8px #ff2d7888; }
-    .ig  { color: var(--gold);   border-color: #ffd70055; text-shadow: 0 0 8px #ffd70088; }
-    .sc  { color: var(--cyan);   border-color: #00f5ff55; text-shadow: 0 0 8px #00f5ff88; }
-    .gh  { color: var(--green);  border-color: #99cc7755; text-shadow: 0 0 8px #99cc7788; }
+    .yt { color: var(--pink); border-color: #ff2d7855; }
+    .ig { color: var(--gold); border-color: #ffd70055; }
+    .sc { color: var(--cyan); border-color: #00f5ff55; }
+    .gh { color: var(--green); border-color: #99cc7755; }
 
-    .yt:hover  { text-shadow: 0 0 14px #ff2d78bb; }
-    .ig:hover  { text-shadow: 0 0 14px #ffd700bb; }
-    .sc:hover  { text-shadow: 0 0 14px #00f5ffbb; }
-    .gh:hover  { text-shadow: 0 0 14px #99cc77bb; }
-
-    /* ── EMAIL LINK ─────────────────────────────────────────────── */
-    .email-link {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      font-size: 11px;
-      color: var(--cyan);
-      text-decoration: none;
-      letter-spacing: 1px;
-      transition: opacity 0.15s;
-    }
-    .email-link:hover { opacity: 0.7; }
-    .email-link svg {
-      width: 14px; height: 14px;
-      stroke: currentColor;
-      flex-shrink: 0;
-    }
-
-    /* ── GEAR SECTION ───────────────────────────────────────────── */
-    .gear-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 24px;
-      margin-top: 8px;
-    }
-    @media (max-width: 720px) {
-      .gear-grid { grid-template-columns: 1fr; }
-    }
-    .gear-item {
-      border: 1px solid #ff2d7822;
-      padding: 16px;
-      background: var(--surface);
-    }
+    .gear-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-top: 8px; }
+    .gear-item { border: 1px solid #ff2d7822; padding: 16px; background: var(--surface); }
     .gear-photo-placeholder {
-      width: 100%;
-      aspect-ratio: 4/3;
-      background: #06060f;
-      border: 1px dashed #ff2d7833;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 10px;
-      color: var(--dim);
-      letter-spacing: 2px;
-      margin-bottom: 12px;
-    }
-    /* When you add a real photo, it will fill this space cleanly */
-    .gear-item img {
-      width: 100%;
-      aspect-ratio: 4/3;
-      object-fit: cover;
-      display: block;
-      margin-bottom: 12px;
-      border: 1px solid #ff2d7833;
-    }
-    .gear-label {
-      font-size: 10px;
-      color: var(--cyan);
-      letter-spacing: 3px;
-      text-transform: uppercase;
-      margin-bottom: 8px;
-    }
-    .gear-desc {
-      font-size: 11px;
-      color: var(--muted);
-      line-height: 1.7;
+      width: 100%; aspect-ratio: 4/3; background: #06060f; border: 1px dashed #ff2d7833;
+      display: flex; align-items: center; justify-content: center; font-size: 10px; color: var(--dim);
     }
 
-    /* ── BIO ────────────────────────────────────────────────────── */
-    .bio-box {
-      padding-top: 22px;
-      border-top: 1px solid #ffffff0d;
-    }
-    .bio-text {
-      font-size: 11px;
-      line-height: 1.8;
-      color: var(--muted);
-      font-style: italic;
-    }
+    .bio-box { padding-top: 22px; border-top: 1px solid #ffffff0d; margin-top: 20px; }
+    .bio-text { font-size: 11px; line-height: 1.8; color: var(--muted); font-style: italic; min-height: 3em; }
 
-    /* ── FOOTER ─────────────────────────────────────────────────── */
     footer {
-      border-top: 1px solid #00f5ff22;
-      padding: 14px 48px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      background: #07070f;
-      flex-wrap: wrap;
-      gap: 8px;
+      border-top: 1px solid #00f5ff22; padding: 14px 48px;
+      display: flex; justify-content: space-between; background: #07070f; font-size: 10px; color: var(--dim);
     }
-    footer span {
-      font-size: 10px;
-      color: var(--dim);
-      letter-spacing: 2px;
-      text-transform: uppercase;
-    }
+
     .blink { animation: blink 1.2s step-end infinite; }
     @keyframes blink { 50% { opacity: 0; } }
 
-    /* ── MATRIX SECTION ─────────────────────────────────────────────
-       display:none by default. Toggled by the nav tab.
-       header is also hidden in matrix mode for true full-screen feel. */
     #matrix-section {
-      display: none;
-      position: fixed;
-      inset: 0;
-      background: #000;
-      overflow: hidden;
-      z-index: 100;
-      cursor: pointer; /* signals it's clickable */
+      display: none; position: fixed; inset: 0; background: #000; z-index: 1000;
     }
     #matrix-section.active { display: block; }
-    #matrix-canvas { display: block; width: 100%; height: 100%; }
-
-    /* Centre message */
+    #matrix-canvas { width: 100%; height: 100%; }
     #matrix-msg {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      font-family: 'VT323', monospace;
-      font-size: clamp(28px, 5vw, 52px);
-      color: #00ff41;
-      text-shadow: 0 0 20px #00ff41, 0 0 40px #00ff4188;
-      letter-spacing: 4px;
-      text-align: center;
-      pointer-events: none;
-      opacity: 0;
-      transition: opacity 1.5s ease;
+      position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+      font-family: 'VT323', monospace; font-size: clamp(28px, 5vw, 52px); color: #00ff41;
+      text-shadow: 0 0 20px #00ff41; text-align: center; opacity: 0; transition: opacity 1.5s; pointer-events: none;
     }
     #matrix-msg.show { opacity: 1; }
-
-    /* "press any key" exit hint at the bottom */
-    #matrix-hint {
-      position: absolute;
-      bottom: 28px;
-      left: 50%;
-      transform: translateX(-50%);
-      font-family: 'Space Mono', monospace;
-      font-size: 11px;
-      color: #00ff4188;
-      letter-spacing: 3px;
-      text-transform: uppercase;
-      pointer-events: none;
-      opacity: 0;
-      transition: opacity 1.5s ease;
-    }
-    #matrix-hint.show { opacity: 1; }
-
-    .page.hidden { display: none; }
-
+    .hidden { display: none !important; }
   </style>
 </head>
 <body>
@@ -466,384 +220,182 @@
     <a href="#videos" class="active" id="nav-videos">Videos</a>
     <a href="#music"  id="nav-music">Music</a>
     <a href="#gear"   id="nav-gear">Gear</a>
-    <a href="#" id="nav-matrix">The Matrix</a>
+    <a href="#"       id="nav-matrix">The Matrix</a>
   </nav>
 
   <div class="page">
-
-    <!-- ── LEFT: VIDEOS ─────────────────────────────────────────── -->
     <div class="left-col" id="videos">
-
-      <div class="section-label">Featured</div>
-
-      <!--
-        FEATURED VIDEO — replace the video ID in the src URL.
-        YouTube embed format: https://www.youtube-nocookie.com/embed/VIDEO_ID
-        The -nocookie domain prevents YouTube from setting tracking cookies.
-      -->
+      <div class="section-label">Featured Performance</div>
       <div class="video-featured">
-        <iframe
-          src="https://www.youtube-nocookie.com/embed/3vUA2VvzTKs"
-          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-          allowfullscreen>
-        </iframe>
+        <iframe src="https://www.youtube-nocookie.com/embed/3vUA2VvzTKs" allowfullscreen loading="lazy"></iframe>
       </div>
-      <div class="video-caption">&gt; Raw capture. One take. Verified human performance.</div>
+      <div class="video-caption">> Raw capture. One take. Verified human performance.</div>
 
-      <div class="section-label" style="margin-top: 28px;">More</div>
-
-      <!--
-        SMALLER VIDEOS — same embed format as above.
-        To add more: copy a .video-small block and paste it inside .video-grid.
-      -->
+      <div class="section-label" style="margin-top: 28px;">Recent Captures</div>
       <div class="video-grid">
-
-        <div class="video-small">
-          <iframe
-            src="https://www.youtube-nocookie.com/embed/LSE20O-vyhY"
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-            allowfullscreen>
-          </iframe>
-        </div>
-
-        <div class="video-small">
-          <iframe
-            src="https://www.youtube-nocookie.com/embed/lPXEJwQdX2U"
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-            allowfullscreen>
-          </iframe>
-        </div>
-
+        <div class="video-small"><iframe src="https://www.youtube-nocookie.com/embed/LSE20O-vyhY" allowfullscreen loading="lazy"></iframe></div>
+        <div class="video-small"><iframe src="https://www.youtube-nocookie.com/embed/lPXEJwQdX2U" allowfullscreen loading="lazy"></iframe></div>
       </div>
-    </div><!-- end .left-col -->
+    </div>
 
-    <!-- ── RIGHT: SIDEBAR ───────────────────────────────────────── -->
     <div class="right-col">
-
-      <div class="section-label" id="music">Find Me</div>
-
-      <!--
-        SOCIAL LINKS
-        Icons: data-lucide="..." sets the Lucide icon name.
-        Full icon list: https://lucide.dev/icons
-        Replace href values with your actual profile URLs.
-        To remove a platform: delete its <a> block.
-        To add one: copy a block, change class + icon name + label.
-      -->
+      <div class="section-label">Connections</div>
       <div class="social-links">
-
-        <a class="social-link yt" href="https://www.youtube.com/@CarlWilliamMusic" target="_blank" rel="noopener">
-          <i data-lucide="youtube"></i> YouTube
-        </a>
-
-        <a class="social-link ig" href="https://www.instagram.com/carlwilliammusic/" target="_blank" rel="noopener">
-          <i data-lucide="instagram"></i> Instagram
-        </a>
-
-        <!-- SoundCloud has no Lucide icon — "radio" fits the vibe -->
-        <a class="social-link sc" href="https://soundcloud.com/carl-william-music" target="_blank" rel="noopener">
-          <i data-lucide="radio"></i> SoundCloud
-        </a>
-
-        <a class="social-link gh" href="https://github.com/Ahlers94" target="_blank" rel="noopener">
-          <i data-lucide="github"></i> GitHub
-        </a>
-
+        <a class="social-link yt" href="https://www.youtube.com/@CarlWilliamMusic" target="_blank"><i data-lucide="youtube"></i> YouTube</a>
+        <a class="social-link ig" href="https://www.instagram.com/carlwilliammusic/" target="_blank"><i data-lucide="instagram"></i> Instagram</a>
+        <a class="social-link sc" href="https://soundcloud.com/carl-william-music" target="_blank"><i data-lucide="radio"></i> SoundCloud</a>
+        <a class="social-link gh" href="https://github.com/Ahlers94" target="_blank"><i data-lucide="github"></i> GitHub</a>
       </div>
 
-      <!-- Contact email -->
       <div class="bio-box">
         <div class="section-label">Contact</div>
-        <a href="mailto:wcarlahlers@gmail.com" class="email-link">
-          <i data-lucide="mail"></i> wcarlahlers@gmail.com
-        </a>
+        <a href="mailto:wcarlahlers@gmail.com" style="color: var(--cyan); font-size: 11px; text-decoration: none;">wcarlahlers@gmail.com</a>
       </div>
 
-      <!--
-        BIO TEXT — edit the content inside this <p> tag.
-        The decrypt animation will scramble and reveal it on page load.
-      -->
       <div class="bio-box">
-        <div class="section-label">About</div>
+        <div class="section-label">Status</div>
         <p class="bio-text" id="bio-decrypt">🎸 Guitarist | 🎛️ Live Looping Artist | 🔊 Crafting full-band soundscapes</p>
       </div>
+    </div>
+  </div>
 
-    </div><!-- end .right-col -->
-
-  </div><!-- end .page -->
-
-  <!-- ══════════════════════════════════════════════════════════════
-       GEAR SECTION
-       Hidden by default. Shown when the Gear nav tab is clicked.
-       Add photos and writeups here when ready.
-       ══════════════════════════════════════════════════════════════ -->
-  <div id="gear-section" style="display:none;">
-    <div style="padding: 36px 48px;">
-
-      <div class="section-label" id="gear">The Rig</div>
-
-      <!-- ┌─────────────────────────────────────────────────────────┐
-           │ GEAR ITEMS                                               │
-           │ Each .gear-item is one piece of equipment.              │
-           │ Add a photo by replacing the placeholder div with:      │
-           │ <img src="photos/your-photo.jpg" alt="description">     │
-           │ Put your photos in a /photos folder in the repo.        │
-           └─────────────────────────────────────────────────────────┘ -->
-      <div class="gear-grid">
-
-        <div class="gear-item">
-          <div class="gear-photo-placeholder">[ PHOTO COMING SOON ]</div>
-          <div class="gear-label">Instrument</div>
-          <div class="gear-desc">Your guitar writeup goes here. What it is, where you got it, what makes it yours.</div>
-        </div>
-
-        <div class="gear-item">
-          <div class="gear-photo-placeholder">[ PHOTO COMING SOON ]</div>
-          <div class="gear-label">The Brain</div>
-          <div class="gear-desc">Your Raspberry Pi rig writeup goes here. OS, scripts, what it does live.</div>
-        </div>
-
-        <div class="gear-item">
-          <div class="gear-photo-placeholder">[ PHOTO COMING SOON ]</div>
-          <div class="gear-label">Signal Chain</div>
-          <div class="gear-desc">Pickup, interface, looper — how it all connects. The full signal path.</div>
-        </div>
-
-        <div class="gear-item">
-          <div class="gear-photo-placeholder">[ PHOTO COMING SOON ]</div>
-          <div class="gear-label">Power & Transport</div>
-          <div class="gear-desc">Bike-mobile. Battery powered. Self-contained. The logistics of the operation.</div>
-        </div>
-
+  <div id="gear-section" class="hidden" style="padding: 36px 48px;">
+    <div class="section-label">The Rig</div>
+    <div class="gear-grid">
+      <div class="gear-item">
+        <div class="gear-photo-placeholder">[ PHOTO COMING SOON ]</div>
+        <div class="gear-label">Instrument</div>
+        <div class="gear-desc">Custom captures and tone profiles.</div>
+      </div>
+      <div class="gear-item">
+        <div class="gear-photo-placeholder">[ PHOTO COMING SOON ]</div>
+        <div class="gear-label">The Brain</div>
+        <div class="gear-desc">Raspberry Pi looping core running custom scripts.</div>
       </div>
     </div>
   </div>
 
   <footer>
     <span>Carl William Music &copy; 2026</span>
-    <span>Hosted on GitHub Pages <span class="blink">_</span></span>
+    <span>SYSTEM ONLINE <span class="blink">_</span></span>
   </footer>
 
-  <!-- ══════════════════════════════════════════════════════════════
-       THE MATRIX
-       Full-screen fixed overlay. Exit by: clicking, tapping, or
-       pressing any key. Header + nav are hidden while active.
-       ══════════════════════════════════════════════════════════════ -->
-  <div id="matrix-section" role="button" aria-label="Exit Matrix mode">
+  <div id="matrix-section">
     <canvas id="matrix-canvas"></canvas>
     <div id="matrix-msg">WAKE UP, NEO...<br>THE MUSIC HAS YOU.</div>
-    <div id="matrix-hint">[ click, tap, or press any key to exit ]</div>
   </div>
 
   <script>
-
-    // ── SOCIAL LINK ICONS ──────────────────────────────────────────
-    // Inline SVGs injected directly — no CDN dependency, no icon-name
-    // lookup failures. Paths sourced from lucide.dev (MIT licensed).
+    // ICONS
     const iconMap = {
-      youtube: `<svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 17a24.12 24.12 0 0 1 0-10 2 2 0 0 1 1.4-1.4 49.56 49.56 0 0 1 16.2 0A2 2 0 0 1 21.5 7a24.12 24.12 0 0 1 0 10 2 2 0 0 1-1.4 1.4 49.55 49.55 0 0 1-16.2 0A2 2 0 0 1 2.5 17"/><polygon points="10 15 15 12 10 9"/></svg>`,
-      instagram: `<svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="20" x="2" y="2" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" x2="17.51" y1="6.5" y2="6.5"/></svg>`,
-      radio: `<svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4.9 19.1C1 15.2 1 8.8 4.9 4.9"/><path d="M7.8 16.2c-2.3-2.3-2.3-6.1 0-8.5"/><circle cx="12" cy="12" r="2"/><path d="M16.2 7.8c2.3 2.3 2.3 6.1 0 8.5"/><path d="M19.1 4.9C23 8.8 23 15.2 19.1 19.1"/></svg>`,
-      github: `<svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"/><path d="M9 18c-4.51 2-5-2-7-2"/></svg>`,
-      mail: `<svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>`
+      youtube: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="15" height="15"><path d="M2.5 17a24.12 24.12 0 0 1 0-10 2 2 0 0 1 1.4-1.4 49.56 49.56 0 0 1 16.2 0A2 2 0 0 1 21.5 7a24.12 24.12 0 0 1 0 10 2 2 0 0 1-1.4 1.4 49.55 49.55 0 0 1-16.2 0A2 2 0 0 1 2.5 17"/><polygon points="10 15 15 12 10 9"/></svg>`,
+      instagram: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="15" height="15"><rect width="20" height="20" x="2" y="2" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" x2="17.51" y1="6.5" y2="6.5"/></svg>`,
+      radio: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="15" height="15"><path d="M4.9 19.1C1 15.2 1 8.8 4.9 4.9"/><path d="M7.8 16.2c-2.3-2.3-2.3-6.1 0-8.5"/><circle cx="12" cy="12" r="2"/><path d="M16.2 7.8c2.3 2.3 2.3 6.1 0 8.5"/><path d="M19.1 4.9C23 8.8 23 15.2 19.1 19.1"/></svg>`,
+      github: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="15" height="15"><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"/><path d="M9 18c-4.51 2-5-2-7-2"/></svg>`
     };
+    document.querySelectorAll('i[data-lucide]').forEach(el => el.outerHTML = iconMap[el.getAttribute('data-lucide')] || '');
 
-    document.querySelectorAll('i[data-lucide]').forEach(el => {
-      const name = el.getAttribute('data-lucide');
-      if (iconMap[name]) {
-        el.outerHTML = iconMap[name];
-      }
-    });
-
-    // ── ELEMENT REFS ───────────────────────────────────────────────
-    const page        = document.querySelector('.page');
-    const gearSection = document.getElementById('gear-section');
-    const siteHeader  = document.getElementById('site-header');
-    const siteNav     = document.getElementById('site-nav');
-    const matrixEl    = document.getElementById('matrix-section');
-    const matrixMsg   = document.getElementById('matrix-msg');
-    const matrixHint  = document.getElementById('matrix-hint');
-    const allNavLinks = document.querySelectorAll('nav a');
-
+    // NAVIGATION
+    const page = document.querySelector('.page');
+    const gear = document.getElementById('gear-section');
+    const header = document.getElementById('site-header');
+    const nav = document.getElementById('site-nav');
+    const matrix = document.getElementById('matrix-section');
+    const matrixMsg = document.getElementById('matrix-msg');
+    
     let matrixRunning = false;
-    let animFrame;
+    let canExitMatrix = false;
 
-    // ── SHOW/HIDE HELPERS ──────────────────────────────────────────
-    function showPage() { page.classList.remove('hidden'); gearSection.style.display = 'none'; }
-    function showGear() { page.classList.add('hidden');    gearSection.style.display = 'block'; }
-
-    // ── NAV ACTIVE STATE ───────────────────────────────────────────
-    allNavLinks.forEach(link => {
-      link.addEventListener('click', function() {
-        allNavLinks.forEach(l => l.classList.remove('active'));
-        this.classList.add('active');
-      });
-    });
-
-    // Gear tab
-    document.getElementById('nav-gear').addEventListener('click', function(e) {
-      e.preventDefault();
-      showGear();
-    });
-
-    // Videos / Music tabs restore the main page
-    document.getElementById('nav-videos').addEventListener('click', showPage);
-    document.getElementById('nav-music').addEventListener('click',  showPage);
-
-    // ── ENTER MATRIX ───────────────────────────────────────────────
-    document.getElementById('nav-matrix').addEventListener('click', function(e) {
-      e.preventDefault();
-
-      // Hide main content and chrome; show Matrix overlay
-      page.classList.add('hidden');
-      siteHeader.style.display = 'none';
-      siteNav.style.display    = 'none';
-      matrixEl.classList.add('active');
-
-      if (!matrixRunning) startMatrix();
-
-      // Fade in message and exit hint after a moment
-      setTimeout(() => {
-        matrixMsg.classList.add('show');
-        matrixHint.classList.add('show');
-      }, 1800);
-    });
-
-    // ── EXIT MATRIX ────────────────────────────────────────────────
-    function exitMatrix() {
-      if (!matrixRunning) return;
-
-      matrixEl.classList.remove('active');
-      matrixMsg.classList.remove('show');
-      matrixHint.classList.remove('show');
-      siteHeader.style.display = '';
-      siteNav.style.display    = '';
+    function resetViews() {
+      page.classList.remove('hidden');
+      gear.classList.add('hidden');
+      header.style.display = '';
+      nav.style.display = '';
+      matrix.classList.remove('active');
       matrixRunning = false;
-      cancelAnimationFrame(animFrame);
-      showPage();
-
-      // Return active state to Videos tab
-      allNavLinks.forEach(l => l.classList.remove('active'));
-      document.getElementById('nav-videos').classList.add('active');
     }
 
-    // Exit on: click/tap the canvas, press any key, other nav tabs
-    matrixEl.addEventListener('click', exitMatrix);
-    document.addEventListener('keydown', exitMatrix);
-    document.getElementById('nav-videos').addEventListener('click', exitMatrix);
-    document.getElementById('nav-music').addEventListener('click',  exitMatrix);
-    document.getElementById('nav-gear').addEventListener('click',   exitMatrix);
+    document.getElementById('nav-videos').addEventListener('click', () => { resetViews(); });
+    document.getElementById('nav-music').addEventListener('click', () => { resetViews(); });
+    document.getElementById('nav-gear').addEventListener('click', () => {
+      resetViews();
+      page.classList.add('hidden');
+      gear.classList.remove('hidden');
+    });
 
-    // ── MATRIX RAIN ────────────────────────────────────────────────
+    // MATRIX LOGIC
+    document.getElementById('nav-matrix').addEventListener('click', (e) => {
+      e.preventDefault();
+      header.style.display = 'none';
+      nav.style.display = 'none';
+      page.classList.add('hidden');
+      gear.classList.add('hidden');
+      matrix.classList.add('active');
+      canExitMatrix = false;
+      setTimeout(() => { canExitMatrix = true; matrixMsg.classList.add('show'); }, 1000);
+      if(!matrixRunning) startMatrix();
+    });
+
+    function exitMatrix() {
+      if (canExitMatrix) {
+        matrixMsg.classList.remove('show');
+        resetViews();
+      }
+    }
+    matrix.addEventListener('click', exitMatrix);
+    document.addEventListener('keydown', exitMatrix);
+
     function startMatrix() {
       matrixRunning = true;
       const canvas = document.getElementById('matrix-canvas');
-      const ctx    = canvas.getContext('2d');
-
-      // Classic Matrix character set: Katakana + Latin + digits
-      const chars = 'アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲン0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+      const ctx = canvas.getContext('2d');
+      const chars = 'ｱｲｳｴｵｶｷｸｹｺｻｼｽｾｿﾀﾁﾂﾃﾄﾅﾆﾇネノハ0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
       const fontSize = 16;
       let cols, drops;
 
       function resize() {
-        canvas.width  = canvas.offsetWidth;
-        canvas.height = canvas.offsetHeight;
-        cols  = Math.floor(canvas.width / fontSize);
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        cols = Math.floor(canvas.width / fontSize);
         drops = Array(cols).fill(1);
       }
-      resize();
       window.addEventListener('resize', resize);
+      resize();
 
       function draw() {
         if (!matrixRunning) return;
-
-        // Semi-transparent overlay creates the fading trail effect
         ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
         ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-        ctx.font = fontSize + 'px VT323, monospace';
-
+        ctx.font = fontSize + 'px VT323';
         drops.forEach((y, i) => {
-          // Brighter "head" character at the tip of each stream
-          ctx.fillStyle = Math.random() > 0.95 ? '#ccffcc' : '#00ff41';
-          const char = chars[Math.floor(Math.random() * chars.length)];
-          ctx.fillText(char, i * fontSize, y * fontSize);
-
-          if (y * fontSize > canvas.height && Math.random() > 0.975) {
-            drops[i] = 0;
-          }
+          ctx.fillStyle = Math.random() > 0.95 ? '#fff' : '#00ff41';
+          ctx.fillText(chars[Math.floor(Math.random() * chars.length)], i * fontSize, y * fontSize);
+          if (y * fontSize > canvas.height && Math.random() > 0.975) drops[i] = 0;
           drops[i]++;
         });
-
-        // requestAnimationFrame syncs to monitor refresh rate (smooth on 144Hz+)
-        animFrame = requestAnimationFrame(draw);
+        requestAnimationFrame(draw);
       }
-
       draw();
     }
 
-    // ── BIO DECRYPT ANIMATION ──────────────────────────────────────
-    // On page load: bio text scrambles then resolves left-to-right.
-    // Emojis and spaces are never scrambled — they appear cleanly.
-    // Uses requestAnimationFrame for smooth rendering at any refresh rate.
-    (function decryptBio() {
-      const el     = document.getElementById('bio-decrypt');
-      const target = el.textContent.trim();
-      const pool   = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*';
-
-      // [...str] correctly splits multi-byte emoji into single segments
+    // DECRYPT BIO
+    (function decrypt() {
+      const el = document.getElementById('bio-decrypt');
+      const target = el.textContent;
+      const pool = 'ABCDEFHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*';
       const segments = [...target];
-      const locked   = new Array(segments.length).fill(false);
-
-      let resolved   = 0;
-      let lastTime   = 0;
-      const msPerChar = 55;   // ms between each character locking in — raise to slow down
-      const scrambleHz = 8;   // random chars refresh this many times per locked char
-
-      // Emojis, spaces, and non-ASCII chars are never scrambled
-      function isSpecial(ch) {
-        return ch.trim() === '' || /[^\x00-\x7F]/.test(ch);
-      }
-      function randChar() {
-        return pool[Math.floor(Math.random() * pool.length)];
-      }
-      function render() {
-        return segments.map((ch, i) => {
-          if (locked[i] || isSpecial(ch)) return ch;
-          return randChar();
+      let iteration = 0;
+      
+      const interval = setInterval(() => {
+        el.textContent = segments.map((char, index) => {
+          if (index < iteration || char === ' ' || char === '|') return segments[index];
+          return pool[Math.floor(Math.random() * pool.length)];
         }).join('');
-      }
-
-      function tick(timestamp) {
-        if (resolved >= segments.length) {
-          el.textContent = target; // guarantee clean final state
-          return;
-        }
-
-        // Lock in one new character every msPerChar milliseconds
-        if (timestamp - lastTime >= msPerChar) {
-          for (let i = 0; i < segments.length; i++) {
-            if (!locked[i] && !isSpecial(segments[i])) {
-              locked[i] = true;
-              resolved++;
-              break;
-            } else if (!locked[i] && isSpecial(segments[i])) {
-              // Auto-lock specials so they don't hold up the sequence
-              locked[i] = true;
-            }
-          }
-          lastTime = timestamp;
-        }
-
-        el.textContent = render();
-        requestAnimationFrame(tick);
-      }
-
-      // Short delay so the page finishes painting before animating
-      setTimeout(() => requestAnimationFrame(tick), 600);
+        
+        iteration += 1/3;
+        if (iteration >= segments.length) clearInterval(interval);
+      }, 30);
     })();
-
   </script>
-
 </body>
 </html>
