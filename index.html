@@ -3,34 +3,22 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
   <meta name="description" content="Official site for Carl William Music. Live looping, raw guitar captures, and no-nonsense performance.">
-  <meta name="author"      content="Carl William Music">
-
-  <!-- Open Graph -->
-  <meta property="og:type"        content="website">
-  <meta property="og:title"       content="Carl William Music | Substance Over Style">
-  <meta property="og:description" content="Live looping guitarist. Covers and originals. One take, no excuses.">
-  <meta property="og:url"         content="https://ahlers94.github.io/carl-william-music/">
-  <meta property="og:image"       content="https://ahlers94.github.io/carl-william-music/preview.jpg">
-
   <title>Carl William Music | Substance Over Style</title>
-
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=VT323&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
 
   <style>
     :root {
-      --bg:       #0a0a12;
-      --surface:  #0d0d1a;
-      --pink:     #ff2d78;
-      --cyan:     #00f5ff;
-      --gold:     #ffd700;
-      --purple:   #b06aff;
-      --green:    #99cc77;
-      --text:     #e0d8f0;
-      --muted:    #9988aa;
-      --dim:      #443355;
+      --bg: #0a0a12;
+      --surface: #0d0d1a;
+      --pink: #ff2d78;
+      --cyan: #00f5ff;
+      --gold: #ffd700;
+      --green: #00ff41;
+      --text: #e0d8f0;
+      --muted: #9988aa;
+      --dim: #443355;
     }
 
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -43,47 +31,58 @@
       overflow-x: hidden;
     }
 
-    /* CRT SCANLINE EFFECT */
+    /* THE GRAIN/STATIC FILTER */
+    .crt-static {
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      opacity: 0.08;
+      z-index: 998;
+      pointer-events: none;
+      background: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+    }
+
+    /* CRT SCANLINES */
     body::before {
       content: '';
       position: fixed;
       inset: 0;
-      background: repeating-linear-gradient(
-        0deg,
-        transparent,
-        transparent 3px,
-        rgba(0,245,255,0.015) 3px,
-        rgba(0,245,255,0.015) 4px
-      );
+      background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,245,255,0.02) 3px);
       pointer-events: none;
       z-index: 999;
     }
 
-    /* HARDWARE FLICKER ANIMATION */
-    @keyframes hardware-flicker {
-      0%, 100% { opacity: 1; text-shadow: 0 0 10px rgba(0,255,65,0.6); }
-      33% { opacity: 0.95; }
-      34% { opacity: 0.70; text-shadow: 0 0 2px rgba(0,255,65,0.2); }
-      35% { opacity: 0.98; }
-      88% { opacity: 1; }
-      89% { opacity: 0.85; text-shadow: 0 0 15px rgba(0,255,65,0.8); }
-      90% { opacity: 1; }
+    /* AGGRESSIVE HARDWARE GLITCH */
+    @keyframes intense-flicker {
+      0% { opacity: 1; filter: brightness(1); }
+      3% { opacity: 0.8; filter: brightness(1.4); transform: skewX(0.5deg); }
+      5% { opacity: 1; filter: brightness(1); transform: skewX(0); }
+      15% { opacity: 0.9; }
+      16% { opacity: 1; }
+      80% { opacity: 1; transform: scaleY(1); }
+      81% { opacity: 0.8; transform: scaleY(1.005); filter: contrast(1.2); }
+      82% { opacity: 1; transform: scaleY(1); }
+      100% { opacity: 1; }
     }
 
     header {
       border-bottom: 2px solid var(--cyan);
       padding: 36px 48px 24px;
       position: relative;
-      animation: hardware-flicker 4s linear infinite;
+      animation: intense-flicker 0.2s infinite;
     }
 
     .artist-name {
       font-family: 'VT323', monospace;
       font-size: clamp(56px, 10vw, 96px);
-      color: #00ff41;
+      color: var(--green);
       letter-spacing: 6px;
       line-height: 1;
-      text-shadow: 3px 3px 0 #003d10, 0 0 40px #00ff4155;
+      /* Chromatic Aberration Effect */
+      text-shadow: 
+        0 0 10px rgba(0,255,65,0.4),
+        2px 0 1px rgba(255,0,120,0.3), 
+        -2px 0 1px rgba(0,245,255,0.3);
+      filter: blur(0.4px);
     }
 
     .artist-tagline {
@@ -100,8 +99,7 @@
       background: #10101e;
       border-bottom: 1px solid #ffffff15;
       position: sticky;
-      top: 0;
-      z-index: 10;
+      top: 0; z-index: 10;
     }
     nav a {
       display: block;
@@ -115,20 +113,12 @@
       transition: all 0.2s;
     }
 
-    #nav-videos { color: #cc3333; }
-    #nav-videos:hover, #nav-videos.active { color: #ff4444; border-bottom: 2px solid #ff4444; }
-    #nav-music { color: #3366cc; }
-    #nav-music:hover, #nav-music.active { color: #4488ff; border-bottom: 2px solid #4488ff; }
-    #nav-gear { color: #ccaa00; }
-    #nav-gear:hover, #nav-gear.active { color: #ffd700; border-bottom: 2px solid #ffd700; }
-    #nav-matrix { color: #00cc33; }
-    #nav-matrix:hover { color: #00ff41; border-bottom: 2px solid #00ff41; }
+    #nav-videos.active { color: #ff4444; border-bottom: 2px solid #ff4444; }
+    #nav-music.active { color: #4488ff; border-bottom: 2px solid #4488ff; }
+    #nav-gear.active { color: #ffd700; border-bottom: 2px solid #ffd700; }
+    #nav-matrix:hover { color: var(--green); border-bottom: 2px solid var(--green); }
 
-    .page {
-      display: grid;
-      grid-template-columns: 1fr 280px;
-      min-height: calc(100vh - 200px);
-    }
+    .page { display: grid; grid-template-columns: 1fr 280px; min-height: calc(100vh - 200px); }
     @media (max-width: 720px) {
       .page { grid-template-columns: 1fr; }
       header { padding: 24px; }
@@ -139,28 +129,18 @@
     .right-col { padding: 28px 24px; background: var(--surface); }
 
     .section-label {
-      font-size: 10px;
-      color: var(--cyan);
-      letter-spacing: 3px;
-      text-transform: uppercase;
-      margin-bottom: 14px;
-      display: flex;
-      align-items: center;
-      gap: 10px;
+      font-size: 10px; color: var(--cyan); letter-spacing: 3px;
+      text-transform: uppercase; margin-bottom: 14px;
+      display: flex; align-items: center; gap: 10px;
     }
     .section-label::after { content: ''; flex: 1; height: 1px; background: #00f5ff33; }
 
     .video-featured {
-      position: relative;
-      padding-bottom: 56.25%;
-      height: 0;
-      background: #06060f;
-      border: 1px solid #ff2d7855;
-      margin-bottom: 10px;
+      position: relative; padding-bottom: 56.25%; height: 0;
+      background: #000; border: 1px solid #ff2d7855; margin-bottom: 10px;
     }
     .video-featured iframe, .video-small iframe {
-      position: absolute;
-      top: 0; left: 0; width: 100%; height: 100%; border: none;
+      position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none;
     }
 
     .video-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 8px; }
@@ -175,7 +155,7 @@
     .yt { color: var(--pink); border-color: #ff2d7855; }
     .ig { color: var(--gold); border-color: #ffd70055; }
     .sc { color: var(--cyan); border-color: #00f5ff55; }
-    .gh { color: var(--green); border-color: #99cc7755; }
+    .gh { color: #99cc77; border-color: #99cc7755; }
 
     .gear-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-top: 8px; }
     .gear-item { border: 1px solid #ff2d7822; padding: 16px; background: var(--surface); }
@@ -195,21 +175,21 @@
     .blink { animation: blink 1.2s step-end infinite; }
     @keyframes blink { 50% { opacity: 0; } }
 
-    #matrix-section {
-      display: none; position: fixed; inset: 0; background: #000; z-index: 1000;
-    }
+    #matrix-section { display: none; position: fixed; inset: 0; background: #000; z-index: 1000; }
     #matrix-section.active { display: block; }
     #matrix-canvas { width: 100%; height: 100%; }
     #matrix-msg {
       position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-      font-family: 'VT323', monospace; font-size: clamp(28px, 5vw, 52px); color: #00ff41;
-      text-shadow: 0 0 20px #00ff41; text-align: center; opacity: 0; transition: opacity 1.5s; pointer-events: none;
+      font-family: 'VT323', monospace; font-size: clamp(28px, 5vw, 52px); color: var(--green);
+      text-shadow: 0 0 20px var(--green); text-align: center; opacity: 0; transition: opacity 1.5s; pointer-events: none;
     }
     #matrix-msg.show { opacity: 1; }
     .hidden { display: none !important; }
   </style>
 </head>
 <body>
+
+  <div class="crt-static"></div>
 
   <header id="site-header">
     <div class="artist-name">CARL WILLIAM MUSIC</div>
@@ -270,7 +250,7 @@
       <div class="gear-item">
         <div class="gear-photo-placeholder">[ PHOTO COMING SOON ]</div>
         <div class="gear-label">The Brain</div>
-        <div class="gear-desc">Raspberry Pi looping core running custom scripts.</div>
+        <div class="gear-desc">Raspberry Pi looping core running custom Python MIDI bridge.</div>
       </div>
     </div>
   </div>
@@ -286,7 +266,6 @@
   </div>
 
   <script>
-    // ICONS
     const iconMap = {
       youtube: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="15" height="15"><path d="M2.5 17a24.12 24.12 0 0 1 0-10 2 2 0 0 1 1.4-1.4 49.56 49.56 0 0 1 16.2 0A2 2 0 0 1 21.5 7a24.12 24.12 0 0 1 0 10 2 2 0 0 1-1.4 1.4 49.55 49.55 0 0 1-16.2 0A2 2 0 0 1 2.5 17"/><polygon points="10 15 15 12 10 9"/></svg>`,
       instagram: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="15" height="15"><rect width="20" height="20" x="2" y="2" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" x2="17.51" y1="6.5" y2="6.5"/></svg>`,
@@ -295,77 +274,50 @@
     };
     document.querySelectorAll('i[data-lucide]').forEach(el => el.outerHTML = iconMap[el.getAttribute('data-lucide')] || '');
 
-    // NAVIGATION
-    const page = document.querySelector('.page');
-    const gear = document.getElementById('gear-section');
-    const header = document.getElementById('site-header');
-    const nav = document.getElementById('site-nav');
-    const matrix = document.getElementById('matrix-section');
-    const matrixMsg = document.getElementById('matrix-msg');
+    const page = document.querySelector('.page'), gear = document.getElementById('gear-section'), 
+          header = document.getElementById('site-header'), nav = document.getElementById('site-nav'), 
+          matrix = document.getElementById('matrix-section'), matrixMsg = document.getElementById('matrix-msg'),
+          links = document.querySelectorAll('nav a');
     
-    let matrixRunning = false;
-    let canExitMatrix = false;
+    let matrixRunning = false, canExitMatrix = false;
 
-    function resetViews() {
-      page.classList.remove('hidden');
-      gear.classList.add('hidden');
-      header.style.display = '';
-      nav.style.display = '';
-      matrix.classList.remove('active');
-      matrixRunning = false;
+    function resetViews(activeId) {
+      links.forEach(l => l.classList.remove('active'));
+      document.getElementById(activeId).classList.add('active');
+      page.classList.remove('hidden'); gear.classList.add('hidden');
+      header.style.display = ''; nav.style.display = '';
+      matrix.classList.remove('active'); matrixRunning = false;
     }
 
-    document.getElementById('nav-videos').addEventListener('click', () => { resetViews(); });
-    document.getElementById('nav-music').addEventListener('click', () => { resetViews(); });
+    document.getElementById('nav-videos').addEventListener('click', () => resetViews('nav-videos'));
+    document.getElementById('nav-music').addEventListener('click', () => resetViews('nav-music'));
     document.getElementById('nav-gear').addEventListener('click', () => {
-      resetViews();
-      page.classList.add('hidden');
-      gear.classList.remove('hidden');
+      resetViews('nav-gear'); page.classList.add('hidden'); gear.classList.remove('hidden');
     });
 
-    // MATRIX LOGIC
     document.getElementById('nav-matrix').addEventListener('click', (e) => {
-      e.preventDefault();
-      header.style.display = 'none';
-      nav.style.display = 'none';
-      page.classList.add('hidden');
-      gear.classList.add('hidden');
-      matrix.classList.add('active');
+      e.preventDefault(); header.style.display = 'none'; nav.style.display = 'none';
+      page.classList.add('hidden'); gear.classList.add('hidden'); matrix.classList.add('active');
       canExitMatrix = false;
       setTimeout(() => { canExitMatrix = true; matrixMsg.classList.add('show'); }, 1000);
       if(!matrixRunning) startMatrix();
     });
 
-    function exitMatrix() {
-      if (canExitMatrix) {
-        matrixMsg.classList.remove('show');
-        resetViews();
-      }
-    }
+    const exitMatrix = () => { if (canExitMatrix) { matrixMsg.classList.remove('show'); resetViews('nav-videos'); } };
     matrix.addEventListener('click', exitMatrix);
     document.addEventListener('keydown', exitMatrix);
 
     function startMatrix() {
       matrixRunning = true;
-      const canvas = document.getElementById('matrix-canvas');
-      const ctx = canvas.getContext('2d');
-      const chars = 'ｱｲｳｴｵｶｷｸｹｺｻｼｽｾｿﾀﾁﾂﾃﾄﾅﾆﾇネノハ0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+      const canvas = document.getElementById('matrix-canvas'), ctx = canvas.getContext('2d');
+      const chars = 'ｱｲｳｴｵｶｷｸｹｺｻｼｽｾｿﾀﾁﾂﾃﾄ0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
       const fontSize = 16;
       let cols, drops;
-
-      function resize() {
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
-        cols = Math.floor(canvas.width / fontSize);
-        drops = Array(cols).fill(1);
-      }
-      window.addEventListener('resize', resize);
-      resize();
-
-      function draw() {
+      const resize = () => { canvas.width = window.innerWidth; canvas.height = window.innerHeight; cols = Math.floor(canvas.width / fontSize); drops = Array(cols).fill(1); };
+      window.addEventListener('resize', resize); resize();
+      const draw = () => {
         if (!matrixRunning) return;
-        ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.05)'; ctx.fillRect(0, 0, canvas.width, canvas.height);
         ctx.font = fontSize + 'px VT323';
         drops.forEach((y, i) => {
           ctx.fillStyle = Math.random() > 0.95 ? '#fff' : '#00ff41';
@@ -374,24 +326,18 @@
           drops[i]++;
         });
         requestAnimationFrame(draw);
-      }
+      };
       draw();
     }
 
-    // DECRYPT BIO
     (function decrypt() {
-      const el = document.getElementById('bio-decrypt');
-      const target = el.textContent;
-      const pool = 'ABCDEFHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*';
-      const segments = [...target];
+      const el = document.getElementById('bio-decrypt'), target = el.textContent, pool = 'ABCDEFHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*', segments = [...target];
       let iteration = 0;
-      
       const interval = setInterval(() => {
         el.textContent = segments.map((char, index) => {
           if (index < iteration || char === ' ' || char === '|') return segments[index];
           return pool[Math.floor(Math.random() * pool.length)];
         }).join('');
-        
         iteration += 1/3;
         if (iteration >= segments.length) clearInterval(interval);
       }, 30);
