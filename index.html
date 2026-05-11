@@ -427,33 +427,48 @@ layout: null
 
     <div class="left-col" id="videos">
 
-      <div class="section-label">Featured</div>
+      <!-- ── ORIGINALS ─────────────────────────────────────────── -->
+      <div id="originals-section">
+        <div class="section-label">Originals</div>
 
-      <!-- Featured video from _data/videos.yml -->
-      {% for video in site.data.videos.featured %}
-      <div class="video-featured">
-        <iframe
-          src="https://www.youtube-nocookie.com/embed/{{ video.id }}"
-          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-          allowfullscreen>
-        </iframe>
-      </div>
-      <div class="video-caption">&gt; {{ video.caption }}</div>
-      {% endfor %}
-
-      <div class="section-label" style="margin-top: 28px;">More</div>
-
-      <!-- Smaller videos from _data/videos.yml -->
-      <div class="video-grid">
-        {% for video in site.data.videos.more %}
-        <div class="video-small">
-          <iframe
-            src="https://www.youtube-nocookie.com/embed/{{ video.id }}"
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-            allowfullscreen>
-          </iframe>
-        </div>
+        {% for video in site.data.videos.originals %}
+          {% if video.featured %}
+          <div class="video-featured">
+            <iframe
+              src="https://www.youtube-nocookie.com/embed/{{ video.id }}"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowfullscreen>
+            </iframe>
+          </div>
+          <div class="video-caption">&gt; {{ video.title }}</div>
+          {% else %}
+          <div class="video-grid" style="margin-top: 20px;">
+            <div class="video-small">
+              <iframe
+                src="https://www.youtube-nocookie.com/embed/{{ video.id }}"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowfullscreen>
+              </iframe>
+            </div>
+          </div>
+          {% endif %}
         {% endfor %}
+      </div>
+
+      <!-- ── COVERS (hidden by default, shown via nav tab) ──────── -->
+      <div id="covers-section" style="display:none;">
+        <div class="section-label">Covers</div>
+        <div class="video-grid">
+          {% for video in site.data.videos.covers %}
+          <div class="video-small">
+            <iframe
+              src="https://www.youtube-nocookie.com/embed/{{ video.id }}"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowfullscreen>
+            </iframe>
+          </div>
+          {% endfor %}
+        </div>
       </div>
 
     </div>
@@ -542,8 +557,16 @@ layout: null
     let matrixRunning = false;
     let animFrame;
 
-    function showPage() { page.classList.remove('hidden'); gearSection.style.display = 'none'; }
-    function showGear() { page.classList.add('hidden');    gearSection.style.display = 'block'; }
+    function showPage(section) {
+      page.classList.remove('hidden');
+      gearSection.style.display = 'none';
+      document.getElementById('originals-section').style.display = section === 'covers' ? 'none' : 'block';
+      document.getElementById('covers-section').style.display    = section === 'covers' ? 'block' : 'none';
+    }
+    function showGear() {
+      page.classList.add('hidden');
+      gearSection.style.display = 'block';
+    }
 
     allNavLinks.forEach(link => {
       link.addEventListener('click', function() {
@@ -552,8 +575,8 @@ layout: null
       });
     });
 
-    document.getElementById('nav-videos').addEventListener('click', function(e) { showPage(); });
-    document.getElementById('nav-music').addEventListener('click',  function(e) { showPage(); });
+    document.getElementById('nav-videos').addEventListener('click', function(e) { showPage('originals'); });
+    document.getElementById('nav-music').addEventListener('click',  function(e) { showPage('covers'); });
     document.getElementById('nav-gear').addEventListener('click',   function(e) { e.preventDefault(); showGear(); });
 
     // ── ENTER MATRIX ──────────────────────────────────────────────
@@ -581,7 +604,7 @@ layout: null
       siteNav.style.display    = '';
       matrixRunning = false;
       cancelAnimationFrame(animFrame);
-      showPage();
+      showPage('originals');
       allNavLinks.forEach(l => l.classList.remove('active'));
       document.getElementById('nav-videos').classList.add('active');
     }
