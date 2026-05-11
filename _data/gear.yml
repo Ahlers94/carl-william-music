@@ -6,17 +6,15 @@
 # label: the cyan ALL-CAPS header for the item
 # description: the body text writeup
 
-- label: Instrument
-  image:
+- label: Telecaster
+  image: /photos/DSCN1217.JPG
   description: >
-    Your guitar writeup goes here. What it is, where you got it,
-    what makes it yours.
+    Me with my Telecaster practicing at the storage bings, 2014.
 
-- label: The Brain
-  image:
+- label: Fullerton
+  image: /photos/onTheGround.jpg
   description: >
-    Your Raspberry Pi rig writeup goes here. OS, scripts,
-    what it does live.
+    Me with my first guitar jamming in a friend's backyard, 2007.
 
 - label: Signal Chain
   image:
