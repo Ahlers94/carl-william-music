@@ -343,6 +343,40 @@
     .blink { animation: blink 1.2s step-end infinite; }
     @keyframes blink { 50% { opacity: 0; } }
 
+    /* ── MATRIX SECTION ─────────────────────────────────────────────
+       Hidden by default. Shown when the Matrix nav tab is clicked.  */
+    #matrix-section {
+      display: none;
+      position: relative;
+      width: 100%;
+      height: calc(100vh - 160px);
+      background: #000;
+      overflow: hidden;
+    }
+    #matrix-section.active { display: block; }
+    #matrix-canvas { display: block; width: 100%; height: 100%; }
+
+    /* "Wake up, Neo..." message in the centre of the rain */
+    #matrix-msg {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-family: 'VT323', monospace;
+      font-size: clamp(28px, 5vw, 52px);
+      color: #00ff41;
+      text-shadow: 0 0 20px #00ff41, 0 0 40px #00ff4188;
+      letter-spacing: 4px;
+      text-align: center;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 1.5s ease;
+    }
+    #matrix-msg.show { opacity: 1; }
+
+    /* Hide the normal page grid when Matrix mode is on */
+    .page.hidden { display: none; }
+
   </style>
 </head>
 <body>
@@ -364,9 +398,10 @@
        Add class="active" to the link that matches the current section.
        ══════════════════════════════════════════════════════════════ -->
   <nav>
-    <a href="#videos" class="active">Videos</a>
-    <a href="#music">Music</a>
-    <a href="#contact">Contact</a>
+    <a href="#videos" class="active" id="nav-videos">Videos</a>
+    <a href="#music" id="nav-music">Music</a>
+    <a href="#contact" id="nav-contact">Contact</a>
+    <a href="#" id="nav-matrix" style="color:#00ff41; border-color:#00ff4133;">The Matrix</a>
   </nav>
 
   <!-- ══════════════════════════════════════════════════════════════
@@ -504,6 +539,109 @@
     <span>Carl William Music &copy; 2025</span>
     <span>Hosted on GitHub Pages <span class="blink">_</span></span>
   </footer>
+
+  <!-- ══════════════════════════════════════════════════════════════
+       THE MATRIX — canvas rain animation
+       Shown/hidden by the nav tab. Canvas is drawn with JavaScript.
+       ══════════════════════════════════════════════════════════════ -->
+  <div id="matrix-section">
+    <canvas id="matrix-canvas"></canvas>
+    <div id="matrix-msg">WAKE UP, NEO...<br>THE MUSIC HAS YOU.</div>
+  </div>
+
+  <script>
+    // ── NAV TAB SWITCHING ──────────────────────────────────────────
+    const page          = document.querySelector('.page');
+    const matrixSection = document.getElementById('matrix-section');
+    const matrixMsg     = document.getElementById('matrix-msg');
+    const navMatrix     = document.getElementById('nav-matrix');
+    const allNavLinks   = document.querySelectorAll('nav a');
+
+    let matrixRunning = false;
+    let animFrame;
+
+    // Clicking any nav link clears the active class first
+    allNavLinks.forEach(link => {
+      link.addEventListener('click', function(e) {
+        allNavLinks.forEach(l => l.classList.remove('active'));
+        this.classList.add('active');
+      });
+    });
+
+    // Matrix tab: show canvas, hide main page
+    navMatrix.addEventListener('click', function(e) {
+      e.preventDefault();
+      page.classList.add('hidden');
+      matrixSection.classList.add('active');
+      if (!matrixRunning) startMatrix();
+      // Fade in the message after a short delay
+      setTimeout(() => matrixMsg.classList.add('show'), 1800);
+    });
+
+    // Any other nav tab: show main page, stop Matrix
+    document.getElementById('nav-videos').addEventListener('click',  exitMatrix);
+    document.getElementById('nav-music').addEventListener('click',   exitMatrix);
+    document.getElementById('nav-contact').addEventListener('click', exitMatrix);
+
+    function exitMatrix() {
+      matrixSection.classList.remove('active');
+      matrixMsg.classList.remove('show');
+      page.classList.remove('hidden');
+      matrixRunning = false;
+      cancelAnimationFrame(animFrame);
+    }
+
+    // ── MATRIX RAIN ───────────────────────────────────────────────
+    function startMatrix() {
+      matrixRunning = true;
+      const canvas  = document.getElementById('matrix-canvas');
+      const ctx     = canvas.getContext('2d');
+
+      // Katakana + Latin + digits — classic Matrix character set
+      const chars = 'アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲン0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+
+      const fontSize = 16;
+      let cols, drops;
+
+      function resize() {
+        canvas.width  = canvas.offsetWidth;
+        canvas.height = canvas.offsetHeight;
+        cols  = Math.floor(canvas.width / fontSize);
+        drops = Array(cols).fill(1);
+      }
+      resize();
+      window.addEventListener('resize', resize);
+
+      function draw() {
+        if (!matrixRunning) return;
+
+        // Semi-transparent black overlay — creates the fade trail
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        ctx.font = fontSize + 'px VT323, monospace';
+
+        drops.forEach((y, i) => {
+          // Brightest (white) character at the head of each stream
+          const isHead = Math.random() > 0.95;
+          ctx.fillStyle = isHead ? '#ccffcc' : '#00ff41';
+
+          const char = chars[Math.floor(Math.random() * chars.length)];
+          ctx.fillText(char, i * fontSize, y * fontSize);
+
+          // Reset drop to top (randomly, to stagger streams)
+          if (y * fontSize > canvas.height && Math.random() > 0.975) {
+            drops[i] = 0;
+          }
+          drops[i]++;
+        });
+
+        animFrame = requestAnimationFrame(draw);
+      }
+
+      draw();
+    }
+  </script>
 
 </body>
 </html>
