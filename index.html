@@ -110,6 +110,18 @@ layout: null
       text-transform: uppercase;
       margin-top: 8px;
       opacity: 0.8;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+    .tagline-word {
+      display: inline-block;
+      opacity: 0;
+      transform: translateY(12px);
+      animation: slideIn 0.4s ease forwards;
+    }
+    @keyframes slideIn {
+      to { opacity: 1; transform: translateY(0); }
     }
 
     /* ── NAVIGATION ─────────────────────────────────────────────── */
@@ -438,7 +450,17 @@ layout: null
 
   <header id="site-header">
     <div class="artist-name">CARL WILLIAM MUSIC</div>
-    <div class="artist-tagline">Substance Over Style &nbsp;//&nbsp; No Edits &nbsp;//&nbsp; No Posing</div>
+    <div class="artist-tagline">
+      <span class="tagline-word" style="animation-delay: 0.2s">Substance</span>
+      <span class="tagline-word" style="animation-delay: 0.35s">Over</span>
+      <span class="tagline-word" style="animation-delay: 0.5s">Style</span>
+      <span class="tagline-word" style="animation-delay: 0.7s">//</span>
+      <span class="tagline-word" style="animation-delay: 0.85s">No</span>
+      <span class="tagline-word" style="animation-delay: 1.0s">Edits</span>
+      <span class="tagline-word" style="animation-delay: 1.2s">//</span>
+      <span class="tagline-word" style="animation-delay: 1.35s">No</span>
+      <span class="tagline-word" style="animation-delay: 1.5s">Posing</span>
+    </div>
   </header>
 
   <nav id="site-nav">
