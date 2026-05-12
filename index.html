@@ -597,12 +597,12 @@ layout: null
       gearSection.style.display = 'none';
       document.getElementById('originals-section').style.display = section === 'covers' ? 'none' : 'block';
       document.getElementById('covers-section').style.display    = section === 'covers' ? 'block' : 'none';
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      setTimeout(() => window.scrollTo({ top: 0, behavior: 'smooth' }), 0);
     }
     function showGear() {
       page.classList.add('hidden');
       gearSection.style.display = 'block';
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      setTimeout(() => window.scrollTo({ top: 0, behavior: 'smooth' }), 0);
     }
 
     allNavLinks.forEach(link => {
