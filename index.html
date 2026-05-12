@@ -182,7 +182,114 @@ layout: null
     #nav-matrix:hover,
     #nav-matrix.active { color: #00a550; border-bottom: 2px solid #00a550; text-shadow: 0 0 12px #00a55088; }
 
-    /* ── TWO-COLUMN LAYOUT ──────────────────────────────────────── */
+    /* ── NAV TAB FADE-IN ────────────────────────────────────────────
+       Each tab fades in sequentially after the tagline finishes      */
+    #nav-videos { animation: fadeInNav 0.3s ease forwards; animation-delay: 1.7s; opacity: 0; }
+    #nav-music  { animation: fadeInNav 0.3s ease forwards; animation-delay: 1.9s; opacity: 0; }
+    #nav-gear   { animation: fadeInNav 0.3s ease forwards; animation-delay: 2.1s; opacity: 0; }
+    #nav-matrix { animation: fadeInNav 0.3s ease forwards; animation-delay: 2.3s; opacity: 0; }
+    @keyframes fadeInNav { to { opacity: 1; } }
+
+    /* ── CUSTOM CURSOR GLOW (desktop only) ──────────────────────────
+       A soft cyan halo that follows the mouse. Hidden on touch devices. */
+    #cursor-glow {
+      position: fixed;
+      width: 28px; height: 28px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(0,245,255,0.18) 0%, transparent 70%);
+      pointer-events: none;
+      transform: translate(-50%, -50%);
+      z-index: 1000;
+      transition: opacity 0.3s;
+    }
+    @media (hover: none) { #cursor-glow { display: none; } }
+
+    /* ── VIDEO CARD HOVER GLOW ──────────────────────────────────────
+       Border brightens on hover as if powering up                    */
+    .video-featured {
+      transition: box-shadow 0.3s ease, border-color 0.3s ease;
+    }
+    .video-featured:hover {
+      border-color: #ff2d78aa;
+      box-shadow: 0 0 16px #ff2d7833;
+    }
+    .video-small {
+      transition: box-shadow 0.3s ease, border-color 0.3s ease;
+    }
+    .video-small:hover {
+      border-color: #ffd700aa;
+      box-shadow: 0 0 12px #ffd70033;
+    }
+
+    /* ── TAGLINE RANDOM FLICKER ─────────────────────────────────────
+       Applied via JS to individual tagline words at random intervals  */
+    @keyframes flicker {
+      0%   { opacity: 1; }
+      10%  { opacity: 0.4; }
+      12%  { opacity: 1; }
+      14%  { opacity: 0.6; }
+      16%  { opacity: 1; }
+      100% { opacity: 1; }
+    }
+    .tagline-word.flickering {
+      animation: flicker 0.3s ease forwards;
+    }
+
+    /* ── TAB CONTENT FADE-IN ────────────────────────────────────────
+       Content fades in when switching tabs                            */
+    .tab-fade {
+      animation: tabFadeIn 0.3s ease forwards;
+    }
+    @keyframes tabFadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ── GEAR CARD EXPAND ───────────────────────────────────────────
+       Description is hidden by default, revealed on click            */
+    .gear-desc {
+      font-size: 11px;
+      color: var(--muted);
+      line-height: 1.7;
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.4s ease, opacity 0.4s ease, margin-top 0.3s ease;
+      opacity: 0;
+      margin-top: 0;
+    }
+    .gear-item.open .gear-desc {
+      max-height: 300px;
+      opacity: 1;
+      margin-top: 8px;
+    }
+    .gear-item {
+      border: 1px solid #ff2d7822;
+      padding: 16px;
+      background: var(--surface);
+      cursor: pointer;
+      transition: border-color 0.2s;
+    }
+    .gear-item:hover { border-color: #ff2d7844; }
+    .gear-label {
+      font-size: 10px;
+      color: var(--cyan);
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      margin-bottom: 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    /* Small arrow indicator */
+    .gear-label::after {
+      content: '▸';
+      font-size: 10px;
+      color: var(--dim);
+      transition: transform 0.3s ease;
+    }
+    .gear-item.open .gear-label::after {
+      transform: rotate(90deg);
+    }
     .page {
       display: grid;
       grid-template-columns: 1fr 280px;
@@ -340,11 +447,6 @@ layout: null
       margin-top: 8px;
     }
     @media (max-width: 720px) { .gear-grid { grid-template-columns: 1fr; } }
-    .gear-item {
-      border: 1px solid #ff2d7822;
-      padding: 16px;
-      background: var(--surface);
-    }
     .gear-photo-placeholder {
       width: 100%;
       aspect-ratio: 4/3;
@@ -366,19 +468,6 @@ layout: null
       margin-bottom: 12px;
       border: 1px solid #ff2d7833;
     }
-    .gear-label {
-      font-size: 10px;
-      color: var(--cyan);
-      letter-spacing: 3px;
-      text-transform: uppercase;
-      margin-bottom: 8px;
-    }
-    .gear-desc {
-      font-size: 11px;
-      color: var(--muted);
-      line-height: 1.7;
-    }
-
     /* ── FOOTER ─────────────────────────────────────────────────── */
     footer {
       border-top: 1px solid #00f5ff22;
@@ -447,6 +536,8 @@ layout: null
   </style>
 </head>
 <body>
+  <!-- Cursor glow element — follows mouse on desktop -->
+  <div id="cursor-glow"></div>
 
   <header id="site-header">
     <div class="artist-name">CARL WILLIAM MUSIC</div>
@@ -583,7 +674,37 @@ layout: null
   </div>
 
   <script>
-    // ── INLINE SVG ICONS ──────────────────────────────────────────
+    // ── CURSOR GLOW ───────────────────────────────────────────────
+    const cursorGlow = document.getElementById('cursor-glow');
+    document.addEventListener('mousemove', e => {
+      cursorGlow.style.left = e.clientX + 'px';
+      cursorGlow.style.top  = e.clientY + 'px';
+    });
+
+    // ── TAGLINE RANDOM FLICKER ────────────────────────────────────
+    // Picks a random tagline word every 8-10 seconds and flickers it
+    const taglineWords = document.querySelectorAll('.tagline-word');
+    function randomFlicker() {
+      const word = taglineWords[Math.floor(Math.random() * taglineWords.length)];
+      word.classList.add('flickering');
+      word.addEventListener('animationend', () => word.classList.remove('flickering'), { once: true });
+      setTimeout(randomFlicker, 8000 + Math.random() * 2000);
+    }
+    setTimeout(randomFlicker, 4000); // start after page loads
+
+    // ── TAB CONTENT FADE-IN ───────────────────────────────────────
+    function fadeInSection(id) {
+      const el = document.getElementById(id);
+      if (!el) return;
+      el.classList.remove('tab-fade');
+      void el.offsetWidth; // force reflow to restart animation
+      el.classList.add('tab-fade');
+    }
+
+    // ── GEAR CARD EXPAND ─────────────────────────────────────────
+    document.querySelectorAll('.gear-item').forEach(item => {
+      item.addEventListener('click', () => item.classList.toggle('open'));
+    });
     // Icons injected directly — no CDN dependency.
     const iconMap = {
       youtube:   `<svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 17a24.12 24.12 0 0 1 0-10 2 2 0 0 1 1.4-1.4 49.56 49.56 0 0 1 16.2 0A2 2 0 0 1 21.5 7a24.12 24.12 0 0 1 0 10 2 2 0 0 1-1.4 1.4 49.55 49.55 0 0 1-16.2 0A2 2 0 0 1 2.5 17"/><polygon points="10 15 15 12 10 9"/></svg>`,
@@ -617,13 +738,16 @@ layout: null
     function showPage(section) {
       page.classList.remove('hidden');
       gearSection.style.display = 'none';
-      document.getElementById('originals-section').style.display = section === 'covers' ? 'none' : 'block';
-      document.getElementById('covers-section').style.display    = section === 'covers' ? 'block' : 'none';
+      const isCovers = section === 'covers';
+      document.getElementById('originals-section').style.display = isCovers ? 'none' : 'block';
+      document.getElementById('covers-section').style.display    = isCovers ? 'block' : 'none';
+      fadeInSection(isCovers ? 'covers-section' : 'originals-section');
       setTimeout(() => window.scrollTo({ top: 0, behavior: 'smooth' }), 0);
     }
     function showGear() {
       page.classList.add('hidden');
       gearSection.style.display = 'block';
+      fadeInSection('gear-section');
       setTimeout(() => window.scrollTo({ top: 0, behavior: 'smooth' }), 0);
     }
 
