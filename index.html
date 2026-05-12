@@ -4,17 +4,13 @@ layout: null
 <!DOCTYPE html>
 <!--
   ╔══════════════════════════════════════════════════════════════════╗
-  ║  CARL WILLIAM MUSIC — index.html (Jekyll)                       ║
-  ║  Hosted on GitHub Pages                                         ║
+  ║  CARL WILLIAM MUSIC — index.html (Jekyll)                        ║
+  ║  Hosted on GitHub Pages                                          ║
   ║                                                                  ║
   ║  CONTENT LIVES IN _data/ — edit those files, not this one:      ║
   ║    _data/videos.yml  — featured + more video IDs                ║
   ║    _data/gear.yml    — gear items, photos, descriptions         ║
   ║    _data/social.yml  — social media links                       ║
-  ║                                                                  ║
-  ║  QUICK EDIT CHECKLIST:                                           ║
-  ║  [ ] OG preview image   (search: preview.jpg)                   ║
-  ║  [ ] Footer year        (search: 2026)                          ║
   ╚══════════════════════════════════════════════════════════════════╝
 -->
 <html lang="en">
@@ -32,11 +28,6 @@ layout: null
   <meta property="og:url"         content="https://ahlers94.github.io/carl-william-music/">
   <meta property="og:image"       content="https://ahlers94.github.io/carl-william-music/preview.jpg">
 
-  <meta name="twitter:card"        content="summary_large_image">
-  <meta name="twitter:title"       content="Carl William Music | Substance Over Style">
-  <meta name="twitter:description" content="Live looping guitarist. Covers and originals. One take, no excuses.">
-  <meta name="twitter:image"       content="https://ahlers94.github.io/carl-william-music/preview.jpg">
-
   <title>Carl William Music | Substance Over Style</title>
 
   <!-- ── FONTS ─────────────────────────────────────────────────── -->
@@ -44,7 +35,6 @@ layout: null
   <link href="https://fonts.googleapis.com/css2?family=VT323&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
 
   <style>
-
     /* ── COLOR PALETTE ──────────────────────────────────────────── */
     :root {
       --bg:      #0a0a12;
@@ -124,9 +114,7 @@ layout: null
       transform: translateY(12px);
       animation: slideIn 0.4s ease forwards;
     }
-    @keyframes slideIn {
-      to { opacity: 1; transform: translateY(0); }
-    }
+    @keyframes slideIn { to { opacity: 1; transform: translateY(0); } }
 
     /* ── NAVIGATION ─────────────────────────────────────────────── */
     nav {
@@ -137,24 +125,9 @@ layout: null
       top: 0;
       z-index: 10;
       overflow-x: auto;
-      -webkit-overflow-scrolling: touch; /* smooth scroll on iOS */
-      scrollbar-width: none;            /* hide scrollbar on Firefox */
+      scrollbar-width: none;
     }
-    nav::-webkit-scrollbar { display: none; } /* hide scrollbar on Chrome/Safari */
-
-    /* Fade gradient on the right edge — signals more content to swipe to */
-    nav::after {
-      content: '';
-      position: sticky;
-      right: 0;
-      top: 0;
-      min-width: 48px;
-      height: 100%;
-      background: linear-gradient(to right, transparent, #10101e);
-      pointer-events: none;
-      flex-shrink: 0;
-    }
-
+    nav::-webkit-scrollbar { display: none; }
     nav a {
       display: block;
       padding: 12px 24px;
@@ -165,117 +138,54 @@ layout: null
       text-decoration: none;
       border-right: 1px solid #ffffff0d;
       transition: color 0.2s, border-bottom-color 0.2s;
-      white-space: nowrap; /* prevents tab labels from wrapping */
-      flex-shrink: 0;      /* prevents tabs from squishing */
+      white-space: nowrap;
+      flex-shrink: 0;
     }
 
-    /* Per-tab colors — Super Famicom button palette */
-    #nav-videos        { color: #b3001a; text-shadow: 0 0 8px #b3001a66; }
-    #nav-videos:hover,
-    #nav-videos.active { color: #d4001a; border-bottom: 2px solid #d4001a; text-shadow: 0 0 12px #d4001a88; }
+    #nav-videos         { color: #b3001a; text-shadow: 0 0 8px #b3001a66; }
+    #nav-videos:hover, #nav-videos.active { color: #d4001a; border-bottom: 2px solid #d4001a; }
 
-    #nav-music         { color: #005fa8; text-shadow: 0 0 8px #005fa866; }
-    #nav-music:hover,
-    #nav-music.active  { color: #0070c9; border-bottom: 2px solid #0070c9; text-shadow: 0 0 12px #0070c988; }
+    #nav-music          { color: #005fa8; text-shadow: 0 0 8px #005fa866; }
+    #nav-music:hover, #nav-music.active  { color: #0070c9; border-bottom: 2px solid #0070c9; }
 
-    #nav-gear          { color: #c08800; text-shadow: 0 0 8px #c0880066; }
-    #nav-gear:hover,
-    #nav-gear.active   { color: #e4a100; border-bottom: 2px solid #e4a100; text-shadow: 0 0 12px #e4a10088; }
+    #nav-gear           { color: #c08800; text-shadow: 0 0 8px #c0880066; }
+    #nav-gear:hover, #nav-gear.active   { color: #e4a100; border-bottom: 2px solid #e4a100; }
 
-    #nav-matrix        { color: #008a44; text-shadow: 0 0 8px #008a4466; }
-    #nav-matrix:hover,
-    #nav-matrix.active { color: #00a550; border-bottom: 2px solid #00a550; text-shadow: 0 0 12px #00a55088; }
+    #nav-about          { color: #8844cc; text-shadow: 0 0 8px #8844cc66; }
+    #nav-about:hover, #nav-about.active  { color: #aa66ff; border-bottom: 2px solid #aa66ff; }
 
-    #nav-about         { color: #8844cc; text-shadow: 0 0 8px #8844cc66; }
-    #nav-about:hover,
-    #nav-about.active  { color: #aa66ff; border-bottom: 2px solid #aa66ff; text-shadow: 0 0 12px #aa66ff88; }
+    #nav-shows          { color: #009999; text-shadow: 0 0 8px #00999966; }
+    #nav-shows:hover, #nav-shows.active  { color: #00cccc; border-bottom: 2px solid #00cccc; }
 
-    #nav-shows         { color: #009999; text-shadow: 0 0 8px #00999966; }
-    #nav-shows:hover,
-    #nav-shows.active  { color: #00cccc; border-bottom: 2px solid #00cccc; text-shadow: 0 0 12px #00cccc88; }
+    #nav-matrix         { color: #008a44; text-shadow: 0 0 8px #008a4466; }
+    #nav-matrix:hover, #nav-matrix.active { color: #00a550; border-bottom: 2px solid #00a550; }
 
-    /* ── NAV TAB FADE-IN ────────────────────────────────────────────
-       Each tab fades in sequentially after the tagline finishes      */
-    #nav-videos { animation: fadeInNav 0.3s ease forwards; animation-delay: 1.7s; opacity: 0; }
-    #nav-music  { animation: fadeInNav 0.3s ease forwards; animation-delay: 1.9s; opacity: 0; }
-    #nav-gear   { animation: fadeInNav 0.3s ease forwards; animation-delay: 2.1s; opacity: 0; }
-    #nav-about  { animation: fadeInNav 0.3s ease forwards; animation-delay: 2.3s; opacity: 0; }
-    #nav-shows  { animation: fadeInNav 0.3s ease forwards; animation-delay: 2.5s; opacity: 0; }
-    #nav-matrix { animation: fadeInNav 0.3s ease forwards; animation-delay: 2.7s; opacity: 0; }
-    @keyframes fadeInNav { to { opacity: 1; } }
-
-    /* ── CUSTOM CURSOR GLOW (desktop only) ──────────────────────────
-       A soft cyan halo that follows the mouse. Hidden on touch devices. */
-    #cursor-glow {
-      position: fixed;
-      width: 28px; height: 28px;
-      border-radius: 50%;
-      background: radial-gradient(circle, rgba(0,245,255,0.18) 0%, transparent 70%);
-      pointer-events: none;
-      transform: translate(-50%, -50%);
-      z-index: 1000;
-      transition: opacity 0.3s;
-    }
-    @media (hover: none) { #cursor-glow { display: none; } }
-
-    /* ── VIDEO CARD HOVER GLOW ──────────────────────────────────────
-       Border brightens on hover as if powering up                    */
-    .video-featured {
-      transition: box-shadow 0.3s ease, border-color 0.3s ease;
-    }
-    .video-featured:hover {
-      border-color: #ff2d78aa;
-      box-shadow: 0 0 16px #ff2d7833;
-    }
-    .video-small {
-      transition: box-shadow 0.3s ease, border-color 0.3s ease;
-    }
-    .video-small:hover {
-      border-color: #ffd700aa;
-      box-shadow: 0 0 12px #ffd70033;
+    /* ── NO-JS FALLBACK ────────────────────────────────────────── */
+    .js-enabled #covers-section,
+    .js-enabled #gear-section,
+    .js-enabled #about-section,
+    .js-enabled #shows-section,
+    .js-enabled .hidden {
+      display: none;
     }
 
-    /* ── TAGLINE RANDOM FLICKER ─────────────────────────────────────
-       Applied via JS to individual tagline words at random intervals  */
-    @keyframes flicker {
-      0%   { opacity: 1; }
-      10%  { opacity: 0.4; }
-      12%  { opacity: 1; }
-      14%  { opacity: 0.6; }
-      16%  { opacity: 1; }
-      100% { opacity: 1; }
-    }
-    .tagline-word.flickering {
-      animation: flicker 0.3s ease forwards;
-    }
-
-    /* ── TAB CONTENT FADE-IN ────────────────────────────────────────
-       Content fades in when switching tabs                            */
-    .tab-fade {
-      animation: tabFadeIn 0.3s ease forwards;
-    }
-    @keyframes tabFadeIn {
-      from { opacity: 0; transform: translateY(8px); }
-      to   { opacity: 1; transform: translateY(0); }
-    }
-
-    /* ── GEAR CARD EXPAND ───────────────────────────────────────────
-       Description is hidden by default, revealed on click            */
+    /* ── GEAR AUTO-HEIGHT ───────────────────────────────────────── */
     .gear-desc {
+      display: grid;
+      grid-template-rows: 0fr;
+      transition: grid-template-rows 0.4s ease, opacity 0.4s ease;
+      opacity: 0;
       font-size: 11px;
       color: var(--muted);
       line-height: 1.7;
-      max-height: 0;
-      overflow: hidden;
-      transition: max-height 0.4s ease, opacity 0.4s ease, margin-top 0.3s ease;
-      opacity: 0;
-      margin-top: 0;
     }
     .gear-item.open .gear-desc {
-      max-height: 300px;
+      grid-template-rows: 1fr;
       opacity: 1;
-      margin-top: 8px;
+      margin-top: 12px;
     }
+    .gear-desc-inner { overflow: hidden; }
+
     .gear-item {
       border: 1px solid #ff2d7822;
       padding: 16px;
@@ -289,380 +199,63 @@ layout: null
       color: var(--cyan);
       letter-spacing: 3px;
       text-transform: uppercase;
-      margin-bottom: 0;
       display: flex;
       justify-content: space-between;
       align-items: center;
     }
-    /* Small arrow indicator */
-    .gear-label::after {
-      content: '▸';
-      font-size: 10px;
-      color: var(--dim);
-      transition: transform 0.3s ease;
-    }
-    .gear-item.open .gear-label::after {
-      transform: rotate(90deg);
-    }
-    .page {
-      display: grid;
-      grid-template-columns: 1fr 280px;
-      min-height: calc(100vh - 200px);
-    }
-    @media (max-width: 720px) {
-      .page  { grid-template-columns: 1fr; }
-      header { padding: 24px; }
-    }
-    .left-col {
-      padding: 36px 36px 36px 48px;
-      border-right: 1px solid #ff2d7822;
-    }
-    .right-col {
-      padding: 28px 24px;
-      background: var(--surface);
-    }
+    .gear-label::after { content: '▸'; font-size: 10px; color: var(--dim); transition: transform 0.3s; }
+    .gear-item.open .gear-label::after { transform: rotate(90deg); }
 
-    /* ── SECTION LABELS ─────────────────────────────────────────── */
-    .section-label {
-      font-size: 10px;
-      color: var(--cyan);
-      letter-spacing: 3px;
-      text-transform: uppercase;
-      margin-bottom: 14px;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-    .section-label::after {
-      content: '';
-      flex: 1;
-      height: 1px;
-      background: #00f5ff33;
-    }
+    /* ── LAYOUT & VIDEO GRID ───────────────────────────────────── */
+    .page { display: grid; grid-template-columns: 1fr 280px; min-height: calc(100vh - 200px); }
+    .left-col { padding: 36px 36px 36px 48px; border-right: 1px solid #ff2d7822; }
+    .right-col { padding: 28px 24px; background: var(--surface); }
 
-    /* ── FEATURED VIDEO ─────────────────────────────────────────── */
-    .video-featured {
-      position: relative;
-      padding-bottom: 56.25%;
-      height: 0;
-      background: #06060f;
-      border: 1px solid #ff2d7855;
-      margin-bottom: 10px;
-      overflow: hidden;
-    }
-    .video-featured::before {
-      content: '';
-      position: absolute;
-      top: 0; left: 0; right: 0;
-      height: 2px;
-      background: linear-gradient(90deg, transparent, var(--pink), var(--cyan), transparent);
-      z-index: 1;
-    }
-    .video-featured iframe {
-      position: absolute;
-      top: 0; left: 0;
-      width: 100%; height: 100%;
-      border: none;
-    }
-    .video-caption {
-      font-size: 10px;
-      color: var(--dim);
-      letter-spacing: 1px;
-      margin-bottom: 20px;
-    }
+    .section-label { font-size: 10px; color: var(--cyan); letter-spacing: 3px; text-transform: uppercase; margin-bottom: 14px; display: flex; align-items: center; gap: 10px; }
+    .section-label::after { content: ''; flex: 1; height: 1px; background: #00f5ff33; }
 
-    /* ── SMALLER VIDEO GRID ─────────────────────────────────────── */
-    .video-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 12px;
-      margin-top: 8px;
-    }
-    @media (max-width: 720px) { .video-grid { grid-template-columns: 1fr; } }
-    .video-small {
-      position: relative;
-      padding-bottom: 56.25%;
-      height: 0;
-      background: #06060f;
-      border: 1px solid #ffd70033;
-      overflow: hidden;
-    }
-    .video-small::before {
-      content: '';
-      position: absolute;
-      top: 0; left: 0; right: 0;
-      height: 1px;
-      background: linear-gradient(90deg, transparent, var(--gold), transparent);
-      z-index: 1;
-    }
-    .video-small iframe {
-      position: absolute;
-      top: 0; left: 0;
-      width: 100%; height: 100%;
-      border: none;
-    }
+    .video-featured { position: relative; padding-bottom: 56.25%; background: #06060f; border: 1px solid #ff2d7855; margin-bottom: 10px; overflow: hidden; transition: box-shadow 0.3s ease, border-color 0.3s ease; }
+    .video-featured:hover { border-color: #ff2d78aa; box-shadow: 0 0 16px #ff2d7833; }
+    .video-featured iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: none; }
+    
+    .video-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 8px; }
+    .video-small { position: relative; padding-bottom: 56.25%; background: #06060f; border: 1px solid #ffd70033; overflow: hidden; transition: box-shadow 0.3s ease; }
+    .video-small:hover { border-color: #ffd700aa; box-shadow: 0 0 12px #ffd70033; }
+    .video-small iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: none; }
 
-    /* ── SOCIAL LINKS ───────────────────────────────────────────── */
-    .social-links {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      margin-bottom: 28px;
-    }
-    .social-link {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      padding: 10px 14px;
-      border: 1px solid;
-      font-size: 11px;
-      letter-spacing: 2px;
-      text-transform: uppercase;
-      text-decoration: none;
-      transition: background 0.15s;
-    }
-    .social-link:hover { background: #ffffff08; }
-    .social-link svg {
-      width: 15px; height: 15px;
-      flex-shrink: 0;
-      stroke: currentColor;
-    }
+    /* ── SOCIALS ────────────────────────────────────────────────── */
+    .social-links { display: flex; flex-direction: column; gap: 10px; margin-bottom: 28px; }
+    .social-link { display: flex; align-items: center; gap: 12px; padding: 10px 14px; border: 1px solid; font-size: 11px; letter-spacing: 2px; text-transform: uppercase; text-decoration: none; transition: background 0.15s; }
+    .social-link svg { width: 15px; height: 15px; stroke: currentColor; fill: none; stroke-width: 2; }
+    
+    .yt { color: #FF0000; border-color: #FF000055; }
+    .ig { color: #E1306C; border-color: #E1306C55; }
+    .sc { color: #FF5500; border-color: #FF550055; }
+    .gh { color: #6cc644; border-color: #6cc64455; }
+    .em { color: var(--cyan); border-color: #00f5ff55; text-transform: none; letter-spacing: 0; }
 
-    /* Per-platform colors + glow — matched to real brand colors */
-    .yt { color: #FF0000;  border-color: #FF000055; text-shadow: 0 0 8px #FF000088; }
-    .ig { color: #E1306C;  border-color: #E1306C55; text-shadow: 0 0 8px #E1306C88; }
-    .sc { color: #FF5500;  border-color: #FF550055; text-shadow: 0 0 8px #FF550088; }
-    .gh { color: #6cc644;  border-color: #6cc64455; text-shadow: 0 0 8px #6cc64488; }
-    .em { color: var(--cyan); border-color: #00f5ff55; text-shadow: 0 0 8px #00f5ff88; text-transform: none; letter-spacing: 0; }
-    .vm { color: #008CFF;    border-color: #008CFF55; text-shadow: 0 0 8px #008CFF88; }
-
-    .yt:hover { text-shadow: 0 0 14px #FF0000bb; }
-    .ig:hover { text-shadow: 0 0 14px #E1306Cbb; }
-    .sc:hover { text-shadow: 0 0 14px #FF5500bb; }
-    .gh:hover { text-shadow: 0 0 14px #6cc644bb; }
-    .em:hover { text-shadow: 0 0 14px #00f5ffbb; }
-    .vm:hover { text-shadow: 0 0 14px #008CFFbb; }
-
-    /* ── BIO ────────────────────────────────────────────────────── */
-    .bio-box {
-      padding-top: 22px;
-      border-top: 1px solid #ffffff0d;
-    }
-    .bio-text {
-      font-size: 11px;
-      line-height: 1.8;
-      color: var(--muted);
-      font-style: italic;
-    }
-
-    /* ── GEAR SECTION ───────────────────────────────────────────── */
-    .gear-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 24px;
-      margin-top: 8px;
-    }
-    @media (max-width: 720px) { .gear-grid { grid-template-columns: 1fr; } }
-    .gear-photo-placeholder {
-      width: 100%;
-      aspect-ratio: 4/3;
-      background: #06060f;
-      border: 1px dashed #ff2d7833;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 10px;
-      color: var(--dim);
-      letter-spacing: 2px;
-      margin-bottom: 12px;
-    }
-    .gear-item img {
-      width: 100%;
-      aspect-ratio: 4/3;
-      object-fit: cover;
-      display: block;
-      margin-bottom: 12px;
-      border: 1px solid #ff2d7833;
-    }
-    /* ── ABOUT ME SECTION ───────────────────────────────────────── */
-    #about-section {
-      display: none;
-      padding: 36px 36px 36px 48px;
-      max-width: 720px;
-    }
-    .about-content .bio-text {
-      font-size: 13px;
-      line-height: 2;
-      color: var(--muted);
-      font-style: italic;
-    }
-    @media (max-width: 720px) { #about-section { padding: 24px; } }
-
-    /* ── SHOWS SECTION ──────────────────────────────────────────── */
-    #shows-section {
-      display: none;
-      padding: 36px 36px 36px 48px;
-    }
-    @media (max-width: 720px) { #shows-section { padding: 24px; } }
-    .shows-list { display: flex; flex-direction: column; gap: 12px; margin-top: 8px; }
-    .show-item {
-      display: flex;
-      gap: 24px;
-      align-items: flex-start;
-      padding: 16px;
-      border: 1px solid #00cccc33;
-      background: var(--surface);
-      transition: border-color 0.2s;
-    }
-    .show-item:hover { border-color: #00cccc77; }
-    .show-date {
-      font-family: 'VT323', monospace;
-      font-size: 22px;
-      color: #00cccc;
-      text-shadow: 0 0 8px #00cccc66;
-      white-space: nowrap;
-      min-width: 110px;
-    }
-    .show-venue {
-      font-size: 12px;
-      color: var(--text);
-      letter-spacing: 1px;
-      margin-bottom: 4px;
-    }
-    .show-location { font-size: 11px; color: var(--muted); margin-bottom: 4px; }
-    .show-time     { font-size: 10px; color: var(--dim); letter-spacing: 1px; }
-    .shows-empty {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      padding: 32px 0;
-    }
-    .shows-empty-label {
-      font-family: 'VT323', monospace;
-      font-size: 24px;
-      color: var(--dim);
-      letter-spacing: 3px;
-    }
-    .shows-empty-sub {
-      font-size: 10px;
-      color: var(--dim);
-      letter-spacing: 2px;
-      text-transform: uppercase;
-    }
-
-    /* ── FOOTER ─────────────────────────────────────────────────── */
-    footer {
-      border-top: 1px solid #00f5ff22;
-      padding: 14px 48px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      background: #07070f;
-      flex-wrap: wrap;
-      gap: 8px;
-    }
-    footer span {
-      font-size: 10px;
-      color: var(--dim);
-      letter-spacing: 2px;
-      text-transform: uppercase;
-    }
-    .blink { animation: blink 1.2s step-end infinite; }
-    @keyframes blink { 50% { opacity: 0; } }
-
-    /* ── MATRIX SECTION ─────────────────────────────────────────── */
-    #matrix-section {
-      display: none;
-      position: fixed;
-      inset: 0;
-      background: #000;
-      overflow: hidden;
-      z-index: 100;
-      cursor: pointer;
-    }
+    /* ── MISC ───────────────────────────────────────────────────── */
+    #matrix-section { display: none; position: fixed; inset: 0; background: #000; z-index: 100; cursor: pointer; }
     #matrix-section.active { display: block; }
-    #matrix-canvas { display: block; width: 100%; height: 100%; }
-    #matrix-msg {
-      position: absolute;
-      top: 50%; left: 50%;
-      transform: translate(-50%, -50%);
-      font-family: 'VT323', monospace;
-      font-size: clamp(28px, 5vw, 52px);
-      color: #00ff41;
-      text-shadow: 0 0 20px #00ff41, 0 0 40px #00ff4188;
-      letter-spacing: 4px;
-      text-align: center;
-      pointer-events: none;
-      opacity: 0;
-      transition: opacity 1.5s ease;
-    }
+    #matrix-canvas { width: 100%; height: 100%; }
+    #matrix-msg { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-family: 'VT323', monospace; font-size: clamp(28px, 5vw, 52px); color: #00ff41; text-align: center; opacity: 0; transition: opacity 1.5s; }
     #matrix-msg.show { opacity: 1; }
-    #matrix-hint {
-      position: absolute;
-      bottom: 28px; left: 50%;
-      transform: translateX(-50%);
-      font-family: 'Space Mono', monospace;
-      font-size: 11px;
-      color: #00ff4188;
-      letter-spacing: 3px;
-      text-transform: uppercase;
-      pointer-events: none;
-      opacity: 0;
-      transition: opacity 1.5s ease;
-    }
-    #matrix-hint.show { opacity: 1; }
 
-    .page.hidden  { display: none; }
-    #gear-section {
-      display: none;
-      padding: 36px 36px 36px 48px; /* matches .left-col padding */
-    }
-    @media (max-width: 720px) {
-      #gear-section { padding: 24px; }
-    }
+    footer { border-top: 1px solid #00f5ff22; padding: 14px 48px; background: #07070f; font-size: 10px; color: var(--dim); display: flex; justify-content: space-between; }
+    .tab-fade { animation: tabFadeIn 0.3s ease forwards; }
+    @keyframes tabFadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
 
-    /* ── MOBILE SOCIAL STRIP ────────────────────────────────────────
-       Sits directly under the nav on mobile — social links always
-       visible without scrolling. Hidden on desktop (sidebar handles it). */
-    .mobile-social-strip {
-      display: none;
-    }
     @media (max-width: 720px) {
-      .mobile-social-strip {
-        display: flex;
-        justify-content: stretch;
-        background: #0d0d1a;
-        border-bottom: 1px solid #ffffff11;
-      }
-      .mobile-social-strip a {
-        flex: 1;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        padding: 12px 4px;
-        text-decoration: none;
-        border-right: 1px solid #ffffff0d;
-        transition: background 0.15s;
-      }
-      .mobile-social-strip a:last-child { border-right: none; }
-      .mobile-social-strip a:hover,
-      .mobile-social-strip a:active { background: #ffffff08; }
-      .mobile-social-strip svg {
-        width: 18px; height: 18px;
-        stroke: currentColor;
-        flex-shrink: 0;
-      }
-      /* Hide sidebar on mobile — strip replaces it */
+      .page { grid-template-columns: 1fr; }
       .right-col { display: none; }
-      /* Reduce left-col padding on mobile */
       .left-col { padding: 24px; }
+      header { padding: 24px; }
+      .video-grid { grid-template-columns: 1fr; }
     }
-
   </style>
 </head>
-<body>
-  <!-- Cursor glow element — follows mouse on desktop -->
-  <div id="cursor-glow"></div>
+<body class="no-js">
+  <script>document.body.classList.replace('no-js', 'js-enabled');</script>
 
   <header id="site-header">
     <div class="artist-name">CARL WILLIAM MUSIC</div>
@@ -682,369 +275,193 @@ layout: null
   <nav id="site-nav">
     <a href="#videos" class="active" id="nav-videos">Originals</a>
     <a href="#music"  id="nav-music">Covers</a>
-    <a href="#"       id="nav-gear">Gear</a>
-    <a href="#"       id="nav-about">About Me</a>
-    <a href="#"       id="nav-shows">Shows</a>
-    <a href="#"       id="nav-matrix">The Matrix</a>
+    <a href="#gear"   id="nav-gear">Gear</a>
+    <a href="#about"  id="nav-about">About Me</a>
+    <a href="#shows"  id="nav-shows">Shows</a>
+    <a href="#matrix" id="nav-matrix">The Matrix</a>
   </nav>
 
-  <!-- ── MOBILE SOCIAL STRIP ───────────────────────────────────────
-       Visible on mobile only. Icons injected by JS same as sidebar.
-       Add/remove links here to match _data/social.yml              -->
-  <div class="mobile-social-strip">
-    <a class="yt" href="https://www.youtube.com/@CarlWilliamMusic" data-icon="youtube"   target="_blank" rel="noopener" aria-label="YouTube"></a>
-    <a class="ig" href="https://www.instagram.com/carlwilliammusic/" data-icon="instagram" target="_blank" rel="noopener" aria-label="Instagram"></a>
-    <a class="sc" href="https://soundcloud.com/carl-william-music"   data-icon="radio"     target="_blank" rel="noopener" aria-label="SoundCloud"></a>
-    <a class="gh" href="https://github.com/Ahlers94"                 data-icon="github"    target="_blank" rel="noopener" aria-label="GitHub"></a>
-    <a class="vm" href="https://venmo.com/carl-william-music"         data-icon="venmo"     target="_blank" rel="noopener" aria-label="Venmo"></a>
-    <a class="em" href="mailto:wcarlahlers@gmail.com"                data-icon="mail"      aria-label="Email"></a>
-  </div>
-
-  <!-- ── MAIN TWO-COLUMN LAYOUT ──────────────────────────────────── -->
   <div class="page">
-
-    <div class="left-col" id="videos">
-
-      <!-- ── ORIGINALS ─────────────────────────────────────────── -->
-      <div id="originals-section">
+    <div class="left-col">
+      <!-- ORIGINALS -->
+      <section id="originals-section">
         <div class="section-label">Originals</div>
-
-        <!-- Featured original — large -->
         {% for video in site.data.videos.originals %}
           {% if video.featured %}
           <div class="video-featured">
-            <iframe
-              src="https://www.youtube-nocookie.com/embed/{{ video.id }}"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-              allowfullscreen>
-            </iframe>
+            <iframe src="https://www.youtube-nocookie.com/embed/{{ video.id }}" allowfullscreen></iframe>
           </div>
-          {% if video.title %}<div class="video-caption">&gt; {{ video.title }}</div>{% endif %}
           {% endif %}
         {% endfor %}
-
-        <!-- Remaining originals — small grid -->
-        {% assign non_featured = site.data.videos.originals | where_exp: "v", "v.featured != true" %}
-        {% if non_featured.size > 0 %}
-        <div class="section-label" style="margin-top: 28px;">More Originals</div>
         <div class="video-grid">
-          {% for video in non_featured %}
+          {% for video in site.data.videos.originals %}{% unless video.featured %}
           <div class="video-small">
-            <iframe
-              src="https://www.youtube-nocookie.com/embed/{{ video.id }}"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-              allowfullscreen>
-            </iframe>
+            <iframe src="https://www.youtube-nocookie.com/embed/{{ video.id }}" allowfullscreen></iframe>
           </div>
-          {% endfor %}
+          {% endunless %}{% endfor %}
         </div>
-        {% endif %}
+      </section>
 
-      </div>
-
-      <!-- ── COVERS (hidden by default, shown via Covers tab) ───── -->
-      <div id="covers-section" style="display:none;">
+      <!-- COVERS -->
+      <section id="covers-section">
         <div class="section-label">Covers</div>
         <div class="video-grid">
           {% for video in site.data.videos.covers %}
           <div class="video-small">
-            <iframe
-              src="https://www.youtube-nocookie.com/embed/{{ video.id }}"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-              allowfullscreen>
-            </iframe>
+            <iframe src="https://www.youtube-nocookie.com/embed/{{ video.id }}" allowfullscreen></iframe>
           </div>
           {% endfor %}
         </div>
-      </div>
+      </section>
 
+      <!-- GEAR -->
+      <section id="gear-section">
+        <div class="section-label">The Rig</div>
+        <div class="gear-grid" style="display: grid; gap: 20px;">
+          {% for item in site.data.gear %}
+          <div class="gear-item">
+            <div class="gear-label">{{ item.label }}</div>
+            <div class="gear-desc">
+              <div class="gear-desc-inner">{{ item.description }}</div>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+      </section>
+
+      <!-- ABOUT -->
+      <section id="about-section">
+        <div class="section-label">About Me</div>
+        <p style="font-style: italic; line-height: 2; color: var(--muted);">
+          One rig. One take. Built from scratch and ridden in on a bike. Technically demanding covers and originals. No cuts. No posing. Just a human playing music.
+        </p>
+      </section>
+
+      <!-- SHOWS -->
+      <section id="shows-section">
+        <div class="section-label">Upcoming Shows</div>
+        <div style="padding: 32px 0; color: var(--dim); font-family: 'VT323'; font-size: 24px;">
+          [ NO SHOWS CURRENTLY SCHEDULED ]
+        </div>
+      </section>
     </div>
 
-    <!-- ── SIDEBAR ──────────────────────────────────────────────── -->
-    <div class="right-col">
-
-      <div class="section-label" id="music">Find Me</div>
-
-      <!-- Social links from _data/social.yml -->
+    <aside class="right-col">
+      <div class="section-label">Find Me</div>
       <div class="social-links">
         {% for link in site.data.social %}
-        <a class="social-link {{ link.class }}" href="{{ link.url }}" data-icon="{{ link.icon }}" {% if link.class != 'em' %}target="_blank" rel="noopener"{% endif %}>
+        <a class="social-link {{ link.class }}" href="{{ link.url }}" data-icon="{{ link.icon }}" target="_blank">
           {{ link.label }}
         </a>
         {% endfor %}
       </div>
-
-      <div class="bio-box">
-        <div class="section-label">About</div>
-        <p class="bio-text" id="bio-decrypt">🎸 Guitarist | 🎛️ Live Looping Artist | 🔊 Crafting full-band soundscapes</p>
-      </div>
-
-    </div>
-  </div>
-
-  <!-- ── GEAR SECTION (shown via nav tab) ──────────────────────── -->
-  <div id="gear-section">
-    <div class="section-label">The Rig</div>
-    <div class="gear-grid">
-      {% for item in site.data.gear %}
-      <div class="gear-item">
-        {% if item.image %}
-          <img src="{{ item.image }}" alt="{{ item.label }}">
-        {% else %}
-          <div class="gear-photo-placeholder">[ PHOTO COMING SOON ]</div>
-        {% endif %}
-        <div class="gear-label">{{ item.label }}</div>
-        <div class="gear-desc">{{ item.description }}</div>
-      </div>
-      {% endfor %}
-    </div>
-  </div>
-
-  <!-- ── ABOUT ME SECTION ──────────────────────────────────────── -->
-  <div id="about-section" style="display:none;">
-    <div class="section-label">About Me</div>
-    <div class="about-content">
-      <p class="bio-text">
-        <!-- Edit your full bio here. This can be as long as you want. -->
-        One rig. One take. Built from scratch and ridden in on a bike.
-        Technically demanding covers and originals &mdash; acoustic rock,
-        video game music, and everything in between &mdash; performed live,
-        unedited, and exactly as it happened. No cuts. No posing.
-        Just a human playing music.
-      </p>
-    </div>
-  </div>
-
-  <!-- ── SHOWS SECTION ─────────────────────────────────────────── -->
-  <div id="shows-section" style="display:none;">
-    <div class="section-label">Upcoming Shows</div>
-    <div class="shows-list">
-      <!-- ┌───────────────────────────────────────────────────────┐
-           │ Add shows by copying the .show-item block below.      │
-           │ When no shows are scheduled, the empty state shows.   │
-           └───────────────────────────────────────────────────────┘ -->
-
-      <div class="shows-empty">
-        <span class="shows-empty-label">[ NO SHOWS CURRENTLY SCHEDULED ]</span>
-        <span class="shows-empty-sub">Check back soon // Follow on social for announcements</span>
-      </div>
-
-      <!-- Example show entry — uncomment and fill in when you have shows:
-      <div class="show-item">
-        <div class="show-date">2026.06.15</div>
-        <div class="show-details">
-          <div class="show-venue">Venue Name</div>
-          <div class="show-location">City, State</div>
-          <div class="show-time">8:00 PM // Free / $5</div>
-        </div>
-      </div>
-      -->
-    </div>
-
-    <!-- Contact block — booking inquiries -->
-    <div class="shows-contact">
-      <div class="section-label" style="margin-top: 36px;">Booking & Inquiries</div>
-      <p class="bio-text" style="margin-bottom: 14px;">Want to book Carl William Music for your venue, event, or session? Get in touch directly.</p>
-      <a href="mailto:wcarlahlers@gmail.com" class="social-link em" data-icon="mail" style="display: inline-flex; margin-top: 8px;">
-        wcarlahlers@gmail.com
-      </a>
-    </div>
-
+      <div class="section-label">Status</div>
+      <p id="bio-decrypt" style="font-size: 11px; color: var(--muted);">🎸 Guitarist | 🎛️ Live Looping Artist</p>
+    </aside>
   </div>
 
   <footer>
     <span>Carl William Music &copy; 2026</span>
-    <span>Hosted on GitHub Pages <span class="blink">_</span></span>
+    <span>GitHub Pages _</span>
   </footer>
 
-  <!-- ── MATRIX OVERLAY ────────────────────────────────────────── -->
-  <div id="matrix-section" role="button" aria-label="Exit Matrix mode">
+  <div id="matrix-section">
     <canvas id="matrix-canvas"></canvas>
     <div id="matrix-msg">WAKE UP, NEO...<br>THE MUSIC HAS YOU.</div>
-    <div id="matrix-hint">[ click, tap, or press any key to exit ]</div>
   </div>
 
   <script>
-    // ── CURSOR GLOW ───────────────────────────────────────────────
-    const cursorGlow = document.getElementById('cursor-glow');
-    document.addEventListener('mousemove', e => {
-      cursorGlow.style.left = e.clientX + 'px';
-      cursorGlow.style.top  = e.clientY + 'px';
-    });
-
-    // ── TAGLINE RANDOM FLICKER ────────────────────────────────────
-    // Picks a random tagline word every 8-10 seconds and flickers it
-    const taglineWords = document.querySelectorAll('.tagline-word');
-    function randomFlicker() {
-      const word = taglineWords[Math.floor(Math.random() * taglineWords.length)];
-      word.classList.add('flickering');
-      word.addEventListener('animationend', () => word.classList.remove('flickering'), { once: true });
-      setTimeout(randomFlicker, 8000 + Math.random() * 2000);
-    }
-    setTimeout(randomFlicker, 4000); // start after page loads
-
-    // ── TAB CONTENT FADE-IN ───────────────────────────────────────
-    function fadeInSection(id) {
-      const el = document.getElementById(id);
-      if (!el) return;
-      el.classList.remove('tab-fade');
-      void el.offsetWidth; // force reflow to restart animation
-      el.classList.add('tab-fade');
-    }
-
-    // ── GEAR CARD EXPAND ─────────────────────────────────────────
-    document.querySelectorAll('.gear-item').forEach(item => {
-      item.addEventListener('click', () => item.classList.toggle('open'));
-    });
-    // Icons injected directly — no CDN dependency.
     const iconMap = {
-      youtube:   `<svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 17a24.12 24.12 0 0 1 0-10 2 2 0 0 1 1.4-1.4 49.56 49.56 0 0 1 16.2 0A2 2 0 0 1 21.5 7a24.12 24.12 0 0 1 0 10 2 2 0 0 1-1.4 1.4 49.55 49.55 0 0 1-16.2 0A2 2 0 0 1 2.5 17"/><polygon points="10 15 15 12 10 9"/></svg>`,
-      instagram: `<svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="20" x="2" y="2" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" x2="17.51" y1="6.5" y2="6.5"/></svg>`,
-      radio:     `<svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4.9 19.1C1 15.2 1 8.8 4.9 4.9"/><path d="M7.8 16.2c-2.3-2.3-2.3-6.1 0-8.5"/><circle cx="12" cy="12" r="2"/><path d="M16.2 7.8c2.3 2.3 2.3 6.1 0 8.5"/><path d="M19.1 4.9C23 8.8 23 15.2 19.1 19.1"/></svg>`,
-      github:    `<svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"/><path d="M9 18c-4.51 2-5-2-7-2"/></svg>`,
-      mail:      `<svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>`,
-      venmo:     `<svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>`
+      youtube: `<svg viewBox="0 0 24 24"><path d="M2.5 17a24.12 24.12 0 0 1 0-10 2 2 0 0 1 1.4-1.4 49.56 49.56 0 0 1 16.2 0A2 2 0 0 1 21.5 7a24.12 24.12 0 0 1 0 10 2 2 0 0 1-1.4 1.4 49.55 49.55 0 0 1-16.2 0A2 2 0 0 1 2.5 17"/><polygon points="10 15 15 12 10 9"/></svg>`,
+      instagram: `<svg viewBox="0 0 24 24"><rect width="20" height="20" x="2" y="2" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" x2="17.51" y1="6.5" y2="6.5"/></svg>`,
+      github: `<svg viewBox="0 0 24 24"><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"/><path d="M9 18c-4.51 2-5-2-7-2"/></svg>`,
+      mail: `<svg viewBox="0 0 24 24"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>`
     };
 
-    // Inject icons into social links and mobile strip
     document.querySelectorAll('[data-icon]').forEach(el => {
       const icon = el.getAttribute('data-icon');
-      if (icon && iconMap[icon]) {
-        el.insertAdjacentHTML('afterbegin', iconMap[icon]);
-      }
+      if(iconMap[icon]) el.insertAdjacentHTML('afterbegin', iconMap[icon]);
     });
 
-    // ── NAV SWITCHING ─────────────────────────────────────────────
-    const page         = document.querySelector('.page');
-    const gearSection  = document.getElementById('gear-section');
-    const aboutSection = document.getElementById('about-section');
-    const showsSection = document.getElementById('shows-section');
-    const siteHeader   = document.getElementById('site-header');
-    const siteNav      = document.getElementById('site-nav');
-    const matrixEl     = document.getElementById('matrix-section');
-    const matrixMsg    = document.getElementById('matrix-msg');
-    const matrixHint   = document.getElementById('matrix-hint');
-    const allNavLinks  = document.querySelectorAll('nav a');
+    // NAV LOGIC
+    const sections = {
+      'nav-videos': 'originals-section',
+      'nav-music': 'covers-section',
+      'nav-gear': 'gear-section',
+      'nav-about': 'about-section',
+      'nav-shows': 'shows-section'
+    };
 
-    let matrixRunning = false;
-    let animFrame;
+    const siteNav = document.getElementById('site-nav');
+    const allSectionEls = document.querySelectorAll('section');
 
-    // Hide all sections cleanly before showing one
-    function hideAll() {
-      page.classList.add('hidden');
-      gearSection.style.display  = 'none';
-      aboutSection.style.display = 'none';
-      showsSection.style.display = 'none';
-    }
-
-    function showPage(section) {
-      page.classList.remove('hidden');
-      gearSection.style.display  = 'none';
-      aboutSection.style.display = 'none';
-      showsSection.style.display = 'none';
-      const isCovers = section === 'covers';
-      document.getElementById('originals-section').style.display = isCovers ? 'none' : 'block';
-      document.getElementById('covers-section').style.display    = isCovers ? 'block' : 'none';
-      fadeInSection(isCovers ? 'covers-section' : 'originals-section');
-      setTimeout(() => window.scrollTo({ top: 0, behavior: 'smooth' }), 0);
-    }
-    function showGear() {
-      hideAll();
-      gearSection.style.display = 'block';
-      fadeInSection('gear-section');
-      setTimeout(() => window.scrollTo({ top: 0, behavior: 'smooth' }), 0);
-    }
-    function showAbout() {
-      hideAll();
-      aboutSection.style.display = 'block';
-      fadeInSection('about-section');
-      setTimeout(() => window.scrollTo({ top: 0, behavior: 'smooth' }), 0);
-    }
-    function showShows() {
-      hideAll();
-      showsSection.style.display = 'block';
-      fadeInSection('shows-section');
-      setTimeout(() => window.scrollTo({ top: 0, behavior: 'smooth' }), 0);
-    }
-
-    allNavLinks.forEach(link => {
-      link.addEventListener('click', function() {
-        allNavLinks.forEach(l => l.classList.remove('active'));
-        this.classList.add('active');
-      });
-    });
-
-    document.getElementById('nav-videos').addEventListener('click', function(e) { showPage('originals'); });
-    document.getElementById('nav-music').addEventListener('click',  function(e) { showPage('covers'); });
-    document.getElementById('nav-gear').addEventListener('click',   function(e) { e.preventDefault(); showGear(); });
-    document.getElementById('nav-about').addEventListener('click',  function(e) { e.preventDefault(); showAbout(); });
-    document.getElementById('nav-shows').addEventListener('click',  function(e) { e.preventDefault(); showShows(); });
-
-    // ── ENTER MATRIX ──────────────────────────────────────────────
-    document.getElementById('nav-matrix').addEventListener('click', function(e) {
+    siteNav.addEventListener('click', (e) => {
+      const link = e.target.closest('a');
+      if (!link || link.id === 'nav-matrix') return;
       e.preventDefault();
-      page.classList.add('hidden');
-      gearSection.style.display    = 'none';
-      siteHeader.style.display     = 'none';
-      siteNav.style.display        = 'none';
-      matrixEl.classList.add('active');
-      if (!matrixRunning) startMatrix();
-      setTimeout(() => {
-        matrixMsg.classList.add('show');
-        matrixHint.classList.add('show');
-      }, 1800);
+
+      if (matrixRunning) exitMatrix(false);
+
+      document.querySelectorAll('nav a').forEach(l => l.classList.remove('active'));
+      link.classList.add('active');
+
+      const targetId = sections[link.id];
+      allSectionEls.forEach(s => s.style.display = 'none');
+      
+      const target = document.getElementById(targetId);
+      target.style.display = 'block';
+      target.classList.add('tab-fade');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     });
 
-    // ── EXIT MATRIX ───────────────────────────────────────────────
-    function exitMatrix() {
-      if (!matrixRunning) return;
-      matrixEl.classList.remove('active');
-      matrixMsg.classList.remove('show');
-      matrixHint.classList.remove('show');
-      siteHeader.style.display = '';
-      siteNav.style.display    = '';
+    // GEAR EXPAND
+    document.addEventListener('click', e => {
+      const item = e.target.closest('.gear-item');
+      if(item) item.classList.toggle('open');
+    });
+
+    // MATRIX
+    let matrixRunning = false, animFrame;
+    const matrixEl = document.getElementById('matrix-section');
+    
+    document.getElementById('nav-matrix').addEventListener('click', (e) => {
+      e.preventDefault();
+      matrixEl.classList.add('active');
+      document.getElementById('site-header').style.display = 'none';
+      siteNav.style.display = 'none';
+      startMatrix();
+      setTimeout(() => document.getElementById('matrix-msg').classList.add('show'), 1000);
+    });
+
+    function exitMatrix(autoSwitch = true) {
       matrixRunning = false;
       cancelAnimationFrame(animFrame);
-      showPage('originals');
-      allNavLinks.forEach(l => l.classList.remove('active'));
-      document.getElementById('nav-videos').classList.add('active');
+      matrixEl.classList.remove('active');
+      document.getElementById('site-header').style.display = '';
+      siteNav.style.display = '';
+      if(autoSwitch) document.getElementById('nav-videos').click();
     }
 
-    matrixEl.addEventListener('click', exitMatrix);
-    document.addEventListener('keydown', exitMatrix);
-    document.getElementById('nav-videos').addEventListener('click', exitMatrix);
-    document.getElementById('nav-music').addEventListener('click',  exitMatrix);
-    document.getElementById('nav-gear').addEventListener('click',   exitMatrix);
-    document.getElementById('nav-about').addEventListener('click',  exitMatrix);
-    document.getElementById('nav-shows').addEventListener('click',  exitMatrix);
+    matrixEl.addEventListener('click', () => exitMatrix(true));
 
-    // ── MATRIX RAIN ───────────────────────────────────────────────
     function startMatrix() {
       matrixRunning = true;
       const canvas = document.getElementById('matrix-canvas');
-      const ctx    = canvas.getContext('2d');
-      const chars  = 'アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲン0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-      const fontSize = 16;
+      const ctx = canvas.getContext('2d');
+      const chars = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZｱｲｳｴｵｶｷｸｹｺ';
       let cols, drops;
-
-      function resize() {
-        canvas.width  = canvas.offsetWidth;
-        canvas.height = canvas.offsetHeight;
-        cols  = Math.floor(canvas.width / fontSize);
-        drops = Array(cols).fill(1);
-      }
+      const resize = () => {
+        canvas.width = window.innerWidth; canvas.height = window.innerHeight;
+        cols = Math.floor(canvas.width / 20); drops = Array(cols).fill(1);
+      };
       resize();
-      window.addEventListener('resize', resize);
-
       function draw() {
-        if (!matrixRunning) return;
-        ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-        ctx.font = fontSize + 'px VT323, monospace';
+        if(!matrixRunning) return;
+        ctx.fillStyle = 'rgba(0,0,0,0.05)'; ctx.fillRect(0,0,canvas.width,canvas.height);
+        ctx.fillStyle = '#0f0'; ctx.font = '20px VT323';
         drops.forEach((y, i) => {
-          ctx.fillStyle = Math.random() > 0.95 ? '#ccffcc' : '#00ff41';
-          ctx.fillText(chars[Math.floor(Math.random() * chars.length)], i * fontSize, y * fontSize);
-          if (y * fontSize > canvas.height && Math.random() > 0.975) drops[i] = 0;
+          ctx.fillText(chars[Math.floor(Math.random()*chars.length)], i*20, y*20);
+          if(y*20 > canvas.height && Math.random() > 0.975) drops[i] = 0;
           drops[i]++;
         });
         animFrame = requestAnimationFrame(draw);
@@ -1052,38 +469,20 @@ layout: null
       draw();
     }
 
-    // ── BIO DECRYPT ANIMATION ─────────────────────────────────────
-    (function decryptBio() {
-      const el     = document.getElementById('bio-decrypt');
-      const target = el.textContent.trim();
-      const pool   = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*';
-      const segments = [...target];
-      const locked   = new Array(segments.length).fill(false);
-      let resolved   = 0;
-      let lastTime   = 0;
-      const msPerChar = 55;
-
-      function isSpecial(ch) { return ch.trim() === '' || /[^\x00-\x7F]/.test(ch); }
-      function randChar()    { return pool[Math.floor(Math.random() * pool.length)]; }
-      function render() {
-        return segments.map((ch, i) => (locked[i] || isSpecial(ch)) ? ch : randChar()).join('');
-      }
-
-      function tick(timestamp) {
-        if (resolved >= segments.length) { el.textContent = target; return; }
-        if (timestamp - lastTime >= msPerChar) {
-          for (let i = 0; i < segments.length; i++) {
-            if (!locked[i]) { locked[i] = true; resolved++; break; }
-          }
-          lastTime = timestamp;
-        }
-        el.textContent = render();
-        requestAnimationFrame(tick);
-      }
-      setTimeout(() => requestAnimationFrame(tick), 600);
+    // DECRYPT BIO
+    (function decrypt() {
+      const el = document.getElementById('bio-decrypt');
+      const target = el.innerText;
+      let iterations = 0;
+      const interval = setInterval(() => {
+        el.innerText = target.split("").map((char, index) => {
+          if(index < iterations) return target[index];
+          return "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"[Math.floor(Math.random()*36)];
+        }).join("");
+        if(iterations >= target.length) clearInterval(interval);
+        iterations += 1/3;
+      }, 30);
     })();
-
   </script>
-
 </body>
 </html>
