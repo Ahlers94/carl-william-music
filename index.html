@@ -4,38 +4,21 @@ layout: null
 <!DOCTYPE html>
 <!--
   ╔══════════════════════════════════════════════════════════════════╗
-  ║  CARL WILLIAM MUSIC — index.html (Jekyll)                        ║
-  ║  Hosted on GitHub Pages                                          ║
-  ║                                                                  ║
-  ║  CONTENT LIVES IN _data/ — edit those files, not this one:      ║
-  ║    _data/videos.yml  — featured + more video IDs                ║
-  ║    _data/gear.yml    — gear items, photos, descriptions         ║
-  ║    _data/social.yml  — social media links                       ║
+  ║  CARL WILLIAM MUSIC — index.html (Jekyll Unified)                ║
+  ║  Standardized Navigation + CSS Grid Expand + No-JS Fallback      ║
   ╚══════════════════════════════════════════════════════════════════╝
 -->
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-  <!-- ── SEO & SOCIAL PREVIEW ──────────────────────────────────── -->
-  <meta name="description" content="Official site for Carl William Music. Live looping, raw guitar captures, and no-nonsense performance.">
-  <meta name="author"      content="Carl William Music">
-
-  <meta property="og:type"        content="website">
-  <meta property="og:title"       content="Carl William Music | Substance Over Style">
-  <meta property="og:description" content="Live looping guitarist. Covers and originals. One take, no excuses.">
-  <meta property="og:url"         content="https://ahlers94.github.io/carl-william-music/">
-  <meta property="og:image"       content="https://ahlers94.github.io/carl-william-music/preview.jpg">
-
+  <meta name="description" content="Official site for Carl William Music. Live looping and raw guitar captures.">
   <title>Carl William Music | Substance Over Style</title>
 
-  <!-- ── FONTS ─────────────────────────────────────────────────── -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=VT323&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
 
   <style>
-    /* ── COLOR PALETTE ──────────────────────────────────────────── */
     :root {
       --bg:      #0a0a12;
       --surface: #0d0d1a;
@@ -63,22 +46,13 @@ layout: null
       content: '';
       position: fixed;
       inset: 0;
-      background: repeating-linear-gradient(
-        0deg,
-        transparent,
-        transparent 3px,
-        rgba(0,245,255,0.015) 3px,
-        rgba(0,245,255,0.015) 4px
-      );
+      background: repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(0,245,255,0.015) 3px, rgba(0,245,255,0.015) 4px);
       pointer-events: none;
       z-index: 999;
     }
 
     /* ── HEADER ─────────────────────────────────────────────────── */
-    header {
-      border-bottom: 2px solid var(--cyan);
-      padding: 36px 48px 24px;
-    }
+    header { border-bottom: 2px solid var(--cyan); padding: 36px 48px 24px; }
     .artist-name {
       font-family: 'VT323', monospace;
       font-size: clamp(56px, 10vw, 96px);
@@ -88,125 +62,48 @@ layout: null
       text-shadow: 3px 3px 0 #003d10, 0 0 40px #00ff4155;
       animation: breathe 3s ease-in-out infinite;
     }
-
     @keyframes breathe {
       0%, 100% { text-shadow: 3px 3px 0 #003d10, 0 0 20px #00ff4133, 0 0 40px #00ff4122; }
-      50%       { text-shadow: 3px 3px 0 #003d10, 0 0 30px #00ff41aa, 0 0 60px #00ff4155, 0 0 80px #00ff4122; }
+      50% { text-shadow: 3px 3px 0 #003d10, 0 0 30px #00ff41aa, 0 0 60px #00ff4155; }
     }
-    .artist-tagline {
-      font-size: 11px;
-      color: var(--cyan);
-      letter-spacing: 4px;
-      text-transform: uppercase;
-      margin-top: 8px;
-      opacity: 0.8;
-      display: flex;
-      flex-wrap: nowrap;
-      gap: 6px;
-      overflow: hidden;
-    }
-    @media (max-width: 720px) {
-      .artist-tagline { font-size: 8px; letter-spacing: 1.5px; gap: 3px; }
-    }
-    .tagline-word {
-      display: inline-block;
-      opacity: 0;
-      transform: translateY(12px);
-      animation: slideIn 0.4s ease forwards;
-    }
+    .artist-tagline { font-size: 11px; color: var(--cyan); letter-spacing: 4px; text-transform: uppercase; margin-top: 8px; opacity: 0.8; display: flex; flex-wrap: nowrap; gap: 6px; }
+    .tagline-word { display: inline-block; opacity: 0; transform: translateY(12px); animation: slideIn 0.4s ease forwards; }
     @keyframes slideIn { to { opacity: 1; transform: translateY(0); } }
 
     /* ── NAVIGATION ─────────────────────────────────────────────── */
-    nav {
-      display: flex;
-      background: #10101e;
-      border-bottom: 1px solid #ffffff15;
-      position: sticky;
-      top: 0;
-      z-index: 10;
-      overflow-x: auto;
-      scrollbar-width: none;
-    }
+    nav { display: flex; background: #10101e; border-bottom: 1px solid #ffffff15; position: sticky; top: 0; z-index: 10; overflow-x: auto; scrollbar-width: none; }
     nav::-webkit-scrollbar { display: none; }
-    nav a {
-      display: block;
-      padding: 12px 24px;
-      font-size: 11px;
-      letter-spacing: 2px;
-      text-transform: uppercase;
-      color: #9988cc;
-      text-decoration: none;
-      border-right: 1px solid #ffffff0d;
-      transition: color 0.2s, border-bottom-color 0.2s;
-      white-space: nowrap;
-      flex-shrink: 0;
-    }
+    nav a { display: block; padding: 12px 24px; font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: #9988cc; text-decoration: none; border-right: 1px solid #ffffff0d; transition: 0.2s; white-space: nowrap; }
 
-    #nav-videos         { color: #b3001a; text-shadow: 0 0 8px #b3001a66; }
-    #nav-videos:hover, #nav-videos.active { color: #d4001a; border-bottom: 2px solid #d4001a; }
-
-    #nav-music          { color: #005fa8; text-shadow: 0 0 8px #005fa866; }
-    #nav-music:hover, #nav-music.active  { color: #0070c9; border-bottom: 2px solid #0070c9; }
-
-    #nav-gear           { color: #c08800; text-shadow: 0 0 8px #c0880066; }
-    #nav-gear:hover, #nav-gear.active   { color: #e4a100; border-bottom: 2px solid #e4a100; }
-
-    #nav-about          { color: #8844cc; text-shadow: 0 0 8px #8844cc66; }
-    #nav-about:hover, #nav-about.active  { color: #aa66ff; border-bottom: 2px solid #aa66ff; }
-
-    #nav-shows          { color: #009999; text-shadow: 0 0 8px #00999966; }
-    #nav-shows:hover, #nav-shows.active  { color: #00cccc; border-bottom: 2px solid #00cccc; }
-
-    #nav-matrix         { color: #008a44; text-shadow: 0 0 8px #008a4466; }
-    #nav-matrix:hover, #nav-matrix.active { color: #00a550; border-bottom: 2px solid #00a550; }
+    #nav-videos.active { color: #d4001a; border-bottom: 2px solid #d4001a; }
+    #nav-music.active  { color: #0070c9; border-bottom: 2px solid #0070c9; }
+    #nav-gear.active   { color: #e4a100; border-bottom: 2px solid #e4a100; }
+    #nav-about.active  { color: #aa66ff; border-bottom: 2px solid #aa66ff; }
+    #nav-shows.active  { color: #00cccc; border-bottom: 2px solid #00cccc; }
 
     /* ── NO-JS FALLBACK ────────────────────────────────────────── */
     .js-enabled #covers-section,
     .js-enabled #gear-section,
     .js-enabled #about-section,
     .js-enabled #shows-section,
-    .js-enabled .hidden {
-      display: none;
-    }
+    .js-enabled .hidden { display: none; }
 
-    /* ── GEAR AUTO-HEIGHT ───────────────────────────────────────── */
-    .gear-desc {
-      display: grid;
-      grid-template-rows: 0fr;
-      transition: grid-template-rows 0.4s ease, opacity 0.4s ease;
-      opacity: 0;
-      font-size: 11px;
-      color: var(--muted);
-      line-height: 1.7;
-    }
-    .gear-item.open .gear-desc {
-      grid-template-rows: 1fr;
-      opacity: 1;
-      margin-top: 12px;
-    }
-    .gear-desc-inner { overflow: hidden; }
-
-    .gear-item {
-      border: 1px solid #ff2d7822;
-      padding: 16px;
-      background: var(--surface);
-      cursor: pointer;
-      transition: border-color 0.2s;
-    }
+    /* ── GEAR AUTO-HEIGHT & PHOTOS ──────────────────────────────── */
+    .gear-item { border: 1px solid #ff2d7822; padding: 16px; background: var(--surface); cursor: pointer; transition: 0.2s; }
     .gear-item:hover { border-color: #ff2d7844; }
-    .gear-label {
-      font-size: 10px;
-      color: var(--cyan);
-      letter-spacing: 3px;
-      text-transform: uppercase;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
+    .gear-label { font-size: 10px; color: var(--cyan); letter-spacing: 3px; text-transform: uppercase; display: flex; justify-content: space-between; align-items: center; }
     .gear-label::after { content: '▸'; font-size: 10px; color: var(--dim); transition: transform 0.3s; }
     .gear-item.open .gear-label::after { transform: rotate(90deg); }
 
-    /* ── LAYOUT & VIDEO GRID ───────────────────────────────────── */
+    .gear-desc { display: grid; grid-template-rows: 0fr; transition: grid-template-rows 0.4s ease, opacity 0.4s ease; opacity: 0; }
+    .gear-item.open .gear-desc { grid-template-rows: 1fr; opacity: 1; margin-top: 12px; }
+    .gear-desc-inner { overflow: hidden; }
+
+    .gear-photo { width: 100%; height: auto; border: 1px solid var(--pink); margin-bottom: 12px; display: block; filter: grayscale(0.4) contrast(1.1); transition: 0.3s; }
+    .gear-item:hover .gear-photo { filter: grayscale(0) contrast(1); border-color: var(--cyan); }
+    .gear-text { font-size: 11px; color: var(--muted); line-height: 1.7; }
+
+    /* ── LAYOUT ─────────────────────────────────────────────────── */
     .page { display: grid; grid-template-columns: 1fr 280px; min-height: calc(100vh - 200px); }
     .left-col { padding: 36px 36px 36px 48px; border-right: 1px solid #ff2d7822; }
     .right-col { padding: 28px 24px; background: var(--surface); }
@@ -214,44 +111,24 @@ layout: null
     .section-label { font-size: 10px; color: var(--cyan); letter-spacing: 3px; text-transform: uppercase; margin-bottom: 14px; display: flex; align-items: center; gap: 10px; }
     .section-label::after { content: ''; flex: 1; height: 1px; background: #00f5ff33; }
 
-    .video-featured { position: relative; padding-bottom: 56.25%; background: #06060f; border: 1px solid #ff2d7855; margin-bottom: 10px; overflow: hidden; transition: box-shadow 0.3s ease, border-color 0.3s ease; }
-    .video-featured:hover { border-color: #ff2d78aa; box-shadow: 0 0 16px #ff2d7833; }
+    .video-featured { position: relative; padding-bottom: 56.25%; background: #06060f; border: 1px solid #ff2d7855; margin-bottom: 10px; overflow: hidden; }
     .video-featured iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: none; }
     
     .video-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 8px; }
-    .video-small { position: relative; padding-bottom: 56.25%; background: #06060f; border: 1px solid #ffd70033; overflow: hidden; transition: box-shadow 0.3s ease; }
-    .video-small:hover { border-color: #ffd700aa; box-shadow: 0 0 12px #ffd70033; }
+    .video-small { position: relative; padding-bottom: 56.25%; background: #06060f; border: 1px solid #ffd70033; overflow: hidden; }
     .video-small iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: none; }
 
-    /* ── SOCIALS ────────────────────────────────────────────────── */
-    .social-links { display: flex; flex-direction: column; gap: 10px; margin-bottom: 28px; }
-    .social-link { display: flex; align-items: center; gap: 12px; padding: 10px 14px; border: 1px solid; font-size: 11px; letter-spacing: 2px; text-transform: uppercase; text-decoration: none; transition: background 0.15s; }
+    .social-link { display: flex; align-items: center; gap: 12px; padding: 10px 14px; border: 1px solid; font-size: 11px; letter-spacing: 2px; text-transform: uppercase; text-decoration: none; margin-bottom: 10px; }
     .social-link svg { width: 15px; height: 15px; stroke: currentColor; fill: none; stroke-width: 2; }
-    
-    .yt { color: #FF0000; border-color: #FF000055; }
-    .ig { color: #E1306C; border-color: #E1306C55; }
-    .sc { color: #FF5500; border-color: #FF550055; }
-    .gh { color: #6cc644; border-color: #6cc64455; }
-    .em { color: var(--cyan); border-color: #00f5ff55; text-transform: none; letter-spacing: 0; }
 
-    /* ── MISC ───────────────────────────────────────────────────── */
+    /* ── MATRIX ─────────────────────────────────────────────────── */
     #matrix-section { display: none; position: fixed; inset: 0; background: #000; z-index: 100; cursor: pointer; }
     #matrix-section.active { display: block; }
     #matrix-canvas { width: 100%; height: 100%; }
-    #matrix-msg { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-family: 'VT323', monospace; font-size: clamp(28px, 5vw, 52px); color: #00ff41; text-align: center; opacity: 0; transition: opacity 1.5s; }
+    #matrix-msg { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-family: 'VT323'; color: #00ff41; text-align: center; opacity: 0; transition: 1.5s; font-size: 42px; }
     #matrix-msg.show { opacity: 1; }
 
-    footer { border-top: 1px solid #00f5ff22; padding: 14px 48px; background: #07070f; font-size: 10px; color: var(--dim); display: flex; justify-content: space-between; }
-    .tab-fade { animation: tabFadeIn 0.3s ease forwards; }
-    @keyframes tabFadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
-
-    @media (max-width: 720px) {
-      .page { grid-template-columns: 1fr; }
-      .right-col { display: none; }
-      .left-col { padding: 24px; }
-      header { padding: 24px; }
-      .video-grid { grid-template-columns: 1fr; }
-    }
+    @media (max-width: 720px) { .page { grid-template-columns: 1fr; } .right-col { display: none; } .left-col { padding: 24px; } .video-grid { grid-template-columns: 1fr; } }
   </style>
 </head>
 <body class="no-js">
@@ -261,14 +138,8 @@ layout: null
     <div class="artist-name">CARL WILLIAM MUSIC</div>
     <div class="artist-tagline">
       <span class="tagline-word" style="animation-delay: 0.2s">Substance</span>
-      <span class="tagline-word" style="animation-delay: 0.35s">Over</span>
-      <span class="tagline-word" style="animation-delay: 0.5s">Style</span>
-      <span class="tagline-word" style="animation-delay: 0.7s">//</span>
-      <span class="tagline-word" style="animation-delay: 0.85s">No</span>
-      <span class="tagline-word" style="animation-delay: 1.0s">Edits</span>
-      <span class="tagline-word" style="animation-delay: 1.2s">//</span>
-      <span class="tagline-word" style="animation-delay: 1.35s">No</span>
-      <span class="tagline-word" style="animation-delay: 1.5s">Posing</span>
+      <span class="tagline-word" style="animation-delay: 0.4s">Over</span>
+      <span class="tagline-word" style="animation-delay: 0.6s">Style</span>
     </div>
   </header>
 
@@ -276,45 +147,28 @@ layout: null
     <a href="#videos" class="active" id="nav-videos">Originals</a>
     <a href="#music"  id="nav-music">Covers</a>
     <a href="#gear"   id="nav-gear">Gear</a>
-    <a href="#about"  id="nav-about">About Me</a>
+    <a href="#about"  id="nav-about">About</a>
     <a href="#shows"  id="nav-shows">Shows</a>
-    <a href="#matrix" id="nav-matrix">The Matrix</a>
+    <a href="#matrix" id="nav-matrix">Matrix</a>
   </nav>
 
   <div class="page">
     <div class="left-col">
-      <!-- ORIGINALS -->
       <section id="originals-section">
         <div class="section-label">Originals</div>
         {% for video in site.data.videos.originals %}
-          {% if video.featured %}
-          <div class="video-featured">
-            <iframe src="https://www.youtube-nocookie.com/embed/{{ video.id }}" allowfullscreen></iframe>
-          </div>
-          {% endif %}
+          {% if video.featured %}<div class="video-featured"><iframe src="https://www.youtube-nocookie.com/embed/{{ video.id }}" allowfullscreen></iframe></div>{% endif %}
         {% endfor %}
         <div class="video-grid">
-          {% for video in site.data.videos.originals %}{% unless video.featured %}
-          <div class="video-small">
-            <iframe src="https://www.youtube-nocookie.com/embed/{{ video.id }}" allowfullscreen></iframe>
-          </div>
-          {% endunless %}{% endfor %}
+          {% for video in site.data.videos.originals %}{% unless video.featured %}<div class="video-small"><iframe src="https://www.youtube-nocookie.com/embed/{{ video.id }}" allowfullscreen></iframe></div>{% endunless %}{% endfor %}
         </div>
       </section>
 
-      <!-- COVERS -->
       <section id="covers-section">
         <div class="section-label">Covers</div>
-        <div class="video-grid">
-          {% for video in site.data.videos.covers %}
-          <div class="video-small">
-            <iframe src="https://www.youtube-nocookie.com/embed/{{ video.id }}" allowfullscreen></iframe>
-          </div>
-          {% endfor %}
-        </div>
+        <div class="video-grid">{% for video in site.data.videos.covers %}<div class="video-small"><iframe src="https://www.youtube-nocookie.com/embed/{{ video.id }}" allowfullscreen></iframe></div>{% endfor %}</div>
       </section>
 
-      <!-- GEAR -->
       <section id="gear-section">
         <div class="section-label">The Rig</div>
         <div class="gear-grid" style="display: grid; gap: 20px;">
@@ -322,27 +176,24 @@ layout: null
           <div class="gear-item">
             <div class="gear-label">{{ item.label }}</div>
             <div class="gear-desc">
-              <div class="gear-desc-inner">{{ item.description }}</div>
+              <div class="gear-desc-inner">
+                {% if item.image %}<img src="{{ item.image | relative_url }}" alt="{{ item.label }}" class="gear-photo">{% endif %}
+                <div class="gear-text">{{ item.description }}</div>
+              </div>
             </div>
           </div>
           {% endfor %}
         </div>
       </section>
 
-      <!-- ABOUT -->
       <section id="about-section">
-        <div class="section-label">About Me</div>
-        <p style="font-style: italic; line-height: 2; color: var(--muted);">
-          One rig. One take. Built from scratch and ridden in on a bike. Technically demanding covers and originals. No cuts. No posing. Just a human playing music.
-        </p>
+        <div class="section-label">About</div>
+        <p style="font-style: italic; line-height: 2; color: var(--muted);">One take. No edits. No posing. Just music.</p>
       </section>
 
-      <!-- SHOWS -->
       <section id="shows-section">
-        <div class="section-label">Upcoming Shows</div>
-        <div style="padding: 32px 0; color: var(--dim); font-family: 'VT323'; font-size: 24px;">
-          [ NO SHOWS CURRENTLY SCHEDULED ]
-        </div>
+        <div class="section-label">Shows</div>
+        <div style="padding: 20px; color: var(--dim);">[ NO CURRENT SHOWS ]</div>
       </section>
     </div>
 
@@ -350,24 +201,18 @@ layout: null
       <div class="section-label">Find Me</div>
       <div class="social-links">
         {% for link in site.data.social %}
-        <a class="social-link {{ link.class }}" href="{{ link.url }}" data-icon="{{ link.icon }}" target="_blank">
+        <a class="social-link" href="{{ link.url }}" data-icon="{{ link.icon }}" target="_blank" style="color: var(--cyan); border-color: #00f5ff55;">
           {{ link.label }}
         </a>
         {% endfor %}
       </div>
-      <div class="section-label">Status</div>
-      <p id="bio-decrypt" style="font-size: 11px; color: var(--muted);">🎸 Guitarist | 🎛️ Live Looping Artist</p>
+      <p id="bio-decrypt" style="font-size: 11px; color: var(--muted); margin-top: 20px;">🎸 Live Looping Artist</p>
     </aside>
   </div>
 
-  <footer>
-    <span>Carl William Music &copy; 2026</span>
-    <span>GitHub Pages _</span>
-  </footer>
-
   <div id="matrix-section">
     <canvas id="matrix-canvas"></canvas>
-    <div id="matrix-msg">WAKE UP, NEO...<br>THE MUSIC HAS YOU.</div>
+    <div id="matrix-msg">WAKE UP, NEO...</div>
   </div>
 
   <script>
@@ -383,15 +228,7 @@ layout: null
       if(iconMap[icon]) el.insertAdjacentHTML('afterbegin', iconMap[icon]);
     });
 
-    // NAV LOGIC
-    const sections = {
-      'nav-videos': 'originals-section',
-      'nav-music': 'covers-section',
-      'nav-gear': 'gear-section',
-      'nav-about': 'about-section',
-      'nav-shows': 'shows-section'
-    };
-
+    const sections = { 'nav-videos': 'originals-section', 'nav-music': 'covers-section', 'nav-gear': 'gear-section', 'nav-about': 'about-section', 'nav-shows': 'shows-section' };
     const siteNav = document.getElementById('site-nav');
     const allSectionEls = document.querySelectorAll('section');
 
@@ -399,31 +236,21 @@ layout: null
       const link = e.target.closest('a');
       if (!link || link.id === 'nav-matrix') return;
       e.preventDefault();
-
       if (matrixRunning) exitMatrix(false);
-
       document.querySelectorAll('nav a').forEach(l => l.classList.remove('active'));
       link.classList.add('active');
-
-      const targetId = sections[link.id];
       allSectionEls.forEach(s => s.style.display = 'none');
-      
-      const target = document.getElementById(targetId);
-      target.style.display = 'block';
-      target.classList.add('tab-fade');
+      document.getElementById(sections[link.id]).style.display = 'block';
       window.scrollTo({ top: 0, behavior: 'smooth' });
     });
 
-    // GEAR EXPAND
     document.addEventListener('click', e => {
       const item = e.target.closest('.gear-item');
       if(item) item.classList.toggle('open');
     });
 
-    // MATRIX
     let matrixRunning = false, animFrame;
     const matrixEl = document.getElementById('matrix-section');
-    
     document.getElementById('nav-matrix').addEventListener('click', (e) => {
       e.preventDefault();
       matrixEl.classList.add('active');
@@ -434,14 +261,12 @@ layout: null
     });
 
     function exitMatrix(autoSwitch = true) {
-      matrixRunning = false;
-      cancelAnimationFrame(animFrame);
+      matrixRunning = false; cancelAnimationFrame(animFrame);
       matrixEl.classList.remove('active');
       document.getElementById('site-header').style.display = '';
       siteNav.style.display = '';
       if(autoSwitch) document.getElementById('nav-videos').click();
     }
-
     matrixEl.addEventListener('click', () => exitMatrix(true));
 
     function startMatrix() {
@@ -450,10 +275,7 @@ layout: null
       const ctx = canvas.getContext('2d');
       const chars = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZｱｲｳｴｵｶｷｸｹｺ';
       let cols, drops;
-      const resize = () => {
-        canvas.width = window.innerWidth; canvas.height = window.innerHeight;
-        cols = Math.floor(canvas.width / 20); drops = Array(cols).fill(1);
-      };
+      const resize = () => { canvas.width = window.innerWidth; canvas.height = window.innerHeight; cols = Math.floor(canvas.width / 20); drops = Array(cols).fill(1); };
       resize();
       function draw() {
         if(!matrixRunning) return;
@@ -469,7 +291,6 @@ layout: null
       draw();
     }
 
-    // DECRYPT BIO
     (function decrypt() {
       const el = document.getElementById('bio-decrypt');
       const target = el.innerText;
@@ -477,7 +298,7 @@ layout: null
       const interval = setInterval(() => {
         el.innerText = target.split("").map((char, index) => {
           if(index < iterations) return target[index];
-          return "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"[Math.floor(Math.random()*36)];
+          return "0123456789"[Math.floor(Math.random()*10)];
         }).join("");
         if(iterations >= target.length) clearInterval(interval);
         iterations += 1/3;
