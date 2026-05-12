@@ -96,6 +96,12 @@ layout: null
       letter-spacing: 6px;
       line-height: 1;
       text-shadow: 3px 3px 0 #003d10, 0 0 40px #00ff4155;
+      animation: breathe 3s ease-in-out infinite;
+    }
+
+    @keyframes breathe {
+      0%, 100% { text-shadow: 3px 3px 0 #003d10, 0 0 20px #00ff4133, 0 0 40px #00ff4122; }
+      50%       { text-shadow: 3px 3px 0 #003d10, 0 0 30px #00ff41aa, 0 0 60px #00ff4155, 0 0 80px #00ff4122; }
     }
     .artist-tagline {
       font-size: 11px;
