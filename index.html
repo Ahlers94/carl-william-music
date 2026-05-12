@@ -12,6 +12,7 @@ layout: null
   ║    _data/gear.yml    — gear items, photos, descriptions         ║
   ║    _data/social.yml  — social media links                       ║
   ║    _data/shows.yml   — upcoming and past shows                  ║
+  ║    _data/posts.yml   — blog/news entries (newest first)         ║
   ║                                                                  ║
   ║  QUICK EDIT CHECKLIST:                                           ║
   ║  [ ] OG preview image   (search: preview.jpg)                   ║
@@ -195,6 +196,10 @@ layout: null
     #nav-shows:hover,
     #nav-shows.active  { color: #00cccc; border-bottom: 2px solid #00cccc; text-shadow: 0 0 12px #00cccc88; }
 
+    #nav-news          { color: #b06aff; text-shadow: 0 0 8px #b06aff66; }
+    #nav-news:hover,
+    #nav-news.active   { color: #cc88ff; border-bottom: 2px solid #cc88ff; text-shadow: 0 0 12px #cc88ff88; }
+
     /* ── NAV TAB FADE-IN ────────────────────────────────────────────
        Each tab fades in sequentially after the tagline finishes      */
     #nav-videos { animation: fadeInNav 0.3s ease forwards; animation-delay: 1.7s; opacity: 0; }
@@ -202,7 +207,8 @@ layout: null
     #nav-gear   { animation: fadeInNav 0.3s ease forwards; animation-delay: 2.1s; opacity: 0; }
     #nav-about  { animation: fadeInNav 0.3s ease forwards; animation-delay: 2.3s; opacity: 0; }
     #nav-shows  { animation: fadeInNav 0.3s ease forwards; animation-delay: 2.5s; opacity: 0; }
-    #nav-matrix { animation: fadeInNav 0.3s ease forwards; animation-delay: 2.7s; opacity: 0; }
+    #nav-news   { animation: fadeInNav 0.3s ease forwards; animation-delay: 2.7s; opacity: 0; }
+    #nav-matrix { animation: fadeInNav 0.3s ease forwards; animation-delay: 2.9s; opacity: 0; }
     @keyframes fadeInNav { to { opacity: 1; } }
 
     /* ── CUSTOM CURSOR GLOW (desktop only) ──────────────────────────
@@ -551,7 +557,137 @@ layout: null
       text-transform: uppercase;
     }
 
-    /* ── FOOTER ─────────────────────────────────────────────────── */
+    /* ── NEWS / BLOG SECTION ────────────────────────────────────── */
+    #news-section {
+      display: none;
+      padding: 36px 36px 36px 48px;
+      max-width: 860px;
+    }
+    @media (max-width: 720px) { #news-section { padding: 24px; } }
+
+    .post-list { display: flex; flex-direction: column; gap: 28px; margin-top: 8px; }
+
+    .post-card {
+      border: 1px solid #b06aff33;
+      background: var(--surface);
+      padding: 22px 24px;
+      transition: border-color 0.2s;
+    }
+    .post-card:hover { border-color: #b06aff66; }
+
+    .post-header {
+      display: flex;
+      align-items: baseline;
+      gap: 14px;
+      margin-bottom: 12px;
+      flex-wrap: wrap;
+    }
+    .post-date {
+      font-family: 'VT323', monospace;
+      font-size: 20px;
+      color: #cc88ff;
+      text-shadow: 0 0 8px #cc88ff66;
+      white-space: nowrap;
+    }
+    .post-title {
+      font-size: 13px;
+      color: var(--text);
+      letter-spacing: 1px;
+      flex: 1;
+    }
+    .post-tag {
+      font-size: 9px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      padding: 2px 8px;
+      border: 1px solid;
+      white-space: nowrap;
+    }
+    /* Tag color variants */
+    .post-tag.show    { color: var(--cyan);   border-color: #00f5ff55; }
+    .post-tag.release { color: var(--pink);   border-color: #ff2d7855; }
+    .post-tag.update  { color: var(--gold);   border-color: #ffd70055; }
+    .post-tag.gear    { color: var(--purple); border-color: #b06aff55; }
+
+    .post-body {
+      font-size: 12px;
+      line-height: 1.9;
+      color: var(--muted);
+      margin-bottom: 0;
+    }
+
+    /* Optional show-detail sub-sections */
+    .post-meta {
+      margin-top: 16px;
+      padding-top: 14px;
+      border-top: 1px solid #ffffff0d;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .post-meta-label {
+      font-size: 9px;
+      color: var(--cyan);
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      margin-bottom: 4px;
+    }
+    .post-venue {
+      font-size: 11px;
+      color: var(--muted);
+    }
+    .post-gear-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+    .post-gear-tag {
+      font-size: 9px;
+      letter-spacing: 1px;
+      padding: 2px 8px;
+      border: 1px solid #ffd70033;
+      color: var(--gold);
+    }
+    .post-setlist {
+      list-style: none;
+      counter-reset: setlist;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .post-setlist li {
+      counter-increment: setlist;
+      font-size: 11px;
+      color: var(--muted);
+      display: flex;
+      gap: 10px;
+    }
+    .post-setlist li::before {
+      content: counter(setlist, decimal-leading-zero) '.';
+      color: var(--dim);
+      font-family: 'VT323', monospace;
+      font-size: 14px;
+      min-width: 28px;
+    }
+
+    .news-empty {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      padding: 32px 0;
+    }
+    .news-empty-label {
+      font-family: 'VT323', monospace;
+      font-size: 24px;
+      color: var(--dim);
+      letter-spacing: 3px;
+    }
+    .news-empty-sub {
+      font-size: 10px;
+      color: var(--dim);
+      letter-spacing: 2px;
+      text-transform: uppercase;
+    }
     footer {
       border-top: 1px solid #00f5ff22;
       padding: 14px 48px;
@@ -686,6 +822,7 @@ layout: null
     <a href="#"       id="nav-gear">Gear</a>
     <a href="#"       id="nav-about">About Me</a>
     <a href="#"       id="nav-shows">Shows</a>
+    <a href="#"       id="nav-news">News</a>
     <a href="#"       id="nav-matrix">The Matrix</a>
   </nav>
 
@@ -868,6 +1005,70 @@ layout: null
 
   </div>
 
+  <!-- ── NEWS / BLOG SECTION ──────────────────────────────────────
+       Driven by _data/posts.yml. Required fields: title, date, body.
+       Optional: tag (show|release|update|gear), venue, gear[], setlist[] -->
+  <div id="news-section" style="display:none;">
+    <div class="section-label">News</div>
+    <div class="post-list">
+
+      {% if site.data.posts and site.data.posts.size > 0 %}
+        {% for post in site.data.posts %}
+        <div class="post-card">
+          <div class="post-header">
+            <div class="post-date">{{ post.date }}</div>
+            <div class="post-title">{{ post.title }}</div>
+            {% if post.tag %}<span class="post-tag {{ post.tag }}">{{ post.tag }}</span>{% endif %}
+          </div>
+          <p class="post-body">{{ post.body }}</p>
+
+          {% if post.venue or post.gear or post.setlist %}
+          <div class="post-meta">
+
+            {% if post.venue %}
+            <div>
+              <div class="post-meta-label">Venue</div>
+              <div class="post-venue">{{ post.venue }}</div>
+            </div>
+            {% endif %}
+
+            {% if post.gear %}
+            <div>
+              <div class="post-meta-label">Gear Used</div>
+              <div class="post-gear-list">
+                {% for item in post.gear %}
+                <span class="post-gear-tag">{{ item }}</span>
+                {% endfor %}
+              </div>
+            </div>
+            {% endif %}
+
+            {% if post.setlist %}
+            <div>
+              <div class="post-meta-label">Setlist</div>
+              <ol class="post-setlist">
+                {% for song in post.setlist %}
+                <li>{{ song }}</li>
+                {% endfor %}
+              </ol>
+            </div>
+            {% endif %}
+
+          </div>
+          {% endif %}
+
+        </div>
+        {% endfor %}
+      {% else %}
+        <div class="news-empty">
+          <span class="news-empty-label">[ NO POSTS YET ]</span>
+          <span class="news-empty-sub">Check back soon for updates</span>
+        </div>
+      {% endif %}
+
+    </div>
+  </div>
+
   <footer>
     <span>Carl William Music &copy; 2026</span>
     <span>Hosted on GitHub Pages <span class="blink">_</span></span>
@@ -951,6 +1152,7 @@ layout: null
     const gearSection  = document.getElementById('gear-section');
     const aboutSection = document.getElementById('about-section');
     const showsSection = document.getElementById('shows-section');
+    const newsSection  = document.getElementById('news-section');
     const siteHeader   = document.getElementById('site-header');
     const siteNav      = document.getElementById('site-nav');
     const matrixEl     = document.getElementById('matrix-section');
@@ -967,6 +1169,7 @@ layout: null
       gearSection.style.display  = 'none';
       aboutSection.style.display = 'none';
       showsSection.style.display = 'none';
+      newsSection.style.display  = 'none';
     }
 
     function showPage(section) {
@@ -975,6 +1178,7 @@ layout: null
       gearSection.style.display  = 'none';
       aboutSection.style.display = 'none';
       showsSection.style.display = 'none';
+      newsSection.style.display  = 'none';
       const isCovers = section === 'covers';
       document.getElementById('originals-section').style.display = isCovers ? 'none' : 'block';
       document.getElementById('covers-section').style.display    = isCovers ? 'block' : 'none';
@@ -1002,6 +1206,13 @@ layout: null
       fadeInSection('shows-section');
       setTimeout(() => window.scrollTo({ top: 0, behavior: 'smooth' }), 0);
     }
+    function showNews() {
+      pauseAllVideos();
+      hideAll();
+      newsSection.style.display = 'block';
+      fadeInSection('news-section');
+      setTimeout(() => window.scrollTo({ top: 0, behavior: 'smooth' }), 0);
+    }
 
     allNavLinks.forEach(link => {
       link.addEventListener('click', function() {
@@ -1015,6 +1226,7 @@ layout: null
     document.getElementById('nav-gear').addEventListener('click',   function(e) { e.preventDefault(); showGear(); });
     document.getElementById('nav-about').addEventListener('click',  function(e) { e.preventDefault(); showAbout(); });
     document.getElementById('nav-shows').addEventListener('click',  function(e) { e.preventDefault(); showShows(); });
+    document.getElementById('nav-news').addEventListener('click',   function(e) { e.preventDefault(); showNews(); });
 
     // ── ENTER MATRIX ──────────────────────────────────────────────
     document.getElementById('nav-matrix').addEventListener('click', function(e) {
@@ -1022,6 +1234,7 @@ layout: null
       pauseAllVideos();
       page.classList.add('hidden');
       gearSection.style.display    = 'none';
+      newsSection.style.display    = 'none';
       siteHeader.style.display     = 'none';
       siteNav.style.display        = 'none';
       matrixEl.classList.add('active');
@@ -1054,6 +1267,7 @@ layout: null
     document.getElementById('nav-gear').addEventListener('click',   exitMatrix);
     document.getElementById('nav-about').addEventListener('click',  exitMatrix);
     document.getElementById('nav-shows').addEventListener('click',  exitMatrix);
+    document.getElementById('nav-news').addEventListener('click',   exitMatrix);
 
     // ── MATRIX RAIN ───────────────────────────────────────────────
     function startMatrix() {
