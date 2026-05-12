@@ -114,7 +114,25 @@ layout: null
       position: sticky;
       top: 0;
       z-index: 10;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch; /* smooth scroll on iOS */
+      scrollbar-width: none;            /* hide scrollbar on Firefox */
     }
+    nav::-webkit-scrollbar { display: none; } /* hide scrollbar on Chrome/Safari */
+
+    /* Fade gradient on the right edge — signals more content to swipe to */
+    nav::after {
+      content: '';
+      position: sticky;
+      right: 0;
+      top: 0;
+      min-width: 48px;
+      height: 100%;
+      background: linear-gradient(to right, transparent, #10101e);
+      pointer-events: none;
+      flex-shrink: 0;
+    }
+
     nav a {
       display: block;
       padding: 12px 24px;
@@ -125,6 +143,8 @@ layout: null
       text-decoration: none;
       border-right: 1px solid #ffffff0d;
       transition: color 0.2s, border-bottom-color 0.2s;
+      white-space: nowrap; /* prevents tab labels from wrapping */
+      flex-shrink: 0;      /* prevents tabs from squishing */
     }
 
     /* Per-tab colors with glow */
@@ -431,6 +451,7 @@ layout: null
       <div id="originals-section">
         <div class="section-label">Originals</div>
 
+        <!-- Featured original — large -->
         {% for video in site.data.videos.originals %}
           {% if video.featured %}
           <div class="video-featured">
@@ -440,22 +461,30 @@ layout: null
               allowfullscreen>
             </iframe>
           </div>
-          <div class="video-caption">&gt; {{ video.title }}</div>
-          {% else %}
-          <div class="video-grid" style="margin-top: 20px;">
-            <div class="video-small">
-              <iframe
-                src="https://www.youtube-nocookie.com/embed/{{ video.id }}"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                allowfullscreen>
-              </iframe>
-            </div>
-          </div>
+          {% if video.title %}<div class="video-caption">&gt; {{ video.title }}</div>{% endif %}
           {% endif %}
         {% endfor %}
+
+        <!-- Remaining originals — small grid -->
+        {% assign non_featured = site.data.videos.originals | where_exp: "v", "v.featured != true" %}
+        {% if non_featured.size > 0 %}
+        <div class="section-label" style="margin-top: 28px;">More Originals</div>
+        <div class="video-grid">
+          {% for video in non_featured %}
+          <div class="video-small">
+            <iframe
+              src="https://www.youtube-nocookie.com/embed/{{ video.id }}"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowfullscreen>
+            </iframe>
+          </div>
+          {% endfor %}
+        </div>
+        {% endif %}
+
       </div>
 
-      <!-- ── COVERS (hidden by default, shown via nav tab) ──────── -->
+      <!-- ── COVERS (hidden by default, shown via Covers tab) ───── -->
       <div id="covers-section" style="display:none;">
         <div class="section-label">Covers</div>
         <div class="video-grid">
