@@ -1057,6 +1057,19 @@ layout: null
           </div>
           {% endif %}
 
+          {% if post.video_id %}
+          <div class="post-video">
+            <div class="post-meta-label" style="margin-top: 16px; padding-top: 14px; border-top: 1px solid #ffffff0d;">Video</div>
+            <div class="video-small" style="margin-top: 8px;">
+              <iframe
+                src="https://www.youtube-nocookie.com/embed/{{ post.video_id }}?enablejsapi=1"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowfullscreen>
+              </iframe>
+            </div>
+          </div>
+          {% endif %}
+
         </div>
         {% endfor %}
       {% else %}
