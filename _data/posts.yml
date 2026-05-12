@@ -15,51 +15,50 @@
 #
 # ── ORDER: newest entry at the TOP of this file ──────────────────
 
-- title: "Collingswood Porchfest Recap"
-  date: "2025-05-18"
+- title: "Debut at Tanner Brewing"
+  date: "12-27-2025"
   tag: show
   body: >
-    First real outdoor show with the full rig. Rode the bike in, set up
-    in about 20 minutes, and played for an hour straight. Crowd was small
-    but locked in the whole time. The looper held up perfectly in the heat
-    and I didn't drop a single loop. More of this.
+    First gig at Tanner Brewing Company, Haddon Heights, NJ. Played two
+    1 hour sets. Gig was short notice, got the offer at 1:30PM, showtime 7PM. 
+    Made up a social media post by 2PM and blasted out notifications.
+    Good crowd, about a dozen people showed up on a Saturday night in the snow.
+    Unfortunately forgot to hit record for one set.
+  venue: "Tanner Brewing Company, South Jersey"
+    gear:
+    - Taylor Baby tuned down a whole step
+    - Carlo Robelli Electric (standard tuning)
+    - Line 6 DL4
+    - 2 Boss BCB-20 boards powered by 1x 18650 cell with buck booster to 9V
+    - Boss TU-2, NS-2, CS-3, OD-2, OC-3, CH-1, RC-2 
+    - Casio VL-1
+
+
+- title: "Collingswood Porchfest"
+  date: "9-27-2025"
+  tag: show
+  body: >
+    First real outdoor show with the full rig. Brought my speaker, 4 channel mixing board, Carlo Robelli electric, full pedalboard and played for an hour straight. 
+    Had a lot of fun, great crowd!
   venue: "Haddon Ave, Collingswood NJ"
   gear:
-    - Telecaster
-    - Boss RC-505
-    - Focusrite Scarlett 2i2
-    - Battery inverter
+    - Carlo Robelli electric guitar
+    - Line 6 DL4
+    - 2 Boss BCB-20 boards powered by 1x 18650 cell with buck booster to 9V
+    - Boss TU-2, NS-2, CS-3, OD-2, OC-3, CH-1, RC-2
+    - Danelectro modulation pedalboard with Tuna Melt Tremolo, Chicken Salad Vibrato, Hash Browns Flanger, Rocky Road Spinning Speaker, and PB&J Delay
+    - Casio VL-1
+    - Yamaha DD-7
   setlist:
-    - "I Just Want My Soul"
-    - "Zelda Medley"
-    - "Blackbird (Beatles cover)"
-    - "Original Loop Improv"
+    - Nirvana - Smells Like Teen Spirit
+    - Gorillaz - Feel Good Inc.
+    - Pink Floyd - Breathe
+    - Pink Floyd - Time
+    - I Just Want My Soul (original song)
+    - Huey Lewis and the News - The Power of Love 
+    - Radiohead - 15 Step 
+    - Soul Coughing - The Idiot Kings 
+    - Kate Bush - Cloudbusting
 
-- title: "New Original In Progress"
-  date: "2025-04-02"
-  tag: release
-  body: >
-    Been working on a second original for about three weeks now. It started
-    as a loop demo and turned into something with actual structure — a real
-    verse-chorus arc. Not ready to share yet but it's close. Recording a
-    demo version this week.
 
-- title: "Debut at Tanner Brewing"
-  date: "2025-03-14"
-  tag: show
-  body: >
-    First ever paid gig. Tanner Brewing Company, South Jersey. Played two
-    45-minute sets. The room was loud and I had to push the monitors harder
-    than I'd like but it worked. Learned a lot about gain staging in a live
-    room. Will do it differently next time.
-  venue: "Tanner Brewing Company, South Jersey"
-  gear:
-    - Telecaster
-    - Boss RC-505
-    - Focusrite Scarlett 2i2
-  setlist:
-    - "I Just Want My Soul"
-    - "Blackbird (Beatles cover)"
-    - "I Belong to the Movement (Mandolin cover)"
-    - "Original Loop Improv"
-    - "Zelda Medley"
+
