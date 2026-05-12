@@ -1,0 +1,65 @@
+# POSTS / NEWS DATA FILE
+# ─────────────────────────────────────────────────────────────────
+# Each entry is one blog post displayed in the News tab.
+#
+# REQUIRED fields:
+#   title:  Short headline for the post
+#   date:   Display date — any format works (e.g. "2025-05-18" or "May 18, 2025")
+#   body:   Up to a paragraph of text. Use the > block scalar for multi-line.
+#
+# OPTIONAL fields:
+#   tag:      One of: show | release | update | gear
+#   venue:    Venue name and/or address (show recaps)
+#   gear:     List of gear items used (show recaps)
+#   setlist:  Ordered list of songs played (show recaps)
+#
+# ── ORDER: newest entry at the TOP of this file ──────────────────
+
+- title: "Collingswood Porchfest Recap"
+  date: "2025-05-18"
+  tag: show
+  body: >
+    First real outdoor show with the full rig. Rode the bike in, set up
+    in about 20 minutes, and played for an hour straight. Crowd was small
+    but locked in the whole time. The looper held up perfectly in the heat
+    and I didn't drop a single loop. More of this.
+  venue: "Haddon Ave, Collingswood NJ"
+  gear:
+    - Telecaster
+    - Boss RC-505
+    - Focusrite Scarlett 2i2
+    - Battery inverter
+  setlist:
+    - "I Just Want My Soul"
+    - "Zelda Medley"
+    - "Blackbird (Beatles cover)"
+    - "Original Loop Improv"
+
+- title: "New Original In Progress"
+  date: "2025-04-02"
+  tag: release
+  body: >
+    Been working on a second original for about three weeks now. It started
+    as a loop demo and turned into something with actual structure — a real
+    verse-chorus arc. Not ready to share yet but it's close. Recording a
+    demo version this week.
+
+- title: "Debut at Tanner Brewing"
+  date: "2025-03-14"
+  tag: show
+  body: >
+    First ever paid gig. Tanner Brewing Company, South Jersey. Played two
+    45-minute sets. The room was loud and I had to push the monitors harder
+    than I'd like but it worked. Learned a lot about gain staging in a live
+    room. Will do it differently next time.
+  venue: "Tanner Brewing Company, South Jersey"
+  gear:
+    - Telecaster
+    - Boss RC-505
+    - Focusrite Scarlett 2i2
+  setlist:
+    - "I Just Want My Soul"
+    - "Blackbird (Beatles cover)"
+    - "I Belong to the Movement (Mandolin cover)"
+    - "Original Loop Improv"
+    - "Zelda Medley"
