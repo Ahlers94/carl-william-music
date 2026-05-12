@@ -7,289 +7,407 @@ layout: null
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Carl William Music | Substance Over Style</title>
+
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=VT323&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=VT323&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
 
   <style>
+    /* ── CORE STYLES (Identical to 1086-line Source) ──────────────── */
     :root {
-      --bg: #0a0a12;
+      --bg:      #0a0a12;
       --surface: #0d0d1a;
-      --red: #ff3232;
-      --blue: #0055ff;
-      --yellow: #ffcc00;
-      --green: #00aa00;
-      --purple: #8833ff;
-      --cyan: #00f5ff;
-      --text: #e0d8f0;
-      --muted: #9988aa;
+      --pink:    #ff2d78;
+      --cyan:    #00f5ff;
+      --gold:    #ffd700;
+      --purple:  #b06aff;
+      --green:   #99cc77;
+      --text:    #e0d8f0;
+      --muted:   #9988aa;
+      --dim:     #443355;
     }
 
-    /* THE VISUAL GRIT: CRT & SCANLINES */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
     body {
       background: var(--bg);
       color: var(--text);
       font-family: 'Space Mono', monospace;
-      margin: 0;
+      line-height: 1.6;
+      min-height: 100vh;
       overflow-x: hidden;
     }
 
+    /* Scanline Overlay */
     body::before {
       content: '';
       position: fixed;
       inset: 0;
-      background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%), 
-                  linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.03));
-      background-size: 100% 3px, 3px 100%;
+      background: repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 3px,
+        rgba(0,245,255,0.015) 3px,
+        rgba(0,245,255,0.015) 4px
+      );
       pointer-events: none;
       z-index: 999;
     }
 
-    /* HEADER: RESTORED 444-LINE STYLE */
+    /* ── HEADER & NAVIGATION ─────────────────────────────────────── */
     header {
-      padding: 60px 20px;
-      text-align: center;
-      background: linear-gradient(to bottom, #000, var(--bg));
-      border-bottom: 1px solid rgba(255,255,255,0.1);
+      border-bottom: 2px solid var(--cyan);
+      padding: 36px 48px 24px;
+      background: linear-gradient(to bottom, #111122, var(--bg));
     }
 
     .artist-name {
       font-family: 'VT323', monospace;
-      font-size: clamp(50px, 10vw, 110px);
-      color: #fff;
+      font-size: clamp(56px, 10vw, 96px);
+      color: #00ff41;
+      letter-spacing: 6px;
+      line-height: 1;
+      text-shadow: 3px 3px 0 #003d10, 0 0 40px #00ff4155;
+      margin-bottom: 4px;
+    }
+
+    .artist-tagline {
+      font-size: 11px;
+      color: var(--cyan);
       letter-spacing: 4px;
       text-transform: uppercase;
-      margin: 0;
+      margin-top: 8px;
+      opacity: 0.8;
+      display: flex;
+      gap: 6px;
     }
 
-    .flicker { animation: flicker 0.15s infinite alternate; }
-    @keyframes flicker { 
-      0% { opacity: 0.8; text-shadow: 2px 2px var(--red); } 
-      100% { opacity: 1; text-shadow: -2px -2px var(--blue); } 
+    .tagline-word {
+      display: inline-block;
+      opacity: 0;
+      transform: translateY(12px);
+      animation: slideIn 0.4s ease forwards;
     }
 
-    .tagline {
-      font-size: 12px;
-      color: var(--cyan);
-      letter-spacing: 5px;
-      margin-top: 15px;
-      text-transform: uppercase;
-    }
+    @keyframes slideIn { to { opacity: 1; transform: translateY(0); } }
 
-    /* NAVIGATION: SUPER FAMICOM TABS */
     nav {
       display: flex;
-      justify-content: center;
-      background: #000;
+      background: #10101e;
+      border-bottom: 1px solid #ffffff15;
       position: sticky;
       top: 0;
-      z-index: 100;
-      border-bottom: 2px solid #1a1a1a;
+      z-index: 10;
     }
 
     nav a {
-      padding: 20px 30px;
+      display: block;
+      padding: 12px 24px;
+      font-size: 11px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: #9988cc;
       text-decoration: none;
-      font-size: 12px;
-      font-weight: bold;
-      color: var(--muted);
-      border-bottom: 4px solid transparent;
-      transition: 0.3s;
-      opacity: 0;
-      animation: bloom 0.5s forwards;
+      border-right: 1px solid #ffffff0d;
+      transition: all 0.2s;
     }
 
-    #nav-videos { animation-delay: 1.7s; border-color: var(--red); }
-    #nav-music  { animation-delay: 1.9s; border-color: var(--blue); }
-    #nav-gear   { animation-delay: 2.1s; border-color: var(--yellow); }
-    #nav-shows  { animation-delay: 2.3s; border-color: var(--cyan); }
-    #nav-about  { animation-delay: 2.5s; border-color: var(--green); }
-    #nav-matrix { animation-delay: 2.7s; border-color: var(--purple); }
+    nav a:hover, nav a.active {
+      background: #ffffff05;
+      color: var(--cyan);
+    }
 
-    @keyframes bloom { to { opacity: 1; } }
-    nav a.active, nav a:hover { color: #fff; background: rgba(255,255,255,0.05); }
-
-    /* LAYOUT: THE 444-LINE COLUMN SPLIT */
-    .content-wrapper {
-      max-width: 1200px;
-      margin: 0 auto;
+    /* ── MAIN CONTENT LAYOUT ─────────────────────────────────────── */
+    .page {
       display: grid;
       grid-template-columns: 1fr 320px;
-      gap: 40px;
-      padding: 40px 20px;
+      min-height: calc(100vh - 200px);
     }
 
-    @media (max-width: 900px) {
-      .content-wrapper { grid-template-columns: 1fr; }
-      .sidebar { display: none; }
+    .left-col {
+      padding: 36px 48px;
+      border-right: 1px solid #ff2d7815;
     }
 
-    /* COMPONENTS */
-    .video-container { margin-bottom: 30px; border: 1px solid rgba(255,255,255,0.1); background: #000; }
-    .video-container iframe { width: 100%; aspect-ratio: 16/9; display: block; border: none; }
-    
-    .gear-card { 
-      background: var(--surface); 
-      border: 1px solid rgba(255,255,255,0.05); 
-      padding: 20px; 
-      margin-bottom: 15px; 
-      border-left: 4px solid var(--yellow);
+    .right-col {
+      padding: 36px 28px;
+      background: var(--surface);
     }
 
-    /* SHOWS: RESTORED TABLE-STYLE LIST */
-    .show-row {
+    .section-label {
+      font-size: 10px;
+      color: var(--cyan);
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      margin-bottom: 18px;
       display: flex;
-      justify-content: space-between;
       align-items: center;
-      padding: 20px;
-      border-bottom: 1px solid rgba(255,255,255,0.05);
-      background: rgba(255,255,255,0.02);
+      gap: 12px;
+    }
+    .section-label::after { content: ''; flex: 1; height: 1px; background: #00f5ff22; }
+
+    /* ── VIDEO COMPONENTS ────────────────────────────────────────── */
+    .video-featured {
+      position: relative;
+      padding-bottom: 56.25%;
+      background: #000;
+      border: 1px solid #ff2d7855;
+      box-shadow: 0 0 30px #ff2d7815;
+      margin-bottom: 32px;
     }
 
-    /* SIDEBAR SOCIALS */
-    .social-btn {
-      display: block;
-      padding: 15px;
-      margin-bottom: 15px;
-      text-align: center;
-      text-decoration: none;
-      color: #fff;
-      border: 1px solid rgba(255,255,255,0.2);
-      font-size: 12px;
-      letter-spacing: 2px;
-      transition: 0.3s;
+    .video-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
     }
-    .social-btn:hover { background: #fff; color: #000; }
 
-    /* THE MATRIX */
-    #matrix-bg { position: fixed; inset: 0; background: #000; z-index: 1000; display: none; }
-    #matrix-bg.active { display: block; }
+    .video-small {
+      position: relative;
+      padding-bottom: 56.25%;
+      border: 1px solid #ffffff11;
+      background: #000;
+    }
+
+    iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; }
+
+    /* ── GEAR & SHOWS ────────────────────────────────────────────── */
+    .gear-grid { display: grid; gap: 12px; }
+    .gear-item {
+      border: 1px solid #ffffff11;
+      padding: 16px;
+      background: #111122;
+      cursor: pointer;
+    }
+    .gear-label { color: var(--gold); font-size: 13px; margin-bottom: 4px; }
+    .gear-desc { font-size: 11px; color: var(--muted); display: none; margin-top: 8px; }
+    .gear-item.open .gear-desc { display: block; }
+
+    .show-item {
+      display: flex; gap: 20px; padding: 12px 0; border-bottom: 1px solid #ffffff08;
+    }
+    .show-date { font-family: 'VT323'; font-size: 18px; color: var(--cyan); min-width: 90px; }
+
+    /* ── SIDEBAR SOCIALS ─────────────────────────────────────────── */
+    .social-link {
+      display: flex; align-items: center; gap: 12px; padding: 12px;
+      border: 1px solid #ffffff11; text-decoration: none; color: var(--text);
+      font-size: 11px; margin-bottom: 8px; transition: 0.2s;
+    }
+    .social-link:hover { border-color: var(--pink); background: #ff2d780a; }
+
+    /* ── MATRIX OVERLAY ────────────────────────────────────────── */
+    #matrix-section {
+      display: none; position: fixed; inset: 0; background: #000; z-index: 1000;
+    }
+    #matrix-section.active { display: block; }
+    #matrix-canvas { width: 100%; height: 100%; }
+    
+    footer { border-top: 1px solid #ffffff11; padding: 24px 48px; display: flex; justify-content: space-between; font-size: 10px; color: var(--dim); }
+
+    .hidden { display: none !important; }
+    .tab-fade { animation: tabFadeIn 0.4s ease forwards; }
+    @keyframes tabFadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
   </style>
 </head>
 <body>
 
-<header>
-  <h1 class="artist-name flicker">CARL WILLIAM MUSIC</h1>
-  <div class="tagline">Substance Over Style // No Edits</div>
-</header>
+  <header id="site-header">
+    <div class="artist-name">CARL WILLIAM MUSIC</div>
+    <div class="artist-tagline">
+      <span class="tagline-word" style="animation-delay: 1.7s">Substance</span>
+      <span class="tagline-word" style="animation-delay: 1.9s">Over</span>
+      <span class="tagline-word" style="animation-delay: 2.1s">Style</span>
+      <span class="tagline-word" style="animation-delay: 2.3s">//</span>
+      <span class="tagline-word" style="animation-delay: 2.5s">No</span>
+      <span class="tagline-word" style="animation-delay: 2.7s">Edits</span>
+    </div>
+  </header>
 
-<nav>
-  <a href="#videos" id="nav-videos" class="active">ORIGINALS</a>
-  <a href="#covers" id="nav-music">COVERS</a>
-  <a href="#gear" id="nav-gear">RIG</a>
-  <a href="#shows" id="nav-shows">SHOWS</a>
-  <a href="#about" id="nav-about">ABOUT</a>
-  <a href="#matrix" id="nav-matrix">[ DATA_STREAM ]</a>
-</nav>
+  <nav id="site-nav">
+    <a href="#" class="active" id="nav-videos">Originals</a>
+    <a href="#" id="nav-music">Covers</a>
+    <a href="#" id="nav-gear">Gear</a>
+    <a href="#" id="nav-about">About</a>
+    <a href="#" id="nav-shows">Shows</a>
+    <a href="#" id="nav-matrix">Matrix</a>
+  </nav>
 
-<div class="content-wrapper">
-  <main>
-    <!-- VIDEO SECTION -->
-    <section id="originals-section">
-      {% for v in site.data.videos.originals %}
-      <div class="video-container">
-        <iframe src="https://www.youtube.com/embed/{{ v.id }}" allowfullscreen></iframe>
-        <div style="padding:10px; font-size: 12px; color: var(--muted);">{{ v.title }}</div>
-      </div>
-      {% endfor %}
-    </section>
+  <div class="page">
+    <div class="left-col">
+      
+      <!-- ORIGINALS SECTION -->
+      <div id="originals-section">
+        <div class="section-label">Featured Performance</div>
+        {% for video in site.data.videos.originals %}
+          {% if video.featured %}
+          <div class="video-featured">
+            <iframe class="yt-player" src="https://www.youtube-nocookie.com/embed/{{ video.id }}?enablejsapi=1" allowfullscreen></iframe>
+          </div>
+          {% endif %}
+        {% endfor %}
 
-    <section id="covers-section" style="display:none;">
-      {% for v in site.data.videos.covers %}
-      <div class="video-container">
-        <iframe src="https://www.youtube.com/embed/{{ v.id }}" allowfullscreen></iframe>
-        <div style="padding:10px; font-size: 12px; color: var(--muted);">{{ v.title }}</div>
-      </div>
-      {% endfor %}
-    </section>
-
-    <!-- GEAR SECTION -->
-    <section id="gear-section" style="display:none;">
-      {% for item in site.data.gear %}
-      <div class="gear-card">
-        <div style="color: var(--yellow); font-weight: bold; margin-bottom: 5px;">{{ item.label }}</div>
-        <div style="font-size: 13px; color: var(--muted);">{{ item.description }}</div>
-      </div>
-      {% endfor %}
-    </section>
-
-    <!-- SHOWS SECTION -->
-    <section id="shows-section" style="display:none;">
-      <h2 style="font-family: 'VT323'; color: var(--cyan); letter-spacing: 2px;">LIVE_TRANSMISSIONS</h2>
-      {% for show in site.data.shows.upcoming %}
-      <div class="show-row">
-        <div>
-          <span style="color: var(--red); font-family: monospace;">{{ show.date }}</span><br>
-          <strong>{{ show.venue }}</strong> — {{ show.location }}
+        <div class="section-label">Archive</div>
+        <div class="video-grid">
+          {% for video in site.data.videos.originals %}
+            {% unless video.featured %}
+            <div class="video-small">
+              <iframe class="yt-player" src="https://www.youtube-nocookie.com/embed/{{ video.id }}?enablejsapi=1" allowfullscreen></iframe>
+            </div>
+            {% endunless %}
+          {% endfor %}
         </div>
-        {% if show.link != "#" %}
-        <a href="{{ show.link }}" target="_blank" style="color: #fff; border: 1px solid #fff; padding: 5px 15px; text-decoration: none; font-size: 10px;">DETAILS</a>
+      </div>
+
+      <!-- COVERS SECTION -->
+      <div id="covers-section" class="hidden">
+        <div class="section-label">Interpretations</div>
+        <div class="video-grid">
+          {% for video in site.data.videos.covers %}
+          <div class="video-small">
+            <iframe class="yt-player" src="https://www.youtube-nocookie.com/embed/{{ video.id }}?enablejsapi=1" allowfullscreen></iframe>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+
+      <!-- GEAR SECTION -->
+      <div id="gear-section" class="hidden">
+        <div class="section-label">The Rig</div>
+        <div class="gear-grid">
+          {% for item in site.data.gear %}
+          <div class="gear-item">
+            <div class="gear-label">{{ item.label }}</div>
+            <div class="gear-desc">{{ item.description }}</div>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+
+      <!-- ABOUT SECTION -->
+      <div id="about-section" class="hidden">
+        <div class="section-label">The Mission</div>
+        <p class="bio-text" style="color: var(--muted); max-width: 600px;">
+          One rig. One take. Built from scratch and ridden in on a bike. Technically demanding covers and originals &mdash; performing live, unedited, and exactly as it happened.
+        </p>
+      </div>
+
+      <!-- SHOWS SECTION -->
+      <div id="shows-section" class="hidden">
+        <div class="section-label">Live Dates</div>
+        {% if site.data.shows.size > 0 %}
+          {% for show in site.data.shows %}
+          <div class="show-item">
+            <div class="show-date">{{ show.date }}</div>
+            <div class="show-info">
+              <div style="color:var(--text)">{{ show.venue }}</div>
+              <div style="font-size:11px; color:var(--dim)">{{ show.location }}</div>
+            </div>
+          </div>
+          {% endfor %}
+        {% else %}
+          <div style="color:var(--dim); font-size:11px; letter-spacing:2px;">[ NO SHOWS CURRENTLY SCHEDULED ]</div>
         {% endif %}
       </div>
+
+    </div>
+
+    <!-- RIGHT COLUMN: PERMANENT SIDEBAR -->
+    <div class="right-col">
+      <div class="section-label">Social</div>
+      {% for link in site.data.social %}
+      <a href="{{ link.url }}" class="social-link" target="_blank">
+        <span class="link-label">{{ link.label }}</span>
+      </a>
       {% endfor %}
-    </section>
-  </main>
 
-  <aside class="sidebar">
-    <div style="font-size: 10px; color: var(--cyan); margin-bottom: 20px; letter-spacing: 3px;">CONNECT_IDENTITY</div>
-    {% for link in site.data.social %}
-    <a href="{{ link.url }}" class="social-btn">{{ link.label }}</a>
-    {% endfor %}
-  </aside>
-</div>
+      <div class="section-label" style="margin-top: 40px;">Status</div>
+      <div id="bio-decrypt" style="font-size: 11px; color: var(--muted);">🎸 Live Looping Artist</div>
+    </div>
+  </div>
 
-<div id="matrix-bg">
-  <canvas id="matrix-canvas"></canvas>
-  <div style="position: absolute; top:50%; left:50%; transform:translate(-50%,-50%); color:#0f0; font-family:'VT323'; font-size:30px;">[ ACCESSING DATA... ]</div>
-</div>
+  <footer>
+    <span>Carl William Music &copy; 2026</span>
+    <span>STATUS: OPERATIONAL <span class="blink">_</span></span>
+  </footer>
 
-<script>
-  const navMap = { 
-    'nav-videos': 'originals-section', 
-    'nav-music': 'covers-section', 
-    'nav-gear': 'gear-section', 
-    'nav-shows': 'shows-section',
-    'nav-about': 'about-section'
-  };
+  <div id="matrix-section">
+    <canvas id="matrix-canvas"></canvas>
+  </div>
 
-  document.querySelectorAll('nav a').forEach(link => {
-    link.addEventListener('click', (e) => {
-      if(link.id === 'nav-matrix') {
-        document.getElementById('matrix-bg').classList.add('active');
-        initMatrix();
-        return;
-      }
-      e.preventDefault();
+  <script>
+    /* ── TAB LOGIC & VIDEO PAUSE ────────────────────────────────── */
+    const navLinks = document.querySelectorAll('nav a');
+    const sections = {
+      'nav-videos': 'originals-section',
+      'nav-music':  'covers-section',
+      'nav-gear':   'gear-section',
+      'nav-about':  'about-section',
+      'nav-shows':  'shows-section'
+    };
 
-      // AUTO-PAUSE YOUTUBE
-      document.querySelectorAll('iframe').forEach(v => { const s = v.src; v.src = ''; v.src = s; });
-
-      document.querySelectorAll('nav a').forEach(l => l.classList.remove('active'));
-      link.classList.add('active');
-      document.querySelectorAll('main section').forEach(s => s.style.display = 'none');
-      const target = navMap[link.id];
-      if(target) document.getElementById(target).style.display = 'block';
-    });
-  });
-
-  function initMatrix() {
-    const c = document.getElementById('matrix-canvas');
-    const ctx = c.getContext('2d');
-    c.width = window.innerWidth; c.height = window.innerHeight;
-    const drops = Array(Math.floor(c.width/20)).fill(1);
-    function draw() {
-      ctx.fillStyle = "rgba(0,0,0,0.05)"; ctx.fillRect(0,0,c.width,c.height);
-      ctx.fillStyle = "#0f0"; ctx.font = "20px monospace";
-      drops.forEach((y, i) => {
-        ctx.fillText("01"[Math.floor(Math.random()*2)], i*20, y*20);
-        if(y*20 > c.height && Math.random() > 0.975) drops[i] = 0;
-        drops[i]++;
+    function pauseVideos() {
+      document.querySelectorAll('.yt-player').forEach(iframe => {
+        iframe.contentWindow.postMessage('{"event":"command","func":"pauseVideo","args":""}', '*');
       });
-      requestAnimationFrame(draw);
     }
-    draw();
-  }
-  document.getElementById('matrix-bg').onclick = () => location.reload();
-</script>
 
+    navLinks.forEach(link => {
+      link.addEventListener('click', (e) => {
+        if (link.id === 'nav-matrix') return;
+        e.preventDefault();
+        pauseVideos();
+        
+        navLinks.forEach(l => l.classList.remove('active'));
+        link.classList.add('active');
+        
+        Object.values(sections).forEach(id => document.getElementById(id).classList.add('hidden'));
+        const target = document.getElementById(sections[link.id]);
+        target.classList.remove('hidden');
+        target.classList.add('tab-fade');
+      });
+    });
+
+    /* ── GEAR TOGGLE ── */
+    document.querySelectorAll('.gear-item').forEach(item => {
+      item.addEventListener('click', () => item.classList.toggle('open'));
+    });
+
+    /* ── MATRIX LOGIC ── */
+    const matrixBtn = document.getElementById('nav-matrix');
+    const matrixSection = document.getElementById('matrix-section');
+    
+    matrixBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      matrixSection.classList.add('active');
+      startMatrix();
+    });
+
+    matrixSection.addEventListener('click', () => matrixSection.classList.remove('active'));
+
+    function startMatrix() {
+      const canvas = document.getElementById('matrix-canvas');
+      const ctx = canvas.getContext('2d');
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+      const letters = "0101010101";
+      const fontSize = 16;
+      const columns = canvas.width / fontSize;
+      const drops = Array(Math.floor(columns)).fill(1);
+
+      function draw() {
+        ctx.fillStyle = "rgba(0, 0, 0, 0.05)";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = "#0f0";
+        ctx.font = fontSize + "px VT323";
+        drops.forEach((y, i) => {
+          const text = letters[Math.floor(Math.random() * letters.length)];
+          ctx.fillText(text, i * fontSize, y * fontSize);
+          if (y * fontSize > canvas.height && Math.random() > 0.975) drops[i] = 0;
+          drops[i]++;
+        });
+      }
+      setInterval(draw, 33);
+    }
+  </script>
 </body>
 </html>
