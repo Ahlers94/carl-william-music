@@ -111,8 +111,12 @@ layout: null
       margin-top: 8px;
       opacity: 0.8;
       display: flex;
-      flex-wrap: wrap;
+      flex-wrap: nowrap;
       gap: 6px;
+      overflow: hidden;
+    }
+    @media (max-width: 720px) {
+      .artist-tagline { font-size: 8px; letter-spacing: 1.5px; gap: 3px; }
     }
     .tagline-word {
       display: inline-block;
@@ -182,12 +186,22 @@ layout: null
     #nav-matrix:hover,
     #nav-matrix.active { color: #00a550; border-bottom: 2px solid #00a550; text-shadow: 0 0 12px #00a55088; }
 
+    #nav-about         { color: #8844cc; text-shadow: 0 0 8px #8844cc66; }
+    #nav-about:hover,
+    #nav-about.active  { color: #aa66ff; border-bottom: 2px solid #aa66ff; text-shadow: 0 0 12px #aa66ff88; }
+
+    #nav-shows         { color: #009999; text-shadow: 0 0 8px #00999966; }
+    #nav-shows:hover,
+    #nav-shows.active  { color: #00cccc; border-bottom: 2px solid #00cccc; text-shadow: 0 0 12px #00cccc88; }
+
     /* ── NAV TAB FADE-IN ────────────────────────────────────────────
        Each tab fades in sequentially after the tagline finishes      */
     #nav-videos { animation: fadeInNav 0.3s ease forwards; animation-delay: 1.7s; opacity: 0; }
     #nav-music  { animation: fadeInNav 0.3s ease forwards; animation-delay: 1.9s; opacity: 0; }
     #nav-gear   { animation: fadeInNav 0.3s ease forwards; animation-delay: 2.1s; opacity: 0; }
-    #nav-matrix { animation: fadeInNav 0.3s ease forwards; animation-delay: 2.3s; opacity: 0; }
+    #nav-about  { animation: fadeInNav 0.3s ease forwards; animation-delay: 2.3s; opacity: 0; }
+    #nav-shows  { animation: fadeInNav 0.3s ease forwards; animation-delay: 2.5s; opacity: 0; }
+    #nav-matrix { animation: fadeInNav 0.3s ease forwards; animation-delay: 2.7s; opacity: 0; }
     @keyframes fadeInNav { to { opacity: 1; } }
 
     /* ── CUSTOM CURSOR GLOW (desktop only) ──────────────────────────
@@ -468,6 +482,72 @@ layout: null
       margin-bottom: 12px;
       border: 1px solid #ff2d7833;
     }
+    /* ── ABOUT ME SECTION ───────────────────────────────────────── */
+    #about-section {
+      display: none;
+      padding: 36px 36px 36px 48px;
+      max-width: 720px;
+    }
+    .about-content .bio-text {
+      font-size: 13px;
+      line-height: 2;
+      color: var(--muted);
+      font-style: italic;
+    }
+    @media (max-width: 720px) { #about-section { padding: 24px; } }
+
+    /* ── SHOWS SECTION ──────────────────────────────────────────── */
+    #shows-section {
+      display: none;
+      padding: 36px 36px 36px 48px;
+    }
+    @media (max-width: 720px) { #shows-section { padding: 24px; } }
+    .shows-list { display: flex; flex-direction: column; gap: 12px; margin-top: 8px; }
+    .show-item {
+      display: flex;
+      gap: 24px;
+      align-items: flex-start;
+      padding: 16px;
+      border: 1px solid #00cccc33;
+      background: var(--surface);
+      transition: border-color 0.2s;
+    }
+    .show-item:hover { border-color: #00cccc77; }
+    .show-date {
+      font-family: 'VT323', monospace;
+      font-size: 22px;
+      color: #00cccc;
+      text-shadow: 0 0 8px #00cccc66;
+      white-space: nowrap;
+      min-width: 110px;
+    }
+    .show-venue {
+      font-size: 12px;
+      color: var(--text);
+      letter-spacing: 1px;
+      margin-bottom: 4px;
+    }
+    .show-location { font-size: 11px; color: var(--muted); margin-bottom: 4px; }
+    .show-time     { font-size: 10px; color: var(--dim); letter-spacing: 1px; }
+    .shows-empty {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      padding: 32px 0;
+    }
+    .shows-empty-label {
+      font-family: 'VT323', monospace;
+      font-size: 24px;
+      color: var(--dim);
+      letter-spacing: 3px;
+    }
+    .shows-empty-sub {
+      font-size: 10px;
+      color: var(--dim);
+      letter-spacing: 2px;
+      text-transform: uppercase;
+    }
+
     /* ── FOOTER ─────────────────────────────────────────────────── */
     footer {
       border-top: 1px solid #00f5ff22;
@@ -531,7 +611,50 @@ layout: null
     #matrix-hint.show { opacity: 1; }
 
     .page.hidden  { display: none; }
-    #gear-section { display: none; padding: 36px 48px; }
+    #gear-section {
+      display: none;
+      padding: 36px 36px 36px 48px; /* matches .left-col padding */
+    }
+    @media (max-width: 720px) {
+      #gear-section { padding: 24px; }
+    }
+
+    /* ── MOBILE SOCIAL STRIP ────────────────────────────────────────
+       Sits directly under the nav on mobile — social links always
+       visible without scrolling. Hidden on desktop (sidebar handles it). */
+    .mobile-social-strip {
+      display: none;
+    }
+    @media (max-width: 720px) {
+      .mobile-social-strip {
+        display: flex;
+        justify-content: stretch;
+        background: #0d0d1a;
+        border-bottom: 1px solid #ffffff11;
+      }
+      .mobile-social-strip a {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 12px 4px;
+        text-decoration: none;
+        border-right: 1px solid #ffffff0d;
+        transition: background 0.15s;
+      }
+      .mobile-social-strip a:last-child { border-right: none; }
+      .mobile-social-strip a:hover,
+      .mobile-social-strip a:active { background: #ffffff08; }
+      .mobile-social-strip svg {
+        width: 18px; height: 18px;
+        stroke: currentColor;
+        flex-shrink: 0;
+      }
+      /* Hide sidebar on mobile — strip replaces it */
+      .right-col { display: none; }
+      /* Reduce left-col padding on mobile */
+      .left-col { padding: 24px; }
+    }
 
   </style>
 </head>
@@ -558,8 +681,21 @@ layout: null
     <a href="#videos" class="active" id="nav-videos">Originals</a>
     <a href="#music"  id="nav-music">Covers</a>
     <a href="#"       id="nav-gear">Gear</a>
+    <a href="#"       id="nav-about">About Me</a>
+    <a href="#"       id="nav-shows">Shows</a>
     <a href="#"       id="nav-matrix">The Matrix</a>
   </nav>
+
+  <!-- ── MOBILE SOCIAL STRIP ───────────────────────────────────────
+       Visible on mobile only. Icons injected by JS same as sidebar.
+       Add/remove links here to match _data/social.yml              -->
+  <div class="mobile-social-strip">
+    <a class="yt" href="https://www.youtube.com/@CarlWilliamMusic" data-icon="youtube"   target="_blank" rel="noopener" aria-label="YouTube"></a>
+    <a class="ig" href="https://www.instagram.com/carlwilliammusic/" data-icon="instagram" target="_blank" rel="noopener" aria-label="Instagram"></a>
+    <a class="sc" href="https://soundcloud.com/carl-william-music"   data-icon="radio"     target="_blank" rel="noopener" aria-label="SoundCloud"></a>
+    <a class="gh" href="https://github.com/Ahlers94"                 data-icon="github"    target="_blank" rel="noopener" aria-label="GitHub"></a>
+    <a class="em" href="mailto:wcarlahlers@gmail.com"                data-icon="mail"      aria-label="Email"></a>
+  </div>
 
   <!-- ── MAIN TWO-COLUMN LAYOUT ──────────────────────────────────── -->
   <div class="page">
@@ -661,6 +797,48 @@ layout: null
     </div>
   </div>
 
+  <!-- ── ABOUT ME SECTION ──────────────────────────────────────── -->
+  <div id="about-section" style="display:none;">
+    <div class="section-label">About Me</div>
+    <div class="about-content">
+      <p class="bio-text">
+        <!-- Edit your full bio here. This can be as long as you want. -->
+        One rig. One take. Built from scratch and ridden in on a bike.
+        Technically demanding covers and originals &mdash; acoustic rock,
+        video game music, and everything in between &mdash; performed live,
+        unedited, and exactly as it happened. No cuts. No posing.
+        Just a human playing music.
+      </p>
+    </div>
+  </div>
+
+  <!-- ── SHOWS SECTION ─────────────────────────────────────────── -->
+  <div id="shows-section" style="display:none;">
+    <div class="section-label">Upcoming Shows</div>
+    <div class="shows-list">
+      <!-- ┌───────────────────────────────────────────────────────┐
+           │ Add shows by copying the .show-item block below.      │
+           │ When no shows are scheduled, the empty state shows.   │
+           └───────────────────────────────────────────────────────┘ -->
+
+      <div class="shows-empty">
+        <span class="shows-empty-label">[ NO SHOWS CURRENTLY SCHEDULED ]</span>
+        <span class="shows-empty-sub">Check back soon // Follow on social for announcements</span>
+      </div>
+
+      <!-- Example show entry — uncomment and fill in when you have shows:
+      <div class="show-item">
+        <div class="show-date">2026.06.15</div>
+        <div class="show-details">
+          <div class="show-venue">Venue Name</div>
+          <div class="show-location">City, State</div>
+          <div class="show-time">8:00 PM // Free / $5</div>
+        </div>
+      </div>
+      -->
+    </div>
+  </div>
+
   <footer>
     <span>Carl William Music &copy; 2026</span>
     <span>Hosted on GitHub Pages <span class="blink">_</span></span>
@@ -714,8 +892,8 @@ layout: null
       mail:      `<svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>`
     };
 
-    // Inject icons into social links
-    document.querySelectorAll('.social-link').forEach(el => {
+    // Inject icons into social links and mobile strip
+    document.querySelectorAll('[data-icon]').forEach(el => {
       const icon = el.getAttribute('data-icon');
       if (icon && iconMap[icon]) {
         el.insertAdjacentHTML('afterbegin', iconMap[icon]);
@@ -723,21 +901,33 @@ layout: null
     });
 
     // ── NAV SWITCHING ─────────────────────────────────────────────
-    const page        = document.querySelector('.page');
-    const gearSection = document.getElementById('gear-section');
-    const siteHeader  = document.getElementById('site-header');
-    const siteNav     = document.getElementById('site-nav');
-    const matrixEl    = document.getElementById('matrix-section');
-    const matrixMsg   = document.getElementById('matrix-msg');
-    const matrixHint  = document.getElementById('matrix-hint');
-    const allNavLinks = document.querySelectorAll('nav a');
+    const page         = document.querySelector('.page');
+    const gearSection  = document.getElementById('gear-section');
+    const aboutSection = document.getElementById('about-section');
+    const showsSection = document.getElementById('shows-section');
+    const siteHeader   = document.getElementById('site-header');
+    const siteNav      = document.getElementById('site-nav');
+    const matrixEl     = document.getElementById('matrix-section');
+    const matrixMsg    = document.getElementById('matrix-msg');
+    const matrixHint   = document.getElementById('matrix-hint');
+    const allNavLinks  = document.querySelectorAll('nav a');
 
     let matrixRunning = false;
     let animFrame;
 
+    // Hide all sections cleanly before showing one
+    function hideAll() {
+      page.classList.add('hidden');
+      gearSection.style.display  = 'none';
+      aboutSection.style.display = 'none';
+      showsSection.style.display = 'none';
+    }
+
     function showPage(section) {
       page.classList.remove('hidden');
-      gearSection.style.display = 'none';
+      gearSection.style.display  = 'none';
+      aboutSection.style.display = 'none';
+      showsSection.style.display = 'none';
       const isCovers = section === 'covers';
       document.getElementById('originals-section').style.display = isCovers ? 'none' : 'block';
       document.getElementById('covers-section').style.display    = isCovers ? 'block' : 'none';
@@ -745,9 +935,21 @@ layout: null
       setTimeout(() => window.scrollTo({ top: 0, behavior: 'smooth' }), 0);
     }
     function showGear() {
-      page.classList.add('hidden');
+      hideAll();
       gearSection.style.display = 'block';
       fadeInSection('gear-section');
+      setTimeout(() => window.scrollTo({ top: 0, behavior: 'smooth' }), 0);
+    }
+    function showAbout() {
+      hideAll();
+      aboutSection.style.display = 'block';
+      fadeInSection('about-section');
+      setTimeout(() => window.scrollTo({ top: 0, behavior: 'smooth' }), 0);
+    }
+    function showShows() {
+      hideAll();
+      showsSection.style.display = 'block';
+      fadeInSection('shows-section');
       setTimeout(() => window.scrollTo({ top: 0, behavior: 'smooth' }), 0);
     }
 
@@ -761,6 +963,8 @@ layout: null
     document.getElementById('nav-videos').addEventListener('click', function(e) { showPage('originals'); });
     document.getElementById('nav-music').addEventListener('click',  function(e) { showPage('covers'); });
     document.getElementById('nav-gear').addEventListener('click',   function(e) { e.preventDefault(); showGear(); });
+    document.getElementById('nav-about').addEventListener('click',  function(e) { e.preventDefault(); showAbout(); });
+    document.getElementById('nav-shows').addEventListener('click',  function(e) { e.preventDefault(); showShows(); });
 
     // ── ENTER MATRIX ──────────────────────────────────────────────
     document.getElementById('nav-matrix').addEventListener('click', function(e) {
@@ -797,6 +1001,8 @@ layout: null
     document.getElementById('nav-videos').addEventListener('click', exitMatrix);
     document.getElementById('nav-music').addEventListener('click',  exitMatrix);
     document.getElementById('nav-gear').addEventListener('click',   exitMatrix);
+    document.getElementById('nav-about').addEventListener('click',  exitMatrix);
+    document.getElementById('nav-shows').addEventListener('click',  exitMatrix);
 
     // ── MATRIX RAIN ───────────────────────────────────────────────
     function startMatrix() {
