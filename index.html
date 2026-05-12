@@ -398,23 +398,42 @@ layout: null
     };
     document.querySelectorAll('[data-icon]').forEach(el => { const icon = el.getAttribute('data-icon'); if(iconMap[icon]) el.insertAdjacentHTML('afterbegin', iconMap[icon]); });
 
-    // NAVIGATION
-    const navMap = { 'nav-videos': 'originals-section', 'nav-music': 'covers-section', 'nav-gear': 'gear-section', 'nav-about': 'about-section', 'nav-shows': 'shows-section' };
-    document.querySelectorAll('nav a').forEach(link => {
-      link.addEventListener('click', (e) => {
-        if(link.id === 'nav-matrix') {
-          document.getElementById('matrix-section').classList.add('active');
-          setTimeout(() => document.getElementById('matrix-msg').classList.add('show'), 500);
-          startMatrix();
-          return;
-        }
-        e.preventDefault();
-        document.querySelectorAll('nav a').forEach(l => l.classList.remove('active'));
-        link.classList.add('active');
-        document.querySelectorAll('main section').forEach(s => s.style.display = 'none');
-        document.getElementById(navMap[link.id]).style.display = 'block';
-      });
+// NAVIGATION WITH AUTO-PAUSE
+const navMap = { 
+  'nav-videos': 'originals-section', 
+  'nav-music': 'covers-section', 
+  'nav-gear': 'gear-section', 
+  'nav-about': 'about-section', 
+  'nav-shows': 'shows-section' 
+};
+
+document.querySelectorAll('nav a').forEach(link => {
+  link.addEventListener('click', (e) => {
+    if(link.id === 'nav-matrix') {
+      document.getElementById('matrix-section').classList.add('active');
+      setTimeout(() => document.getElementById('matrix-msg').classList.add('show'), 500);
+      startMatrix();
+      return;
+    }
+    
+    e.preventDefault();
+
+    // 1. Reset all YouTube iframes to stop audio
+    document.querySelectorAll('iframe').forEach(v => {
+      const src = v.src;
+      v.src = '';   // Clear it
+      v.src = src;  // Reload it (stops playback)
     });
+
+    // 2. Standard Tab Switching
+    document.querySelectorAll('nav a').forEach(l => l.classList.remove('active'));
+    link.classList.add('active');
+    document.querySelectorAll('main section').forEach(s => s.style.display = 'none');
+    
+    const targetSection = document.getElementById(navMap[link.id]);
+    if(targetSection) targetSection.style.display = 'block';
+  });
+});
 
     // GEAR TOGGLE
     document.querySelectorAll('.gear-item').forEach(item => { item.addEventListener('click', () => item.classList.toggle('open')); });
