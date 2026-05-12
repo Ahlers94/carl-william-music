@@ -11,6 +11,7 @@ layout: null
   ║    _data/videos.yml  — featured + more video IDs                ║
   ║    _data/gear.yml    — gear items, photos, descriptions         ║
   ║    _data/social.yml  — social media links                       ║
+  ║    _data/shows.yml   — upcoming and past shows                  ║
   ║                                                                  ║
   ║  QUICK EDIT CHECKLIST:                                           ║
   ║  [ ] OG preview image   (search: preview.jpg)                   ║
@@ -690,14 +691,13 @@ layout: null
 
   <!-- ── MOBILE SOCIAL STRIP ───────────────────────────────────────
        Visible on mobile only. Icons injected by JS same as sidebar.
-       Add/remove links here to match _data/social.yml              -->
+       Driven by _data/social.yml via Liquid loop below.             -->
   <div class="mobile-social-strip">
-    <a class="yt" href="https://www.youtube.com/@CarlWilliamMusic" data-icon="youtube"   target="_blank" rel="noopener" aria-label="YouTube"></a>
-    <a class="ig" href="https://www.instagram.com/carlwilliammusic/" data-icon="instagram" target="_blank" rel="noopener" aria-label="Instagram"></a>
-    <a class="sc" href="https://soundcloud.com/carl-william-music"   data-icon="radio"     target="_blank" rel="noopener" aria-label="SoundCloud"></a>
-    <a class="gh" href="https://github.com/Ahlers94"                 data-icon="github"    target="_blank" rel="noopener" aria-label="GitHub"></a>
-    <a class="vm" href="https://venmo.com/carl-william-music"         data-icon="venmo"     target="_blank" rel="noopener" aria-label="Venmo"></a>
-    <a class="em" href="mailto:wcarlahlers@gmail.com"                data-icon="mail"      aria-label="Email"></a>
+    {% for link in site.data.social %}
+    <a class="{{ link.class }}" href="{{ link.url }}" data-icon="{{ link.icon }}"
+      {% if link.class != 'em' %}target="_blank" rel="noopener"{% endif %}
+      aria-label="{{ link.label }}"></a>
+    {% endfor %}
   </div>
 
   <!-- ── MAIN TWO-COLUMN LAYOUT ──────────────────────────────────── -->
@@ -714,7 +714,7 @@ layout: null
           {% if video.featured %}
           <div class="video-featured">
             <iframe
-              src="https://www.youtube-nocookie.com/embed/{{ video.id }}"
+              src="https://www.youtube-nocookie.com/embed/{{ video.id }}?enablejsapi=1"
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
               allowfullscreen>
             </iframe>
@@ -731,7 +731,7 @@ layout: null
           {% for video in non_featured %}
           <div class="video-small">
             <iframe
-              src="https://www.youtube-nocookie.com/embed/{{ video.id }}"
+              src="https://www.youtube-nocookie.com/embed/{{ video.id }}?enablejsapi=1"
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
               allowfullscreen>
             </iframe>
@@ -749,7 +749,7 @@ layout: null
           {% for video in site.data.videos.covers %}
           <div class="video-small">
             <iframe
-              src="https://www.youtube-nocookie.com/embed/{{ video.id }}"
+              src="https://www.youtube-nocookie.com/embed/{{ video.id }}?enablejsapi=1"
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
               allowfullscreen>
             </iframe>
@@ -768,7 +768,8 @@ layout: null
       <!-- Social links from _data/social.yml -->
       <div class="social-links">
         {% for link in site.data.social %}
-        <a class="social-link {{ link.class }}" href="{{ link.url }}" data-icon="{{ link.icon }}" {% if link.class != 'em' %}target="_blank" rel="noopener"{% endif %}>
+        <a class="social-link {{ link.class }}" href="{{ link.url }}" data-icon="{{ link.icon }}"
+          {% if link.class != 'em' %}target="_blank" rel="noopener"{% endif %}>
           {{ link.label }}
         </a>
         {% endfor %}
@@ -819,27 +820,42 @@ layout: null
   <div id="shows-section" style="display:none;">
     <div class="section-label">Upcoming Shows</div>
     <div class="shows-list">
-      <!-- ┌───────────────────────────────────────────────────────┐
-           │ Add shows by copying the .show-item block below.      │
-           │ When no shows are scheduled, the empty state shows.   │
-           └───────────────────────────────────────────────────────┘ -->
 
-      <div class="shows-empty">
-        <span class="shows-empty-label">[ NO SHOWS CURRENTLY SCHEDULED ]</span>
-        <span class="shows-empty-sub">Check back soon // Follow on social for announcements</span>
-      </div>
+      {% if site.data.shows.upcoming and site.data.shows.upcoming.size > 0 %}
+        {% for show in site.data.shows.upcoming %}
+        <div class="show-item">
+          <div class="show-date">{{ show.date }}</div>
+          <div class="show-details">
+            <div class="show-venue">{{ show.venue }}</div>
+            {% if show.location %}<div class="show-location">{{ show.location }}</div>{% endif %}
+            {% if show.time %}<div class="show-time">{{ show.time }}{% if show.notes %} // {{ show.notes }}{% endif %}</div>{% endif %}
+          </div>
+        </div>
+        {% endfor %}
+      {% else %}
+        <div class="shows-empty">
+          <span class="shows-empty-label">[ NO SHOWS CURRENTLY SCHEDULED ]</span>
+          <span class="shows-empty-sub">Check back soon // Follow on social for announcements</span>
+        </div>
+      {% endif %}
 
-      <!-- Example show entry — uncomment and fill in when you have shows:
+    </div>
+
+    <!-- Past shows -->
+    {% if site.data.shows.past and site.data.shows.past.size > 0 %}
+    <div class="section-label" style="margin-top: 36px;">Past Shows</div>
+    <div class="shows-list">
+      {% for show in site.data.shows.past %}
       <div class="show-item">
-        <div class="show-date">2026.06.15</div>
+        <div class="show-date">{{ show.year }}</div>
         <div class="show-details">
-          <div class="show-venue">Venue Name</div>
-          <div class="show-location">City, State</div>
-          <div class="show-time">8:00 PM // Free / $5</div>
+          <div class="show-venue">{{ show.event }}</div>
+          {% if show.venue %}<div class="show-location">{{ show.venue }}</div>{% endif %}
         </div>
       </div>
-      -->
+      {% endfor %}
     </div>
+    {% endif %}
 
     <!-- Contact block — booking inquiries -->
     <div class="shows-contact">
@@ -892,6 +908,22 @@ layout: null
       el.classList.add('tab-fade');
     }
 
+    // ── AUTO-PAUSE ALL YOUTUBE IFRAMES ───────────────────────────
+    // Sends a postMessage pauseVideo command to every embedded iframe.
+    // Called before every tab switch so audio never overlaps.
+    function pauseAllVideos() {
+      document.querySelectorAll('iframe').forEach(iframe => {
+        try {
+          iframe.contentWindow.postMessage(
+            JSON.stringify({ event: 'command', func: 'pauseVideo', args: [] }),
+            '*'
+          );
+        } catch (e) {
+          // Cross-origin frames may throw; safe to ignore.
+        }
+      });
+    }
+
     // ── GEAR CARD EXPAND ─────────────────────────────────────────
     document.querySelectorAll('.gear-item').forEach(item => {
       item.addEventListener('click', () => item.classList.toggle('open'));
@@ -938,6 +970,7 @@ layout: null
     }
 
     function showPage(section) {
+      pauseAllVideos();
       page.classList.remove('hidden');
       gearSection.style.display  = 'none';
       aboutSection.style.display = 'none';
@@ -949,18 +982,21 @@ layout: null
       setTimeout(() => window.scrollTo({ top: 0, behavior: 'smooth' }), 0);
     }
     function showGear() {
+      pauseAllVideos();
       hideAll();
       gearSection.style.display = 'block';
       fadeInSection('gear-section');
       setTimeout(() => window.scrollTo({ top: 0, behavior: 'smooth' }), 0);
     }
     function showAbout() {
+      pauseAllVideos();
       hideAll();
       aboutSection.style.display = 'block';
       fadeInSection('about-section');
       setTimeout(() => window.scrollTo({ top: 0, behavior: 'smooth' }), 0);
     }
     function showShows() {
+      pauseAllVideos();
       hideAll();
       showsSection.style.display = 'block';
       fadeInSection('shows-section');
@@ -983,6 +1019,7 @@ layout: null
     // ── ENTER MATRIX ──────────────────────────────────────────────
     document.getElementById('nav-matrix').addEventListener('click', function(e) {
       e.preventDefault();
+      pauseAllVideos();
       page.classList.add('hidden');
       gearSection.style.display    = 'none';
       siteHeader.style.display     = 'none';
