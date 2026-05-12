@@ -2,236 +2,429 @@
 layout: null
 ---
 <!DOCTYPE html>
+<!--
+  ╔══════════════════════════════════════════════════════════════════╗
+  ║  CARL WILLIAM MUSIC — index.html (Jekyll)                       ║
+  ║  Hosted on GitHub Pages                                         ║
+  ║                                                                  ║
+  ║  CONTENT LIVES IN _data/ — edit those files, not this one:      ║
+  ║    _data/videos.yml  — featured + more video IDs                ║
+  ║    _data/gear.yml    — gear items, photos, descriptions         ║
+  ║    _data/social.yml  — social media links                       ║
+  ║                                                                  ║
+  ║  QUICK EDIT CHECKLIST:                                           ║
+  ║  [ ] OG preview image   (search: preview.jpg)                   ║
+  ║  [ ] Footer year        (search: 2026)                          ║
+  ╚══════════════════════════════════════════════════════════════════╝
+-->
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <!-- RESTORED SEO -->
+
+  <!-- ── SEO & SOCIAL PREVIEW ──────────────────────────────────── -->
+  <meta name="description" content="Official site for Carl William Music. Live looping, raw guitar captures, and no-nonsense performance.">
+  <meta name="author" content="Carl William Music">
+
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Carl William Music | Substance Over Style">
+  <meta property="og:description" content="Live looping guitarist. Covers and originals. One take, no excuses.">
+  <meta property="og:url" content="https://ahlers94.github.io/carl-william-music/">
+  <meta property="og:image" content="https://ahlers94.github.io/carl-william-music/preview.jpg">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Carl William Music | Substance Over Style">
+  <meta name="twitter:description" content="Live looping guitarist. Covers and originals. One take, no excuses.">
+  <meta name="twitter:image" content="https://ahlers94.github.io/carl-william-music/preview.jpg">
+
   <title>Carl William Music | Substance Over Style</title>
-  <meta name="description" content="Official site for Carl William Music. Live looping, raw guitar captures, and full-band soundscapes.">
-  <meta property="og:title" content="Carl William Music">
-  <meta property="og:description" content="Live Looping Artist & Guitarist">
-  
+
+  <!-- ── FONTS ─────────────────────────────────────────────────── -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=VT323&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
 
   <style>
+    /* ── COLOR PALETTE ──────────────────────────────────────────── */
     :root {
-      --bg: #0a0a12;
+      --bg:      #0a0a12;
       --surface: #0d0d1a;
-      --text: #e0d8f0;
-      --muted: #9988aa;
-      --dim: #443355;
-      /* Super Famicom / Brand Palette */
-      --sf-red: #ff3232;
-      --sf-blue: #0070c9;
-      --sf-yellow: #ffcc00;
-      --sf-purple: #aa66ff;
-      --sf-orange: #ff8800;
-      --sf-green: #00ff41;
-      
-      --soundcloud: #ff5500;
-      --venmo: #008cff;
+      --pink:    #ff2d78;
+      --cyan:    #00f5ff;
+      --gold:    #ffd700;
+      --purple:  #b06aff;
+      --green:   #99cc77;
+      --text:    #e0d8f0;
+      --muted:   #9988aa;
+      --dim:     #443355;
     }
 
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    body { background: var(--bg); color: var(--text); font-family: 'Space Mono', monospace; min-height: 100vh; overflow-x: hidden; }
-    
-    body::before {
-      content: ''; position: fixed; inset: 0;
-      background: repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(0,245,255,0.015) 3px, rgba(0,245,255,0.015) 4px);
-      pointer-events: none; z-index: 999;
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Space Mono', monospace;
+      min-height: 100vh;
     }
 
-    /* ── HEADER & ANIMATIONS ── */
-    header { border-bottom: 2px solid var(--sf-green); padding: 36px 48px 24px; }
+    /* ── CRT SCANLINE OVERLAY ───────────────────────────────────── */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background: repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(0,245,255,0.015) 3px, rgba(0,245,255,0.015) 4px);
+      pointer-events: none;
+      z-index: 999;
+    }
+
+    /* ── HEADER ─────────────────────────────────────────────────── */
+    header {
+      border-bottom: 2px solid var(--cyan);
+      padding: 36px 48px 24px;
+    }
     .artist-name {
-      font-family: 'VT323', monospace; font-size: clamp(54px, 9vw, 90px);
-      color: var(--sf-green); letter-spacing: 4px; line-height: 1;
-      text-shadow: 0 0 20px rgba(0,255,65,0.3);
+      font-family: 'VT323', monospace;
+      font-size: clamp(56px, 10vw, 96px);
+      color: #00ff41;
+      letter-spacing: 6px;
+      line-height: 1;
+      text-shadow: 3px 3px 0 #003d10, 0 0 40px #00ff4155;
       animation: breathe 3s ease-in-out infinite;
     }
-    @keyframes breathe { 0%, 100% { opacity: 0.8; } 50% { opacity: 1; text-shadow: 0 0 40px rgba(0,255,65,0.6); } }
 
-    /* ── SUPER FAMICOM NAV ── */
-    nav { display: flex; background: #10101e; border-bottom: 1px solid #ffffff15; position: sticky; top: 0; z-index: 10; }
-    nav a { 
-      padding: 14px 20px; font-size: 11px; letter-spacing: 2px; text-transform: uppercase; 
-      color: var(--muted); text-decoration: none; border-bottom: 3px solid transparent; transition: 0.3s;
+    @keyframes breathe {
+      0%, 100% { text-shadow: 3px 3px 0 #003d10, 0 0 20px #00ff4133, 0 0 40px #00ff4122; }
+      50%       { text-shadow: 3px 3px 0 #003d10, 0 0 30px #00ff41aa, 0 0 60px #00ff4155, 0 0 80px #00ff4122; }
     }
-    
-    #nav-videos.active, #nav-videos:hover { color: var(--sf-red); border-bottom-color: var(--sf-red); }
-    #nav-music.active,  #nav-music:hover  { color: var(--sf-blue); border-bottom-color: var(--sf-blue); }
-    #nav-gear.active,   #nav-gear:hover   { color: var(--sf-yellow); border-bottom-color: var(--sf-yellow); }
-    #nav-about.active,  #nav-about:hover  { color: var(--sf-purple); border-bottom-color: var(--sf-purple); }
-    #nav-shows.active,  #nav-shows:hover  { color: var(--sf-orange); border-bottom-color: var(--sf-orange); }
-    #nav-matrix.active, #nav-matrix:hover { color: var(--sf-green); border-bottom-color: var(--sf-green); }
 
-    /* ── GEAR & CONTENT ── */
-    .js-enabled section:not(#originals-section) { display: none; }
-    .gear-item { border: 1px solid #ffffff10; padding: 16px; background: var(--surface); cursor: pointer; margin-bottom: 10px; }
-    .gear-desc { display: grid; grid-template-rows: 0fr; transition: 0.4s ease; opacity: 0; overflow: hidden; }
-    .gear-item.open .gear-desc { grid-template-rows: 1fr; opacity: 1; margin-top: 15px; }
-    .gear-photo { width: 100%; border: 1px solid var(--dim); margin-bottom: 12px; }
-
-    /* ── LAYOUT ── */
-    .page { display: grid; grid-template-columns: 1fr 320px; }
-    .left-col { padding: 40px; border-right: 1px solid #ffffff10; }
-    .right-col { padding: 30px; background: var(--surface); }
-
-    /* ── SOCIALS ── */
-    .social-link { 
-      display: flex; align-items: center; gap: 12px; padding: 12px; 
-      border: 1px solid #ffffff10; text-decoration: none; font-size: 10px; 
-      letter-spacing: 1px; margin-bottom: 8px; transition: 0.2s;
+    .artist-tagline {
+      font-size: 11px;
+      color: var(--cyan);
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      margin-top: 8px;
+      opacity: 0.8;
+      display: flex;
+      flex-wrap: nowrap;
+      gap: 6px;
+      overflow: hidden;
     }
-    .social-link svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 2; }
-    
-    .social-link[data-icon="youtube"]:hover { color: #ff0000; border-color: #ff0000; }
-    .social-link[data-icon="soundcloud"]:hover { color: var(--soundcloud); border-color: var(--soundcloud); }
-    .social-link[data-icon="venmo"]:hover { color: var(--venmo); border-color: var(--venmo); }
+    @media (max-width: 720px) { .artist-tagline { font-size: 8px; letter-spacing: 1.5px; gap: 3px; } }
 
-    /* ── MATRIX ── */
-    #matrix-section { display: none; position: fixed; inset: 0; background: #000; z-index: 1000; }
+    .tagline-word {
+      display: inline-block;
+      opacity: 0;
+      transform: translateY(12px);
+      animation: slideIn 0.4s ease forwards;
+    }
+    @keyframes slideIn { to { opacity: 1; transform: translateY(0); } }
+
+    /* ── NAVIGATION ─────────────────────────────────────────────── */
+    nav {
+      display: flex;
+      background: #10101e;
+      border-bottom: 1px solid #ffffff15;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+    }
+    nav::-webkit-scrollbar { display: none; }
+    nav::after {
+      content: '';
+      position: sticky;
+      right: 0;
+      top: 0;
+      min-width: 48px;
+      height: 100%;
+      background: linear-gradient(to right, transparent, #10101e);
+      pointer-events: none;
+      flex-shrink: 0;
+    }
+
+    nav a {
+      display: block;
+      padding: 12px 24px;
+      font-size: 11px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: #9988cc;
+      text-decoration: none;
+      border-right: 1px solid #ffffff0d;
+      transition: color 0.2s, border-bottom-color 0.2s;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    /* Sequential Nav Delays */
+    #nav-videos { animation: fadeInNav 0.3s ease forwards; animation-delay: 1.7s; opacity: 0; }
+    #nav-music  { animation: fadeInNav 0.3s ease forwards; animation-delay: 1.9s; opacity: 0; }
+    #nav-gear   { animation: fadeInNav 0.3s ease forwards; animation-delay: 2.1s; opacity: 0; }
+    #nav-about  { animation: fadeInNav 0.3s ease forwards; animation-delay: 2.3s; opacity: 0; }
+    #nav-shows  { animation: fadeInNav 0.3s ease forwards; animation-delay: 2.5s; opacity: 0; }
+    #nav-matrix { animation: fadeInNav 0.3s ease forwards; animation-delay: 2.7s; opacity: 0; }
+    @keyframes fadeInNav { to { opacity: 1; } }
+
+    /* Super Famicom button palette styling */
+    #nav-videos { color: #b3001a; text-shadow: 0 0 8px #b3001a66; }
+    #nav-videos:hover, #nav-videos.active { color: #d4001a; border-bottom: 2px solid #d4001a; text-shadow: 0 0 12px #d4001a88; }
+    #nav-music { color: #005fa8; text-shadow: 0 0 8px #005fa866; }
+    #nav-music:hover, #nav-music.active { color: #0070c9; border-bottom: 2px solid #0070c9; text-shadow: 0 0 12px #0070c988; }
+    #nav-gear { color: #c08800; text-shadow: 0 0 8px #c0880066; }
+    #nav-gear:hover, #nav-gear.active { color: #e4a100; border-bottom: 2px solid #e4a100; text-shadow: 0 0 12px #e4a10088; }
+    #nav-matrix { color: #008a44; text-shadow: 0 0 8px #008a4466; }
+    #nav-matrix:hover, #nav-matrix.active { color: #00a550; border-bottom: 2px solid #00a550; text-shadow: 0 0 12px #00a55088; }
+    #nav-about { color: #8844cc; text-shadow: 0 0 8px #8844cc66; }
+    #nav-about:hover, #nav-about.active { color: #aa66ff; border-bottom: 2px solid #aa66ff; text-shadow: 0 0 12px #aa66ff88; }
+    #nav-shows { color: #009999; text-shadow: 0 0 8px #00999966; }
+    #nav-shows:hover, #nav-shows.active { color: #00cccc; border-bottom: 2px solid #00cccc; text-shadow: 0 0 12px #00cccc88; }
+
+    /* ── CUSTOM CURSOR ──────────────────────────────────────────── */
+    #cursor-glow {
+      position: fixed;
+      width: 28px; height: 28px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(0,245,255,0.18) 0%, transparent 70%);
+      pointer-events: none;
+      transform: translate(-50%, -50%);
+      z-index: 1000;
+    }
+    @media (hover: none) { #cursor-glow { display: none; } }
+
+    /* ── LAYOUT & COLUMNS ───────────────────────────────────────── */
+    .page { display: grid; grid-template-columns: 1fr 280px; min-height: calc(100vh - 200px); }
+    .left-col { padding: 36px 36px 36px 48px; border-right: 1px solid #ff2d7822; }
+    .right-col { padding: 28px 24px; background: var(--surface); }
+
+    @media (max-width: 720px) {
+      .page { grid-template-columns: 1fr; }
+      .right-col { display: none; }
+      .left-col { padding: 24px; }
+      header { padding: 24px; }
+    }
+
+    /* ── GEAR & VIDEOS ─────────────────────────────────────────── */
+    .gear-item { border: 1px solid #ff2d7822; padding: 16px; background: var(--surface); cursor: pointer; transition: border-color 0.2s; margin-bottom: 12px; }
+    .gear-item:hover { border-color: #ff2d7844; }
+    .gear-label { font-size: 10px; color: var(--cyan); letter-spacing: 3px; text-transform: uppercase; display: flex; justify-content: space-between; align-items: center; }
+    .gear-label::after { content: '▸'; transition: transform 0.3s; color: var(--dim); }
+    .gear-item.open .gear-label::after { transform: rotate(90deg); }
+    .gear-desc { font-size: 11px; color: var(--muted); line-height: 1.7; max-height: 0; overflow: hidden; transition: 0.4s; opacity: 0; }
+    .gear-item.open .gear-desc { max-height: 1000px; opacity: 1; margin-top: 8px; }
+
+    .video-featured { position: relative; padding-bottom: 56.25%; background: #06060f; border: 1px solid #ff2d7855; margin-bottom: 10px; overflow: hidden; }
+    .video-featured iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: none; }
+    .video-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 8px; }
+    .video-small { position: relative; padding-bottom: 56.25%; background: #06060f; border: 1px solid #ffd70033; overflow: hidden; }
+    .video-small iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: none; }
+
+    /* ── MOBILE SOCIAL STRIP ────────────────────────────────────── */
+    .mobile-social-strip { display: none; }
+    @media (max-width: 720px) {
+      .mobile-social-strip { display: flex; background: #0d0d1a; border-bottom: 1px solid #ffffff11; }
+      .mobile-social-strip a { flex: 1; display: flex; align-items: center; justify-content: center; padding: 12px 4px; border-right: 1px solid #ffffff0d; }
+      .mobile-social-strip svg { width: 18px; height: 18px; stroke: currentColor; }
+    }
+
+    /* ── SOCIAL & MATRIX ───────────────────────────────────────── */
+    .social-links { display: flex; flex-direction: column; gap: 10px; }
+    .social-link { display: flex; align-items: center; gap: 12px; padding: 10px 14px; border: 1px solid; font-size: 11px; text-transform: uppercase; text-decoration: none; transition: 0.15s; }
+    .yt { color: #FF0000; border-color: #FF000055; }
+    .ig { color: #E1306C; border-color: #E1306C55; }
+    .sc { color: #FF5500; border-color: #FF550055; }
+    .gh { color: #6cc644; border-color: #6cc64455; }
+    .em { color: var(--cyan); border-color: #00f5ff55; text-transform: none; }
+    .vm { color: #008CFF; border-color: #008CFF55; }
+
+    #matrix-section { display: none; position: fixed; inset: 0; background: #000; z-index: 100; cursor: pointer; }
     #matrix-section.active { display: block; }
-    #matrix-msg { 
-      position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-      font-family: 'VT323'; color: var(--sf-green); text-align: center; line-height: 1.2;
-    }
+    #matrix-msg { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-family: 'VT323'; color: #00ff41; font-size: clamp(28px, 5vw, 52px); text-align: center; opacity: 0; transition: 1.5s; }
+    #matrix-msg.show { opacity: 1; }
 
-    @media (max-width: 800px) { .page { grid-template-columns: 1fr; } .right-col { display: none; } }
+    .blink { animation: blink 1.2s step-end infinite; }
+    @keyframes blink { 50% { opacity: 0; } }
+
+    @keyframes flicker { 0%, 10%, 12%, 14%, 16%, 100% { opacity: 1; } 11% { opacity: 0.4; } 13% { opacity: 0.6; } 15% { opacity: 0.8; } }
+    .tagline-word.flickering { animation: flicker 0.3s ease forwards; }
   </style>
 </head>
-<body class="js-enabled">
+<body>
+  <div id="cursor-glow"></div>
 
   <header>
     <div class="artist-name">CARL WILLIAM MUSIC</div>
+    <div class="artist-tagline">
+      <span class="tagline-word" style="animation-delay: 0.2s">Substance</span>
+      <span class="tagline-word" style="animation-delay: 0.35s">Over</span>
+      <span class="tagline-word" style="animation-delay: 0.5s">Style</span>
+      <span class="tagline-word" style="animation-delay: 0.7s">//</span>
+      <span class="tagline-word" style="animation-delay: 0.85s">No</span>
+      <span class="tagline-word" style="animation-delay: 1.0s">Edits</span>
+      <span class="tagline-word" style="animation-delay: 1.2s">//</span>
+      <span class="tagline-word" style="animation-delay: 1.35s">No</span>
+      <span class="tagline-word" style="animation-delay: 1.5s">Posing</span>
+    </div>
   </header>
 
   <nav id="site-nav">
     <a href="#videos" class="active" id="nav-videos">Originals</a>
     <a href="#music" id="nav-music">Covers</a>
     <a href="#gear" id="nav-gear">Gear</a>
-    <a href="#about" id="nav-about">About</a>
+    <a href="#about" id="nav-about">About Me</a>
     <a href="#shows" id="nav-shows">Shows</a>
     <a href="#matrix" id="nav-matrix">The Matrix</a>
   </nav>
 
+  <div class="mobile-social-strip">
+    {% for link in site.data.social %}
+      <a class="{{ link.class }}" href="{{ link.url }}" data-icon="{{ link.icon }}" target="_blank" aria-label="{{ link.label }}"></a>
+    {% endfor %}
+  </div>
+
   <div class="page">
     <main class="left-col">
+      <!-- ORIGINALS -->
       <section id="originals-section">
+        <div class="section-label">Originals</div>
         {% for video in site.data.videos.originals %}
-          <div style="margin-bottom:20px; border:1px solid #ffffff10;">
-            <div style="position:relative; padding-bottom:56.25%;">
-              <iframe src="https://www.youtube-nocookie.com/embed/{{ video.id }}" style="position:absolute; width:100%; height:100%; border:0;" allowfullscreen></iframe>
-            </div>
+          {% if video.featured %}
+          <div class="video-featured">
+            <iframe src="https://www.youtube-nocookie.com/embed/{{ video.id }}" allowfullscreen></iframe>
           </div>
+          {% if video.title %}<div class="video-caption">> {{ video.title }}</div>{% endif %}
+          {% endif %}
         {% endfor %}
-      </section>
 
-      <section id="covers-section">
-        <div style="display:grid; grid-template-columns:1fr 1fr; gap:15px;">
-          {% for video in site.data.videos.covers %}
-            <div style="position:relative; padding-bottom:56.25%; border:1px solid #ffffff10;">
-              <iframe src="https://www.youtube-nocookie.com/embed/{{ video.id }}" style="position:absolute; width:100%; height:100%; border:0;" allowfullscreen></iframe>
+        <div class="video-grid">
+          {% for video in site.data.videos.originals %}
+            {% unless video.featured %}
+            <div class="video-small">
+              <iframe src="https://www.youtube-nocookie.com/embed/{{ video.id }}" allowfullscreen></iframe>
             </div>
+            {% endunless %}
           {% endfor %}
         </div>
       </section>
 
-      <section id="gear-section">
-        {% for item in site.data.gear %}
-          <div class="gear-item">
-            <div style="color:var(--sf-yellow); font-size:12px; letter-spacing:2px;">{{ item.label }}</div>
-            <div class="gear-desc">
-              <div style="overflow:hidden;">
-                {% if item.image %}<img src="{{ item.image | relative_url }}" class="gear-photo">{% endif %}
-                <p style="font-size:11px; line-height:1.6; color:var(--muted);">{{ item.description }}</p>
-              </div>
-            </div>
+      <!-- COVERS -->
+      <section id="covers-section" style="display:none;">
+        <div class="section-label">Covers</div>
+        <div class="video-grid">
+          {% for video in site.data.videos.covers %}
+          <div class="video-small">
+            <iframe src="https://www.youtube-nocookie.com/embed/{{ video.id }}" allowfullscreen></iframe>
           </div>
-        {% endfor %}
+          {% endfor %}
+        </div>
       </section>
 
-      <section id="about-section">
-        <p style="color:var(--sf-purple); letter-spacing:1px;">Substance Over Style.</p>
+      <!-- GEAR -->
+      <section id="gear-section" style="display:none;">
+        <div class="section-label">The Rig</div>
+        <div class="gear-grid">
+          {% for item in site.data.gear %}
+          <div class="gear-item">
+            {% if item.image %}<img src="{{ item.image }}" style="width:100%; margin-bottom:12px; border:1px solid #ff2d7833;">{% endif %}
+            <div class="gear-label">{{ item.label }}</div>
+            <div class="gear-desc">{{ item.description }}</div>
+          </div>
+          {% endfor %}
+        </div>
       </section>
 
-      <section id="shows-section">
-        <div style="color:var(--sf-orange); opacity:0.5;">[ SYSTEM_ERROR: NO_UPCOMING_DATES ]</div>
+      <!-- ABOUT & SHOWS -->
+      <section id="about-section" style="display:none;">
+        <div class="section-label">About Me</div>
+        <p style="font-style:italic; line-height:2; color:var(--muted);">Built from scratch and performed live. No edits. No posing.</p>
+      </section>
+
+      <section id="shows-section" style="display:none;">
+        <div class="section-label">Upcoming Shows</div>
+        <div style="font-family:'VT323'; font-size:24px; color:var(--dim);">[ NO SHOWS SCHEDULED ]</div>
       </section>
     </main>
 
     <aside class="right-col">
-      <div style="font-size:10px; color:var(--sf-green); margin-bottom:20px;">// CONNECTION_ESTABLISHED</div>
+      <div class="section-label">Find Me</div>
       <div class="social-links">
         {% for link in site.data.social %}
-          <a class="social-link" href="{{ link.url }}" data-icon="{{ link.icon }}" target="_blank">{{ link.label }}</a>
+        <a class="social-link {{ link.class }}" href="{{ link.url }}" data-icon="{{ link.icon }}" target="_blank">
+          {{ link.label }}
+        </a>
         {% endfor %}
       </div>
-      <div id="bio-decrypt" style="font-size: 11px; color: var(--muted); margin-top: 30px; line-height: 1.8;">
-        🎸 Guitarist | 🎛️ Live Looping Artist | 🔊 Crafting full-band soundscapes
+      <div style="margin-top:28px; border-top:1px solid #ffffff0d; padding-top:20px;">
+        <div class="section-label">About</div>
+        <p style="font-size:11px; line-height:1.8; color:var(--muted);">🎸 Guitarist | 🎛️ Live Looping | 🔊 Soundscapes</p>
       </div>
     </aside>
   </div>
 
+  <footer>
+    <span>Carl William Music &copy; 2026</span>
+    <span>Hosted on GitHub Pages <span class="blink">_</span></span>
+  </footer>
+
   <div id="matrix-section">
     <canvas id="matrix-canvas"></canvas>
-    <div id="matrix-msg" style="font-size: 32px;"></div>
+    <div id="matrix-msg">WAKE UP, NEO...<br>THE MUSIC HAS YOU.</div>
   </div>
 
   <script>
+    // CURSOR GLOW
+    const glow = document.getElementById('cursor-glow');
+    document.addEventListener('mousemove', e => { glow.style.left = e.clientX + 'px'; glow.style.top = e.clientY + 'px'; });
+
+    // FLICKER LOGIC
+    const words = document.querySelectorAll('.tagline-word');
+    function triggerFlicker() {
+      const w = words[Math.floor(Math.random()*words.length)];
+      w.classList.add('flickering');
+      w.addEventListener('animationend', () => w.classList.remove('flickering'), {once:true});
+      setTimeout(triggerFlicker, 8000 + Math.random()*2000);
+    }
+    setTimeout(triggerFlicker, 4000);
+
+    // ICONS
     const iconMap = {
-      youtube: `<svg viewBox="0 0 24 24"><path d="M2.5 17a24.12 24.12 0 0 1 0-10 2 2 0 0 1 1.4-1.4 49.56 49.56 0 0 1 16.2 0A2 2 0 0 1 21.5 7a24.12 24.12 0 0 1 0 10 2 2 0 0 1-1.4 1.4 49.55 49.55 0 0 1-16.2 0A2 2 0 0 1 2.5 17"/><polygon points="10 15 15 12 10 9"/></svg>`,
-      soundcloud: `<svg viewBox="0 0 24 24"><path d="M12 19V9m-3 10v-6m-3 6v-2m9 2V7m3 12V11m3 8v-5"/></svg>`,
-      venmo: `<svg viewBox="0 0 24 24"><path d="M17 5L13.5 19H9.5L6 5h11z"/></svg>`,
-      github: `<svg viewBox="0 0 24 24"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>`
+      youtube: `<svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke="currentColor"><path d="M22.54 6.42a2.78 2.78 0 0 0-1.94-2C18.88 4 12 4 12 4s-6.88 0-8.6.46a2.78 2.78 0 0 0-1.94 2A29 29 0 0 0 1 11.75a29 29 0 0 0 .46 5.33A2.78 2.78 0 0 0 3.4 19c1.72.46 8.6.46 8.6.46s6.88 0 8.6-.46a2.78 2.78 0 0 0 1.94-2 29 29 0 0 0 .46-5.25 29 29 0 0 0-.46-5.33z"/><polygon points="9.75 15.02 15.5 11.75 9.75 8.48 9.75 15.02"/></svg>`,
+      instagram: `<svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke="currentColor"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>`,
+      radio: `<svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke="currentColor"><circle cx="12" cy="12" r="2"/><path d="M16.24 7.76a6 6 0 0 1 0 8.49m-8.48-.01a6 6 0 0 1 0-8.49m11.31-2.82a10 10 0 0 1 0 14.14m-14.14 0a10 10 0 0 1 0-14.14"/></svg>`,
+      github: `<svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke="currentColor"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>`,
+      venmo: `<svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke="currentColor"><path d="M17 5L13.5 19H9.5L6 5h11z"/></svg>`,
+      mail: `<svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke="currentColor"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>`
     };
+    document.querySelectorAll('[data-icon]').forEach(el => { const icon = el.getAttribute('data-icon'); if(iconMap[icon]) el.insertAdjacentHTML('afterbegin', iconMap[icon]); });
 
-    document.querySelectorAll('[data-icon]').forEach(el => {
-      const icon = el.getAttribute('data-icon');
-      if(iconMap[icon]) el.insertAdjacentHTML('afterbegin', iconMap[icon]);
+    // NAVIGATION
+    const navMap = { 'nav-videos': 'originals-section', 'nav-music': 'covers-section', 'nav-gear': 'gear-section', 'nav-about': 'about-section', 'nav-shows': 'shows-section' };
+    document.querySelectorAll('nav a').forEach(link => {
+      link.addEventListener('click', (e) => {
+        if(link.id === 'nav-matrix') {
+          document.getElementById('matrix-section').classList.add('active');
+          setTimeout(() => document.getElementById('matrix-msg').classList.add('show'), 500);
+          startMatrix();
+          return;
+        }
+        e.preventDefault();
+        document.querySelectorAll('nav a').forEach(l => l.classList.remove('active'));
+        link.classList.add('active');
+        document.querySelectorAll('main section').forEach(s => s.style.display = 'none');
+        document.getElementById(navMap[link.id]).style.display = 'block';
+      });
     });
 
-    // Nav Logic
-    const sections = { 'nav-videos': 'originals-section', 'nav-music': 'covers-section', 'nav-gear': 'gear-section', 'nav-about': 'about-section', 'nav-shows': 'shows-section' };
-    document.getElementById('site-nav').addEventListener('click', (e) => {
-      const link = e.target.closest('a');
-      if (!link || link.id === 'nav-matrix') return;
-      e.preventDefault();
-      document.querySelectorAll('nav a').forEach(l => l.classList.remove('active'));
-      link.classList.add('active');
-      document.querySelectorAll('main section').forEach(s => s.style.display = 'none');
-      document.getElementById(sections[link.id]).style.display = 'block';
-    });
+    // GEAR TOGGLE
+    document.querySelectorAll('.gear-item').forEach(item => { item.addEventListener('click', () => item.classList.toggle('open')); });
 
-    // Gear Toggle
-    document.addEventListener('click', e => {
-      const item = e.target.closest('.gear-item');
-      if(item) item.classList.toggle('open');
-    });
-
-    // Matrix Logic
-    const matrixSection = document.getElementById('matrix-section');
-    const matrixMsg = document.getElementById('matrix-msg');
-    document.getElementById('nav-matrix').addEventListener('click', () => {
-      matrixSection.classList.add('active');
-      startMatrix();
-      let lines = ["Wake up, Neo...", "The Music has you..."];
-      matrixMsg.innerHTML = `<div>${lines[0]}</div><div style="margin-top:10px; opacity:0;" id="line2">${lines[1]}</div>`;
-      setTimeout(() => document.getElementById('line2').style.opacity = "1", 2000);
-    });
-
-    matrixSection.addEventListener('click', () => {
-      matrixSection.classList.remove('active');
-      location.reload(); 
-    });
-
+    // MATRIX
     function startMatrix() {
       const canvas = document.getElementById('matrix-canvas');
       const ctx = canvas.getContext('2d');
       canvas.width = window.innerWidth; canvas.height = window.innerHeight;
-      const chars = '0123456789ABCDEFｱｲｳｴｵｶｷｸｹｺ';
+      const chars = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZｱｲｳｴｵｶｷｸｹｺ'.split('');
       const drops = Array(Math.floor(canvas.width/20)).fill(1);
       function draw() {
         ctx.fillStyle = 'rgba(0,0,0,0.05)'; ctx.fillRect(0,0,canvas.width,canvas.height);
@@ -245,6 +438,7 @@ layout: null
       }
       draw();
     }
+    document.getElementById('matrix-section').onclick = () => location.reload();
   </script>
 </body>
 </html>
