@@ -1,0 +1,402 @@
+---
+layout: null
+---
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <meta name="description" content="The Raspberry Pi 4 Pedalboard — a fully portable, battery powered open source effects rig by Carl William Music.">
+  <meta name="author" content="Carl William Music">
+
+  <meta property="og:type"        content="website">
+  <meta property="og:title"       content="Raspberry Pi 4 Pedalboard | Carl William Music">
+  <meta property="og:description" content="DIY live rig. Open source effects. Not for the faint of heart.">
+  <meta property="og:url"         content="https://ahlers94.github.io/carl-william-music/pi-rig.html">
+  <meta property="og:image"       content="https://ahlers94.github.io/carl-william-music/photos/pi-rig.jpg">
+
+  <title>Raspberry Pi 4 Pedalboard | Carl William Music</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=VT323&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --bg:      #0a0a12;
+      --surface: #0d0d1a;
+      --pink:    #ff2d78;
+      --cyan:    #00f5ff;
+      --gold:    #ffd700;
+      --purple:  #b06aff;
+      --green:   #99cc77;
+      --text:    #e0d8f0;
+      --muted:   #9988aa;
+      --dim:     #443355;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Space Mono', monospace;
+      min-height: 100vh;
+    }
+
+    /* CRT scanline overlay */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background: repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 3px,
+        rgba(0,245,255,0.015) 3px,
+        rgba(0,245,255,0.015) 4px
+      );
+      pointer-events: none;
+      z-index: 999;
+    }
+
+    /* ── HEADER ──────────────────────────────────────────────────── */
+    header {
+      border-bottom: 2px solid var(--cyan);
+      padding: 28px 48px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    @media (max-width: 720px) { header { padding: 18px 24px; } }
+
+    .site-name {
+      font-family: 'VT323', monospace;
+      font-size: clamp(28px, 6vw, 44px);
+      color: #00ff41;
+      letter-spacing: 4px;
+      line-height: 1;
+      text-shadow: 2px 2px 0 #003d10, 0 0 20px #00ff4155;
+      text-decoration: none;
+    }
+
+    .back-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-family: 'Space Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--green);
+      text-shadow: 0 0 8px #99cc7766;
+      cursor: pointer;
+      border: 1px solid #99cc7733;
+      background: none;
+      padding: 8px 14px;
+      transition: border-color 0.2s, text-shadow 0.2s, background 0.2s;
+    }
+    .back-btn:hover {
+      border-color: #99cc7777;
+      text-shadow: 0 0 14px #99cc77bb;
+      background: #99cc7708;
+    }
+    .back-btn::before { content: '◂'; font-size: 12px; }
+
+    /* ── MAIN CONTENT ────────────────────────────────────────────── */
+    .content {
+      max-width: 780px;
+      padding: 48px 48px 64px;
+    }
+    @media (max-width: 720px) { .content { padding: 28px 24px 48px; } }
+
+    /* Section label — matches site style */
+    .section-label {
+      font-size: 10px;
+      color: var(--cyan);
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .section-label::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: #00f5ff33;
+    }
+
+    .rig-tag {
+      font-size: 9px;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--gold);
+      text-shadow: 0 0 8px #ffd70066;
+      margin-bottom: 12px;
+      display: block;
+    }
+
+    .rig-title {
+      font-family: 'VT323', monospace;
+      font-size: clamp(52px, 12vw, 96px);
+      color: #00ff41;
+      letter-spacing: 5px;
+      line-height: 0.95;
+      text-shadow: 3px 3px 0 #003d10, 0 0 40px #00ff4155;
+      animation: breathe 3s ease-in-out infinite;
+      margin-bottom: 10px;
+    }
+    @keyframes breathe {
+      0%, 100% { text-shadow: 3px 3px 0 #003d10, 0 0 20px #00ff4133, 0 0 40px #00ff4122; }
+      50%       { text-shadow: 3px 3px 0 #003d10, 0 0 30px #00ff41aa, 0 0 60px #00ff4155; }
+    }
+
+    .rig-subtitle {
+      font-size: 11px;
+      color: var(--muted);
+      font-style: italic;
+      letter-spacing: 2px;
+      margin-bottom: 40px;
+    }
+
+    /* Hero photo */
+    .rig-photo {
+      width: 100%;
+      aspect-ratio: 4/3;
+      object-fit: cover;
+      border: 1px solid #ff2d7855;
+      display: block;
+      margin-bottom: 10px;
+      position: relative;
+    }
+    .rig-photo-wrap {
+      position: relative;
+      margin-bottom: 40px;
+    }
+    .rig-photo-wrap::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--pink), var(--cyan), transparent);
+      z-index: 1;
+    }
+    .rig-photo-caption {
+      font-size: 10px;
+      color: var(--dim);
+      letter-spacing: 1px;
+    }
+
+    /* Lead paragraph */
+    .rig-lead {
+      font-size: 13px;
+      line-height: 1.9;
+      color: var(--text);
+      border-left: 2px solid var(--gold);
+      padding-left: 18px;
+      margin-bottom: 28px;
+      text-shadow: 0 0 1px #ffd70011;
+    }
+
+    .rig-body {
+      font-size: 12px;
+      line-height: 1.95;
+      color: var(--muted);
+      margin-bottom: 20px;
+    }
+
+    /* Pull quote — VT323 like the show dates */
+    .rig-pullquote {
+      font-family: 'VT323', monospace;
+      font-size: clamp(22px, 4vw, 34px);
+      color: var(--text);
+      line-height: 1.3;
+      letter-spacing: 2px;
+      border-top: 1px solid #ffffff0d;
+      border-bottom: 1px solid #ffffff0d;
+      padding: 22px 0;
+      margin: 32px 0;
+    }
+    .rig-pullquote em {
+      color: #00ff41;
+      font-style: normal;
+      text-shadow: 0 0 12px #00ff4166;
+    }
+
+    /* Specs block */
+    .rig-specs {
+      background: var(--surface);
+      border: 1px solid #ffd70022;
+      border-left: 2px solid var(--gold);
+      padding: 20px 24px;
+      margin: 32px 0;
+      position: relative;
+    }
+    .rig-specs::before {
+      content: 'HARDWARE';
+      position: absolute;
+      top: -0.55rem;
+      left: 14px;
+      background: var(--surface);
+      padding: 0 6px;
+      font-size: 9px;
+      letter-spacing: 3px;
+      color: var(--gold);
+      text-shadow: 0 0 8px #ffd70066;
+    }
+    .rig-specs ul {
+      list-style: none;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px 28px;
+    }
+    @media (max-width: 520px) { .rig-specs ul { grid-template-columns: 1fr; } }
+    .rig-specs li {
+      font-size: 11px;
+      color: var(--text);
+      display: flex;
+      align-items: baseline;
+      gap: 8px;
+    }
+    .rig-specs li::before {
+      content: '→';
+      color: var(--gold);
+      font-size: 10px;
+      flex-shrink: 0;
+    }
+
+    /* Closing line */
+    .rig-closer {
+      font-size: 12px;
+      line-height: 1.9;
+      color: var(--muted);
+      margin-top: 28px;
+      padding-top: 28px;
+      border-top: 1px solid #ffffff0d;
+    }
+
+    /* ── FOOTER ──────────────────────────────────────────────────── */
+    footer {
+      border-top: 1px solid #00f5ff22;
+      padding: 14px 48px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #07070f;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    @media (max-width: 720px) { footer { padding: 14px 24px; } }
+    footer span {
+      font-size: 10px;
+      color: var(--dim);
+      letter-spacing: 2px;
+      text-transform: uppercase;
+    }
+    .blink { animation: blink 1.2s step-end infinite; }
+    @keyframes blink { 50% { opacity: 0; } }
+
+    /* ── FADE IN ─────────────────────────────────────────────────── */
+    .fade-in {
+      opacity: 0;
+      transform: translateY(10px);
+      animation: fadeUp 0.5s ease forwards;
+    }
+    @keyframes fadeUp { to { opacity: 1; transform: translateY(0); } }
+    .fade-in:nth-child(1) { animation-delay: 0.05s; }
+    .fade-in:nth-child(2) { animation-delay: 0.12s; }
+    .fade-in:nth-child(3) { animation-delay: 0.20s; }
+    .fade-in:nth-child(4) { animation-delay: 0.28s; }
+    .fade-in:nth-child(5) { animation-delay: 0.36s; }
+    .fade-in:nth-child(6) { animation-delay: 0.44s; }
+    .fade-in:nth-child(7) { animation-delay: 0.52s; }
+    .fade-in:nth-child(8) { animation-delay: 0.60s; }
+  </style>
+</head>
+<body>
+
+  <header>
+    <a class="site-name" href="{{ site.baseurl }}/">CARL WILLIAM MUSIC</a>
+    <button class="back-btn" onclick="
+      if (document.referrer && document.referrer.includes(location.hostname)) {
+        history.back();
+      } else {
+        location.href = '{{ site.baseurl }}/#gear';
+      }
+    ">Back to Gear</button>
+  </header>
+
+  <div class="content">
+
+    <div class="fade-in">
+      <span class="rig-tag">DIY Live Rig — Open Source Effects Platform</span>
+      <div class="rig-title">RASPBERRY PI 4<br>PEDALBOARD</div>
+      <div class="rig-subtitle">Not for the faint of heart.</div>
+    </div>
+
+    <div class="rig-photo-wrap fade-in">
+      <img class="rig-photo" src="{{ site.baseurl }}/photos/pi-rig.jpg" alt="Raspberry Pi 4 Pedalboard">
+      <div class="rig-photo-caption">&gt; The rig. Battery powered. Ready to go.</div>
+    </div>
+
+    <div class="fade-in">
+      <p class="rig-lead">
+        This started as a question: what if an $80 computer could replace a pedalboard worth ten times that — and sound better doing it?
+      </p>
+    </div>
+
+    <div class="fade-in">
+      <p class="rig-body">
+        The Raspberry Pi 4 Pedalboard is a fully portable, battery powered effects rig built around MODEP — an open source modular effects platform that runs hundreds of LV2 plugins on hardware that fits in the palm of your hand. Plug in a guitar. Step on a switch. The sound coming out the other end doesn't have to sound like anything that's ever existed before.
+      </p>
+      <p class="rig-body">
+        That's the point. Commercial units are designed around sounds most players want most of the time. The weird edges get sanded off. This rig has no such constraints. Granular pitch freezers, spectral smearers, convolution reverbs loaded with impulse responses of actual physical spaces, experimental plugins that no commercial company would ever ship as a product — if someone built it and released it as an LV2 plugin, it runs here.
+      </p>
+    </div>
+
+    <div class="rig-pullquote fade-in">
+      NO AMP. NO PEDALBOARD. NO WALL POWER.<br>
+      JUST A <em>LITTLE BOX</em> AND WHATEVER SOUND YOU CAN IMAGINE.
+    </div>
+
+    <div class="fade-in">
+      <p class="rig-body">
+        Getting here wasn't painless. There was a lot of troubleshooting — USB bus architecture, power supply quality, real time kernel scheduling, battery bank regulation. The kind of deep dive that commercial gear handles invisibly and DIY gear makes you earn. But on the other side of that is something no off-the-shelf unit gives you: a complete understanding of every layer of your signal chain, and the freedom to change any of it.
+      </p>
+      <p class="rig-body">
+        A USB foot switch and numpad give hands-free control over effect switching, parameter changes, and preset loading — all bridged to MIDI via a custom Python script. The whole thing runs off a single Anker battery bank. Grab it, go, plug in anywhere.
+      </p>
+    </div>
+
+    <div class="rig-specs fade-in">
+      <ul>
+        <li>Raspberry Pi 4</li>
+        <li>Desk Pi Pro enclosure</li>
+        <li>Focusrite Scarlett 2i4 2nd gen</li>
+        <li>MODEP on Patchbox OS</li>
+        <li>USB foot switch (Linemaster)</li>
+        <li>USB numpad controller</li>
+        <li>Custom Python MIDI bridge</li>
+        <li>Single Anker battery bank</li>
+      </ul>
+    </div>
+
+    <div class="fade-in">
+      <p class="rig-closer">
+        People see it on stage and don't know what they're looking at. Then they hear it.
+      </p>
+    </div>
+
+  </div>
+
+  <footer>
+    <span>Carl William Music &copy; 2026</span>
+    <span>Hosted on GitHub Pages <span class="blink">_</span></span>
+  </footer>
+
+</body>
+</html>
