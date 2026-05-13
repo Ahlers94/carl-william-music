@@ -16,11 +16,14 @@
   description: >
     Me with my first guitar jamming in a friend's backyard, 2007.
 
-- label: Signal Chain
-  image:
+- label: Raspberry Pi Pedalboard
+  image: photos/pi-rig.jpg
   description: >
-    Pickup, interface, looper — how it all connects.
-    The full signal path.
+    My latest creation. The brain is a Raspberry Pi 4 in a Desk Pi Pro case
+    running Patchbox OS with MODEP.
+    The interface is a Focusrite 2i4 2nd gen.
+    The controls are a Linemaster USB footswitch and a USB Numpad.
+    All powered by an Anker USB battery bank.
 
 - label: Power & Transport
   image:
