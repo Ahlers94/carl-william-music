@@ -139,12 +139,11 @@ layout: null
       top: 0;
       z-index: 10;
       overflow-x: auto;
-      -webkit-overflow-scrolling: touch; /* smooth scroll on iOS */
-      scrollbar-width: none;            /* hide scrollbar on Firefox */
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
     }
-    nav::-webkit-scrollbar { display: none; } /* hide scrollbar on Chrome/Safari */
+    nav::-webkit-scrollbar { display: none; }
 
-    /* Fade gradient on the right edge — signals more content to swipe to */
     nav::after {
       content: '';
       position: sticky;
@@ -167,8 +166,8 @@ layout: null
       text-decoration: none;
       border-right: 1px solid #ffffff0d;
       transition: color 0.2s, border-bottom-color 0.2s;
-      white-space: nowrap; /* prevents tab labels from wrapping */
-      flex-shrink: 0;      /* prevents tabs from squishing */
+      white-space: nowrap;
+      flex-shrink: 0;
     }
 
     /* Per-tab colors — Super Famicom button palette */
@@ -200,15 +199,19 @@ layout: null
     #nav-news:hover,
     #nav-news.active   { color: #cc88ff; border-bottom: 2px solid #cc88ff; text-shadow: 0 0 12px #cc88ff88; }
 
-    /* ── NAV TAB FADE-IN ────────────────────────────────────────────
-       Each tab fades in sequentially after the tagline finishes      */
+    #nav-game          { color: #ff7700; text-shadow: 0 0 8px #ff770066; }
+    #nav-game:hover,
+    #nav-game.active   { color: #ff9933; border-bottom: 2px solid #ff9933; text-shadow: 0 0 12px #ff993388; }
+
+    /* ── NAV TAB FADE-IN ──────────────────────────────────────────── */
     #nav-videos { animation: fadeInNav 0.3s ease forwards; animation-delay: 1.7s; opacity: 0; }
     #nav-music  { animation: fadeInNav 0.3s ease forwards; animation-delay: 1.9s; opacity: 0; }
     #nav-gear   { animation: fadeInNav 0.3s ease forwards; animation-delay: 2.1s; opacity: 0; }
     #nav-about  { animation: fadeInNav 0.3s ease forwards; animation-delay: 2.3s; opacity: 0; }
     #nav-shows  { animation: fadeInNav 0.3s ease forwards; animation-delay: 2.5s; opacity: 0; }
     #nav-news   { animation: fadeInNav 0.3s ease forwards; animation-delay: 2.7s; opacity: 0; }
-    #nav-matrix { animation: fadeInNav 0.3s ease forwards; animation-delay: 2.9s; opacity: 0; }
+    #nav-game   { animation: fadeInNav 0.3s ease forwards; animation-delay: 2.9s; opacity: 0; }
+    #nav-matrix { animation: fadeInNav 0.3s ease forwards; animation-delay: 3.1s; opacity: 0; }
     @keyframes fadeInNav { to { opacity: 1; } }
 
     /* ── CUSTOM CURSOR GLOW (desktop only) ──────────────────────────
@@ -752,7 +755,7 @@ layout: null
     .page.hidden  { display: none; }
     #gear-section {
       display: none;
-      padding: 36px 36px 36px 48px; /* matches .left-col padding */
+      padding: 36px 36px 36px 48px;
     }
     @media (max-width: 720px) {
       #gear-section { padding: 24px; }
@@ -795,6 +798,219 @@ layout: null
       .left-col { padding: 24px; }
     }
 
+    /* ── FRETDLE GAME SECTION ───────────────────────────────────── */
+    #game-section {
+      display: none;
+      padding: 36px 36px 36px 48px;
+      max-width: 600px;
+    }
+    @media (max-width: 720px) { #game-section { padding: 24px; } }
+
+    .game-board {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin: 20px 0;
+    }
+    .game-row {
+      display: flex;
+      gap: 6px;
+    }
+    .game-tile {
+      width: 54px;
+      height: 54px;
+      border: 1px solid var(--dim);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'VT323', monospace;
+      font-size: 28px;
+      color: var(--text);
+      text-transform: uppercase;
+      transition: border-color 0.1s;
+      position: relative;
+      overflow: hidden;
+    }
+    @media (max-width: 400px) {
+      .game-tile { width: 44px; height: 44px; font-size: 24px; }
+    }
+    .game-tile.filled { border-color: var(--muted); }
+    .game-tile.correct {
+      background: #1a4a1a;
+      border-color: #00a550;
+      color: #00ff41;
+      text-shadow: 0 0 8px #00ff4188;
+    }
+    .game-tile.present {
+      background: #4a3a00;
+      border-color: var(--gold);
+      color: var(--gold);
+      text-shadow: 0 0 8px #ffd70088;
+    }
+    .game-tile.absent {
+      background: #1a1a2e;
+      border-color: #33334a;
+      color: #55556a;
+    }
+    @keyframes tileFlip {
+      0%   { transform: rotateX(0deg); }
+      50%  { transform: rotateX(90deg); }
+      100% { transform: rotateX(0deg); }
+    }
+    .game-tile.flip { animation: tileFlip 0.4s ease forwards; }
+
+    @keyframes tilePop {
+      0%   { transform: scale(1); }
+      50%  { transform: scale(1.12); }
+      100% { transform: scale(1); }
+    }
+    .game-tile.pop { animation: tilePop 0.1s ease; }
+
+    @keyframes rowShake {
+      0%, 100% { transform: translateX(0); }
+      20%      { transform: translateX(-6px); }
+      40%      { transform: translateX(6px); }
+      60%      { transform: translateX(-4px); }
+      80%      { transform: translateX(4px); }
+    }
+    .game-row.shake { animation: rowShake 0.4s ease; }
+
+    .game-keyboard {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-top: 16px;
+    }
+    .kb-row {
+      display: flex;
+      gap: 5px;
+      justify-content: center;
+    }
+    .kb-key {
+      font-family: 'Space Mono', monospace;
+      font-size: 11px;
+      padding: 10px 8px;
+      min-width: 32px;
+      background: #1c1c2e;
+      border: 1px solid var(--dim);
+      color: var(--text);
+      cursor: pointer;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      transition: background 0.15s, border-color 0.15s;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+    .kb-key:hover { background: #2a2a3e; border-color: var(--muted); }
+    .kb-key.wide  { min-width: 52px; font-size: 9px; }
+    .kb-key.correct {
+      background: #1a4a1a;
+      border-color: #00a550;
+      color: #00ff41;
+    }
+    .kb-key.present {
+      background: #4a3a00;
+      border-color: var(--gold);
+      color: var(--gold);
+    }
+    .kb-key.absent {
+      background: #111120;
+      border-color: #22223a;
+      color: #33334a;
+    }
+
+    .game-message {
+      font-family: 'VT323', monospace;
+      font-size: 22px;
+      color: var(--cyan);
+      letter-spacing: 3px;
+      min-height: 30px;
+      text-shadow: 0 0 10px #00f5ff88;
+      margin-bottom: 4px;
+    }
+    .game-message.error { color: var(--pink); text-shadow: 0 0 10px #ff2d7888; }
+    .game-message.win   { color: #00ff41;    text-shadow: 0 0 10px #00ff4188; }
+
+    .game-hint {
+      font-size: 10px;
+      color: var(--dim);
+      letter-spacing: 2px;
+      margin-top: 4px;
+      min-height: 16px;
+    }
+
+    .game-controls {
+      display: flex;
+      gap: 10px;
+      margin-top: 16px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+    .game-btn {
+      font-family: 'Space Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      padding: 8px 16px;
+      background: transparent;
+      border: 1px solid var(--cyan);
+      color: var(--cyan);
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .game-btn:hover { background: #00f5ff15; }
+
+    .game-legend {
+      display: flex;
+      gap: 16px;
+      margin-top: 16px;
+      flex-wrap: wrap;
+    }
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 10px;
+      color: var(--muted);
+      letter-spacing: 1px;
+    }
+    .legend-swatch {
+      width: 14px; height: 14px;
+      border: 1px solid;
+      display: inline-block;
+      flex-shrink: 0;
+    }
+    .legend-swatch.correct { background: #1a4a1a; border-color: #00a550; }
+    .legend-swatch.present { background: #4a3a00; border-color: var(--gold); }
+    .legend-swatch.absent  { background: #111120; border-color: #22223a;  }
+
+    .game-stats {
+      display: flex;
+      gap: 20px;
+      margin-top: 8px;
+      flex-wrap: wrap;
+    }
+    .stat-block {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2px;
+    }
+    .stat-num {
+      font-family: 'VT323', monospace;
+      font-size: 28px;
+      color: var(--cyan);
+      text-shadow: 0 0 8px #00f5ff66;
+      line-height: 1;
+    }
+    .stat-label {
+      font-size: 9px;
+      color: var(--dim);
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      text-align: center;
+    }
+
   </style>
 </head>
 <body>
@@ -823,6 +1039,7 @@ layout: null
     <a href="#"       id="nav-about">About Me</a>
     <a href="#"       id="nav-shows">Shows</a>
     <a href="#"       id="nav-news">News</a>
+    <a href="#"       id="nav-game">Fretdle</a>
     <a href="#"       id="nav-matrix">The Matrix</a>
   </nav>
 
@@ -1082,13 +1299,45 @@ layout: null
 
     </div>
   </div>
-  
-<footer>
-  <span>Carl William Music &copy; 2026</span>
-  <span>
-   <img src="https://api.visitorbadge.io/api/visitors?path=https://ahlers94.github.io/carl-william-music&labelColor=%23555555&countColor=%23263759&label=visitors" alt="Visitors">  </span>
-  <span>Hosted on GitHub Pages <span class="blink">_</span></span>
-</footer>
+
+  <!-- ── FRETDLE GAME SECTION ──────────────────────────────────────
+       Music-vocabulary Wordle. Nav tab: "Fretdle"                   -->
+  <div id="game-section" style="display:none;">
+    <div class="section-label">Fretdle</div>
+    <div class="game-message" id="game-msg">&gt; GUESS THE 5-LETTER MUSIC WORD</div>
+    <div class="game-hint" id="game-hint">6 attempts &nbsp;//&nbsp; green = right spot &nbsp;//&nbsp; gold = wrong spot</div>
+
+    <div class="game-board" id="game-board"></div>
+
+    <div class="game-legend">
+      <div class="legend-item"><span class="legend-swatch correct"></span> Right spot</div>
+      <div class="legend-item"><span class="legend-swatch present"></span> Wrong spot</div>
+      <div class="legend-item"><span class="legend-swatch absent"></span> Not in word</div>
+    </div>
+
+    <div class="game-keyboard" id="game-keyboard">
+      <div class="kb-row" data-keys="QWERTYUIOP"></div>
+      <div class="kb-row" data-keys="ASDFGHJKL"></div>
+      <div class="kb-row" data-keys="↵ZXCVBNM⌫"></div>
+    </div>
+
+    <div class="game-controls">
+      <button class="game-btn" id="game-new-btn">New Word</button>
+      <div class="game-stats">
+        <div class="stat-block"><div class="stat-num" id="stat-played">0</div><div class="stat-label">Played</div></div>
+        <div class="stat-block"><div class="stat-num" id="stat-won">0</div><div class="stat-label">Won</div></div>
+        <div class="stat-block"><div class="stat-num" id="stat-streak">0</div><div class="stat-label">Streak</div></div>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <span>Carl William Music &copy; 2026</span>
+    <span>
+     <img src="https://api.visitorbadge.io/api/visitors?path=https://ahlers94.github.io/carl-william-music&labelColor=%23555555&countColor=%23263759&label=visitors" alt="Visitors">  </span>
+    <span>Hosted on GitHub Pages <span class="blink">_</span></span>
+  </footer>
+
   <!-- ── MATRIX OVERLAY ────────────────────────────────────────── -->
   <div id="matrix-section" role="button" aria-label="Exit Matrix mode">
     <canvas id="matrix-canvas"></canvas>
@@ -1105,7 +1354,6 @@ layout: null
     });
 
     // ── TAGLINE RANDOM FLICKER ────────────────────────────────────
-    // Picks a random tagline word every 8-10 seconds and flickers it
     const taglineWords = document.querySelectorAll('.tagline-word');
     function randomFlicker() {
       const word = taglineWords[Math.floor(Math.random() * taglineWords.length)];
@@ -1113,20 +1361,18 @@ layout: null
       word.addEventListener('animationend', () => word.classList.remove('flickering'), { once: true });
       setTimeout(randomFlicker, 8000 + Math.random() * 2000);
     }
-    setTimeout(randomFlicker, 4000); // start after page loads
+    setTimeout(randomFlicker, 4000);
 
     // ── TAB CONTENT FADE-IN ───────────────────────────────────────
     function fadeInSection(id) {
       const el = document.getElementById(id);
       if (!el) return;
       el.classList.remove('tab-fade');
-      void el.offsetWidth; // force reflow to restart animation
+      void el.offsetWidth;
       el.classList.add('tab-fade');
     }
 
     // ── AUTO-PAUSE ALL YOUTUBE IFRAMES ───────────────────────────
-    // Sends a postMessage pauseVideo command to every embedded iframe.
-    // Called before every tab switch so audio never overlaps.
     function pauseAllVideos() {
       document.querySelectorAll('iframe').forEach(iframe => {
         try {
@@ -1134,9 +1380,7 @@ layout: null
             JSON.stringify({ event: 'command', func: 'pauseVideo', args: [] }),
             '*'
           );
-        } catch (e) {
-          // Cross-origin frames may throw; safe to ignore.
-        }
+        } catch (e) {}
       });
     }
 
@@ -1144,6 +1388,7 @@ layout: null
     document.querySelectorAll('.gear-item').forEach(item => {
       item.addEventListener('click', () => item.classList.toggle('open'));
     });
+
     // Icons injected directly — no CDN dependency.
     const iconMap = {
       youtube:   `<svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 17a24.12 24.12 0 0 1 0-10 2 2 0 0 1 1.4-1.4 49.56 49.56 0 0 1 16.2 0A2 2 0 0 1 21.5 7a24.12 24.12 0 0 1 0 10 2 2 0 0 1-1.4 1.4 49.55 49.55 0 0 1-16.2 0A2 2 0 0 1 2.5 17"/><polygon points="10 15 15 12 10 9"/></svg>`,
@@ -1154,7 +1399,6 @@ layout: null
       venmo:     `<svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>`
     };
 
-    // Inject icons into social links and mobile strip
     document.querySelectorAll('[data-icon]').forEach(el => {
       const icon = el.getAttribute('data-icon');
       if (icon && iconMap[icon]) {
@@ -1168,6 +1412,7 @@ layout: null
     const aboutSection = document.getElementById('about-section');
     const showsSection = document.getElementById('shows-section');
     const newsSection  = document.getElementById('news-section');
+    const gameSection  = document.getElementById('game-section');
     const siteHeader   = document.getElementById('site-header');
     const siteNav      = document.getElementById('site-nav');
     const matrixEl     = document.getElementById('matrix-section');
@@ -1178,13 +1423,13 @@ layout: null
     let matrixRunning = false;
     let animFrame;
 
-    // Hide all sections cleanly before showing one
     function hideAll() {
       page.classList.add('hidden');
       gearSection.style.display  = 'none';
       aboutSection.style.display = 'none';
       showsSection.style.display = 'none';
       newsSection.style.display  = 'none';
+      gameSection.style.display  = 'none';
     }
 
     function showPage(section) {
@@ -1194,6 +1439,7 @@ layout: null
       aboutSection.style.display = 'none';
       showsSection.style.display = 'none';
       newsSection.style.display  = 'none';
+      gameSection.style.display  = 'none';
       const isCovers = section === 'covers';
       document.getElementById('originals-section').style.display = isCovers ? 'none' : 'block';
       document.getElementById('covers-section').style.display    = isCovers ? 'block' : 'none';
@@ -1228,6 +1474,13 @@ layout: null
       fadeInSection('news-section');
       setTimeout(() => window.scrollTo({ top: 0, behavior: 'smooth' }), 0);
     }
+    function showGame() {
+      pauseAllVideos();
+      hideAll();
+      gameSection.style.display = 'block';
+      fadeInSection('game-section');
+      setTimeout(() => window.scrollTo({ top: 0, behavior: 'smooth' }), 0);
+    }
 
     allNavLinks.forEach(link => {
       link.addEventListener('click', function() {
@@ -1242,6 +1495,7 @@ layout: null
     document.getElementById('nav-about').addEventListener('click',  function(e) { e.preventDefault(); showAbout(); });
     document.getElementById('nav-shows').addEventListener('click',  function(e) { e.preventDefault(); showShows(); });
     document.getElementById('nav-news').addEventListener('click',   function(e) { e.preventDefault(); showNews(); });
+    document.getElementById('nav-game').addEventListener('click',   function(e) { e.preventDefault(); showGame(); });
 
     // ── ENTER MATRIX ──────────────────────────────────────────────
     document.getElementById('nav-matrix').addEventListener('click', function(e) {
@@ -1250,6 +1504,7 @@ layout: null
       page.classList.add('hidden');
       gearSection.style.display    = 'none';
       newsSection.style.display    = 'none';
+      gameSection.style.display    = 'none';
       siteHeader.style.display     = 'none';
       siteNav.style.display        = 'none';
       matrixEl.classList.add('active');
@@ -1276,13 +1531,18 @@ layout: null
     }
 
     matrixEl.addEventListener('click', exitMatrix);
-    document.addEventListener('keydown', exitMatrix);
+    document.addEventListener('keydown', function(e) {
+      // Don't exit matrix on keydown if game is active (game uses keydown too)
+      if (gameSection.style.display !== 'none') return;
+      exitMatrix();
+    });
     document.getElementById('nav-videos').addEventListener('click', exitMatrix);
     document.getElementById('nav-music').addEventListener('click',  exitMatrix);
     document.getElementById('nav-gear').addEventListener('click',   exitMatrix);
     document.getElementById('nav-about').addEventListener('click',  exitMatrix);
     document.getElementById('nav-shows').addEventListener('click',  exitMatrix);
     document.getElementById('nav-news').addEventListener('click',   exitMatrix);
+    document.getElementById('nav-game').addEventListener('click',   exitMatrix);
 
     // ── MATRIX RAIN ───────────────────────────────────────────────
     function startMatrix() {
@@ -1347,6 +1607,258 @@ layout: null
         requestAnimationFrame(tick);
       }
       setTimeout(() => requestAnimationFrame(tick), 600);
+    })();
+
+    // ── FRETDLE — MUSIC WORDLE ────────────────────────────────────
+    (function() {
+      const WORDS = [
+        // Core music theory
+        'CHORD','SCALE','PITCH','TEMPO','BEATS','TONIC','TRIAD','MAJOR','MINOR','MODAL',
+        'NOTES','MODES','STAFF','SHARP','DRONE','PULSE','METER','RESTS','FIFTH','OCTAV',
+        // Instruments & parts
+        'BANJO','PIANO','VIOLA','FLUTE','DRUMS','PEDAL','CAPOS','TUNER','PICKS',
+        'KNOBS','SLIDE','FRETS','STRAP','REEDS','BATON','BELLS','BRASS','CELLO',
+        // Technique & performance
+        'LICKS','RIFFS','SWING','BLUES','FORTE','LARGO','STRUM','PLUCK','TRILL',
+        'MUTED','SWELL','GRIND','LEGAT','GLIDE','BLEND','GROWL','STOMP',
+        // Recording & production
+        'TRACK','TAKES','STEMS','NOISE','PUNCH','PATCH','BUSES','DELAY','LOOPS',
+        'LEVEL','PHASE','BOOST','NOTCH','SWEEP','FLANG','PLATE','Abbey',
+        // Genre & style
+        'INDIE','METAL','ROOTS','FUNKY','GOSPEL','BOSSA','POLKA','MAMBO','WALTZ',
+        // General music words (5 letters)
+        'BANDS','TUNES','SONGS','VOCAL','LYRIC','SCORE','ALBUM','VENUE','STAGE',
+        'CHOIR','DUETS','SOLOS','CANON','FUGUE','RONDO','SUITE','MOTIF','CLAVE',
+        'SYNTH','VOICE','CHORD','FORTE','LARGO','STAFF','SHARP','TONIC','TRIAD',
+        'ATONE','DRONE','METER','MODAL','NOTES','PULSE','RESTS','SCALE','TEMPO',
+      ].map(w => w.toUpperCase()).filter(w => w.length === 5);
+
+      const WORD_LIST = [...new Set(WORDS)];
+
+      // Common 5-letter words so the player can make valid guesses
+      const EXTRA_VALID = [
+        'ABOUT','AFTER','AGAIN','GREAT','LIGHT','MIGHT','NIGHT','PLACE','PLANT',
+        'POINT','QUITE','REACH','RIGHT','SHALL','SMALL','SOUND','STILL','THERE',
+        'THINK','THREE','TIMES','UNDER','USING','WHERE','WHICH','WHILE','WORLD',
+        'WOULD','WRITE','YOUNG','HOUSE','POWER','WATER','WATCH','THING','HEART',
+        'LEARN','CAUSE','BRING','FOUND','EVERY','NEVER','OFTEN','ASKED','EARLY',
+        'BEGAN','BEING','BELOW','BLACK','COMES','COULD','DOING','DRAWN','EIGHT',
+        'GIVES','GOING','HAPPY','HUMAN','LEAST','LEAVE','KNOWN','MEANS','MONEY',
+        'MOVED','NEEDS','NORTH','OTHER','PARTS','PEACE','PRESS','PRICE','PRIDE',
+        'READY','ROUND','RULES','SHOWN','SIDES','SINCE','SPEND','SPOKE','STOOD',
+        'STUDY','TAKEN','TODAY','TOTAL','TRULY','TRUST','TRUTH','TWICE','UNTIL',
+        'VALUE','WHOLE','WHOSE','WORKS','WROTE','STONE','STEAM','STERN','STEER',
+        'STEEL','STEAK','SPEAK','SPEAR','SPARE','SPACE','SOUTH','SOLAR','SLANT',
+        'SLATE','FLAME','FLARE','FLASH','FLOOR','FLOAT','FLOSS','CLONE','CLOAK',
+        'CLAIM','CHAIR','CHAIN','CHAOS','CHEAP','CHEER','BRAVE','BRAVO','BRAIN',
+        'BREAD','BREAK','BREED','BRINE','BROAD','BROKE','BROOD','BROWN','BRUSH',
+      ].map(w => w.toUpperCase());
+
+      const ALL_VALID = new Set([...WORD_LIST, ...EXTRA_VALID]);
+
+      const ROWS = 6, COLS = 5;
+      let secret, currentRow, currentCol, board, gameOver;
+      let stats = { played: 0, won: 0, streak: 0 };
+
+      const boardEl    = document.getElementById('game-board');
+      const msgEl      = document.getElementById('game-msg');
+      const hintEl     = document.getElementById('game-hint');
+      const newBtn     = document.getElementById('game-new-btn');
+      const statPlayed = document.getElementById('stat-played');
+      const statWon    = document.getElementById('stat-won');
+      const statStreak = document.getElementById('stat-streak');
+
+      function buildBoard() {
+        boardEl.innerHTML = '';
+        board = [];
+        for (let r = 0; r < ROWS; r++) {
+          const row = document.createElement('div');
+          row.className = 'game-row';
+          const rowTiles = [];
+          for (let c = 0; c < COLS; c++) {
+            const tile = document.createElement('div');
+            tile.className = 'game-tile';
+            row.appendChild(tile);
+            rowTiles.push(tile);
+          }
+          boardEl.appendChild(row);
+          board.push(rowTiles);
+        }
+      }
+
+      function buildKeyboard() {
+        const kbEl = document.getElementById('game-keyboard');
+        kbEl.querySelectorAll('.kb-row').forEach(row => {
+          row.innerHTML = '';
+          const keys = row.dataset.keys.split('');
+          keys.forEach(k => {
+            const btn = document.createElement('button');
+            btn.className = 'kb-key' + (k === '↵' || k === '⌫' ? ' wide' : '');
+            btn.textContent = k;
+            btn.dataset.key = k;
+            btn.addEventListener('click', () => handleKey(k));
+            row.appendChild(btn);
+          });
+        });
+      }
+
+      function resetKeyboard() {
+        document.querySelectorAll('.kb-key').forEach(k => {
+          k.classList.remove('correct', 'present', 'absent');
+        });
+      }
+
+      function newGame() {
+        secret = WORD_LIST[Math.floor(Math.random() * WORD_LIST.length)];
+        currentRow = 0;
+        currentCol = 0;
+        gameOver = false;
+        buildBoard();
+        resetKeyboard();
+        msgEl.className = 'game-message';
+        msgEl.textContent = '> GUESS THE 5-LETTER MUSIC WORD';
+        hintEl.textContent = '6 attempts // green = right spot // gold = wrong spot';
+        updateStats();
+      }
+
+      function updateStats() {
+        statPlayed.textContent = stats.played;
+        statWon.textContent    = stats.won;
+        statStreak.textContent = stats.streak;
+      }
+
+      function setMessage(text, type) {
+        msgEl.className = 'game-message' + (type ? ' ' + type : '');
+        msgEl.textContent = '> ' + text;
+      }
+
+      function handleKey(key) {
+        if (gameOver) return;
+        if (key === '⌫' || key === 'BACKSPACE') { deleteLetter(); return; }
+        if (key === '↵' || key === 'ENTER')     { submitGuess();  return; }
+        if (/^[A-Z]$/.test(key)) addLetter(key);
+      }
+
+      function addLetter(letter) {
+        if (currentCol >= COLS) return;
+        const tile = board[currentRow][currentCol];
+        tile.textContent = letter;
+        tile.classList.add('filled', 'pop');
+        tile.addEventListener('animationend', () => tile.classList.remove('pop'), { once: true });
+        currentCol++;
+      }
+
+      function deleteLetter() {
+        if (currentCol <= 0) return;
+        currentCol--;
+        const tile = board[currentRow][currentCol];
+        tile.textContent = '';
+        tile.classList.remove('filled');
+        msgEl.className = 'game-message';
+        msgEl.textContent = '> GUESS THE 5-LETTER MUSIC WORD';
+      }
+
+      function getGuess() {
+        return Array.from({ length: COLS }, (_, c) => board[currentRow][c].textContent).join('');
+      }
+
+      function submitGuess() {
+        if (currentCol < COLS) { setMessage('NOT ENOUGH LETTERS', 'error'); shakeRow(currentRow); return; }
+        const guess = getGuess();
+        if (!ALL_VALID.has(guess)) { setMessage('NOT IN WORD LIST', 'error'); shakeRow(currentRow); return; }
+
+        const result = scoreGuess(guess);
+        revealRow(currentRow, guess, result, () => {
+          updateKeyboard(guess, result);
+          const won = result.every(r => r === 'correct');
+          if (won) {
+            stats.played++; stats.won++; stats.streak++;
+            updateStats();
+            gameOver = true;
+            const msgs = ['NAILED IT', 'NICE PLAYING', 'ON THE MONEY', 'PERFECT PITCH', 'SHRED MASTER', 'FIRST TRY!!'];
+            setTimeout(() => setMessage(msgs[Math.min(currentRow, msgs.length - 1)], 'win'), 400);
+            hintEl.textContent = '[ hit New Word to play again ]';
+            return;
+          }
+          currentRow++;
+          currentCol = 0;
+          if (currentRow >= ROWS) {
+            stats.played++; stats.streak = 0;
+            updateStats();
+            gameOver = true;
+            setTimeout(() => {
+              setMessage('THE WORD WAS: ' + secret, 'error');
+              hintEl.textContent = '[ hit New Word to play again ]';
+            }, 400);
+          }
+        });
+      }
+
+      function scoreGuess(guess) {
+        const result     = Array(COLS).fill('absent');
+        const secretArr  = secret.split('');
+        const guessArr   = guess.split('');
+        // First pass: correct
+        for (let i = 0; i < COLS; i++) {
+          if (guessArr[i] === secretArr[i]) {
+            result[i] = 'correct'; secretArr[i] = null; guessArr[i] = null;
+          }
+        }
+        // Second pass: present
+        for (let i = 0; i < COLS; i++) {
+          if (guessArr[i] === null) continue;
+          const idx = secretArr.indexOf(guessArr[i]);
+          if (idx !== -1) { result[i] = 'present'; secretArr[idx] = null; }
+        }
+        return result;
+      }
+
+      function revealRow(row, guess, result, onDone) {
+        board[row].forEach((tile, i) => {
+          setTimeout(() => {
+            tile.classList.add('flip');
+            setTimeout(() => {
+              tile.classList.add(result[i]);
+              tile.classList.remove('flip');
+              if (i === COLS - 1 && onDone) onDone();
+            }, 200);
+          }, i * 120);
+        });
+      }
+
+      function updateKeyboard(guess, result) {
+        const priority = { correct: 3, present: 2, absent: 1 };
+        guess.split('').forEach((letter, i) => {
+          const btn = document.querySelector(`.kb-key[data-key="${letter}"]`);
+          if (!btn) return;
+          const current = ['correct','present','absent'].find(c => btn.classList.contains(c));
+          const currentPrio = current ? priority[current] : 0;
+          if (priority[result[i]] > currentPrio) {
+            btn.classList.remove('correct', 'present', 'absent');
+            btn.classList.add(result[i]);
+          }
+        });
+      }
+
+      function shakeRow(row) {
+        const rowEl = boardEl.children[row];
+        rowEl.classList.add('shake');
+        rowEl.addEventListener('animationend', () => rowEl.classList.remove('shake'), { once: true });
+      }
+
+      // Physical keyboard — only fires when game tab is visible
+      document.addEventListener('keydown', function(e) {
+        if (document.getElementById('game-section').style.display === 'none') return;
+        if (e.ctrlKey || e.altKey || e.metaKey) return;
+        if (e.key === 'Enter')     { handleKey('↵'); return; }
+        if (e.key === 'Backspace') { handleKey('⌫'); return; }
+        const k = e.key.toUpperCase();
+        if (/^[A-Z]$/.test(k)) handleKey(k);
+      });
+
+      newBtn.addEventListener('click', newGame);
+      buildKeyboard();
+      newGame();
     })();
 
   </script>
