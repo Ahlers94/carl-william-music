@@ -6,16 +6,6 @@
 # label: the cyan ALL-CAPS header for the item
 # description: the body text writeup
 
-- label: Telecaster
-  image: photos/telecaster.jpg
-  description: >
-    Me with my Telecaster practicing at the storage bins, 2014.
-
-- label: Fullerton
-  image: photos/fullerton.jpg
-  description: >
-    Me with my first guitar jamming in a friend's backyard, 2007.
-
 - label: Raspberry Pi Pedalboard
   image: photos/pi-rig.jpg
   description: >
@@ -25,6 +15,16 @@
     The controls are a Linemaster USB footswitch and a USB Numpad.
     All powered by an Anker USB battery bank.
     <a href="pi-rig.html" style="color:#00f5ff;letter-spacing:2px;font-size:10px;">LEARN MORE →</a>
+    
+- label: Telecaster
+  image: photos/telecaster.jpg
+  description: >
+    Me with my Telecaster practicing at the storage bins, 2014.
+
+- label: Fullerton
+  image: photos/fullerton.jpg
+  description: >
+    Me with my first guitar jamming in a friend's backyard, 2007.
 
 - label: Power & Transport
   image:
