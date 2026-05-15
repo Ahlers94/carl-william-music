@@ -1,3 +1,9 @@
+{% comment %}
+  _includes/instagram-reels.html
+  Usage: {% include instagram-reels.html type="originals" title="Instagram Reels & Demos" %}
+  Usage: {% include instagram-reels.html type="covers" title="Instagram Cover Reels" %}
+{% endcomment %}
+
 {% assign _ig_type  = include.type  | default: "originals" %}
 {% assign _ig_title = include.title | default: "Instagram Reels" %}
 {% assign _ig_items = site.data.instagram[_ig_type] %}
@@ -6,18 +12,19 @@
 <div class="section-label" style="margin-top: 28px;">{{ _ig_title }}</div>
 <div class="video-grid" style="grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));">
   {% for reel in _ig_items %}
-  <div class="video-small reel-item">
-    <div class="reel-video-container">
+  <div class="video-small reel-item" style="max-width: 320px; margin: 0 auto;">
+    <div style="position: relative; width: 100%; padding-top: 177.78%; overflow: hidden; border-radius: 4px;">
       <iframe
         src="https://www.instagram.com/reel/{{ reel.reel_id }}/embed/?cr=1&v=14&wp=320"
         width="320"
-        height="480"
+        height="568"
         frameborder="0"
         scrolling="no"
         allowtransparency="true"
         allow="encrypted-media"
         loading="lazy"
-        title="{% if reel.title %}{{ reel.title | escape }}{% else %}Instagram Reel{% endif %}">
+        title="{% if reel.title %}{{ reel.title | escape }}{% else %}Instagram Reel{% endif %}"
+        style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none;">
       </iframe>
     </div>
     {% if reel.title %}
