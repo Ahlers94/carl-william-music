@@ -474,6 +474,28 @@
     .video-featured .yt-play svg {
       width: 30px; height: 30px;
     }
+    .yt-title {
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      padding: 28px 12px 10px;
+      background: linear-gradient(transparent, rgba(0,0,0,0.82));
+      font-family: 'Space Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: #e0e0e0;
+      text-shadow: 0 1px 4px #000;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.25s ease;
+    }
+    .yt-facade:hover .yt-title { opacity: 1; }
+    .video-featured .yt-title {
+      font-size: 11px;
+      letter-spacing: 2px;
+      padding: 40px 16px 14px;
+      opacity: 1;
+    }
 
     /* ── SOCIAL LINKS ───────────────────────────────────────────── */
     .social-links {
@@ -1158,6 +1180,7 @@
               <button class="yt-play" aria-label="Play video" tabindex="-1">
                 <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><polygon points="5,3 19,12 5,21"/></svg>
               </button>
+              <div class="yt-title">I Just Want My Soul Cassette Demo</div>
             </div>
           </div>
           <div class="video-caption">&gt; I Just Want My Soul Cassette Demo</div>
@@ -1185,6 +1208,7 @@
               <button class="yt-play" aria-label="Play video" tabindex="-1">
                 <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><polygon points="5,3 19,12 5,21"/></svg>
               </button>
+              <div class="yt-title">I Just Want My Soul 12 String Version</div>
             </div>
           </div>
           
@@ -1197,6 +1221,7 @@
               <button class="yt-play" aria-label="Play video" tabindex="-1">
                 <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><polygon points="5,3 19,12 5,21"/></svg>
               </button>
+              <div class="yt-title">I Just Want My Soul Loop Demo</div>
             </div>
           </div>
           
@@ -1209,6 +1234,7 @@
               <button class="yt-play" aria-label="Play video" tabindex="-1">
                 <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><polygon points="5,3 19,12 5,21"/></svg>
               </button>
+              <div class="yt-title">I Just Want My Soul Live at Perkins Open Mic</div>
             </div>
           </div>
           
@@ -1231,6 +1257,7 @@
               <button class="yt-play" aria-label="Play video" tabindex="-1">
                 <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><polygon points="5,3 19,12 5,21"/></svg>
               </button>
+              <div class="yt-title">The Power of Love</div>
             </div>
           </div>
           
@@ -1243,6 +1270,7 @@
               <button class="yt-play" aria-label="Play video" tabindex="-1">
                 <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><polygon points="5,3 19,12 5,21"/></svg>
               </button>
+              <div class="yt-title">I Belong To The Movement (Mandolin)</div>
             </div>
           </div>
           
@@ -1255,6 +1283,7 @@
               <button class="yt-play" aria-label="Play video" tabindex="-1">
                 <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><polygon points="5,3 19,12 5,21"/></svg>
               </button>
+              <div class="yt-title">The Past Is A Grotesque Animal</div>
             </div>
           </div>
           
@@ -1267,6 +1296,7 @@
               <button class="yt-play" aria-label="Play video" tabindex="-1">
                 <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><polygon points="5,3 19,12 5,21"/></svg>
               </button>
+              <div class="yt-title">Plastic Love</div>
             </div>
           </div>
           
@@ -1279,6 +1309,7 @@
               <button class="yt-play" aria-label="Play video" tabindex="-1">
                 <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><polygon points="5,3 19,12 5,21"/></svg>
               </button>
+              <div class="yt-title">Not The Same</div>
             </div>
           </div>
           
@@ -1585,10 +1616,11 @@ a hardware systems builder, and a software developer.</p>
               <div class="yt-facade" data-vid="2cAmtIYPzU4">
                 <img src="https://img.youtube.com/vi/2cAmtIYPzU4/maxresdefault.jpg"
                      onerror="this.src='https://img.youtube.com/vi/2cAmtIYPzU4/hqdefault.jpg'"
-                     alt="Play video" loading="lazy" decoding="async">
+                     alt="Collingswood Porchfest" loading="lazy" decoding="async">
                 <button class="yt-play" aria-label="Play video" tabindex="-1">
                   <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><polygon points="5,3 19,12 5,21"/></svg>
                 </button>
+                <div class="yt-title">Collingswood Porchfest</div>
               </div>
             </div>
           </div>
