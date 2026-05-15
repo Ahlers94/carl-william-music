@@ -50,3 +50,23 @@
   {% endfor %}
 </div>
 {% endif %}
+
+{% assign audio_covers = site.data.soundcloud.tracks | where: "type", "cover" %}
+{% if audio_covers.size > 0 %}
+<h3 class="section-label" style="margin-top: 28px;">Audio Covers</h3>
+<div class="media-grid">
+  {% for item in audio_covers %}
+  <div class="media-small media-small--audio">
+    <iframe
+      title="{{ item.title | escape }}"
+      width="100%"
+      height="300"
+      scrolling="no"
+      frameborder="no"
+      allow="autoplay"
+      src="https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/{{ item.id }}&amp;color=%23ff5500&amp;auto_play=false&amp;hide_related=false&amp;show_comments=false&amp;show_user=true&amp;show_reposts=false&amp;show_teaser=true&amp;visual=true"></iframe>
+    {% if item.title %}<div class="video-caption">{{ item.title }}</div>{% endif %}
+  </div>
+  {% endfor %}
+</div>
+{% endif %}
