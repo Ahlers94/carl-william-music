@@ -1166,22 +1166,15 @@ layout: null
       {% endfor %}
     </div>
   </div>
-
-  <!-- ── ABOUT ME SECTION ──────────────────────────────────────── -->
-  <div id="about-section" style="display:none;">
-    <div class="section-label">About Me</div>
-    <div class="about-content">
-      <p class="bio-text">
-        <!-- Edit your full bio here. This can be as long as you want. -->
-        Musicians aren't duplicating my rig for a straightforward reason: 
-        putting it together requires skills across three distinct technical disciplines.
-        To build what I have, a person must simultaneously act as an audio engineer, 
-        a hardware systems builder, and a software developer. 
-        The vast majority of guitarists want plug-and-play simplicity. I want to explore sonic possibilities.
-    
-      </p>
+<!-- ── ABOUT ME SECTION ──────────────────────────────────────── -->
+<div id="about-section" style="display:none;">
+  <div class="section-label">About Me</div>
+  <div class="about-content">
+    <div class="bio-text">
+      {{ site.data.about.bio | markdownify }}
     </div>
   </div>
+</div>
 
   <!-- ── SHOWS SECTION ─────────────────────────────────────────── -->
   <div id="shows-section" style="display:none;">
