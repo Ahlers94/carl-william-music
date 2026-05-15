@@ -1608,240 +1608,245 @@ layout: null
       }
       setTimeout(() => requestAnimationFrame(tick), 600);
     })();
+    
+// ── FRETDLE — MUSIC WORDLE ────────────────────────────────────
+(function() {
+  // 1. DATA INITIALIZATION
+  // Ensure the list is uppercase to match keyboard/logic
+  const WORDS_RAW = {{ site.data.words | jsonify }} || [];
+  const WORD_LIST = [...new Set(WORDS_RAW.map(w => w.toUpperCase()))];
 
-    // ── FRETDLE — MUSIC WORDLE ────────────────────────────────────
-    (function() {
-      const WORDS = {{ site.data.words | jsonify }};
+  const EXTRA_VALID = [
+    'ABOUT','AFTER','AGAIN','GREAT','LIGHT','MIGHT','NIGHT','PLACE','PLANT',
+    'POINT','QUITE','REACH','RIGHT','SHALL','SMALL','SOUND','STILL','THERE',
+    'THINK','THREE','TIMES','UNDER','USING','WHERE','WHICH','WHILE','WORLD',
+    'WOULD','WRITE','YOUNG','HOUSE','POWER','WATER','WATCH','THING','HEART',
+    'LEARN','CAUSE','BRING','FOUND','EVERY','NEVER','OFTEN','ASKED','EARLY',
+    'BEGAN','BEING','BELOW','BLACK','COMES','COULD','DOING','DRAWN','EIGHT',
+    'GIVES','GOING','HAPPY','HUMAN','LEAST','LEAVE','KNOWN','MEANS','MONEY',
+    'MOVED','NEEDS','NORTH','OTHER','PARTS','PEACE','PRESS','PRICE','PRIDE',
+    'READY','ROUND','RULES','SHOWN','SIDES','SINCE','SPEND','SPOKE','STOOD',
+    'STUDY','TAKEN','TODAY','TOTAL','TRULY','TRUST','TRUTH','TWICE','UNTIL',
+    'VALUE','WHOLE','WHOSE','WORKS','WROTE','STONE','STEAM','STERN','STEER',
+    'STEEL','STEAK','SPEAK','SPEAR','SPARE','SPACE','SOUTH','SOLAR','SLANT',
+    'SLATE','FLAME','FLARE','FLASH','FLOOR','FLOAT','FLOSS','CLONE','CLOAK',
+    'CLAIM','CHAIR','CHAIN','CHAOS','CHEAP','CHEER','BRAVE','BRAVO','BRAIN',
+    'BREAD','BREAK','BREED','BRINE','BROAD','BROKE','BROOD','BROWN','BRUSH',
+  ].map(w => w.toUpperCase());
 
-      const WORD_LIST = [...new Set(WORDS)];
+  const ALL_VALID = new Set([...WORD_LIST, ...EXTRA_VALID]);
 
-      // Common 5-letter words so the player can make valid guesses
-      const EXTRA_VALID = [
-        'ABOUT','AFTER','AGAIN','GREAT','LIGHT','MIGHT','NIGHT','PLACE','PLANT',
-        'POINT','QUITE','REACH','RIGHT','SHALL','SMALL','SOUND','STILL','THERE',
-        'THINK','THREE','TIMES','UNDER','USING','WHERE','WHICH','WHILE','WORLD',
-        'WOULD','WRITE','YOUNG','HOUSE','POWER','WATER','WATCH','THING','HEART',
-        'LEARN','CAUSE','BRING','FOUND','EVERY','NEVER','OFTEN','ASKED','EARLY',
-        'BEGAN','BEING','BELOW','BLACK','COMES','COULD','DOING','DRAWN','EIGHT',
-        'GIVES','GOING','HAPPY','HUMAN','LEAST','LEAVE','KNOWN','MEANS','MONEY',
-        'MOVED','NEEDS','NORTH','OTHER','PARTS','PEACE','PRESS','PRICE','PRIDE',
-        'READY','ROUND','RULES','SHOWN','SIDES','SINCE','SPEND','SPOKE','STOOD',
-        'STUDY','TAKEN','TODAY','TOTAL','TRULY','TRUST','TRUTH','TWICE','UNTIL',
-        'VALUE','WHOLE','WHOSE','WORKS','WROTE','STONE','STEAM','STERN','STEER',
-        'STEEL','STEAK','SPEAK','SPEAR','SPARE','SPACE','SOUTH','SOLAR','SLANT',
-        'SLATE','FLAME','FLARE','FLASH','FLOOR','FLOAT','FLOSS','CLONE','CLOAK',
-        'CLAIM','CHAIR','CHAIN','CHAOS','CHEAP','CHEER','BRAVE','BRAVO','BRAIN',
-        'BREAD','BREAK','BREED','BRINE','BROAD','BROKE','BROOD','BROWN','BRUSH',
-      ].map(w => w.toUpperCase());
+  // 2. STATE & ELEMENT HOOKS
+  const ROWS = 6, COLS = 5;
+  let secret, currentRow, currentCol, board, gameOver;
+  let stats = { played: 0, won: 0, streak: 0 };
 
-      const ALL_VALID = new Set([...WORD_LIST, ...EXTRA_VALID]);
+  const boardEl    = document.getElementById('game-board');
+  const msgEl      = document.getElementById('game-msg');
+  const hintEl     = document.getElementById('game-hint');
+  const newBtn     = document.getElementById('game-new-btn');
+  const statPlayed = document.getElementById('stat-played');
+  const statWon    = document.getElementById('stat-won');
+  const statStreak = document.getElementById('stat-streak');
 
-      const ROWS = 6, COLS = 5;
-      let secret, currentRow, currentCol, board, gameOver;
-      let stats = { played: 0, won: 0, streak: 0 };
-
-      const boardEl    = document.getElementById('game-board');
-      const msgEl      = document.getElementById('game-msg');
-      const hintEl     = document.getElementById('game-hint');
-      const newBtn     = document.getElementById('game-new-btn');
-      const statPlayed = document.getElementById('stat-played');
-      const statWon    = document.getElementById('stat-won');
-      const statStreak = document.getElementById('stat-streak');
-
-      function buildBoard() {
-        boardEl.innerHTML = '';
-        board = [];
-        for (let r = 0; r < ROWS; r++) {
-          const row = document.createElement('div');
-          row.className = 'game-row';
-          const rowTiles = [];
-          for (let c = 0; c < COLS; c++) {
-            const tile = document.createElement('div');
-            tile.className = 'game-tile';
-            row.appendChild(tile);
-            rowTiles.push(tile);
-          }
-          boardEl.appendChild(row);
-          board.push(rowTiles);
-        }
+  function buildBoard() {
+    boardEl.innerHTML = '';
+    board = [];
+    for (let r = 0; r < ROWS; r++) {
+      const row = document.createElement('div');
+      row.className = 'game-row';
+      const rowTiles = [];
+      for (let c = 0; c < COLS; c++) {
+        const tile = document.createElement('div');
+        tile.className = 'game-tile';
+        row.appendChild(tile);
+        rowTiles.push(tile);
       }
+      boardEl.appendChild(row);
+      board.push(rowTiles);
+    }
+  }
 
-      function buildKeyboard() {
-        const kbEl = document.getElementById('game-keyboard');
-        kbEl.querySelectorAll('.kb-row').forEach(row => {
-          row.innerHTML = '';
-          const keys = row.dataset.keys.split('');
-          keys.forEach(k => {
-            const btn = document.createElement('button');
-            btn.className = 'kb-key' + (k === '↵' || k === '⌫' ? ' wide' : '');
-            btn.textContent = k;
-            btn.dataset.key = k;
-            btn.addEventListener('click', () => handleKey(k));
-            row.appendChild(btn);
-          });
-        });
-      }
+  // UPDATED: Hooks into your existing HTML keyboard
+  function buildKeyboard() {
+    const kbEl = document.getElementById('game-keyboard');
+    if (!kbEl) return;
+    
+    kbEl.querySelectorAll('.kb-key').forEach(btn => {
+      // Use textContent if data-key is missing
+      const key = (btn.dataset.key || btn.textContent.trim()).toUpperCase();
+      btn.dataset.key = key; 
+      
+      // Use onclick to prevent multiple listeners if newGame() is called
+      btn.onclick = (e) => {
+        e.preventDefault();
+        handleKey(key);
+      };
+    });
+  }
 
-      function resetKeyboard() {
-        document.querySelectorAll('.kb-key').forEach(k => {
-          k.classList.remove('correct', 'present', 'absent');
-        });
-      }
+  function resetKeyboard() {
+    document.querySelectorAll('.kb-key').forEach(k => {
+      k.classList.remove('correct', 'present', 'absent');
+    });
+  }
 
-      function newGame() {
-        secret = WORD_LIST[Math.floor(Math.random() * WORD_LIST.length)];
-        currentRow = 0;
-        currentCol = 0;
-        gameOver = false;
-        buildBoard();
-        resetKeyboard();
-        msgEl.className = 'game-message';
-        msgEl.textContent = '> GUESS THE 5-LETTER MUSIC WORD';
-        hintEl.textContent = '6 attempts // green = right spot // gold = wrong spot';
+  function newGame() {
+    if (WORD_LIST.length === 0) {
+       console.error("Fretdle Error: Word list is empty.");
+       return;
+    }
+    secret = WORD_LIST[Math.floor(Math.random() * WORD_LIST.length)];
+    currentRow = 0;
+    currentCol = 0;
+    gameOver = false;
+    buildBoard();
+    resetKeyboard();
+    msgEl.className = 'game-message';
+    msgEl.textContent = '> GUESS THE 5-LETTER MUSIC WORD';
+    hintEl.textContent = '6 attempts // green = right spot // gold = wrong spot';
+    updateStats();
+  }
+
+  function updateStats() {
+    if(statPlayed) statPlayed.textContent = stats.played;
+    if(statWon)    statWon.textContent    = stats.won;
+    if(statStreak) statStreak.textContent = stats.streak;
+  }
+
+  function setMessage(text, type) {
+    msgEl.className = 'game-message' + (type ? ' ' + type : '');
+    msgEl.textContent = '> ' + text;
+  }
+
+  function handleKey(key) {
+    if (gameOver) return;
+    if (key === '⌫' || key === 'BACKSPACE' || key === 'DELETE') { deleteLetter(); return; }
+    if (key === '↵' || key === 'ENTER')     { submitGuess();  return; }
+    if (/^[A-Z]$/.test(key)) addLetter(key);
+  }
+
+  function addLetter(letter) {
+    if (currentCol >= COLS) return;
+    const tile = board[currentRow][currentCol];
+    tile.textContent = letter;
+    tile.classList.add('filled', 'pop');
+    tile.addEventListener('animationend', () => tile.classList.remove('pop'), { once: true });
+    currentCol++;
+  }
+
+  function deleteLetter() {
+    if (currentCol <= 0) return;
+    currentCol--;
+    const tile = board[currentRow][currentCol];
+    tile.textContent = '';
+    tile.classList.remove('filled');
+  }
+
+  function submitGuess() {
+    if (currentCol < COLS) { setMessage('NOT ENOUGH LETTERS', 'error'); shakeRow(currentRow); return; }
+    
+    const guess = Array.from({ length: COLS }, (_, c) => board[currentRow][c].textContent).join('');
+    
+    if (!ALL_VALID.has(guess)) { setMessage('NOT IN WORD LIST', 'error'); shakeRow(currentRow); return; }
+
+    const result = scoreGuess(guess);
+    revealRow(currentRow, guess, result, () => {
+      updateKeyboard(guess, result);
+      const won = result.every(r => r === 'correct');
+      if (won) {
+        stats.played++; stats.won++; stats.streak++;
         updateStats();
+        gameOver = true;
+        const msgs = ['NAILED IT', 'NICE PLAYING', 'ON THE MONEY', 'PERFECT PITCH', 'SHRED MASTER'];
+        setTimeout(() => setMessage(msgs[Math.min(currentRow, msgs.length - 1)], 'win'), 400);
+        hintEl.textContent = '[ hit New Word to play again ]';
+        return;
       }
-
-      function updateStats() {
-        statPlayed.textContent = stats.played;
-        statWon.textContent    = stats.won;
-        statStreak.textContent = stats.streak;
+      currentRow++;
+      currentCol = 0;
+      if (currentRow >= ROWS) {
+        stats.played++; stats.streak = 0;
+        updateStats();
+        gameOver = true;
+        setTimeout(() => {
+          setMessage('THE WORD WAS: ' + secret, 'error');
+          hintEl.textContent = '[ hit New Word to play again ]';
+        }, 400);
       }
+    });
+  }
 
-      function setMessage(text, type) {
-        msgEl.className = 'game-message' + (type ? ' ' + type : '');
-        msgEl.textContent = '> ' + text;
+  function scoreGuess(guess) {
+    const result     = Array(COLS).fill('absent');
+    const secretArr  = secret.split('');
+    const guessArr   = guess.split('');
+    for (let i = 0; i < COLS; i++) {
+      if (guessArr[i] === secretArr[i]) {
+        result[i] = 'correct'; secretArr[i] = null; guessArr[i] = null;
       }
+    }
+    for (let i = 0; i < COLS; i++) {
+      if (guessArr[i] === null) continue;
+      const idx = secretArr.indexOf(guessArr[i]);
+      if (idx !== -1) { result[i] = 'present'; secretArr[idx] = null; }
+    }
+    return result;
+  }
 
-      function handleKey(key) {
-        if (gameOver) return;
-        if (key === '⌫' || key === 'BACKSPACE') { deleteLetter(); return; }
-        if (key === '↵' || key === 'ENTER')     { submitGuess();  return; }
-        if (/^[A-Z]$/.test(key)) addLetter(key);
+  function revealRow(row, guess, result, onDone) {
+    board[row].forEach((tile, i) => {
+      setTimeout(() => {
+        tile.classList.add('flip');
+        setTimeout(() => {
+          tile.classList.add(result[i]);
+          tile.classList.remove('flip');
+          if (i === COLS - 1 && onDone) onDone();
+        }, 200);
+      }, i * 120);
+    });
+  }
+
+  function updateKeyboard(guess, result) {
+    const priority = { correct: 3, present: 2, absent: 1 };
+    guess.split('').forEach((letter, i) => {
+      const btn = document.querySelector(`.kb-key[data-key="${letter}"]`);
+      if (!btn) return;
+      const current = ['correct','present','absent'].find(c => btn.classList.contains(c));
+      const currentPrio = current ? priority[current] : 0;
+      if (priority[result[i]] > currentPrio) {
+        btn.classList.remove('correct', 'present', 'absent');
+        btn.classList.add(result[i]);
       }
+    });
+  }
 
-      function addLetter(letter) {
-        if (currentCol >= COLS) return;
-        const tile = board[currentRow][currentCol];
-        tile.textContent = letter;
-        tile.classList.add('filled', 'pop');
-        tile.addEventListener('animationend', () => tile.classList.remove('pop'), { once: true });
-        currentCol++;
-      }
+  function shakeRow(row) {
+    const rowEl = boardEl.children[row];
+    rowEl.classList.add('shake');
+    rowEl.addEventListener('animationend', () => rowEl.classList.remove('shake'), { once: true });
+  }
 
-      function deleteLetter() {
-        if (currentCol <= 0) return;
-        currentCol--;
-        const tile = board[currentRow][currentCol];
-        tile.textContent = '';
-        tile.classList.remove('filled');
-        msgEl.className = 'game-message';
-        msgEl.textContent = '> GUESS THE 5-LETTER MUSIC WORD';
-      }
+  // Physical keyboard listener
+  document.addEventListener('keydown', function(e) {
+    // Only fire if the game section is visible
+    const gameSection = document.getElementById('game-section');
+    if (!gameSection || getComputedStyle(gameSection).display === 'none') return;
+    
+    if (e.ctrlKey || e.altKey || e.metaKey) return;
+    if (e.key === 'Enter')     { handleKey('↵'); return; }
+    if (e.key === 'Backspace') { handleKey('⌫'); return; }
+    const k = e.key.toUpperCase();
+    if (/^[A-Z]$/.test(k)) handleKey(k);
+  });
 
-      function getGuess() {
-        return Array.from({ length: COLS }, (_, c) => board[currentRow][c].textContent).join('');
-      }
+  if (newBtn) newBtn.addEventListener('click', newGame);
 
-      function submitGuess() {
-        if (currentCol < COLS) { setMessage('NOT ENOUGH LETTERS', 'error'); shakeRow(currentRow); return; }
-        const guess = getGuess();
-        if (!ALL_VALID.has(guess)) { setMessage('NOT IN WORD LIST', 'error'); shakeRow(currentRow); return; }
-
-        const result = scoreGuess(guess);
-        revealRow(currentRow, guess, result, () => {
-          updateKeyboard(guess, result);
-          const won = result.every(r => r === 'correct');
-          if (won) {
-            stats.played++; stats.won++; stats.streak++;
-            updateStats();
-            gameOver = true;
-            const msgs = ['NAILED IT', 'NICE PLAYING', 'ON THE MONEY', 'PERFECT PITCH', 'SHRED MASTER', 'FIRST TRY!!'];
-            setTimeout(() => setMessage(msgs[Math.min(currentRow, msgs.length - 1)], 'win'), 400);
-            hintEl.textContent = '[ hit New Word to play again ]';
-            return;
-          }
-          currentRow++;
-          currentCol = 0;
-          if (currentRow >= ROWS) {
-            stats.played++; stats.streak = 0;
-            updateStats();
-            gameOver = true;
-            setTimeout(() => {
-              setMessage('THE WORD WAS: ' + secret, 'error');
-              hintEl.textContent = '[ hit New Word to play again ]';
-            }, 400);
-          }
-        });
-      }
-
-      function scoreGuess(guess) {
-        const result     = Array(COLS).fill('absent');
-        const secretArr  = secret.split('');
-        const guessArr   = guess.split('');
-        // First pass: correct
-        for (let i = 0; i < COLS; i++) {
-          if (guessArr[i] === secretArr[i]) {
-            result[i] = 'correct'; secretArr[i] = null; guessArr[i] = null;
-          }
-        }
-        // Second pass: present
-        for (let i = 0; i < COLS; i++) {
-          if (guessArr[i] === null) continue;
-          const idx = secretArr.indexOf(guessArr[i]);
-          if (idx !== -1) { result[i] = 'present'; secretArr[idx] = null; }
-        }
-        return result;
-      }
-
-      function revealRow(row, guess, result, onDone) {
-        board[row].forEach((tile, i) => {
-          setTimeout(() => {
-            tile.classList.add('flip');
-            setTimeout(() => {
-              tile.classList.add(result[i]);
-              tile.classList.remove('flip');
-              if (i === COLS - 1 && onDone) onDone();
-            }, 200);
-          }, i * 120);
-        });
-      }
-
-      function updateKeyboard(guess, result) {
-        const priority = { correct: 3, present: 2, absent: 1 };
-        guess.split('').forEach((letter, i) => {
-          const btn = document.querySelector(`.kb-key[data-key="${letter}"]`);
-          if (!btn) return;
-          const current = ['correct','present','absent'].find(c => btn.classList.contains(c));
-          const currentPrio = current ? priority[current] : 0;
-          if (priority[result[i]] > currentPrio) {
-            btn.classList.remove('correct', 'present', 'absent');
-            btn.classList.add(result[i]);
-          }
-        });
-      }
-
-      function shakeRow(row) {
-        const rowEl = boardEl.children[row];
-        rowEl.classList.add('shake');
-        rowEl.addEventListener('animationend', () => rowEl.classList.remove('shake'), { once: true });
-      }
-
-      // Physical keyboard — only fires when game tab is visible
-      document.addEventListener('keydown', function(e) {
-        if (document.getElementById('game-section').style.display === 'none') return;
-        if (e.ctrlKey || e.altKey || e.metaKey) return;
-        if (e.key === 'Enter')     { handleKey('↵'); return; }
-        if (e.key === 'Backspace') { handleKey('⌫'); return; }
-        const k = e.key.toUpperCase();
-        if (/^[A-Z]$/.test(k)) handleKey(k);
-      });
-
-      newBtn.addEventListener('click', newGame);
-      buildKeyboard();
-      newGame();
-    })();
-
-  </script>
-
+  // Initialize
+  buildKeyboard();
+  newGame();
+})(); // End of IIFE
+</script>
+  
 </body>
 </html>
