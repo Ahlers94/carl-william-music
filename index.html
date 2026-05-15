@@ -1610,44 +1610,25 @@ layout: null
     })();
 // ── FRETDLE — MUSIC WORDLE ────────────────────────────────────
 (function() {
- // 1. DATA LOADING & CLEANING
-  // Safely grab words from Jekyll.
-  const rawSource = {{ site.data.words | jsonify }} || [];
-  console.log("Fretdle Debug - Raw Source:", rawSource); // Check F12 console for this!
+  // 1. DATA LOADING
+  // Pull from both YAML files
+  const musicSource = {{ site.data.words | jsonify }} || [];
+  const extraSource = {{ site.data['extra-valid'] | jsonify }} || [];
 
-  // We define WORDS clearly here
-  const WORDS = rawSource.map(entry => {
-    // If it's a string, use it. If it's an object, try to find the 'word' key.
+  // Helper to clean and normalize any word list
+  const cleanList = (list) => list.map(entry => {
     const val = (typeof entry === 'string') ? entry : (entry && entry.word ? entry.word : "");
     return val.toString().trim().toUpperCase();
   }).filter(w => w.length === 5);
 
-  // Use the WORDS we just created for our internal list
-  const WORD_LIST = [...new Set(WORDS)];
+  // Pool of words that can be the ANSWER (Music only)
+  const WORD_LIST = [...new Set(cleanList(musicSource))];
 
-  console.log("Fretdle Debug - Cleaned WORD_LIST:", WORD_LIST);
-  // Common 5-letter words so the player can make valid guesses
-  const EXTRA_VALID = [
-    'ABOUT','AFTER','AGAIN','GREAT','LIGHT','MIGHT','NIGHT','PLACE','PLANT',
-    'POINT','QUITE','REACH','RIGHT','SHALL','SMALL','SOUND','STILL','THERE',
-    'THINK','THREE','TIMES','UNDER','USING','WHERE','WHICH','WHILE','WORLD',
-    'WOULD','WRITE','YOUNG','HOUSE','POWER','WATER','WATCH','THING','HEART',
-    'LEARN','CAUSE','BRING','FOUND','EVERY','NEVER','OFTEN','ASKED','EARLY',
-    'BEGAN','BEING','BELOW','BLACK','COMES','COULD','DOING','DRAWN','EIGHT',
-    'GIVES','GOING','HAPPY','HUMAN','LEAST','LEAVE','KNOWN','MEANS','MONEY',
-    'MOVED','NEEDS','NORTH','OTHER','PARTS','PEACE','PRESS','PRICE','PRIDE',
-    'READY','ROUND','RULES','SHOWN','SIDES','SINCE','SPEND','SPOKE','STOOD',
-    'STUDY','TAKEN','TODAY','TOTAL','TRULY','TRUST','TRUTH','TWICE','UNTIL',
-    'VALUE','WHOLE','WHOSE','WORKS','WROTE','STONE','STEAM','STERN','STEER',
-    'STEEL','STEAK','SPEAK','SPEAR','SPARE','SPACE','SOUTH','SOLAR','SLANT',
-    'SLATE','FLAME','FLARE','FLASH','FLOOR','FLOAT','FLOSS','CLONE','CLOAK',
-    'CLAIM','CHAIR','CHAIN','CHAOS','CHEAP','CHEER','BRAVE','BRAVO','BRAIN',
-    'BREAD','BREAK','BREED','BRINE','BROAD','BROKE','BROOD','BROWN','BRUSH'
-  ].map(w => w.toUpperCase());
-
-  // Combine lists into a Set for fast lookup
-  const ALL_VALID = new Set([...WORD_LIST, ...EXTRA_VALID]);
-
+  // Pool of words that are VALID GUESSES (Music + Common)
+  const ALL_VALID = new Set([
+    ...WORD_LIST, 
+    ...cleanList(extraSource)
+  ]);
   // 2. GAME STATE
   const ROWS = 6, COLS = 5;
   let secret, currentRow, currentCol, board, gameOver;
