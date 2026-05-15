@@ -1435,39 +1435,49 @@ const coversSection    = document.getElementById('covers-section');
 
 // ── NAV SWITCHING (ROUTER) ─────────────────────────────────────────────
 const sections = {
-    'videos': () => showPage('originals'),
-    'music':  () => showPage('covers'),
-    'gear':   showGear,
-    'about':  showAbout,
-    'shows':  showShows,
-    'news':   showNews,
-    'fretdle':   showGame,
-    'matrix': typeof startMatrix === 'function' ? startMatrix : () => console.log("Matrix not defined")
+    'videos':  () => showPage('originals'),
+    'music':   () => showPage('covers'),
+    'gear':    showGear,
+    'about':   showAbout,
+    'shows':   showShows,
+    'news':    showNews,
+    'fretdle': showGame,
+    'matrix':  showMatrix
 };
 
 function handleRouting() {
     const hash = window.location.hash.replace('#', '') || 'videos';
-    
-    // 1. Update Active Nav Link UI
+
     allNavLinks.forEach(l => {
         l.classList.remove('active');
         if (l.getAttribute('href') === `#${hash}`) l.classList.add('active');
     });
 
-    // 2. Execute the show/hide function based on the hash
     if (sections[hash]) {
         sections[hash]();
     } else {
-        sections['videos'](); // Fallback
+        sections['videos']();
     }
 }
 
-// Global Listeners
 window.addEventListener('hashchange', handleRouting);
 window.addEventListener('load', handleRouting);
 // ── UPDATED UI HELPER FUNCTIONS ────────────────────────────────────────
 
 function hideAll() {
+    // Tear down matrix if it was running
+    siteHeader.style.display = '';
+    siteNav.style.display    = '';
+    if (matrixEl.classList.contains('active')) {
+        matrixEl.classList.remove('active');
+        matrixMsg.classList.remove('show');
+        matrixHint.classList.remove('show');
+        if (typeof matrixRunning !== 'undefined' && matrixRunning) {
+            matrixRunning = false;
+            cancelAnimationFrame(animFrame);
+        }
+    }
+
     // Hide the main video grid
     if (page) {
         page.classList.add('hidden');
@@ -1483,7 +1493,6 @@ function hideAll() {
         }
     });
 }
-
 // Fixed helper functions to use the correct variables and matching IDs
 function showGear()  { pauseAllVideos(); hideAll(); gearSection.style.display = 'block'; fadeInSection('gear-section'); }
 function showAbout() { pauseAllVideos(); hideAll(); aboutSection.style.display = 'block'; fadeInSection('about-section'); }
@@ -1507,53 +1516,31 @@ function showPage(section) {
 }
 
 
-    // ── ENTER MATRIX ──────────────────────────────────────────────
-    document.getElementById('nav-matrix').addEventListener('click', function(e) {
-      e.preventDefault();
+        // ── SHOW MATRIX ───────────────────────────────────────────────
+    function showMatrix() {
       pauseAllVideos();
-      page.classList.add('hidden');
-      gearSection.style.display    = 'none';
-      newsSection.style.display    = 'none';
-      gameSection.style.display    = 'none';
-      siteHeader.style.display     = 'none';
-      siteNav.style.display        = 'none';
+      hideAll();
+      siteHeader.style.display = 'none';
+      siteNav.style.display    = 'none';
       matrixEl.classList.add('active');
       if (!matrixRunning) startMatrix();
       setTimeout(() => {
         matrixMsg.classList.add('show');
         matrixHint.classList.add('show');
       }, 1800);
-    });
+    }
 
-    // ── EXIT MATRIX ───────────────────────────────────────────────
+    // ── EXIT MATRIX — update the hash; router does the rest ───────
     function exitMatrix() {
-      if (!matrixRunning) return;
-      matrixEl.classList.remove('active');
-      matrixMsg.classList.remove('show');
-      matrixHint.classList.remove('show');
-      siteHeader.style.display = '';
-      siteNav.style.display    = '';
-      matrixRunning = false;
-      cancelAnimationFrame(animFrame);
-      showPage('originals');
-      allNavLinks.forEach(l => l.classList.remove('active'));
-      document.getElementById('nav-videos').classList.add('active');
+      if (!matrixEl.classList.contains('active')) return;
+      window.location.hash = '#videos';
     }
 
     matrixEl.addEventListener('click', exitMatrix);
     document.addEventListener('keydown', function(e) {
-      // Don't exit matrix on keydown if game is active (game uses keydown too)
       if (gameSection.style.display !== 'none') return;
       exitMatrix();
     });
-    document.getElementById('nav-videos').addEventListener('click', exitMatrix);
-    document.getElementById('nav-music').addEventListener('click',  exitMatrix);
-    document.getElementById('nav-gear').addEventListener('click',   exitMatrix);
-    document.getElementById('nav-about').addEventListener('click',  exitMatrix);
-    document.getElementById('nav-shows').addEventListener('click',  exitMatrix);
-    document.getElementById('nav-news').addEventListener('click',   exitMatrix);
-    document.getElementById('nav-game').addEventListener('click',   exitMatrix);
-
     // ── MATRIX RAIN ───────────────────────────────────────────────
     function startMatrix() {
       matrixRunning = true;
