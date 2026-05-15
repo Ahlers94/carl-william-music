@@ -1,7 +1,7 @@
 title: Carl William Music
 description: Live looping guitarist. Covers and originals. One take, no excuses.
-baseurl: ""
-url: "https://ahlers94.github.io/carl-william-music"
+baseurl: "/carl-william-music"
+url: "https://ahlers94.github.io"
 
 markdown: kramdown
 kramdown:
