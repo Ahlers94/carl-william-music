@@ -24,6 +24,9 @@ layout: null
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+  <link rel="icon" type="image/jpeg" href="{{ '/photos/favicon.jpg' | relative_url }}">
+  <link rel="shortcut icon" href="{{ '/photos/favicon.jpg' | relative_url }}">
+  
   <!-- ── SEO & SOCIAL PREVIEW ──────────────────────────────────── -->
   <meta name="description" content="Official site for Carl William Music. Live looping, raw guitar captures, and no-nonsense performance.">
   <meta name="author"      content="Carl William Music">
@@ -87,9 +90,18 @@ layout: null
     }
 
     /* ── HEADER ─────────────────────────────────────────────────── */
-    header {
+     header {
       border-bottom: 2px solid var(--cyan);
       padding: 36px 48px 24px;
+    }
+
+    .profile-photo {
+      width: 150px;
+      height: 150px;
+      border: 2px solid #003d10;
+      box-shadow: 0 0 20px rgba(0, 255, 65, 0.2);
+      margin-bottom: 20px;
+      /* animation: photoBreathe 3s ease-in-out infinite; <— Optional: if you add the keyframes */
     }
     .artist-name {
       font-family: 'VT323', monospace;
