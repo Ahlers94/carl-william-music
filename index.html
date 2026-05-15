@@ -1047,12 +1047,12 @@ layout: null
   <nav id="site-nav">
     <a href="#videos" class="active" id="nav-videos">Originals</a>
     <a href="#music"  id="nav-music">Covers</a>
-    <a href="#"       id="nav-gear">Gear</a>
-    <a href="#"       id="nav-about">About Me</a>
-    <a href="#"       id="nav-shows">Shows</a>
-    <a href="#"       id="nav-news">News</a>
-    <a href="#"       id="nav-game">Fretdle</a>
-    <a href="#"       id="nav-matrix">The Matrix</a>
+    <a href="#gear"       id="nav-gear">Gear</a>
+    <a href="#about"       id="nav-about">About Me</a>
+    <a href="#shows"       id="nav-shows">Shows</a>
+    <a href="#news"       id="nav-news">News</a>
+    <a href="#fretdle"       id="nav-game">Fretdle</a>
+    <a href="#matrix"       id="nav-matrix">The Matrix</a>
   </nav>
 
   <!-- ── MOBILE SOCIAL STRIP ───────────────────────────────────────
@@ -1411,96 +1411,69 @@ layout: null
       }
     });
 
-    // ── NAV SWITCHING ─────────────────────────────────────────────
-    const page         = document.querySelector('.page');
-    const gearSection  = document.getElementById('gear-section');
-    const aboutSection = document.getElementById('about-section');
-    const showsSection = document.getElementById('shows-section');
-    const newsSection  = document.getElementById('news-section');
-    const gameSection  = document.getElementById('game-section');
-    const siteHeader   = document.getElementById('site-header');
-    const siteNav      = document.getElementById('site-nav');
-    const matrixEl     = document.getElementById('matrix-section');
-    const matrixMsg    = document.getElementById('matrix-msg');
-    const matrixHint   = document.getElementById('matrix-hint');
-    const allNavLinks  = document.querySelectorAll('nav a');
+// ── NAV SWITCHING (ROUTER) ─────────────────────────────────────────────
+const sections = {
+    'videos': () => showPage('originals'),
+    'music':  () => showPage('covers'),
+    'gear':   showGear,
+    'about':  showAbout,
+    'shows':  showShows,
+    'news':   showNews,
+    'fretdle':   showGame,
+    'matrix': typeof startMatrix === 'function' ? startMatrix : () => console.log("Matrix not defined")
+};
 
-    let matrixRunning = false;
-    let animFrame;
-
-    function hideAll() {
-      page.classList.add('hidden');
-      gearSection.style.display  = 'none';
-      aboutSection.style.display = 'none';
-      showsSection.style.display = 'none';
-      newsSection.style.display  = 'none';
-      gameSection.style.display  = 'none';
-    }
-
-    function showPage(section) {
-      pauseAllVideos();
-      page.classList.remove('hidden');
-      gearSection.style.display  = 'none';
-      aboutSection.style.display = 'none';
-      showsSection.style.display = 'none';
-      newsSection.style.display  = 'none';
-      gameSection.style.display  = 'none';
-      const isCovers = section === 'covers';
-      document.getElementById('originals-section').style.display = isCovers ? 'none' : 'block';
-      document.getElementById('covers-section').style.display    = isCovers ? 'block' : 'none';
-      fadeInSection(isCovers ? 'covers-section' : 'originals-section');
-      setTimeout(() => window.scrollTo({ top: 0, behavior: 'smooth' }), 0);
-    }
-    function showGear() {
-      pauseAllVideos();
-      hideAll();
-      gearSection.style.display = 'block';
-      fadeInSection('gear-section');
-      setTimeout(() => window.scrollTo({ top: 0, behavior: 'smooth' }), 0);
-    }
-    function showAbout() {
-      pauseAllVideos();
-      hideAll();
-      aboutSection.style.display = 'block';
-      fadeInSection('about-section');
-      setTimeout(() => window.scrollTo({ top: 0, behavior: 'smooth' }), 0);
-    }
-    function showShows() {
-      pauseAllVideos();
-      hideAll();
-      showsSection.style.display = 'block';
-      fadeInSection('shows-section');
-      setTimeout(() => window.scrollTo({ top: 0, behavior: 'smooth' }), 0);
-    }
-    function showNews() {
-      pauseAllVideos();
-      hideAll();
-      newsSection.style.display = 'block';
-      fadeInSection('news-section');
-      setTimeout(() => window.scrollTo({ top: 0, behavior: 'smooth' }), 0);
-    }
-    function showGame() {
-      pauseAllVideos();
-      hideAll();
-      gameSection.style.display = 'block';
-      fadeInSection('game-section');
-      setTimeout(() => window.scrollTo({ top: 0, behavior: 'smooth' }), 0);
-    }
-
-    allNavLinks.forEach(link => {
-      link.addEventListener('click', function() {
-        allNavLinks.forEach(l => l.classList.remove('active'));
-        this.classList.add('active');
-      });
+function handleRouting() {
+    const hash = window.location.hash.replace('#', '') || 'videos';
+    
+    // 1. Update Active Nav Link UI
+    allNavLinks.forEach(l => {
+        l.classList.remove('active');
+        if (l.getAttribute('href') === `#${hash}`) l.classList.add('active');
     });
 
-    document.getElementById('nav-videos').addEventListener('click', function(e) { showPage('originals'); });
-    document.getElementById('nav-music').addEventListener('click',  function(e) { showPage('covers'); });
-    document.getElementById('nav-gear').addEventListener('click',   function(e) { e.preventDefault(); showGear(); });
-    document.getElementById('nav-about').addEventListener('click',  function(e) { e.preventDefault(); showAbout(); });
-    document.getElementById('nav-shows').addEventListener('click',  function(e) { e.preventDefault(); showShows(); });
-    document.getElementById('nav-news').addEventListener('click',   function(e) { e.preventDefault(); showNews(); });
-    document.getElementById('nav-game').addEventListener('click',   function(e) { e.preventDefault(); showGame(); });
+    // 2. Execute the show/hide function based on the hash
+    if (sections[hash]) {
+        sections[hash]();
+    } else {
+        sections['videos'](); // Fallback
+    }
+}
+
+// Global Listeners
+window.addEventListener('hashchange', handleRouting);
+window.addEventListener('load', handleRouting);
+
+// ── UI HELPER FUNCTIONS ──────────────────────────────────────────────
+
+function hideAll() {
+    page.classList.add('hidden');
+    gearSection.style.display  = 'none';
+    aboutSection.style.display = 'none';
+    showsSection.style.display = 'none';
+    newsSection.style.display  = 'none';
+    gameSection.style.display  = 'none';
+}
+
+function showPage(section) {
+    pauseAllVideos();
+    page.classList.remove('hidden');
+    hideAll(); // Ensure other specific sections are tucked away
+    
+    const isCovers = section === 'covers';
+    document.getElementById('originals-section').style.display = isCovers ? 'none' : 'block';
+    document.getElementById('covers-section').style.display    = isCovers ? 'block' : 'none';
+    
+    fadeInSection(isCovers ? 'covers-section' : 'originals-section');
+    setTimeout(() => window.scrollTo({ top: 0, behavior: 'smooth' }), 0);
+}
+
+function showGear()  { pauseAllVideos(); hideAll(); gearSection.style.display = 'block'; fadeInSection('gear-section'); }
+function showAbout() { pauseAllVideos(); hideAll(); aboutSection.style.display = 'block'; fadeInSection('about-section'); }
+function showShows() { pauseAllVideos(); hideAll(); showsSection.style.display = 'block'; fadeInSection('shows-section'); }
+function showNews()  { pauseAllVideos(); hideAll(); newsSection.style.display = 'block'; fadeInSection('news-section'); }
+function showGame()  { pauseAllVideos(); hideAll(); gameSection.style.display = 'block'; fadeInSection('game-section'); }
+
 
     // ── ENTER MATRIX ──────────────────────────────────────────────
     document.getElementById('nav-matrix').addEventListener('click', function(e) {
