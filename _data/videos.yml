@@ -18,14 +18,15 @@ originals:
   - id: nHmbrdP94zo
     title: "I Just Want My Soul Live at Perkins Open Mic"
 covers:
-  - id: G_rIFCpkyUU
-    title: "The Power of Love"
   - id: 0FAf-lEccIA
-    title: "I Belong To The Movement (Mandolin)"
+    title: "of Montreal - I Belong To The Movement (Mandolin)"
+    featured: true
+  - id: G_rIFCpkyUU
+    title: "Huey Lewis and the News - The Power of Love"
   - id: LbIHhegCMRg
-    title: "The Past Is A Grotesque Animal"
+    title: "of Montreal - The Past Is A Grotesque Animal"
   - id: ZHmvT4Wj9rY
-    title: "Plastic Love"
+    title: "Mariya Takeuchi - Plastic Love"
   - id: cYu3SiGDSLU
-    title: "Not The Same"
+    title: "Bodyjar - Not The Same (Tony Hawk's Pro Skater 3)"
   # Add more covers below — copy the two lines above and paste
