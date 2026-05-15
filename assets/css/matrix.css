@@ -1,0 +1,52 @@
+/* The Matrix — loaded only on matrix.html */
+
+body.matrix-page header,
+body.matrix-page nav,
+body.matrix-page .mobile-social-strip,
+body.matrix-page .page,
+body.matrix-page footer {
+  display: none !important;
+}
+
+#matrix-section {
+  display: block;
+  position: fixed;
+  inset: 0;
+  background: #000;
+  overflow: hidden;
+  z-index: 100;
+  cursor: pointer;
+}
+
+#matrix-canvas { display: block; width: 100%; height: 100%; }
+
+#matrix-msg {
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  font-family: 'VT323', monospace;
+  font-size: clamp(28px, 5vw, 52px);
+  color: #00ff41;
+  text-shadow: 0 0 20px #00ff41, 0 0 40px #00ff4188;
+  letter-spacing: 4px;
+  text-align: center;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 1.5s ease;
+}
+#matrix-msg.show { opacity: 1; }
+
+#matrix-hint {
+  position: absolute;
+  bottom: 28px; left: 50%;
+  transform: translateX(-50%);
+  font-family: 'Space Mono', monospace;
+  font-size: 11px;
+  color: #00ff4188;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 1.5s ease;
+}
+#matrix-hint.show { opacity: 1; }

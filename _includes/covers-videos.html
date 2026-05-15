@@ -1,0 +1,42 @@
+<div class="section-label">Covers</div>
+{% for video in site.data.videos.covers %}
+  {% if video.featured %}
+  <div class="video-featured">
+    <div class="yt-facade" data-vid="{{ video.id }}">
+      <img src="https://img.youtube.com/vi/{{ video.id }}/maxresdefault.jpg"
+           onerror="this.src='https://img.youtube.com/vi/{{ video.id }}/hqdefault.jpg'"
+           alt="{% if video.title %}{{ video.title }}{% else %}Play video{% endif %}"
+           loading="lazy" decoding="async">
+      <button class="yt-play" aria-label="Play video" tabindex="-1">
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><polygon points="5,3 19,12 5,21"/></svg>
+      </button>
+      {% if video.title %}<div class="yt-title">{{ video.title }}</div>{% endif %}
+    </div>
+  </div>
+  {% if video.title %}<div class="video-caption">&gt; {{ video.title }}</div>{% endif %}
+  {% endif %}
+{% endfor %}
+
+{% assign non_featured_covers = site.data.videos.covers | where_exp: "v", "v.featured != true" %}
+{% assign featured_covers = site.data.videos.covers | where_exp: "v", "v.featured == true" %}
+{% if non_featured_covers.size > 0 %}
+{% if featured_covers.size > 0 %}
+<div class="section-label" style="margin-top: 28px;">More Covers</div>
+{% endif %}
+<div class="video-grid">
+  {% for video in non_featured_covers %}
+  <div class="video-small">
+    <div class="yt-facade" data-vid="{{ video.id }}">
+      <img src="https://img.youtube.com/vi/{{ video.id }}/maxresdefault.jpg"
+           onerror="this.src='https://img.youtube.com/vi/{{ video.id }}/hqdefault.jpg'"
+           alt="{% if video.title %}{{ video.title }}{% else %}Play video{% endif %}"
+           loading="lazy" decoding="async">
+      <button class="yt-play" aria-label="Play video" tabindex="-1">
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><polygon points="5,3 19,12 5,21"/></svg>
+      </button>
+      {% if video.title %}<div class="yt-title">{{ video.title }}</div>{% endif %}
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% endif %}

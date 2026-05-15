@@ -1,0 +1,18 @@
+---
+layout: default
+title: Carl William Music | About Me
+description: About Carl William Music — live looping guitarist.
+nav: about
+permalink: /about.html
+---
+<div class="page">
+  <div class="left-col content-page narrow">
+    <div class="section-label">About Me</div>
+    <div class="about-content">
+      <div class="bio-text">
+        {{ site.data.about.bio | markdownify }}
+      </div>
+    </div>
+  </div>
+  {% include social-sidebar.html %}
+</div>

@@ -1,0 +1,26 @@
+---
+layout: default
+title: Carl William Music | Gear
+description: The rig — instruments, loopers, and signal chain.
+nav: gear
+permalink: /gear.html
+---
+<div class="page">
+  <div class="left-col content-page">
+    <div class="section-label">The Rig</div>
+    <div class="gear-grid">
+      {% for item in site.data.gear %}
+      <div class="gear-item">
+        {% if item.image %}
+          <img src="{{ item.image | relative_url }}" alt="{{ item.label }}">
+        {% else %}
+          <div class="gear-photo-placeholder">[ PHOTO COMING SOON ]</div>
+        {% endif %}
+        <div class="gear-label">{{ item.label }}</div>
+        <div class="gear-desc">{{ item.description }}</div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+  {% include social-sidebar.html %}
+</div>

@@ -1,0 +1,15 @@
+<div class="right-col">
+  <div class="section-label" id="find-me">Find Me</div>
+  <div class="social-links">
+    {% for link in site.data.social %}
+    <a class="social-link {{ link.class }}" href="{{ link.url }}" data-icon="{{ link.icon }}"
+      {% if link.class != 'em' %}target="_blank" rel="noopener"{% endif %}>
+      {{ link.label }}
+    </a>
+    {% endfor %}
+  </div>
+  <div class="bio-box">
+    <div class="section-label">About</div>
+    <p class="bio-text" id="bio-decrypt">🎸 Guitarist | 🎛️ Live Looping Artist | 🔊 Crafting full-band soundscapes</p>
+  </div>
+</div>

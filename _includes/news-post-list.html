@@ -1,0 +1,68 @@
+<div class="section-label">News</div>
+<div class="post-list">
+  {% if site.data.posts and site.data.posts.size > 0 %}
+    {% for post in site.data.posts %}
+    <div class="post-card">
+      <div class="post-header">
+        <div class="post-date">{{ post.date }}</div>
+        <div class="post-title">{{ post.title }}</div>
+        {% if post.tag %}<span class="post-tag {{ post.tag }}">{{ post.tag }}</span>{% endif %}
+      </div>
+      <p class="post-body">{{ post.body }}</p>
+
+      {% if post.venue or post.gear or post.setlist %}
+      <div class="post-meta">
+        {% if post.venue %}
+        <div>
+          <div class="post-meta-label">Venue</div>
+          <div class="post-venue">{{ post.venue }}</div>
+        </div>
+        {% endif %}
+        {% if post.gear %}
+        <div>
+          <div class="post-meta-label">Gear Used</div>
+          <div class="post-gear-list">
+            {% for item in post.gear %}
+            <span class="post-gear-tag">{{ item }}</span>
+            {% endfor %}
+          </div>
+        </div>
+        {% endif %}
+        {% if post.setlist %}
+        <div>
+          <div class="post-meta-label">Setlist</div>
+          <ol class="post-setlist">
+            {% for song in post.setlist %}
+            <li>{{ song }}</li>
+            {% endfor %}
+          </ol>
+        </div>
+        {% endif %}
+      </div>
+      {% endif %}
+
+      {% if post.video_id %}
+      <div class="post-video">
+        <div class="post-meta-label" style="margin-top: 16px; padding-top: 14px; border-top: 1px solid #ffffff0d;">Video</div>
+        <div class="video-small" style="margin-top: 8px;">
+          <div class="yt-facade" data-vid="{{ post.video_id }}">
+            <img src="https://img.youtube.com/vi/{{ post.video_id }}/maxresdefault.jpg"
+                 onerror="this.src='https://img.youtube.com/vi/{{ post.video_id }}/hqdefault.jpg'"
+                 alt="{% if post.title %}{{ post.title }}{% else %}Play video{% endif %}" loading="lazy" decoding="async">
+            <button class="yt-play" aria-label="Play video" tabindex="-1">
+              <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><polygon points="5,3 19,12 5,21"/></svg>
+            </button>
+            {% if post.title %}<div class="yt-title">{{ post.title }}</div>{% endif %}
+          </div>
+        </div>
+      </div>
+      {% endif %}
+    </div>
+    {% endfor %}
+  {% else %}
+    <div class="news-empty">
+      <span class="news-empty-label">[ NO POSTS YET ]</span>
+      <span class="news-empty-sub">Check back soon for updates</span>
+    </div>
+  {% endif %}
+</div>

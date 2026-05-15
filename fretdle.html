@@ -1,0 +1,49 @@
+---
+layout: default
+title: Carl William Music | Fretdle
+description: Guess the five-letter music word — Fretdle.
+nav: fretdle
+permalink: /fretdle.html
+extra_css:
+  - assets/css/fretdle.css
+extra_js:
+  - assets/js/fretdle.js
+---
+<script>
+  window.__FRETDLE__ = {
+    words: {{ site.data.words | jsonify }},
+    extraValid: {{ site.data['extra-valid'] | jsonify }}
+  };
+</script>
+
+<div class="page">
+  <div class="left-col" id="game-section">
+    <div class="section-label">Fretdle</div>
+    <div class="game-message" id="game-msg">&gt; GUESS THE 5-LETTER MUSIC WORD</div>
+    <div class="game-hint" id="game-hint">6 attempts &nbsp;//&nbsp; green = right spot &nbsp;//&nbsp; gold = wrong spot</div>
+
+    <div class="game-board" id="game-board"></div>
+
+    <div class="game-legend">
+      <div class="legend-item"><span class="legend-swatch correct"></span> Right spot</div>
+      <div class="legend-item"><span class="legend-swatch present"></span> Wrong spot</div>
+      <div class="legend-item"><span class="legend-swatch absent"></span> Not in word</div>
+    </div>
+
+    <div class="game-keyboard" id="game-keyboard">
+      <div class="kb-row" data-keys="QWERTYUIOP"></div>
+      <div class="kb-row" data-keys="ASDFGHJKL"></div>
+      <div class="kb-row" data-keys="↵ZXCVBNM⌫"></div>
+    </div>
+
+    <div class="game-controls">
+      <button type="button" class="game-btn" id="game-new-btn">New Word</button>
+      <div class="game-stats">
+        <div class="stat-block"><div class="stat-num" id="stat-played">0</div><div class="stat-label">Played</div></div>
+        <div class="stat-block"><div class="stat-num" id="stat-won">0</div><div class="stat-label">Won</div></div>
+        <div class="stat-block"><div class="stat-num" id="stat-streak">0</div><div class="stat-label">Streak</div></div>
+      </div>
+    </div>
+  </div>
+  {% include social-sidebar.html %}
+</div>

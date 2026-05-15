@@ -1,0 +1,7 @@
+<div class="mobile-social-strip">
+  {% for link in site.data.social %}
+  <a class="{{ link.class }}" href="{{ link.url }}" data-icon="{{ link.icon }}"
+    {% if link.class != 'em' %}target="_blank" rel="noopener"{% endif %}
+    aria-label="{{ link.label }}"></a>
+  {% endfor %}
+</div>

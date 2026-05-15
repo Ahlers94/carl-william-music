@@ -1,0 +1,55 @@
+---
+layout: default
+title: Carl William Music | Shows
+description: Upcoming and past live shows.
+nav: shows
+permalink: /shows.html
+---
+<div class="page">
+  <div class="left-col content-page">
+    <div class="section-label">Upcoming Shows</div>
+    <div class="shows-list">
+      {% if site.data.shows.upcoming and site.data.shows.upcoming.size > 0 %}
+        {% for show in site.data.shows.upcoming %}
+        <div class="show-item">
+          <div class="show-date">{{ show.date }}</div>
+          <div class="show-details">
+            <div class="show-venue">{{ show.venue }}</div>
+            {% if show.location %}<div class="show-location">{{ show.location }}</div>{% endif %}
+            {% if show.time %}<div class="show-time">{{ show.time }}{% if show.notes %} // {{ show.notes }}{% endif %}</div>{% endif %}
+          </div>
+        </div>
+        {% endfor %}
+      {% else %}
+        <div class="shows-empty">
+          <span class="shows-empty-label">[ NO SHOWS CURRENTLY SCHEDULED ]</span>
+          <span class="shows-empty-sub">Check back soon // Follow on social for announcements</span>
+        </div>
+      {% endif %}
+    </div>
+
+    {% if site.data.shows.past and site.data.shows.past.size > 0 %}
+    <div class="section-label" style="margin-top: 36px;">Past Shows</div>
+    <div class="shows-list">
+      {% for show in site.data.shows.past %}
+      <div class="show-item">
+        <div class="show-date">{{ show.year }}</div>
+        <div class="show-details">
+          <div class="show-venue">{{ show.event }}</div>
+          {% if show.venue %}<div class="show-location">{{ show.venue }}</div>{% endif %}
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+
+    <div class="shows-contact">
+      <div class="section-label" style="margin-top: 36px;">Booking & Inquiries</div>
+      <p class="bio-text" style="margin-bottom: 14px;">Want to book Carl William Music for your venue, event, or session? Get in touch directly.</p>
+      <a href="mailto:wcarlahlers@gmail.com" class="social-link em" data-icon="mail" style="display: inline-flex; margin-top: 8px;">
+        wcarlahlers@gmail.com
+      </a>
+    </div>
+  </div>
+  {% include social-sidebar.html %}
+</div>
