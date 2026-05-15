@@ -8,5 +8,7 @@
 # Optional later: featured (bool), caption, thumbnail_url, etc.
 
 reels:
-  - title: "Example reel — replace with your title"
-    reel_id: "AbCdEfGh1Ij"
+  - title: "Alice DJ - Better Off Alone Casio PT-10 Demo"
+    reel_id: "DNCOcBzuYz2"
+    covers:
+
