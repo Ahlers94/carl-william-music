@@ -1,13 +1,8 @@
 # _data/instagram.yml
 
-reels:            # existing key — site.data.instagram.reels
-  - title: "My Cover Reel Title"
-    reel_id: "YOUR_REEL_SHORTCODE"
+originals:
+  # This section is empty right now, so it will remain hidden automatically!
 
-originals:        # add this when you have originals to show
-  - title: "My Original Reel Title"
-    reel_id: "YOUR_REEL_SHORTCODE"
-
-covers:           # add this when you have covers to show
+covers:
   - title: "Alice DJ - Better Off Alone Casio PT-10 Demo"
     reel_id: "DNCOcBzuYz2"
