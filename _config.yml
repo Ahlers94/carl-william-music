@@ -1,0 +1,17 @@
+title: Carl William Music
+description: Live looping guitar performances, gear documentation, and music blog.
+baseurl: ""
+url: ""
+
+markdown: kramdown
+kramdown:
+  input: GFM
+
+exclude:
+  - Gemfile
+  - Gemfile.lock
+  - .replit
+  - .local/
+  - .cache/
+  - .git/
+  - node_modules/

@@ -1,0 +1,2071 @@
+<!DOCTYPE html>
+<!--
+  ╔══════════════════════════════════════════════════════════════════╗
+  ║  CARL WILLIAM MUSIC — index.html (Jekyll)                       ║
+  ║  Hosted on GitHub Pages                                         ║
+  ║                                                                  ║
+  ║  CONTENT LIVES IN _data/ — edit those files, not this one:      ║
+  ║    _data/videos.yml  — featured + more video IDs                ║
+  ║    _data/gear.yml    — gear items, photos, descriptions         ║
+  ║    _data/social.yml  — social media links                       ║
+  ║    _data/shows.yml   — upcoming and past shows                  ║
+  ║    _data/posts.yml   — blog/news entries (newest first)         ║
+  ║                                                                  ║
+  ║  QUICK EDIT CHECKLIST:                                           ║
+  ║  [ ] OG preview image   (search: preview.jpg)                   ║
+  ║  [ ] Footer year        (search: 2026)                          ║
+  ╚══════════════════════════════════════════════════════════════════╝
+-->
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <link rel="icon" type="image/jpeg" href="/photos/favicon.jpg">
+  <link rel="shortcut icon" href="/photos/favicon.jpg">
+  
+  <!-- ── SEO & SOCIAL PREVIEW ──────────────────────────────────── -->
+  <meta name="description" content="Official site for Carl William Music. Live looping, raw guitar captures, and no-nonsense performance.">
+  <meta name="author"      content="Carl William Music">
+
+  <meta property="og:type"        content="website">
+  <meta property="og:title"       content="Carl William Music | Substance Over Style">
+  <meta property="og:description" content="Live looping guitarist. Covers and originals. One take, no excuses.">
+  <meta property="og:url"         content="https://ahlers94.github.io/carl-william-music/">
+  <meta property="og:image"       content="https://ahlers94.github.io/carl-william-music/preview.jpg">
+
+  <meta name="twitter:card"        content="summary_large_image">
+  <meta name="twitter:title"       content="Carl William Music | Substance Over Style">
+  <meta name="twitter:description" content="Live looping guitarist. Covers and originals. One take, no excuses.">
+  <meta name="twitter:image"       content="https://ahlers94.github.io/carl-william-music/preview.jpg">
+
+  <title>Carl William Music | Substance Over Style</title>
+
+  <!-- ── FONTS ─────────────────────────────────────────────────── -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=VT323&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+
+  <style>
+
+    /* ── COLOR PALETTE ──────────────────────────────────────────── */
+    :root {
+      --bg:      #0a0a12;
+      --surface: #0d0d1a;
+      --pink:    #ff2d78;
+      --cyan:    #00f5ff;
+      --gold:    #ffd700;
+      --purple:  #b06aff;
+      --green:   #99cc77;
+      --text:    #e0d8f0;
+      --muted:   #9988aa;
+      --dim:     #443355;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Space Mono', monospace;
+      min-height: 100vh;
+    }
+
+    /* ── CRT SCANLINE OVERLAY ───────────────────────────────────── */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background: repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 3px,
+        rgba(0,245,255,0.015) 3px,
+        rgba(0,245,255,0.015) 4px
+      );
+      pointer-events: none;
+      z-index: 999;
+    }
+
+    /* ── HEADER ─────────────────────────────────────────────────── */
+     header {
+      border-bottom: 2px solid var(--cyan);
+      padding: 36px 48px 24px;
+    }
+
+    .profile-photo {
+      width: 150px;
+      height: 150px;
+      border: 2px solid #003d10;
+      box-shadow: 0 0 20px rgba(0, 255, 65, 0.2);
+      margin-bottom: 20px;
+      /* animation: photoBreathe 3s ease-in-out infinite; <— Optional: if you add the keyframes */
+    }
+    .artist-name {
+      font-family: 'VT323', monospace;
+      font-size: clamp(56px, 10vw, 96px);
+      color: #00ff41;
+      letter-spacing: 6px;
+      line-height: 1;
+      text-shadow: 3px 3px 0 #003d10, 0 0 40px #00ff4155;
+      animation: breathe 3s ease-in-out infinite;
+    }
+
+    @keyframes breathe {
+      0%, 100% { text-shadow: 3px 3px 0 #003d10, 0 0 20px #00ff4133, 0 0 40px #00ff4122; }
+      50%       { text-shadow: 3px 3px 0 #003d10, 0 0 30px #00ff41aa, 0 0 60px #00ff4155, 0 0 80px #00ff4122; }
+    }
+    .artist-tagline {
+      font-size: 11px;
+      color: var(--cyan);
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      margin-top: 8px;
+      opacity: 0.8;
+      display: flex;
+      flex-wrap: nowrap;
+      gap: 6px;
+      overflow: hidden;
+    }
+    @media (max-width: 720px) {
+      .artist-tagline { font-size: 8px; letter-spacing: 1.5px; gap: 3px; }
+    }
+    .tagline-word {
+      display: inline-block;
+      opacity: 0;
+      transform: translateY(12px);
+      animation: slideIn 0.4s ease forwards;
+    }
+    @keyframes slideIn {
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ── NAVIGATION ─────────────────────────────────────────────── */
+    nav {
+      display: flex;
+      background: #10101e;
+      border-bottom: 1px solid #ffffff15;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+    }
+    nav::-webkit-scrollbar { display: none; }
+
+    nav::after {
+      content: '';
+      position: sticky;
+      right: 0;
+      top: 0;
+      min-width: 48px;
+      height: 100%;
+      background: linear-gradient(to right, transparent, #10101e);
+      pointer-events: none;
+      flex-shrink: 0;
+    }
+
+    nav a {
+      display: block;
+      padding: 12px 24px;
+      font-size: 11px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: #9988cc;
+      text-decoration: none;
+      border-right: 1px solid #ffffff0d;
+      transition: color 0.2s, border-bottom-color 0.2s;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    /* Per-tab colors — Super Famicom button palette */
+    #nav-videos        { color: #b3001a; text-shadow: 0 0 8px #b3001a66; }
+    #nav-videos:hover,
+    #nav-videos.active { color: #d4001a; border-bottom: 2px solid #d4001a; text-shadow: 0 0 12px #d4001a88; }
+
+    #nav-music         { color: #005fa8; text-shadow: 0 0 8px #005fa866; }
+    #nav-music:hover,
+    #nav-music.active  { color: #0070c9; border-bottom: 2px solid #0070c9; text-shadow: 0 0 12px #0070c988; }
+
+    #nav-gear          { color: #c08800; text-shadow: 0 0 8px #c0880066; }
+    #nav-gear:hover,
+    #nav-gear.active   { color: #e4a100; border-bottom: 2px solid #e4a100; text-shadow: 0 0 12px #e4a10088; }
+
+    #nav-matrix        { color: #008a44; text-shadow: 0 0 8px #008a4466; }
+    #nav-matrix:hover,
+    #nav-matrix.active { color: #00a550; border-bottom: 2px solid #00a550; text-shadow: 0 0 12px #00a55088; }
+
+    #nav-about         { color: #8844cc; text-shadow: 0 0 8px #8844cc66; }
+    #nav-about:hover,
+    #nav-about.active  { color: #aa66ff; border-bottom: 2px solid #aa66ff; text-shadow: 0 0 12px #aa66ff88; }
+
+    #nav-shows         { color: #009999; text-shadow: 0 0 8px #00999966; }
+    #nav-shows:hover,
+    #nav-shows.active  { color: #00cccc; border-bottom: 2px solid #00cccc; text-shadow: 0 0 12px #00cccc88; }
+
+    #nav-news          { color: #b06aff; text-shadow: 0 0 8px #b06aff66; }
+    #nav-news:hover,
+    #nav-news.active   { color: #cc88ff; border-bottom: 2px solid #cc88ff; text-shadow: 0 0 12px #cc88ff88; }
+
+    #nav-game          { color: #ff7700; text-shadow: 0 0 8px #ff770066; }
+    #nav-game:hover,
+    #nav-game.active   { color: #ff9933; border-bottom: 2px solid #ff9933; text-shadow: 0 0 12px #ff993388; }
+
+    /* ── NAV TAB FADE-IN ──────────────────────────────────────────── */
+    #nav-videos { animation: fadeInNav 0.3s ease forwards; animation-delay: 1.7s; opacity: 0; }
+    #nav-music  { animation: fadeInNav 0.3s ease forwards; animation-delay: 1.9s; opacity: 0; }
+    #nav-gear   { animation: fadeInNav 0.3s ease forwards; animation-delay: 2.1s; opacity: 0; }
+    #nav-about  { animation: fadeInNav 0.3s ease forwards; animation-delay: 2.3s; opacity: 0; }
+    #nav-shows  { animation: fadeInNav 0.3s ease forwards; animation-delay: 2.5s; opacity: 0; }
+    #nav-news   { animation: fadeInNav 0.3s ease forwards; animation-delay: 2.7s; opacity: 0; }
+    #nav-game   { animation: fadeInNav 0.3s ease forwards; animation-delay: 2.9s; opacity: 0; }
+    #nav-matrix { animation: fadeInNav 0.3s ease forwards; animation-delay: 3.1s; opacity: 0; }
+    @keyframes fadeInNav { to { opacity: 1; } }
+
+    /* ── CUSTOM CURSOR GLOW (desktop only) ──────────────────────────
+       A soft cyan halo that follows the mouse. Hidden on touch devices. */
+    #cursor-glow {
+      position: fixed;
+      width: 28px; height: 28px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(0,245,255,0.18) 0%, transparent 70%);
+      pointer-events: none;
+      transform: translate(-50%, -50%);
+      z-index: 1000;
+      transition: opacity 0.3s;
+    }
+    @media (hover: none) { #cursor-glow { display: none; } }
+
+    /* ── VIDEO CARD HOVER GLOW ──────────────────────────────────────
+       Border brightens on hover as if powering up                    */
+    .video-featured {
+      transition: box-shadow 0.3s ease, border-color 0.3s ease;
+    }
+    .video-featured:hover {
+      border-color: #ff2d78aa;
+      box-shadow: 0 0 16px #ff2d7833;
+    }
+    .video-small {
+      transition: box-shadow 0.3s ease, border-color 0.3s ease;
+    }
+    .video-small:hover {
+      border-color: #ffd700aa;
+      box-shadow: 0 0 12px #ffd70033;
+    }
+
+    /* ── TAGLINE RANDOM FLICKER ─────────────────────────────────────
+       Applied via JS to individual tagline words at random intervals  */
+    @keyframes flicker {
+      0%   { opacity: 1; }
+      10%  { opacity: 0.4; }
+      12%  { opacity: 1; }
+      14%  { opacity: 0.6; }
+      16%  { opacity: 1; }
+      100% { opacity: 1; }
+    }
+    .tagline-word.flickering {
+      animation: flicker 0.3s ease forwards;
+    }
+
+    /* ── TAB CONTENT FADE-IN ────────────────────────────────────────
+       Content fades in when switching tabs                            */
+    .tab-fade {
+      animation: tabFadeIn 0.3s ease forwards;
+    }
+    @keyframes tabFadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ── GEAR CARD EXPAND ───────────────────────────────────────────
+       Description is hidden by default, revealed on click            */
+    .gear-desc {
+      font-size: 11px;
+      color: var(--muted);
+      line-height: 1.7;
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.4s ease, opacity 0.4s ease, margin-top 0.3s ease;
+      opacity: 0;
+      margin-top: 0;
+    }
+    .gear-item.open .gear-desc {
+      max-height: 300px;
+      opacity: 1;
+      margin-top: 8px;
+    }
+    .gear-item {
+      border: 1px solid #ff2d7822;
+      padding: 16px;
+      background: var(--surface);
+      cursor: pointer;
+      transition: border-color 0.2s;
+    }
+    .gear-item:hover { border-color: #ff2d7844; }
+    .gear-label {
+      font-size: 10px;
+      color: var(--cyan);
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      margin-bottom: 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    /* Small arrow indicator */
+    .gear-label::after {
+      content: '▸';
+      font-size: 10px;
+      color: var(--dim);
+      transition: transform 0.3s ease;
+    }
+    .gear-item.open .gear-label::after {
+      transform: rotate(90deg);
+    }
+    .page {
+      display: grid;
+      grid-template-columns: 1fr 280px;
+      min-height: calc(100vh - 200px);
+    }
+    @media (max-width: 720px) {
+      .page  { grid-template-columns: 1fr; }
+      header { padding: 24px; }
+    }
+    .left-col {
+      padding: 36px 36px 36px 48px;
+      border-right: 1px solid #ff2d7822;
+    }
+    .right-col {
+      padding: 28px 24px;
+      background: var(--surface);
+    }
+
+    /* ── SECTION LABELS ─────────────────────────────────────────── */
+    .section-label {
+      font-size: 10px;
+      color: var(--cyan);
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .section-label::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: #00f5ff33;
+    }
+
+    /* ── FEATURED VIDEO ─────────────────────────────────────────── */
+    .video-featured {
+      position: relative;
+      padding-bottom: 56.25%;
+      height: 0;
+      background: #06060f;
+      border: 1px solid #ff2d7855;
+      margin-bottom: 10px;
+      overflow: hidden;
+    }
+    .video-featured::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--pink), var(--cyan), transparent);
+      z-index: 1;
+    }
+    .video-featured iframe {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      border: none;
+    }
+    .video-caption {
+      font-size: 10px;
+      color: var(--dim);
+      letter-spacing: 1px;
+      margin-bottom: 20px;
+    }
+
+    /* ── SMALLER VIDEO GRID ─────────────────────────────────────── */
+    .video-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-top: 8px;
+    }
+    @media (max-width: 720px) { .video-grid { grid-template-columns: 1fr; } }
+    .video-small {
+      position: relative;
+      padding-bottom: 56.25%;
+      height: 0;
+      background: #06060f;
+      border: 1px solid #ffd70033;
+      overflow: hidden;
+    }
+    .video-small::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--gold), transparent);
+      z-index: 1;
+    }
+    .video-small iframe {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      border: none;
+    }
+
+    /* ── SOCIAL LINKS ───────────────────────────────────────────── */
+    .social-links {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 28px;
+    }
+    .social-link {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 14px;
+      border: 1px solid;
+      font-size: 11px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      text-decoration: none;
+      transition: background 0.15s;
+    }
+    .social-link:hover { background: #ffffff08; }
+    .social-link svg {
+      width: 15px; height: 15px;
+      flex-shrink: 0;
+      stroke: currentColor;
+    }
+
+    /* Per-platform colors + glow — matched to real brand colors */
+    .yt { color: #FF0000;  border-color: #FF000055; text-shadow: 0 0 8px #FF000088; }
+    .ig { color: #E1306C;  border-color: #E1306C55; text-shadow: 0 0 8px #E1306C88; }
+    .sc { color: #FF5500;  border-color: #FF550055; text-shadow: 0 0 8px #FF550088; }
+    .gh { color: #6cc644;  border-color: #6cc64455; text-shadow: 0 0 8px #6cc64488; }
+    .em { color: var(--cyan); border-color: #00f5ff55; text-shadow: 0 0 8px #00f5ff88; text-transform: none; letter-spacing: 0; }
+    .vm { color: #008CFF;    border-color: #008CFF55; text-shadow: 0 0 8px #008CFF88; }
+
+    .yt:hover { text-shadow: 0 0 14px #FF0000bb; }
+    .ig:hover { text-shadow: 0 0 14px #E1306Cbb; }
+    .sc:hover { text-shadow: 0 0 14px #FF5500bb; }
+    .gh:hover { text-shadow: 0 0 14px #6cc644bb; }
+    .em:hover { text-shadow: 0 0 14px #00f5ffbb; }
+    .vm:hover { text-shadow: 0 0 14px #008CFFbb; }
+
+    /* ── BIO ────────────────────────────────────────────────────── */
+    .bio-box {
+      padding-top: 22px;
+      border-top: 1px solid #ffffff0d;
+    }
+    .bio-text {
+      font-size: 11px;
+      line-height: 1.8;
+      color: var(--muted);
+      font-style: italic;
+    }
+
+    /* ── GEAR SECTION ───────────────────────────────────────────── */
+    .gear-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+      margin-top: 8px;
+    }
+    @media (max-width: 720px) { .gear-grid { grid-template-columns: 1fr; } }
+    .gear-photo-placeholder {
+      width: 100%;
+      aspect-ratio: 4/3;
+      background: #06060f;
+      border: 1px dashed #ff2d7833;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+      color: var(--dim);
+      letter-spacing: 2px;
+      margin-bottom: 12px;
+    }
+    .gear-item img {
+      width: 100%;
+      aspect-ratio: 4/3;
+      object-fit: cover;
+      display: block;
+      margin-bottom: 12px;
+      border: 1px solid #ff2d7833;
+    }
+    /* ── ABOUT ME SECTION ───────────────────────────────────────── */
+    #about-section {
+      display: none;
+      padding: 36px 36px 36px 48px;
+      max-width: 720px;
+    }
+    .about-content .bio-text {
+      font-size: 13px;
+      line-height: 2;
+      color: var(--muted);
+      font-style: italic;
+    }
+    @media (max-width: 720px) { #about-section { padding: 24px; } }
+
+    /* ── SHOWS SECTION ──────────────────────────────────────────── */
+    #shows-section {
+      display: none;
+      padding: 36px 36px 36px 48px;
+    }
+    @media (max-width: 720px) { #shows-section { padding: 24px; } }
+    .shows-list { display: flex; flex-direction: column; gap: 12px; margin-top: 8px; }
+    .show-item {
+      display: flex;
+      gap: 24px;
+      align-items: flex-start;
+      padding: 16px;
+      border: 1px solid #00cccc33;
+      background: var(--surface);
+      transition: border-color 0.2s;
+    }
+    .show-item:hover { border-color: #00cccc77; }
+    .show-date {
+      font-family: 'VT323', monospace;
+      font-size: 22px;
+      color: #00cccc;
+      text-shadow: 0 0 8px #00cccc66;
+      white-space: nowrap;
+      min-width: 110px;
+    }
+    .show-venue {
+      font-size: 12px;
+      color: var(--text);
+      letter-spacing: 1px;
+      margin-bottom: 4px;
+    }
+    .show-location { font-size: 11px; color: var(--muted); margin-bottom: 4px; }
+    .show-time     { font-size: 10px; color: var(--dim); letter-spacing: 1px; }
+    .shows-empty {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      padding: 32px 0;
+    }
+    .shows-empty-label {
+      font-family: 'VT323', monospace;
+      font-size: 24px;
+      color: var(--dim);
+      letter-spacing: 3px;
+    }
+    .shows-empty-sub {
+      font-size: 10px;
+      color: var(--dim);
+      letter-spacing: 2px;
+      text-transform: uppercase;
+    }
+
+    /* ── NEWS / BLOG SECTION ────────────────────────────────────── */
+    #news-section {
+      display: none;
+      padding: 36px 36px 36px 48px;
+      max-width: 860px;
+    }
+    @media (max-width: 720px) { #news-section { padding: 24px; } }
+
+    .post-list { display: flex; flex-direction: column; gap: 28px; margin-top: 8px; }
+
+    .post-card {
+      border: 1px solid #b06aff33;
+      background: var(--surface);
+      padding: 22px 24px;
+      transition: border-color 0.2s;
+    }
+    .post-card:hover { border-color: #b06aff66; }
+
+    .post-header {
+      display: flex;
+      align-items: baseline;
+      gap: 14px;
+      margin-bottom: 12px;
+      flex-wrap: wrap;
+    }
+    .post-date {
+      font-family: 'VT323', monospace;
+      font-size: 20px;
+      color: #cc88ff;
+      text-shadow: 0 0 8px #cc88ff66;
+      white-space: nowrap;
+    }
+    .post-title {
+      font-size: 13px;
+      color: var(--text);
+      letter-spacing: 1px;
+      flex: 1;
+    }
+    .post-tag {
+      font-size: 9px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      padding: 2px 8px;
+      border: 1px solid;
+      white-space: nowrap;
+    }
+    /* Tag color variants */
+    .post-tag.show    { color: var(--cyan);   border-color: #00f5ff55; }
+    .post-tag.release { color: var(--pink);   border-color: #ff2d7855; }
+    .post-tag.update  { color: var(--gold);   border-color: #ffd70055; }
+    .post-tag.gear    { color: var(--purple); border-color: #b06aff55; }
+
+    .post-body {
+      font-size: 12px;
+      line-height: 1.9;
+      color: var(--muted);
+      margin-bottom: 0;
+    }
+
+    /* Optional show-detail sub-sections */
+    .post-meta {
+      margin-top: 16px;
+      padding-top: 14px;
+      border-top: 1px solid #ffffff0d;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .post-meta-label {
+      font-size: 9px;
+      color: var(--cyan);
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      margin-bottom: 4px;
+    }
+    .post-venue {
+      font-size: 11px;
+      color: var(--muted);
+    }
+    .post-gear-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+    .post-gear-tag {
+      font-size: 9px;
+      letter-spacing: 1px;
+      padding: 2px 8px;
+      border: 1px solid #ffd70033;
+      color: var(--gold);
+    }
+    .post-setlist {
+      list-style: none;
+      counter-reset: setlist;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .post-setlist li {
+      counter-increment: setlist;
+      font-size: 11px;
+      color: var(--muted);
+      display: flex;
+      gap: 10px;
+    }
+    .post-setlist li::before {
+      content: counter(setlist, decimal-leading-zero) '.';
+      color: var(--dim);
+      font-family: 'VT323', monospace;
+      font-size: 14px;
+      min-width: 28px;
+    }
+
+    .news-empty {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      padding: 32px 0;
+    }
+    .news-empty-label {
+      font-family: 'VT323', monospace;
+      font-size: 24px;
+      color: var(--dim);
+      letter-spacing: 3px;
+    }
+    .news-empty-sub {
+      font-size: 10px;
+      color: var(--dim);
+      letter-spacing: 2px;
+      text-transform: uppercase;
+    }
+    footer {
+      border-top: 1px solid #00f5ff22;
+      padding: 14px 48px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #07070f;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    footer span {
+      font-size: 10px;
+      color: var(--dim);
+      letter-spacing: 2px;
+      text-transform: uppercase;
+    }
+    .blink { animation: blink 1.2s step-end infinite; }
+    @keyframes blink { 50% { opacity: 0; } }
+
+    /* ── MATRIX SECTION ─────────────────────────────────────────── */
+    #matrix-section {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: #000;
+      overflow: hidden;
+      z-index: 100;
+      cursor: pointer;
+    }
+    #matrix-section.active { display: block; }
+    #matrix-canvas { display: block; width: 100%; height: 100%; }
+    #matrix-msg {
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      font-family: 'VT323', monospace;
+      font-size: clamp(28px, 5vw, 52px);
+      color: #00ff41;
+      text-shadow: 0 0 20px #00ff41, 0 0 40px #00ff4188;
+      letter-spacing: 4px;
+      text-align: center;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 1.5s ease;
+    }
+    #matrix-msg.show { opacity: 1; }
+    #matrix-hint {
+      position: absolute;
+      bottom: 28px; left: 50%;
+      transform: translateX(-50%);
+      font-family: 'Space Mono', monospace;
+      font-size: 11px;
+      color: #00ff4188;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 1.5s ease;
+    }
+    #matrix-hint.show { opacity: 1; }
+
+    .page.hidden  { display: none; }
+    #gear-section {
+      display: none;
+      padding: 36px 36px 36px 48px;
+    }
+    @media (max-width: 720px) {
+      #gear-section { padding: 24px; }
+    }
+
+    /* ── MOBILE SOCIAL STRIP ────────────────────────────────────────
+       Sits directly under the nav on mobile — social links always
+       visible without scrolling. Hidden on desktop (sidebar handles it). */
+    .mobile-social-strip {
+      display: none;
+    }
+    @media (max-width: 720px) {
+      .mobile-social-strip {
+        display: flex;
+        justify-content: stretch;
+        background: #0d0d1a;
+        border-bottom: 1px solid #ffffff11;
+      }
+      .mobile-social-strip a {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 12px 4px;
+        text-decoration: none;
+        border-right: 1px solid #ffffff0d;
+        transition: background 0.15s;
+      }
+      .mobile-social-strip a:last-child { border-right: none; }
+      .mobile-social-strip a:hover,
+      .mobile-social-strip a:active { background: #ffffff08; }
+      .mobile-social-strip svg {
+        width: 18px; height: 18px;
+        stroke: currentColor;
+        flex-shrink: 0;
+      }
+      /* Hide sidebar on mobile — strip replaces it */
+      .right-col { display: none; }
+      /* Reduce left-col padding on mobile */
+      .left-col { padding: 24px; }
+    }
+
+    /* ── FRETDLE GAME SECTION ───────────────────────────────────── */
+    #game-section {
+      display: none;
+      padding: 36px 36px 36px 48px;
+      max-width: 600px;
+    }
+    @media (max-width: 720px) { #game-section { padding: 24px; } }
+
+    .game-board {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin: 20px 0;
+    }
+    .game-row {
+      display: flex;
+      gap: 6px;
+    }
+    .game-tile {
+      width: 54px;
+      height: 54px;
+      border: 1px solid var(--dim);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'VT323', monospace;
+      font-size: 28px;
+      color: var(--text);
+      text-transform: uppercase;
+      transition: border-color 0.1s;
+      position: relative;
+      overflow: hidden;
+    }
+    @media (max-width: 400px) {
+      .game-tile { width: 44px; height: 44px; font-size: 24px; }
+    }
+    .game-tile.filled { border-color: var(--muted); }
+    .game-tile.correct {
+      background: #1a4a1a;
+      border-color: #00a550;
+      color: #00ff41;
+      text-shadow: 0 0 8px #00ff4188;
+    }
+    .game-tile.present {
+      background: #4a3a00;
+      border-color: var(--gold);
+      color: var(--gold);
+      text-shadow: 0 0 8px #ffd70088;
+    }
+    .game-tile.absent {
+      background: #1a1a2e;
+      border-color: #33334a;
+      color: #55556a;
+    }
+    @keyframes tileFlip {
+      0%   { transform: rotateX(0deg); }
+      50%  { transform: rotateX(90deg); }
+      100% { transform: rotateX(0deg); }
+    }
+    .game-tile.flip { animation: tileFlip 0.4s ease forwards; }
+
+    @keyframes tilePop {
+      0%   { transform: scale(1); }
+      50%  { transform: scale(1.12); }
+      100% { transform: scale(1); }
+    }
+    .game-tile.pop { animation: tilePop 0.1s ease; }
+
+    @keyframes rowShake {
+      0%, 100% { transform: translateX(0); }
+      20%      { transform: translateX(-6px); }
+      40%      { transform: translateX(6px); }
+      60%      { transform: translateX(-4px); }
+      80%      { transform: translateX(4px); }
+    }
+    .game-row.shake { animation: rowShake 0.4s ease; }
+
+    .game-keyboard {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-top: 16px;
+    }
+    .kb-row {
+      display: flex;
+      gap: 5px;
+      justify-content: center;
+    }
+    .kb-key {
+      font-family: 'Space Mono', monospace;
+      font-size: 11px;
+      padding: 10px 8px;
+      min-width: 32px;
+      background: #1c1c2e;
+      border: 1px solid var(--dim);
+      color: var(--text);
+      cursor: pointer;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      transition: background 0.15s, border-color 0.15s;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+    .kb-key:hover { background: #2a2a3e; border-color: var(--muted); }
+    .kb-key.wide  { min-width: 52px; font-size: 9px; }
+    .kb-key.correct {
+      background: #1a4a1a;
+      border-color: #00a550;
+      color: #00ff41;
+    }
+    .kb-key.present {
+      background: #4a3a00;
+      border-color: var(--gold);
+      color: var(--gold);
+    }
+    .kb-key.absent {
+      background: #111120;
+      border-color: #22223a;
+      color: #33334a;
+    }
+
+    .game-message {
+      font-family: 'VT323', monospace;
+      font-size: 22px;
+      color: var(--cyan);
+      letter-spacing: 3px;
+      min-height: 30px;
+      text-shadow: 0 0 10px #00f5ff88;
+      margin-bottom: 4px;
+    }
+    .game-message.error { color: var(--pink); text-shadow: 0 0 10px #ff2d7888; }
+    .game-message.win   { color: #00ff41;    text-shadow: 0 0 10px #00ff4188; }
+
+    .game-hint {
+      font-size: 10px;
+      color: var(--dim);
+      letter-spacing: 2px;
+      margin-top: 4px;
+      min-height: 16px;
+    }
+
+    .game-controls {
+      display: flex;
+      gap: 10px;
+      margin-top: 16px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+    .game-btn {
+      font-family: 'Space Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      padding: 8px 16px;
+      background: transparent;
+      border: 1px solid var(--cyan);
+      color: var(--cyan);
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .game-btn:hover { background: #00f5ff15; }
+
+    .game-legend {
+      display: flex;
+      gap: 16px;
+      margin-top: 16px;
+      flex-wrap: wrap;
+    }
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 10px;
+      color: var(--muted);
+      letter-spacing: 1px;
+    }
+    .legend-swatch {
+      width: 14px; height: 14px;
+      border: 1px solid;
+      display: inline-block;
+      flex-shrink: 0;
+    }
+    .legend-swatch.correct { background: #1a4a1a; border-color: #00a550; }
+    .legend-swatch.present { background: #4a3a00; border-color: var(--gold); }
+    .legend-swatch.absent  { background: #111120; border-color: #22223a;  }
+
+    .game-stats {
+      display: flex;
+      gap: 20px;
+      margin-top: 8px;
+      flex-wrap: wrap;
+    }
+    .stat-block {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2px;
+    }
+    .stat-num {
+      font-family: 'VT323', monospace;
+      font-size: 28px;
+      color: var(--cyan);
+      text-shadow: 0 0 8px #00f5ff66;
+      line-height: 1;
+    }
+    .stat-label {
+      font-size: 9px;
+      color: var(--dim);
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      text-align: center;
+    }
+
+  </style>
+</head>
+<body>
+  <!-- Cursor glow element — follows mouse on desktop -->
+  <div id="cursor-glow"></div>
+
+  <header id="site-header">
+    <div class="artist-name">CARL WILLIAM MUSIC</div>
+    <div class="artist-tagline">
+      <span class="tagline-word" style="animation-delay: 0.2s">Substance</span>
+      <span class="tagline-word" style="animation-delay: 0.35s">Over</span>
+      <span class="tagline-word" style="animation-delay: 0.5s">Style</span>
+      <span class="tagline-word" style="animation-delay: 0.7s">//</span>
+      <span class="tagline-word" style="animation-delay: 0.85s">No</span>
+      <span class="tagline-word" style="animation-delay: 1.0s">Edits</span>
+      <span class="tagline-word" style="animation-delay: 1.2s">//</span>
+      <span class="tagline-word" style="animation-delay: 1.35s">No</span>
+      <span class="tagline-word" style="animation-delay: 1.5s">Posing</span>
+    </div>
+  </header>
+
+  <nav id="site-nav">
+    <a href="#videos" class="active" id="nav-videos">Originals</a>
+    <a href="#music"  id="nav-music">Covers</a>
+    <a href="#gear"       id="nav-gear">Gear</a>
+    <a href="#about"       id="nav-about">About Me</a>
+    <a href="#shows"       id="nav-shows">Shows</a>
+    <a href="#news"       id="nav-news">News</a>
+    <a href="#fretdle"       id="nav-game">Fretdle</a>
+    <a href="#matrix"       id="nav-matrix">The Matrix</a>
+  </nav>
+
+  <!-- ── MOBILE SOCIAL STRIP ───────────────────────────────────────
+       Visible on mobile only. Icons injected by JS same as sidebar.
+       Driven by _data/social.yml via Liquid loop below.             -->
+  <div class="mobile-social-strip">
+    
+    <a class="yt" href="https://www.youtube.com/@CarlWilliamMusic" data-icon="youtube"
+      target="_blank" rel="noopener"
+      aria-label="YouTube"></a>
+    
+    <a class="ig" href="https://www.instagram.com/carlwilliammusic/" data-icon="instagram"
+      target="_blank" rel="noopener"
+      aria-label="Instagram"></a>
+    
+    <a class="sc" href="https://soundcloud.com/carl-william-music" data-icon="radio"
+      target="_blank" rel="noopener"
+      aria-label="SoundCloud"></a>
+    
+    <a class="gh" href="https://github.com/Ahlers94" data-icon="github"
+      target="_blank" rel="noopener"
+      aria-label="GitHub"></a>
+    
+    <a class="em" href="mailto:wcarlahlers@gmail.com" data-icon="mail"
+      
+      aria-label="wcarlahlers@gmail.com"></a>
+    
+    <a class="vm" href="https://venmo.com/carl-william-music" data-icon="venmo"
+      target="_blank" rel="noopener"
+      aria-label="Venmo"></a>
+    
+  </div>
+
+  <!-- ── MAIN TWO-COLUMN LAYOUT ──────────────────────────────────── -->
+  <div class="page">
+
+    <div class="left-col" id="videos">
+
+      <!-- ── ORIGINALS ─────────────────────────────────────────── -->
+      <div id="originals-section">
+        <div class="section-label">Originals</div>
+
+        <!-- Featured original — large -->
+        
+          
+          <div class="video-featured">
+            <iframe
+              src="https://www.youtube-nocookie.com/embed/3vUA2VvzTKs?enablejsapi=1"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowfullscreen>
+            </iframe>
+          </div>
+          <div class="video-caption">&gt; I Just Want My Soul Cassette Demo</div>
+          
+        
+          
+        
+          
+        
+          
+        
+
+        <!-- Remaining originals — small grid -->
+        
+        
+        <div class="section-label" style="margin-top: 28px;">More Originals</div>
+        <div class="video-grid">
+          
+          <div class="video-small">
+            <iframe
+              src="https://www.youtube-nocookie.com/embed/LSE20O-vyhY?enablejsapi=1"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowfullscreen>
+            </iframe>
+          </div>
+          
+          <div class="video-small">
+            <iframe
+              src="https://www.youtube-nocookie.com/embed/lPXEJwQdX2U?enablejsapi=1"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowfullscreen>
+            </iframe>
+          </div>
+          
+          <div class="video-small">
+            <iframe
+              src="https://www.youtube-nocookie.com/embed/nHmbrdP94zo?enablejsapi=1"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowfullscreen>
+            </iframe>
+          </div>
+          
+        </div>
+        
+
+      </div>
+
+      <!-- ── COVERS (hidden by default, shown via Covers tab) ───── -->
+      <div id="covers-section" style="display:none;">
+        <div class="section-label">Covers</div>
+        <div class="video-grid">
+          
+          <div class="video-small">
+            <iframe
+              src="https://www.youtube-nocookie.com/embed/G_rIFCpkyUU?enablejsapi=1"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowfullscreen>
+            </iframe>
+          </div>
+          
+          <div class="video-small">
+            <iframe
+              src="https://www.youtube-nocookie.com/embed/0FAf-lEccIA?enablejsapi=1"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowfullscreen>
+            </iframe>
+          </div>
+          
+          <div class="video-small">
+            <iframe
+              src="https://www.youtube-nocookie.com/embed/LbIHhegCMRg?enablejsapi=1"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowfullscreen>
+            </iframe>
+          </div>
+          
+          <div class="video-small">
+            <iframe
+              src="https://www.youtube-nocookie.com/embed/ZHmvT4Wj9rY?enablejsapi=1"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowfullscreen>
+            </iframe>
+          </div>
+          
+          <div class="video-small">
+            <iframe
+              src="https://www.youtube-nocookie.com/embed/cYu3SiGDSLU?enablejsapi=1"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowfullscreen>
+            </iframe>
+          </div>
+          
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ── SIDEBAR ──────────────────────────────────────────────── -->
+    <div class="right-col">
+
+      <div class="section-label" id="music">Find Me</div>
+
+      <!-- Social links from _data/social.yml -->
+      <div class="social-links">
+        
+        <a class="social-link yt" href="https://www.youtube.com/@CarlWilliamMusic" data-icon="youtube"
+          target="_blank" rel="noopener">
+          YouTube
+        </a>
+        
+        <a class="social-link ig" href="https://www.instagram.com/carlwilliammusic/" data-icon="instagram"
+          target="_blank" rel="noopener">
+          Instagram
+        </a>
+        
+        <a class="social-link sc" href="https://soundcloud.com/carl-william-music" data-icon="radio"
+          target="_blank" rel="noopener">
+          SoundCloud
+        </a>
+        
+        <a class="social-link gh" href="https://github.com/Ahlers94" data-icon="github"
+          target="_blank" rel="noopener">
+          GitHub
+        </a>
+        
+        <a class="social-link em" href="mailto:wcarlahlers@gmail.com" data-icon="mail"
+          >
+          wcarlahlers@gmail.com
+        </a>
+        
+        <a class="social-link vm" href="https://venmo.com/carl-william-music" data-icon="venmo"
+          target="_blank" rel="noopener">
+          Venmo
+        </a>
+        
+      </div>
+
+      <div class="bio-box">
+        <div class="section-label">About</div>
+        <p class="bio-text" id="bio-decrypt">🎸 Guitarist | 🎛️ Live Looping Artist | 🔊 Crafting full-band soundscapes</p>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ── GEAR SECTION (shown via nav tab) ──────────────────────── -->
+  <div id="gear-section">
+    <div class="section-label">The Rig</div>
+    <div class="gear-grid">
+      
+      <div class="gear-item">
+        
+          <img src="photos/pi-rig.jpg" alt="Raspberry Pi Pedalboard">
+        
+        <div class="gear-label">Raspberry Pi Pedalboard</div>
+        <div class="gear-desc">My latest creation. The brain is a Raspberry Pi 4 in a Desk Pi Pro case running Patchbox OS with MODEP. The interface is a Focusrite 2i4 2nd gen. The controls are a Linemaster USB footswitch and a USB Numpad. All powered by an Anker USB battery bank. <a href="pi-rig.html" style="color:#00f5ff;letter-spacing:2px;font-size:10px;">LEARN MORE →</a>
+</div>
+      </div>
+      
+      <div class="gear-item">
+        
+          <img src="photos/telecaster.jpg" alt="Telecaster">
+        
+        <div class="gear-label">Telecaster</div>
+        <div class="gear-desc">Me with my Telecaster practicing at the storage bins, 2014.
+</div>
+      </div>
+      
+      <div class="gear-item">
+        
+          <img src="photos/fullerton.jpg" alt="Fullerton">
+        
+        <div class="gear-label">Fullerton</div>
+        <div class="gear-desc">Me with my first guitar jamming in a friend's backyard, 2007.
+</div>
+      </div>
+      
+      <div class="gear-item">
+        
+          <div class="gear-photo-placeholder">[ PHOTO COMING SOON ]</div>
+        
+        <div class="gear-label">Power & Transport</div>
+        <div class="gear-desc">Bike-mobile. Battery powered. Self-contained. The logistics of the operation.
+</div>
+      </div>
+      
+    </div>
+  </div>
+<!-- ── ABOUT ME SECTION ──────────────────────────────────────── -->
+<div id="about-section" style="display:none;">
+  <div class="section-label">About Me</div>
+  <div class="about-content">
+    <div class="bio-text">
+      <p>Musicians aren’t duplicating my rig for a straightforward reason: 
+putting it together requires skills across three distinct technical disciplines.</p>
+
+<p>To build what I have, a person must simultaneously act as an audio engineer, 
+a hardware systems builder, and a software developer.</p>
+
+<p>The vast majority of guitarists want plug-and-play simplicity. I want to explore sonic possibilities.</p>
+
+    </div>
+  </div>
+</div>
+
+  <!-- ── SHOWS SECTION ─────────────────────────────────────────── -->
+  <div id="shows-section" style="display:none;">
+    <div class="section-label">Upcoming Shows</div>
+    <div class="shows-list">
+
+      
+        
+        <div class="show-item">
+          <div class="show-date">TBA</div>
+          <div class="show-details">
+            <div class="show-venue">Local Brewery Tour</div>
+            <div class="show-location">South Jersey Area</div>
+            <div class="show-time">Evening // Check back for confirmed dates.</div>
+          </div>
+        </div>
+        
+      
+
+    </div>
+
+    <!-- Past shows -->
+    
+    <div class="section-label" style="margin-top: 36px;">Past Shows</div>
+    <div class="shows-list">
+      
+      <div class="show-item">
+        <div class="show-date">2025</div>
+        <div class="show-details">
+          <div class="show-venue">Carl's debut at Tanner</div>
+          <div class="show-location">Tanner Brewing Company</div>
+        </div>
+      </div>
+      
+      <div class="show-item">
+        <div class="show-date">2025</div>
+        <div class="show-details">
+          <div class="show-venue">Collingswood Porchfest</div>
+          <div class="show-location">Haddon Ave. Collingswood, NJ</div>
+        </div>
+      </div>
+      
+    </div>
+    
+
+    <!-- Contact block — booking inquiries -->
+    <div class="shows-contact">
+      <div class="section-label" style="margin-top: 36px;">Booking & Inquiries</div>
+      <p class="bio-text" style="margin-bottom: 14px;">Want to book Carl William Music for your venue, event, or session? Get in touch directly.</p>
+      <a href="mailto:wcarlahlers@gmail.com" class="social-link em" data-icon="mail" style="display: inline-flex; margin-top: 8px;">
+        wcarlahlers@gmail.com
+      </a>
+    </div>
+
+  </div>
+
+  <!-- ── NEWS / BLOG SECTION ──────────────────────────────────────
+       Driven by _data/posts.yml. Required fields: title, date, body.
+       Optional: tag (show|release|update|gear), venue, gear[], setlist[] -->
+  <div id="news-section" style="display:none;">
+    <div class="section-label">News</div>
+    <div class="post-list">
+
+      
+        
+        <div class="post-card">
+          <div class="post-header">
+            <div class="post-date">12-27-2025</div>
+            <div class="post-title">Debut at Tanner Brewing</div>
+            <span class="post-tag show">show</span>
+          </div>
+          <p class="post-body">First gig at Tanner Brewing Company, Haddon Heights, NJ. Played two 1-hour sets. Gig was short notice -- got the offer at 1:30PM, showtime 7PM. Made up a social media post by 2PM and blasted out notifications. Good crowd, about a dozen people showed up on a Saturday night in the snow. Unfortunately forgot to hit record for one set.</p>
+
+          
+          <div class="post-meta">
+
+            
+            <div>
+              <div class="post-meta-label">Venue</div>
+              <div class="post-venue">Tanner Brewing Company, Haddon Heights NJ</div>
+            </div>
+            
+
+            
+            <div>
+              <div class="post-meta-label">Gear Used</div>
+              <div class="post-gear-list">
+                
+                <span class="post-gear-tag">Taylor Baby tuned down a whole step</span>
+                
+                <span class="post-gear-tag">Carlo Robelli Electric (standard tuning)</span>
+                
+                <span class="post-gear-tag">Line 6 DL4</span>
+                
+                <span class="post-gear-tag">2 Boss BCB-20 boards powered by 1x 18650 cell with buck booster to 9V</span>
+                
+                <span class="post-gear-tag">Boss TU-2, NS-2, CS-3, OD-2, OC-3, CH-1, RC-2</span>
+                
+                <span class="post-gear-tag">Casio VL-1</span>
+                
+              </div>
+            </div>
+            
+
+            
+
+          </div>
+          
+
+          
+
+        </div>
+        
+        <div class="post-card">
+          <div class="post-header">
+            <div class="post-date">9-27-2025</div>
+            <div class="post-title">Collingswood Porchfest</div>
+            <span class="post-tag show">show</span>
+          </div>
+          <p class="post-body">First real outdoor show with the full rig. Brought my speaker, 4 channel mixing board, Carlo Robelli electric, full pedalboard and played for an hour straight. Had a lot of fun, great crowd!</p>
+
+          
+          <div class="post-meta">
+
+            
+            <div>
+              <div class="post-meta-label">Venue</div>
+              <div class="post-venue">Haddon Ave, Collingswood NJ</div>
+            </div>
+            
+
+            
+            <div>
+              <div class="post-meta-label">Gear Used</div>
+              <div class="post-gear-list">
+                
+                <span class="post-gear-tag">Carlo Robelli electric guitar</span>
+                
+                <span class="post-gear-tag">Line 6 DL4</span>
+                
+                <span class="post-gear-tag">2 Boss BCB-20 boards powered by 1x 18650 cell with buck booster to 9V</span>
+                
+                <span class="post-gear-tag">Boss TU-2, NS-2, CS-3, OD-2, OC-3, CH-1, RC-2</span>
+                
+                <span class="post-gear-tag">Danelectro modulation pedalboard with Tuna Melt Tremolo, Chicken Salad Vibrato, Hash Browns Flanger, Rocky Road Spinning Speaker, and PB&J Delay</span>
+                
+                <span class="post-gear-tag">Casio VL-1</span>
+                
+                <span class="post-gear-tag">Yamaha DD-7</span>
+                
+              </div>
+            </div>
+            
+
+            
+            <div>
+              <div class="post-meta-label">Setlist</div>
+              <ol class="post-setlist">
+                
+                <li>Nirvana - Smells Like Teen Spirit</li>
+                
+                <li>Gorillaz - Feel Good Inc.</li>
+                
+                <li>Pink Floyd - Breathe</li>
+                
+                <li>Pink Floyd - Time</li>
+                
+                <li>I Just Want My Soul (original song)</li>
+                
+                <li>Huey Lewis and the News - The Power of Love</li>
+                
+                <li>Radiohead - 15 Step</li>
+                
+                <li>Soul Coughing - The Idiot Kings</li>
+                
+                <li>Kate Bush - Cloudbusting</li>
+                
+              </ol>
+            </div>
+            
+
+          </div>
+          
+
+          
+          <div class="post-video">
+            <div class="post-meta-label" style="margin-top: 16px; padding-top: 14px; border-top: 1px solid #ffffff0d;">Video</div>
+            <div class="video-small" style="margin-top: 8px;">
+              <iframe
+                src="https://www.youtube-nocookie.com/embed/2cAmtIYPzU4?enablejsapi=1"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowfullscreen>
+              </iframe>
+            </div>
+          </div>
+          
+
+        </div>
+        
+      
+
+    </div>
+  </div>
+
+  <!-- ── FRETDLE GAME SECTION ──────────────────────────────────────
+       Music-vocabulary Wordle. Nav tab: "Fretdle"                   -->
+  <div id="game-section" style="display:none;">
+    <div class="section-label">Fretdle</div>
+    <div class="game-message" id="game-msg">&gt; GUESS THE 5-LETTER MUSIC WORD</div>
+    <div class="game-hint" id="game-hint">6 attempts &nbsp;//&nbsp; green = right spot &nbsp;//&nbsp; gold = wrong spot</div>
+
+    <div class="game-board" id="game-board"></div>
+
+    <div class="game-legend">
+      <div class="legend-item"><span class="legend-swatch correct"></span> Right spot</div>
+      <div class="legend-item"><span class="legend-swatch present"></span> Wrong spot</div>
+      <div class="legend-item"><span class="legend-swatch absent"></span> Not in word</div>
+    </div>
+
+    <div class="game-keyboard" id="game-keyboard">
+      <div class="kb-row" data-keys="QWERTYUIOP"></div>
+      <div class="kb-row" data-keys="ASDFGHJKL"></div>
+      <div class="kb-row" data-keys="↵ZXCVBNM⌫"></div>
+    </div>
+
+    <div class="game-controls">
+      <button class="game-btn" id="game-new-btn">New Word</button>
+      <div class="game-stats">
+        <div class="stat-block"><div class="stat-num" id="stat-played">0</div><div class="stat-label">Played</div></div>
+        <div class="stat-block"><div class="stat-num" id="stat-won">0</div><div class="stat-label">Won</div></div>
+        <div class="stat-block"><div class="stat-num" id="stat-streak">0</div><div class="stat-label">Streak</div></div>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <span>Carl William Music &copy; 2026</span>
+    <span>
+     <img src="https://api.visitorbadge.io/api/visitors?path=https://ahlers94.github.io/carl-william-music&labelColor=%23555555&countColor=%23263759&label=visitors" alt="Visitors">  </span>
+    <span>Hosted on GitHub Pages <span class="blink">_</span></span>
+  </footer>
+
+  <!-- ── MATRIX OVERLAY ────────────────────────────────────────── -->
+  <div id="matrix-section" role="button" aria-label="Exit Matrix mode">
+    <canvas id="matrix-canvas"></canvas>
+    <div id="matrix-msg">WAKE UP, NEO...<br>THE MUSIC HAS YOU.</div>
+    <div id="matrix-hint">[ click, tap, or press any key to exit ]</div>
+  </div>
+
+  <script>
+    // ── CURSOR GLOW ───────────────────────────────────────────────
+    const cursorGlow = document.getElementById('cursor-glow');
+    document.addEventListener('mousemove', e => {
+      cursorGlow.style.left = e.clientX + 'px';
+      cursorGlow.style.top  = e.clientY + 'px';
+    });
+
+
+// ── UPDATED ELEMENT SELECTORS ──────────────────────────────────────────
+const page             = document.querySelector('.page'); 
+const gearSection      = document.getElementById('gear-section');
+const aboutSection     = document.getElementById('about-section');
+const showsSection     = document.getElementById('shows-section');
+const newsSection      = document.getElementById('news-section');
+const gameSection      = document.getElementById('game-section');
+const matrixSection    = document.getElementById('matrix-section');
+
+// These IDs are inside the .page grid, keep them as is
+const originalsSection = document.getElementById('originals-section');
+const coversSection    = document.getElementById('covers-section');
+
+    // Selectors for Matrix/Navigation
+    const siteHeader     = document.getElementById('site-header');
+    const siteNav        = document.getElementById('site-nav');
+    const matrixEl       = document.getElementById('matrix-section');
+    const matrixMsg      = document.getElementById('matrix-msg');
+    const matrixHint     = document.getElementById('matrix-hint');
+    const allNavLinks    = document.querySelectorAll('nav a');
+    
+    // ── TAGLINE RANDOM FLICKER ────────────────────────────────────
+    const taglineWords = document.querySelectorAll('.tagline-word');
+    function randomFlicker() {
+      const word = taglineWords[Math.floor(Math.random() * taglineWords.length)];
+      word.classList.add('flickering');
+      word.addEventListener('animationend', () => word.classList.remove('flickering'), { once: true });
+      setTimeout(randomFlicker, 8000 + Math.random() * 2000);
+    }
+    setTimeout(randomFlicker, 4000);
+
+    // ── TAB CONTENT FADE-IN ───────────────────────────────────────
+    function fadeInSection(id) {
+      const el = document.getElementById(id);
+      if (!el) return;
+      el.classList.remove('tab-fade');
+      void el.offsetWidth;
+      el.classList.add('tab-fade');
+    }
+
+    // ── AUTO-PAUSE ALL YOUTUBE IFRAMES ───────────────────────────
+    function pauseAllVideos() {
+      document.querySelectorAll('iframe').forEach(iframe => {
+        try {
+          iframe.contentWindow.postMessage(
+            JSON.stringify({ event: 'command', func: 'pauseVideo', args: [] }),
+            '*'
+          );
+        } catch (e) {}
+      });
+    }
+
+    // ── GEAR CARD EXPAND ─────────────────────────────────────────
+    document.querySelectorAll('.gear-item').forEach(item => {
+      item.addEventListener('click', () => item.classList.toggle('open'));
+    });
+
+    // Icons injected directly — no CDN dependency.
+    const iconMap = {
+      youtube:   `<svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 17a24.12 24.12 0 0 1 0-10 2 2 0 0 1 1.4-1.4 49.56 49.56 0 0 1 16.2 0A2 2 0 0 1 21.5 7a24.12 24.12 0 0 1 0 10 2 2 0 0 1-1.4 1.4 49.55 49.55 0 0 1-16.2 0A2 2 0 0 1 2.5 17"/><polygon points="10 15 15 12 10 9"/></svg>`,
+      instagram: `<svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="20" x="2" y="2" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" x2="17.51" y1="6.5" y2="6.5"/></svg>`,
+      radio:     `<svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4.9 19.1C1 15.2 1 8.8 4.9 4.9"/><path d="M7.8 16.2c-2.3-2.3-2.3-6.1 0-8.5"/><circle cx="12" cy="12" r="2"/><path d="M16.2 7.8c2.3 2.3 2.3 6.1 0 8.5"/><path d="M19.1 4.9C23 8.8 23 15.2 19.1 19.1"/></svg>`,
+      github:    `<svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"/><path d="M9 18c-4.51 2-5-2-7-2"/></svg>`,
+      mail:      `<svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>`,
+      venmo:     `<svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>`
+    };
+
+    document.querySelectorAll('[data-icon]').forEach(el => {
+      const icon = el.getAttribute('data-icon');
+      if (icon && iconMap[icon]) {
+        el.insertAdjacentHTML('afterbegin', iconMap[icon]);
+      }
+    });
+
+// ── NAV SWITCHING (ROUTER) ─────────────────────────────────────────────
+const sections = {
+    'videos':  () => showPage('originals'),
+    'music':   () => showPage('covers'),
+    'gear':    showGear,
+    'about':   showAbout,
+    'shows':   showShows,
+    'news':    showNews,
+    'fretdle': showGame,
+    'matrix':  showMatrix
+};
+
+function handleRouting() {
+    const hash = window.location.hash.replace('#', '') || 'videos';
+
+    allNavLinks.forEach(l => {
+        l.classList.remove('active');
+        if (l.getAttribute('href') === `#${hash}`) l.classList.add('active');
+    });
+
+    if (sections[hash]) {
+        sections[hash]();
+    } else {
+        sections['videos']();
+    }
+}
+
+window.addEventListener('hashchange', handleRouting);
+window.addEventListener('load', handleRouting);
+// ── UPDATED UI HELPER FUNCTIONS ────────────────────────────────────────
+
+function hideAll() {
+    // Tear down matrix if it was running
+    siteHeader.style.display = '';
+    siteNav.style.display    = '';
+    if (matrixEl.classList.contains('active')) {
+        matrixEl.classList.remove('active');
+        matrixMsg.classList.remove('show');
+        matrixHint.classList.remove('show');
+        if (typeof matrixRunning !== 'undefined' && matrixRunning) {
+            matrixRunning = false;
+            cancelAnimationFrame(animFrame);
+        }
+    }
+
+    // Hide the main video grid
+    if (page) {
+        page.classList.add('hidden');
+        page.style.display = 'none';
+    }
+
+    // Hide all standalone sections
+    const allSections = [gearSection, aboutSection, showsSection, newsSection, gameSection];
+    allSections.forEach(sec => {
+        if (sec) {
+            sec.style.display = 'none';
+            sec.classList.remove('tab-fade');
+        }
+    });
+}
+// Fixed helper functions to use the correct variables and matching IDs
+function showGear()  { pauseAllVideos(); hideAll(); gearSection.style.display = 'block'; fadeInSection('gear-section'); }
+function showAbout() { pauseAllVideos(); hideAll(); aboutSection.style.display = 'block'; fadeInSection('about-section'); }
+function showShows() { pauseAllVideos(); hideAll(); showsSection.style.display = 'block'; fadeInSection('shows-section'); }
+function showNews()  { pauseAllVideos(); hideAll(); newsSection.style.display = 'block'; fadeInSection('news-section'); }
+function showGame()  { pauseAllVideos(); hideAll(); gameSection.style.display = 'block'; fadeInSection('game-section'); }
+
+function showPage(section) {
+    pauseAllVideos();
+    hideAll(); 
+    
+    page.classList.remove('hidden');
+    page.style.display = 'block'; 
+    
+    const isCovers = (section === 'covers');
+    if (originalsSection) originalsSection.style.display = isCovers ? 'none' : 'block';
+    if (coversSection) coversSection.style.display = isCovers ? 'block' : 'none';
+    
+    fadeInSection(isCovers ? 'covers-section' : 'originals-section');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+
+        // ── SHOW MATRIX ───────────────────────────────────────────────
+    function showMatrix() {
+      pauseAllVideos();
+      hideAll();
+      siteHeader.style.display = 'none';
+      siteNav.style.display    = 'none';
+      matrixEl.classList.add('active');
+      if (!matrixRunning) startMatrix();
+      setTimeout(() => {
+        matrixMsg.classList.add('show');
+        matrixHint.classList.add('show');
+      }, 1800);
+    }
+
+    // ── EXIT MATRIX — update the hash; router does the rest ───────
+    function exitMatrix() {
+      if (!matrixEl.classList.contains('active')) return;
+      window.location.hash = '#videos';
+    }
+
+    matrixEl.addEventListener('click', exitMatrix);
+    document.addEventListener('keydown', function(e) {
+      if (gameSection.style.display !== 'none') return;
+      exitMatrix();
+    });
+    // ── MATRIX RAIN ───────────────────────────────────────────────
+    function startMatrix() {
+      matrixRunning = true;
+      const canvas = document.getElementById('matrix-canvas');
+      const ctx    = canvas.getContext('2d');
+      const chars  = 'アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲン0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+      const fontSize = 16;
+      let cols, drops;
+
+      function resize() {
+        canvas.width  = canvas.offsetWidth;
+        canvas.height = canvas.offsetHeight;
+        cols  = Math.floor(canvas.width / fontSize);
+        drops = Array(cols).fill(1);
+      }
+      resize();
+      window.addEventListener('resize', resize);
+
+      function draw() {
+        if (!matrixRunning) return;
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.font = fontSize + 'px VT323, monospace';
+        drops.forEach((y, i) => {
+          ctx.fillStyle = Math.random() > 0.95 ? '#ccffcc' : '#00ff41';
+          ctx.fillText(chars[Math.floor(Math.random() * chars.length)], i * fontSize, y * fontSize);
+          if (y * fontSize > canvas.height && Math.random() > 0.975) drops[i] = 0;
+          drops[i]++;
+        });
+        animFrame = requestAnimationFrame(draw);
+      }
+      draw();
+    }
+
+    // ── BIO DECRYPT ANIMATION ─────────────────────────────────────
+    (function decryptBio() {
+      const el     = document.getElementById('bio-decrypt');
+      const target = el.textContent.trim();
+      const pool   = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*';
+      const segments = [...target];
+      const locked   = new Array(segments.length).fill(false);
+      let resolved   = 0;
+      let lastTime   = 0;
+      const msPerChar = 55;
+
+      function isSpecial(ch) { return ch.trim() === '' || /[^\x00-\x7F]/.test(ch); }
+      function randChar()    { return pool[Math.floor(Math.random() * pool.length)]; }
+      function render() {
+        return segments.map((ch, i) => (locked[i] || isSpecial(ch)) ? ch : randChar()).join('');
+      }
+
+      function tick(timestamp) {
+        if (resolved >= segments.length) { el.textContent = target; return; }
+        if (timestamp - lastTime >= msPerChar) {
+          for (let i = 0; i < segments.length; i++) {
+            if (!locked[i]) { locked[i] = true; resolved++; break; }
+          }
+          lastTime = timestamp;
+        }
+        el.textContent = render();
+        requestAnimationFrame(tick);
+      }
+      setTimeout(() => requestAnimationFrame(tick), 600);
+    })();
+// ── FRETDLE — MUSIC WORDLE ────────────────────────────────────
+(function() {
+  // 1. DATA LOADING
+  // Pull from both YAML files
+  const musicSource = ["chord","scale","pitch","tempo","beats","tonic","triad","major","minor","modal","notes","modes","staff","sharp","drone","pulse","meter","rests","fifth","banjo","piano","viola","flute","drums","pedal","capos","tuner","picks","knobs","slide","frets","strap","reeds","baton","bells","brass","cello","licks","riffs","swing","blues","forte","largo","strum","pluck","trill","muted","swell","grind","blend","growl","stomp","track","takes","stems","noise","punch","patch","buses","delay","loops","level","phase","boost","notch","sweep","plate","abbey","indie","metal","roots","funky","bossa","polka","mambo","waltz","bands","tunes","sonic","songs","vocal","lyric","score","album","venue","stage","choir","duets","solos","canon","fugue","rondo","suite","motif","clave","synth","voice","atone","organ","sitar","bugle","tubas","pipes","shred","vibes","tabla","audio","mixer","outro","intro","dance","disco","opera","flats","media","sound","radio"] || [];
+  const extraSource = ["aback","abase","abate","abbey","abbot","abhor","abide","abled","abode","abort","about","above","abuse","abyss","acorn","acrid","actor","acute","adage","adapt","adept","admin","admit","adobe","adopt","adore","adorn","adult","affix","afire","afoot","afoul","after","again","agape","agate","agent","agile","aging","aglow","agony","agora","agree","ahead","aider","aisle","alarm","album","alert","algae","alibi","alien","align","alike","alive","allay","alley","allot","allow","alloy","aloft","alone","along","aloof","aloud","alpha","altar","alter","amass","amaze","amber","amble","amend","amiss","amity","among","ample","amply","amuse","angel","anger","angle","angry","angst","anime","ankle","annex","annoy","annul","anode","antic","anvil","aorta","apart","aphid","aping","apnea","apple","apply","apron","aptly","arbor","ardor","arena","argue","arise","armor","aroma","arose","array","arrow","arson","artsy","ascot","ashen","aside","askew","assay","asset","atoll","atone","attic","audio","audit","augur","aunty","avail","avert","avian","avoid","await","awake","award","aware","awash","awful","awoke","axial","axiom","axion","azure","bacon","badge","badly","bagel","baggy","baker","baler","balmy","banal","banjo","barge","baron","basal","basic","basil","basin","basis","baste","batch","bathe","baton","batty","bawdy","bayou","beach","beady","beard","beast","beech","beefy","befit","began","begat","beget","begin","begun","being","belch","belie","belle","belly","below","bench","beret","berry","berth","beset","betel","bevel","bezel","bible","bicep","biddy","bigot","bilge","billy","binge","bingo","biome","birch","birth","bison","bitty","black","blade","blame","bland","blank","blare","blast","blaze","bleak","bleat","bleed","bleep","blend","bless","blimp","blind","blink","bliss","blitz","bloat","block","bloke","blond","blood","bloom","blown","bluer","bluff","blunt","blurb","blurt","blush","board","boast","bobby","boney","bongo","bonus","booby","boost","booth","booty","booze","boozy","borax","borne","bosom","bossy","botch","bough","boule","bound","bowel","boxer","brace","braid","brain","brake","brand","brash","brass","brave","bravo","brawl","brawn","bread","break","breed","briar","bribe","brick","bride","brief","brine","bring","brink","briny","brisk","broad","broil","broke","brood","brook","broom","broth","brown","brunt","brush","brute","buddy","budge","buggy","bugle","build","built","bulge","bulky","bully","bunch","bunny","burly","burnt","burst","bused","bushy","butch","butte","buxom","buyer","bylaw","cabal","cabby","cabin","cable","cacao","cache","cacti","caddy","cadet","cagey","cairn","camel","cameo","canal","candy","canny","canoe","canon","caper","caput","carat","cargo","carol","carry","carve","caste","catch","cater","catty","caulk","cause","cavil","cease","cedar","cello","chafe","chaff","chain","chair","chalk","champ","chant","chaos","chard","charm","chart","chase","chasm","cheap","cheat","check","cheek","cheer","chess","chest","chick","chide","chief","child","chili","chill","chime","china","chirp","chock","choir","choke","chord","chore","chose","chuck","chump","chunk","churn","chute","cider","cigar","cinch","circa","civic","civil","clack","claim","clamp","clang","clank","clash","clasp","class","clean","clear","cleat","cleft","clerk","click","cliff","climb","cling","clink","cloak","clock","clone","close","cloth","cloud","clout","clove","clown","cluck","clued","clump","clung","coach","coast","cobra","cocoa","colon","color","comet","comfy","comic","comma","conch","condo","conic","copse","coral","corer","corny","couch","cough","could","count","coupe","court","coven","cover","covet","covey","cower","coyly","crack","craft","cramp","crane","crank","crash","crass","crate","crave","crawl","craze","crazy","creak","cream","credo","creed","creek","creep","creme","crepe","crept","cress","crest","crick","cried","crier","crime","crimp","crisp","croak","crock","crone","crony","crook","cross","croup","crowd","crown","crude","cruel","crumb","crump","crush","crust","crypt","cubic","cumin","curio","curly","curry","curse","curve","curvy","cutie","cyber","cycle","cynic","daddy","daily","dairy","daisy","dally","dance","dandy","datum","daunt","dealt","death","debar","debit","debug","debut","decal","decay","decor","decoy","decry","defer","deign","deity","delay","delta","delve","demon","demur","denim","dense","depot","depth","derby","deter","detox","deuce","devil","diary","dicey","digit","dilly","dimly","diner","dingo","dingy","diode","dirge","dirty","disco","ditch","ditto","ditty","diver","dizzy","dodge","dodgy","dogma","doing","dolly","donor","donut","dopey","doubt","dough","dowdy","dowel","downy","dowry","dozen","draft","drain","drake","drama","drank","drape","drawl","drawn","dread","dream","dress","dried","drier","drift","drill","drink","drive","droit","droll","drone","drool","droop","dross","drove","drown","druid","drunk","dryer","dryly","duchy","dully","dummy","dumpy","dunce","dusky","dusty","dutch","duvet","dwarf","dwell","dwelt","dying","eager","eagle","early","earth","easel","eaten","eater","ebony","eclat","edict","edify","eerie","egret","eight","eject","eking","elate","elbow","elder","elect","elegy","elfin","elide","elite","elope","elude","email","embed","ember","emcee","empty","enact","endow","enema","enemy","enjoy","ennui","ensue","enter","entry","envoy","epoch","epoxy","equal","equip","erase","erect","erode","error","erupt","essay","ester","ether","ethic","ethos","etude","evade","event","every","evict","evoke","exact","exalt","excel","exert","exile","exist","expel","extol","extra","exult","eying","fable","facet","faint","fairy","faith",false,"fancy","fanny","farce","fatal","fatty","fault","fauna","favor","feast","fecal","feign","fella","felon","femme","femur","fence","feral","ferry","fetal","fetch","fetid","fetus","fever","fewer","fiber","fibre","ficus","field","fiend","fiery","fifth","fifty","fight","filer","filet","filly","filmy","filth","final","finch","finer","first","fishy","fixer","fizzy","fjord","flack","flail","flair","flake","flaky","flame","flank","flare","flash","flask","fleck","fleet","flesh","flick","flier","fling","flint","flirt","float","flock","flood","floor","flora","floss","flour","flout","flown","fluff","fluid","fluke","flume","flung","flunk","flush","flute","flyer","foamy","focal","focus","foggy","foist","folio","folly","foray","force","forge","forgo","forte","forth","forty","forum","found","foyer","frail","frame","frank","fraud","freak","freed","freer","fresh","friar","fried","frill","frisk","fritz","frock","frond","front","frost","froth","frown","froze","fruit","fudge","fugue","fully","fungi","funky","funny","furor","furry","fussy","fuzzy","gaffe","gaily","gamer","gamma","gamut","gassy","gaudy","gauge","gaunt","gauze","gavel","gawky","gayer","gayly","gazer","gecko","geeky","geese","genie","genre","ghost","ghoul","giant","giddy","gipsy","girly","girth","given","giver","glade","gland","glare","glass","glaze","gleam","glean","glide","glint","gloat","globe","gloom","glory","gloss","glove","glyph","gnash","gnome","godly","going","golem","golly","gonad","goner","goody","gooey","goofy","goose","gorge","gouge","gourd","grace","grade","graft","grail","grain","grand","grant","grape","graph","grasp","grass","grate","grave","gravy","graze","great","greed","green","greet","grief","grill","grime","grimy","grind","gripe","groan","groin","groom","grope","gross","group","grout","grove","growl","grown","gruel","gruff","grunt","guard","guava","guess","guest","guide","guild","guile","guilt","guise","gulch","gully","gumbo","gummy","guppy","gusto","gusty","gypsy","habit","hairy","halve","handy","happy","hardy","harem","harpy","harry","harsh","haste","hasty","hatch","hater","haunt","haute","haven","havoc","hazel","heady","heard","heart","heath","heave","heavy","hedge","hefty","heist","helix","hello","hence","heron","hilly","hinge","hippo","hippy","hitch","hoard","hobby","hoist","holly","homer","honey","honor","horde","horny","horse","hotel","hotly","hound","house","hovel","hover","howdy","human","humid","humor","humph","humus","hunch","hunky","hurry","husky","hussy","hutch","hydro","hyena","hymen","hyper","icily","icing","ideal","idiom","idiot","idler","idyll","igloo","iliac","image","imbue","impel","imply","inane","inbox","incur","index","inept","inert","infer","ingot","inlay","inlet","inner","input","inter","intro","ionic","irate","irony","islet","issue","itchy","ivory","jaunt","jazzy","jelly","jerky","jetty","jewel","jiffy","joint","joist","joker","jolly","joust","judge","juice","juicy","jumbo","jumpy","junta","junto","juror","kappa","karma","kayak","kebab","khaki","kinky","kiosk","kitty","knack","knave","knead","kneed","kneel","knelt","knife","knock","knoll","known","koala","krill","label","labor","laden","ladle","lager","lance","lanky","lapel","lapse","large","larva","lasso","latch","later","lathe","latte","laugh","layer","leach","leafy","leaky","leant","leapt","learn","lease","leash","least","leave","ledge","leech","leery","lefty","legal","leggy","lemon","lemur","leper","level","lever","libel","liege","light","liken","lilac","limbo","limit","linen","liner","lingo","lipid","lithe","liver","livid","llama","loamy","loath","lobby","local","locus","lodge","lofty","logic","login","loopy","loose","lorry","loser","louse","lousy","lover","lower","lowly","loyal","lucid","lucky","lumen","lumpy","lunar","lunch","lunge","lupus","lurch","lurid","lusty","lying","lymph","lynch","lyric","macaw","macho","macro","madam","madly","mafia","magic","magma","maize","major","maker","mambo","mamma","mammy","manga","mange","mango","mangy","mania","manic","manly","manor","maple","march","marry","marsh","mason","masse","match","matey","mauve","maxim","maybe","mayor","mealy","meant","meaty","mecca","medal","media","medic","melee","melon","mercy","merge","merit","merry","metal","meter","metro","micro","midge","midst","might","milky","mimic","mince","miner","minim","minor","minty","minus","mirth","miser","missy","mocha","modal","model","modem","mogul","moist","molar","moldy","money","month","moody","moose","moral","moron","morph","mossy","motel","motif","motor","motto","moult","mound","mount","mourn","mouse","mouth","mover","movie","mower","mucky","mucus","muddy","mulch","mummy","munch","mural","murky","mushy","music","musky","musty","myrrh","nadir","naive","nanny","nasal","nasty","natal","naval","navel","needy","neigh","nerdy","nerve","never","newer","newly","nicer","niche","niece","night","ninja","ninny","ninth","noble","nobly","noise","noisy","nomad","noose","north","nosey","notch","novel","nudge","nurse","nutty","nylon","nymph","oaken","obese","occur","ocean","octal","octet","odder","oddly","offal","offer","often","olden","older","olive","ombre","omega","onion","onset","opera","opine","opium","optic","orbit","order","organ","other","otter","ought","ounce","outdo","outer","outgo","ovary","ovate","overt","ovine","ovoid","owing","owner","oxide","ozone","paddy","pagan","paint","paler","palsy","panel","panic","pansy","papal","paper","parer","parka","parry","parse","party","pasta","paste","pasty","patch","patio","patsy","patty","pause","payee","payer","peace","peach","pearl","pecan","pedal","penal","pence","penne","penny","perch","peril","perky","pesky","pesto","petal","petty","phase","phone","phony","photo","piano","picky","piece","piety","piggy","pilot","pinch","piney","pinky","pinto","piper","pique","pitch","pithy","pivot","pixel","pixie","pizza","place","plaid","plain","plait","plane","plank","plant","plate","plaza","plead","pleat","plied","plier","pluck","plumb","plume","plump","plunk","plush","poesy","point","poise","poker","polar","polka","polyp","pooch","poppy","porch","poser","posit","posse","pouch","pound","pouty","power","prank","prawn","preen","press","price","prick","pride","pried","prime","primo","print","prior","prism","privy","prize","probe","prone","prong","proof","prose","proud","prove","prowl","proxy","prude","prune","psalm","pubic","pudgy","puffy","pulpy","pulse","punch","pupal","pupil","puppy","puree","purer","purge","purse","pushy","putty","pygmy","quack","quail","quake","qualm","quark","quart","quash","quasi","queen","queer","quell","query","quest","queue","quick","quiet","quill","quilt","quirk","quite","quota","quote","quoth","rabbi","rabid","racer","radar","radii","radio","rainy","raise","rajah","rally","ralph","ramen","ranch","randy","range","rapid","rarer","raspy","ratio","ratty","raven","rayon","razor","reach","react","ready","realm","rearm","rebar","rebel","rebus","rebut","recap","recur","recut","reedy","refer","refit","regal","rehab","reign","relax","relay","relic","remit","renal","renew","repay","repel","reply","rerun","reset","resin","retch","retro","retry","reuse","revel","revue","rhino","rhyme","rider","ridge","rifle","right","rigid","rigor","rinse","ripen","riper","risen","riser","risky","rival","river","rivet","roach","roast","robin","robot","rocky","rodeo","roger","rogue","roomy","roost","rotor","rouge","rough","round","rouse","route","rover","rowdy","rower","royal","ruddy","ruder","rugby","ruler","rumba","rumor","rupee","rural","rusty","sadly","safer","saint","salad","sally","salon","salsa","salty","salve","salvo","sandy","saner","sappy","sassy","satin","satyr","sauce","saucy","sauna","saute","savor","savoy","savvy","scald","scale","scalp","scaly","scamp","scant","scare","scarf","scary","scene","scent","scion","scoff","scold","scone","scoop","scope","score","scorn","scour","scout","scowl","scram","scrap","scree","screw","scrub","scrum","scuba","sedan","seedy","segue","seize","semen","sense","sepia","serif","serum","serve","setup","seven","sever","sewer","shack","shade","shady","shaft","shake","shaky","shale","shall","shalt","shame","shank","shape","shard","share","shark","sharp","shave","shawl","shear","sheen","sheep","sheer","sheet","sheik","shelf","shell","shied","shift","shine","shiny","shire","shirk","shirt","shoal","shock","shone","shook","shoot","shore","shorn","short","shout","shove","shown","showy","shrew","shrub","shrug","shuck","shunt","shush","shyly","siege","sieve","sight","sigma","silky","silly","since","sinew","singe","siren","sissy","sixth","sixty","skate","skier","skiff","skill","skimp","skirt","skulk","skull","skunk","slack","slain","slang","slant","slash","slate","slave","sleek","sleep","sleet","slept","slice","slick","slide","slime","slimy","sling","slink","sloop","slope","slosh","sloth","slump","slung","slunk","slurp","slush","slyly","smack","small","smart","smash","smear","smell","smelt","smile","smirk","smite","smith","smock","smoke","smoky","smote","snack","snail","snake","snaky","snare","snarl","sneak","sneer","snide","sniff","snipe","snoop","snore","snort","snout","snowy","snuck","snuff","soapy","sober","soggy","solar","solid","solve","sonar","sonic","sooth","sooty","sorry","sound","south","sower","space","spade","spank","spare","spark","spasm","spawn","speak","spear","speck","speed","spell","spelt","spend","spent","sperm","spice","spicy","spied","spiel","spike","spiky","spill","spilt","spine","spiny","spire","spite","splat","split","spoil","spoke","spoof","spook","spool","spoon","spore","sport","spout","spray","spree","sprig","spunk","spurn","spurt","squad","squat","squib","stack","staff","stage","staid","stain","stair","stake","stale","stalk","stall","stamp","stand","stank","stare","stark","start","stash","state","stave","stead","steak","steal","steam","steed","steel","steep","steer","stein","stern","stick","stiff","still","stilt","sting","stink","stint","stock","stoic","stoke","stole","stomp","stone","stony","stood","stool","stoop","store","stork","storm","story","stout","stove","strap","straw","stray","strip","strut","stuck","study","stuff","stump","stung","stunk","stunt","style","suave","sugar","suing","suite","sulky","sully","sumac","sunny","super","surer","surge","surly","sushi","swami","swamp","swarm","swash","swath","swear","sweat","sweep","sweet","swell","swept","swift","swill","swine","swing","swirl","swish","swoon","swoop","sword","swore","sworn","swung","synod","syrup","tabby","table","taboo","tacit","tacky","taffy","taint","taken","taker","tally","talon","tamer","tango","tangy","taper","tapir","tardy","tarot","taste","tasty","tatty","taunt","tawny","teach","teary","tease","teddy","teeth","tempo","tenet","tenor","tense","tenth","tepee","tepid","terra","terse","testy","thank","theft","their","theme","there","these","theta","thick","thief","thigh","thing","think","third","thong","thorn","those","three","threw","throb","throw","thrum","thumb","thump","thyme","tiara","tibia","tidal","tiger","tight","tilde","timer","timid","tipsy","titan","tithe","title","toast","today","toddy","token","tonal","tonga","tonic","tooth","topaz","topic","torch","torso","torus","total","totem","touch","tough","towel","tower","toxic","toxin","trace","track","tract","trade","trail","train","trait","tramp","trash","trawl","tread","treat","trend","triad","trial","tribe","trice","trick","tried","tripe","trite","troll","troop","trope","trout","trove","truce","truck","truer","truly","trump","trunk","truss","trust","truth","tryst","tubal","tuber","tulip","tulle","tumor","tunic","turbo","tutor","twang","tweak","tweed","tweet","twice","twine","twirl","twist","twixt","tying","udder","ulcer","ultra","umbra","uncle","uncut","under","undid","undue","unfed","unfit","unify","union","unite","unity","unlit","unmet","unset","untie","until","unwed","unzip","upper","upset","urban","urine","usage","usher","using","usual","usurp","utile","utter","vague","valet","valid","valor","value","valve","vapid","vapor","vault","vaunt","vegan","venom","venue","verge","verse","verso","verve","vicar","video","vigil","vigor","villa","vinyl","viola","viper","viral","virus","visit","visor","vista","vital","vivid","vixen","vocal","vodka","vogue","voice","voila","vomit","voter","vouch","vowel","vying","wacky","wafer","wager","wagon","waist","waive","waltz","warty","waste","watch","water","waver","waxen","weary","weave","wedge","weedy","weigh","weird","welch","welsh","wench","whack","whale","wharf","wheat","wheel","whelp","where","which","whiff","while","whine","whiny","whirl","whisk","white","whole","whoop","whose","widen","wider","widow","width","wield","wight","willy","wimpy","wince","winch","windy","wiser","wispy","witch","witty","woken","woman","women","woody","wooer","wooly","woozy","wordy","world","worry","worse","worst","worth","would","wound","woven","wrack","wrath","wreak","wreck","wrest","wring","wrist","write","wrong","wrote","wrung","wryly","yacht","yearn","yeast","yield","young","youth","zebra","zesty","zonal",null] || [];
+
+  // Helper to clean and normalize any word list
+  const cleanList = (list) => list.map(entry => {
+    const val = (typeof entry === 'string') ? entry : (entry && entry.word ? entry.word : "");
+    return val.toString().trim().toUpperCase();
+  }).filter(w => w.length === 5);
+
+  // Pool of words that can be the ANSWER (Music only)
+  const WORD_LIST = [...new Set(cleanList(musicSource))];
+
+  // Pool of words that are VALID GUESSES (Music + Common)
+  const ALL_VALID = new Set([
+    ...WORD_LIST, 
+    ...cleanList(extraSource)
+  ]);
+  // 2. GAME STATE
+  const ROWS = 6, COLS = 5;
+  let secret, currentRow, currentCol, board, gameOver;
+  let stats = { played: 0, won: 0, streak: 0 };
+
+  // 3. ELEMENT SELECTORS
+  const boardEl    = document.getElementById('game-board');
+  const msgEl      = document.getElementById('game-msg');
+  const hintEl     = document.getElementById('game-hint');
+  const newBtn     = document.getElementById('game-new-btn');
+  const statPlayed = document.getElementById('stat-played');
+  const statWon    = document.getElementById('stat-won');
+  const statStreak = document.getElementById('stat-streak');
+
+  function buildBoard() {
+    if (!boardEl) return;
+    boardEl.innerHTML = '';
+    board = [];
+    for (let r = 0; r < ROWS; r++) {
+      const row = document.createElement('div');
+      row.className = 'game-row';
+      const rowTiles = [];
+      for (let c = 0; c < COLS; c++) {
+        const tile = document.createElement('div');
+        tile.className = 'game-tile';
+        row.appendChild(tile);
+        rowTiles.push(tile);
+      }
+      boardEl.appendChild(row);
+      board.push(rowTiles);
+    }
+  }
+
+  function buildKeyboard() {
+    const kbEl = document.getElementById('game-keyboard');
+    if (!kbEl) return;
+    kbEl.querySelectorAll('.kb-row').forEach(row => {
+      row.innerHTML = '';
+      const keysStr = row.dataset.keys;
+      if (!keysStr) return;
+      const keys = keysStr.split('');
+      keys.forEach(k => {
+        const btn = document.createElement('button');
+        btn.className = 'kb-key' + (k === '↵' || k === '⌫' ? ' wide' : '');
+        btn.textContent = k;
+        btn.dataset.key = k;
+        btn.addEventListener('click', () => handleKey(k));
+        row.appendChild(btn);
+      });
+    });
+  }
+
+  function resetKeyboard() {
+    document.querySelectorAll('.kb-key').forEach(k => {
+      k.classList.remove('correct', 'present', 'absent');
+    });
+  }
+
+  function newGame() {
+    // Failsafe: if Jekyll data is missing, use a fallback word
+    if (WORD_LIST.length === 0) {
+        secret = "GUITAR";
+        console.warn("Fretdle: WORD_LIST is empty, using fallback.");
+    } else {
+        secret = WORD_LIST[Math.floor(Math.random() * WORD_LIST.length)];
+    }
+    
+    currentRow = 0;
+    currentCol = 0;
+    gameOver = false;
+    buildBoard();
+    resetKeyboard();
+    if (msgEl) {
+      msgEl.className = 'game-message';
+      msgEl.textContent = '> GUESS THE 5-LETTER MUSIC WORD';
+    }
+    if (hintEl) hintEl.textContent = '6 attempts // green = right spot // gold = wrong spot';
+    updateStats();
+  }
+
+  function updateStats() {
+    if (statPlayed) statPlayed.textContent = stats.played;
+    if (statWon)    statWon.textContent    = stats.won;
+    if (statStreak) statStreak.textContent = stats.streak;
+  }
+
+  function setMessage(text, type) {
+    if (!msgEl) return;
+    msgEl.className = 'game-message' + (type ? ' ' + type : '');
+    msgEl.textContent = '> ' + text;
+  }
+
+  function handleKey(key) {
+    if (gameOver) return;
+    if (key === '⌫' || key === 'BACKSPACE') { deleteLetter(); return; }
+    if (key === '↵' || key === 'ENTER')      { submitGuess();  return; }
+    if (/^[A-Z]$/.test(key)) addLetter(key);
+  }
+
+  function addLetter(letter) {
+    if (currentCol >= COLS) return;
+    const tile = board[currentRow][currentCol];
+    tile.textContent = letter;
+    tile.classList.add('filled', 'pop');
+    tile.addEventListener('animationend', () => tile.classList.remove('pop'), { once: true });
+    currentCol++;
+  }
+
+  function deleteLetter() {
+    if (currentCol <= 0) return;
+    currentCol--;
+    const tile = board[currentRow][currentCol];
+    tile.textContent = '';
+    tile.classList.remove('filled');
+  }
+
+  function getGuess() {
+    return Array.from({ length: COLS }, (_, c) => board[currentRow][c].textContent).join('');
+  }
+
+  function submitGuess() {
+    if (currentCol < COLS) { 
+      setMessage('NOT ENOUGH LETTERS', 'error'); 
+      shakeRow(currentRow); 
+      return; 
+    }
+    const guess = getGuess();
+    if (!ALL_VALID.has(guess)) { 
+      setMessage('NOT IN WORD LIST', 'error'); 
+      shakeRow(currentRow); 
+      return; 
+    }
+
+    const result = scoreGuess(guess);
+    revealRow(currentRow, guess, result, () => {
+      updateKeyboard(guess, result);
+      const won = result.every(r => r === 'correct');
+      if (won) {
+        stats.played++; stats.won++; stats.streak++;
+        updateStats();
+        gameOver = true;
+        const msgs = ['NAILED IT', 'NICE PLAYING', 'ON THE MONEY', 'PERFECT PITCH', 'SHRED MASTER'];
+        setTimeout(() => setMessage(msgs[Math.min(currentRow, msgs.length - 1)], 'win'), 400);
+        if (hintEl) hintEl.textContent = '[ hit New Word to play again ]';
+        return;
+      }
+      currentRow++;
+      currentCol = 0;
+      if (currentRow >= ROWS) {
+        stats.played++; stats.streak = 0;
+        updateStats();
+        gameOver = true;
+        setTimeout(() => {
+          setMessage('THE WORD WAS: ' + secret, 'error');
+          if (hintEl) hintEl.textContent = '[ hit New Word to play again ]';
+        }, 400);
+      }
+    });
+  }
+
+  function scoreGuess(guess) {
+    const result = Array(COLS).fill('absent');
+    const secretArr = secret.split('');
+    const guessArr = guess.split('');
+    
+    // First pass: correct (green)
+    for (let i = 0; i < COLS; i++) {
+      if (guessArr[i] === secretArr[i]) {
+        result[i] = 'correct'; 
+        secretArr[i] = null; 
+        guessArr[i] = null;
+      }
+    }
+    // Second pass: present (gold)
+    for (let i = 0; i < COLS; i++) {
+      if (guessArr[i] === null) continue;
+      const idx = secretArr.indexOf(guessArr[i]);
+      if (idx !== -1) { 
+        result[i] = 'present'; 
+        secretArr[idx] = null; 
+      }
+    }
+    return result;
+  }
+
+  function revealRow(row, guess, result, onDone) {
+    board[row].forEach((tile, i) => {
+      setTimeout(() => {
+        tile.classList.add('flip');
+        setTimeout(() => {
+          tile.classList.add(result[i]);
+          tile.classList.remove('flip');
+          if (i === COLS - 1 && onDone) onDone();
+        }, 200);
+      }, i * 120);
+    });
+  }
+
+  function updateKeyboard(guess, result) {
+    const priority = { correct: 3, present: 2, absent: 1 };
+    guess.split('').forEach((letter, i) => {
+      const btn = document.querySelector(`.kb-key[data-key="${letter}"]`);
+      if (!btn) return;
+      const currentClass = ['correct','present','absent'].find(c => btn.classList.contains(c));
+      const currentPrio = currentClass ? priority[currentClass] : 0;
+      if (priority[result[i]] > currentPrio) {
+        btn.classList.remove('correct', 'present', 'absent');
+        btn.classList.add(result[i]);
+      }
+    });
+  }
+
+  function shakeRow(row) {
+    if (!boardEl) return;
+    const rowEl = boardEl.children[row];
+    rowEl.classList.add('shake');
+    rowEl.addEventListener('animationend', () => rowEl.classList.remove('shake'), { once: true });
+  }
+
+  document.addEventListener('keydown', function(e) {
+    const section = document.getElementById('game-section');
+    if (!section || section.style.display === 'none') return;
+    if (e.ctrlKey || e.altKey || e.metaKey) return;
+    if (e.key === 'Enter')     { handleKey('↵'); return; }
+    if (e.key === 'Backspace') { handleKey('⌫'); return; }
+    const k = e.key.toUpperCase();
+    if (/^[A-Z]$/.test(k)) handleKey(k);
+  });
+
+  if (newBtn) newBtn.addEventListener('click', newGame);
+  
+  // INITIALIZE
+  buildKeyboard();
+  newGame();
+})();
+
+  </script>
+
+</body>
+</html>
