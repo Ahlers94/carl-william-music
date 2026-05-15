@@ -1,28 +1,27 @@
-{% assign _ig_type  = include.type | default: "originals" %}
+{% assign _ig_type  = include.type  | default: "originals" %}
 {% assign _ig_title = include.title | default: "Instagram Reels" %}
 {% assign _ig_items = site.data.instagram[_ig_type] %}
 
 {% if _ig_items and _ig_items.size > 0 %}
 <div class="section-label" style="margin-top: 28px;">{{ _ig_title }}</div>
-
 <div class="video-grid" style="grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));">
   {% for reel in _ig_items %}
-  <div class="video-small reel-item" style="height: auto; max-width: 320px; margin: 0 auto; background: #111; padding: 12px; border-radius: 4px; box-sizing: border-box;">
-    
-    <!-- Uses a direct iframe source path to bypass broken script initializations -->
-    <div class="reel-video-container" style="position: relative; width: 100%; height: 480px; overflow: hidden; border-radius: 4px;">
-      <iframe 
-        src="https://www.instagram.com/reel/{{ reel.reel_id }}/embed/" 
-        style="width: 100%; height: 100%; border: none; background: #000;"
-        scrolling="no" 
-        allowtransparency="true" 
+  <div class="video-small reel-item">
+    <div class="reel-video-container">
+      <iframe
+        src="https://www.instagram.com/reel/{{ reel.reel_id }}/embed/?cr=1&v=14&wp=320"
+        width="320"
+        height="480"
+        frameborder="0"
+        scrolling="no"
+        allowtransparency="true"
         allow="encrypted-media"
-        loading="lazy">
+        loading="lazy"
+        title="{% if reel.title %}{{ reel.title | escape }}{% else %}Instagram Reel{% endif %}">
       </iframe>
     </div>
-
     {% if reel.title %}
-    <div class="video-caption" style="margin-top: 10px; text-align: center;">&gt; {{ reel.title }}</div>
+    <div class="video-caption">&gt; {{ reel.title }}</div>
     {% endif %}
   </div>
   {% endfor %}
