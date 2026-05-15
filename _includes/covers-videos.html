@@ -1,6 +1,6 @@
 <div class="section-label">Covers</div>
-{% for video in site.data.videos.covers %}
-  {% if video.featured %}
+{% for video in site.data.youtube.covers %}
+  {% if video.featured == true %}
   <div class="video-featured">
     <div class="yt-facade" data-vid="{{ video.id }}">
       <img src="https://img.youtube.com/vi/{{ video.id }}/maxresdefault.jpg"
@@ -17,14 +17,23 @@
   {% endif %}
 {% endfor %}
 
-{% assign non_featured_covers = site.data.videos.covers | where_exp: "v", "v.featured != true" %}
-{% assign featured_covers = site.data.videos.covers | where_exp: "v", "v.featured == true" %}
-{% if non_featured_covers.size > 0 %}
-{% if featured_covers.size > 0 %}
+{% assign covers_more_count = 0 %}
+{% assign covers_has_featured = false %}
+{% for video in site.data.youtube.covers %}
+  {% if video.featured == true %}
+    {% assign covers_has_featured = true %}
+  {% endif %}
+  {% if video.featured != true %}
+    {% assign covers_more_count = covers_more_count | plus: 1 %}
+  {% endif %}
+{% endfor %}
+{% if covers_more_count > 0 %}
+{% if covers_has_featured %}
 <div class="section-label" style="margin-top: 28px;">More Covers</div>
 {% endif %}
 <div class="video-grid">
-  {% for video in non_featured_covers %}
+  {% for video in site.data.youtube.covers %}
+    {% if video.featured != true %}
   <div class="video-small">
     <div class="yt-facade" data-vid="{{ video.id }}">
       <img src="https://img.youtube.com/vi/{{ video.id }}/maxresdefault.jpg"
@@ -37,6 +46,7 @@
       {% if video.title %}<div class="yt-title">{{ video.title }}</div>{% endif %}
     </div>
   </div>
+    {% endif %}
   {% endfor %}
 </div>
 {% endif %}

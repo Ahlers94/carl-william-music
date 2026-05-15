@@ -1,0 +1,12 @@
+# INSTAGRAM DATA (_data/instagram.yml) — site.data.instagram
+# ─────────────────────────────────────────────────────────────────
+# reels: short-form video embeds (or posts you treat as reels)
+#
+# title:    display title (shown in your layout)
+# reel_id:  identifier for the embed (often the post shortcode from the URL)
+#
+# Optional later: featured (bool), caption, thumbnail_url, etc.
+
+reels:
+  - title: "Example reel — replace with your title"
+    reel_id: "AbCdEfGh1Ij"

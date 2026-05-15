@@ -1,6 +1,6 @@
 <div class="section-label">Originals</div>
-{% for video in site.data.videos.originals %}
-  {% if video.featured %}
+{% for video in site.data.youtube.originals %}
+  {% if video.featured == true %}
   <div class="video-featured">
     <div class="yt-facade" data-vid="{{ video.id }}">
       <img src="https://img.youtube.com/vi/{{ video.id }}/maxresdefault.jpg"
@@ -17,11 +17,17 @@
   {% endif %}
 {% endfor %}
 
-{% assign non_featured = site.data.videos.originals | where_exp: "v", "v.featured != true" %}
-{% if non_featured.size > 0 %}
+{% assign originals_more_count = 0 %}
+{% for video in site.data.youtube.originals %}
+  {% if video.featured != true %}
+    {% assign originals_more_count = originals_more_count | plus: 1 %}
+  {% endif %}
+{% endfor %}
+{% if originals_more_count > 0 %}
 <div class="section-label" style="margin-top: 28px;">More Originals</div>
 <div class="video-grid">
-  {% for video in non_featured %}
+  {% for video in site.data.youtube.originals %}
+    {% if video.featured != true %}
   <div class="video-small">
     <div class="yt-facade" data-vid="{{ video.id }}">
       <img src="https://img.youtube.com/vi/{{ video.id }}/maxresdefault.jpg"
@@ -34,6 +40,7 @@
       {% if video.title %}<div class="yt-title">{{ video.title }}</div>{% endif %}
     </div>
   </div>
+    {% endif %}
   {% endfor %}
 </div>
 {% endif %}

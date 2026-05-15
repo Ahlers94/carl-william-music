@@ -1,0 +1,12 @@
+# SOUNDCLOUD DATA (_data/soundcloud.yml) — site.data.soundcloud
+# ─────────────────────────────────────────────────────────────────
+# tracks: embeddable SoundCloud tracks
+#
+# title:     display title (shown in your layout)
+# track_id:  numeric id from the track URL — soundcloud.com/tracks/<track_id>
+#
+# Optional later: featured (bool), artwork_url, permalink, etc.
+
+tracks:
+  - title: "Example track — replace with your title"
+    track_id: "000000000"
