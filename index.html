@@ -1358,6 +1358,25 @@ layout: null
       cursorGlow.style.top  = e.clientY + 'px';
     });
 
+
+    // ── ELEMENT SELECTORS ──────────────────────────────────────────
+    const page             = document.querySelector('.page'); // The main video container
+    const gearSection      = document.getElementById('gear');
+    const aboutSection     = document.getElementById('about');
+    const showsSection     = document.getElementById('shows');
+    const newsSection      = document.getElementById('news');
+    const gameSection      = document.getElementById('fretdle');
+    const originalsSection = document.getElementById('originals-section');
+    const coversSection    = document.getElementById('covers-section');
+
+    // Selectors for Matrix/Navigation
+    const siteHeader     = document.getElementById('site-header');
+    const siteNav        = document.getElementById('site-nav');
+    const matrixEl       = document.getElementById('matrix-section');
+    const matrixMsg      = document.getElementById('matrix-msg');
+    const matrixHint     = document.getElementById('matrix-hint');
+    const allNavLinks    = document.querySelectorAll('nav a');
+    
     // ── TAGLINE RANDOM FLICKER ────────────────────────────────────
     const taglineWords = document.querySelectorAll('.tagline-word');
     function randomFlicker() {
@@ -1447,32 +1466,46 @@ window.addEventListener('load', handleRouting);
 // ── UI HELPER FUNCTIONS ──────────────────────────────────────────────
 
 function hideAll() {
+    // Hide the main video container
     page.classList.add('hidden');
-    gearSection.style.display  = 'none';
-    aboutSection.style.display = 'none';
-    showsSection.style.display = 'none';
-    newsSection.style.display  = 'none';
-    gameSection.style.display  = 'none';
+    page.style.display = 'none';
+
+    // Hide all individual content sections
+    // Note: Ensure these match the variable names you defined at the top
+    const allSections = [gearSection, aboutSection, showsSection, newsSection, gameSection];
+    allSections.forEach(sec => {
+        if (sec) {
+            sec.style.display = 'none';
+            sec.classList.remove('tab-fade'); // Reset animation state
+        }
+    });
 }
 
 function showPage(section) {
     pauseAllVideos();
-    page.classList.remove('hidden');
-    hideAll(); // Ensure other specific sections are tucked away
+    hideAll(); // Hide everything else first
     
-    const isCovers = section === 'covers';
-    document.getElementById('originals-section').style.display = isCovers ? 'none' : 'block';
-    document.getElementById('covers-section').style.display    = isCovers ? 'block' : 'none';
+    // Now bring the main video container back
+    page.classList.remove('hidden');
+    page.style.display = 'block'; 
+    
+    const isCovers = (section === 'covers');
+    const originals = document.getElementById('originals-section');
+    const covers = document.getElementById('covers-section');
+
+    if (originals) originals.style.display = isCovers ? 'none' : 'block';
+    if (covers) covers.style.display = isCovers ? 'block' : 'none';
     
     fadeInSection(isCovers ? 'covers-section' : 'originals-section');
-    setTimeout(() => window.scrollTo({ top: 0, behavior: 'smooth' }), 0);
+    setTimeout(() => window.scrollTo({ top: 0, behavior: 'smooth' }), 10);
 }
 
-function showGear()  { pauseAllVideos(); hideAll(); gearSection.style.display = 'block'; fadeInSection('gear-section'); }
-function showAbout() { pauseAllVideos(); hideAll(); aboutSection.style.display = 'block'; fadeInSection('about-section'); }
-function showShows() { pauseAllVideos(); hideAll(); showsSection.style.display = 'block'; fadeInSection('shows-section'); }
-function showNews()  { pauseAllVideos(); hideAll(); newsSection.style.display = 'block'; fadeInSection('news-section'); }
-function showGame()  { pauseAllVideos(); hideAll(); gameSection.style.display = 'block'; fadeInSection('game-section'); }
+// Ensure the ID passed to fadeInSection matches the ID in your HTML exactly
+function showGear()  { pauseAllVideos(); hideAll(); gearSection.style.display = 'block'; fadeInSection('gear'); }
+function showAbout() { pauseAllVideos(); hideAll(); aboutSection.style.display = 'block'; fadeInSection('about'); }
+function showShows() { pauseAllVideos(); hideAll(); showsSection.style.display = 'block'; fadeInSection('shows'); }
+function showNews()  { pauseAllVideos(); hideAll(); newsSection.style.display = 'block'; fadeInSection('news'); }
+function showGame()  { pauseAllVideos(); hideAll(); gameSection.style.display = 'block'; fadeInSection('fretdle'); }
 
 
     // ── ENTER MATRIX ──────────────────────────────────────────────
