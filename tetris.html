@@ -18,64 +18,72 @@ extra_js:
   <link rel="icon" type="image/jpeg" href="/carl-william-music/photos/favicon.jpg">
   <link rel="shortcut icon" href="/carl-william-music/photos/favicon.jpg">
 
-  <meta name="description" content="Classic Tetris — Carl William Music style.">
+  <meta name="description" content="Frettris — Stack the chords. Clear the lines.">
   <meta name="author" content="Carl William Music">
 
   <meta property="og:type" content="website">
-  <meta property="og:title" content="Carl William Music | Tetris">
-  <meta property="og:description" content="Classic Tetris — Carl William Music style.">
+  <meta property="og:title" content="Carl William Music | Frettris">
+  <meta property="og:description" content="Frettris — Stack the chords. Clear the lines.">
   <meta property="og:url" content="https://ahlers94.github.io/carl-william-music/tetris.html">
   <meta property="og:image" content="https://ahlers94.github.io/carl-william-music/preview.jpg">
 
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Carl William Music | Tetris">
-  <meta name="twitter:description" content="Classic Tetris — Carl William Music style.">
+  <meta name="twitter:title" content="Carl William Music | Frettris">
+  <meta name="twitter:description" content="Frettris — Stack the chords. Clear the lines.">
   <meta name="twitter:image" content="https://ahlers94.github.io/carl-william-music/preview.jpg">
 
-  <title>Carl William Music | Tetris</title>
+  <title>Carl William Music | Frettris</title>
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=VT323&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/carl-william-music/assets/css/main.css">
 
   <style>
-    /* ── Tetris page styles ── */
+    /* ── Frettris page styles ── */
 
-    #tetris-game-wrapper #tetris-section {
+    #frettris-game-container #frettris-section {
       display: flex;
       flex-direction: column;
       gap: 0.75rem;
     }
 
-    #tetris-game-wrapper .tetris-meta {
+    #frettris-game-container .section-subtitle {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.75rem;
+      color: var(--fg, #ccc);
+      opacity: 0.75;
+      letter-spacing: 0.08em;
+    }
+
+    #frettris-game-container .tetris-meta {
       font-family: 'Space Mono', monospace;
       font-size: 0.7rem;
-      color: var(--accent, #00ff9f);
+      color: var(--accent, #d4a24f);
       opacity: 0.7;
       letter-spacing: 0.08em;
     }
 
     /* Stats bar */
-    #tetris-game-wrapper .tetris-stats {
+    #frettris-game-container .tetris-stats {
       display: flex;
       gap: 1.5rem;
       flex-wrap: wrap;
     }
 
-    #tetris-game-wrapper .tetris-stat {
+    #frettris-game-container .tetris-stat {
       display: flex;
       flex-direction: column;
       align-items: flex-start;
     }
 
-    #tetris-game-wrapper .tetris-stat .stat-num {
+    #frettris-game-container .tetris-stat .stat-num {
       font-family: 'VT323', monospace;
       font-size: 2rem;
-      color: var(--accent, #00ff9f);
+      color: var(--accent, #d4a24f);
       line-height: 1;
     }
 
-    #tetris-game-wrapper .tetris-stat .stat-label {
+    #frettris-game-container .tetris-stat .stat-label {
       font-family: 'Space Mono', monospace;
       font-size: 0.6rem;
       color: var(--fg, #ccc);
@@ -85,62 +93,61 @@ extra_js:
     }
 
     /* Arena + side panel layout */
-    #tetris-game-wrapper .tetris-play-area {
+    #frettris-game-container .tetris-play-area {
       display: flex;
       gap: 1.25rem;
       align-items: flex-start;
     }
 
     /* The canvas */
-    #tetris-game-wrapper #tetris-canvas {
+    #frettris-game-container #tetris-canvas {
       display: block;
-      border: 2px solid var(--accent, #00ff9f);
-      box-shadow: 0 0 18px var(--accent, #00ff9f), inset 0 0 6px rgba(0,255,159,0.08);
+      border: 2px solid #d4a24f;
+      box-shadow: 0 0 18px rgba(212,162,79,0.35), inset 0 0 6px rgba(212,162,79,0.12);
       image-rendering: pixelated;
-      background: #000;
-      /* responsive: max 240px wide on mobile */
+      background: #0f0d0a;
       max-width: min(240px, 100%);
       height: auto;
     }
 
     /* Side panel: next piece + controls */
-    #tetris-game-wrapper .tetris-side {
+    #frettris-game-container .tetris-side {
       display: flex;
       flex-direction: column;
       gap: 1rem;
       min-width: 90px;
     }
 
-    #tetris-game-wrapper .tetris-side-label {
+    #frettris-game-container .tetris-side-label {
       font-family: 'VT323', monospace;
       font-size: 1.1rem;
-      color: var(--accent, #00ff9f);
+      color: #d4a24f;
       letter-spacing: 0.08em;
       text-transform: uppercase;
       margin-bottom: 0.2rem;
     }
 
-    #tetris-game-wrapper #next-canvas {
+    #frettris-game-container #next-canvas {
       display: block;
-      border: 1px solid rgba(0,255,159,0.4);
-      background: #000;
+      border: 1px solid rgba(212,162,79,0.4);
+      background: #0f0d0a;
       image-rendering: pixelated;
     }
 
     /* Level display */
-    #tetris-game-wrapper .tetris-level {
+    #frettris-game-container .tetris-level {
       font-family: 'VT323', monospace;
       font-size: 1.5rem;
       color: #fff;
       line-height: 1;
     }
 
-    #tetris-game-wrapper .tetris-level span {
-      color: var(--accent, #00ff9f);
+    #frettris-game-container .tetris-level span {
+      color: #d4a24f;
     }
 
     /* Controls hint */
-    #tetris-game-wrapper .tetris-keys {
+    #frettris-game-container .tetris-keys {
       font-family: 'Space Mono', monospace;
       font-size: 0.58rem;
       color: var(--fg, #ccc);
@@ -149,14 +156,14 @@ extra_js:
       letter-spacing: 0.04em;
     }
 
-    #tetris-game-wrapper .tetris-keys strong {
-      color: var(--accent, #00ff9f);
+    #frettris-game-container .tetris-keys strong {
+      color: #d4a24f;
       opacity: 1;
       font-weight: 700;
     }
 
     /* Buttons */
-    #tetris-game-wrapper .tetris-controls {
+    #frettris-game-container .tetris-controls {
       display: flex;
       flex-wrap: wrap;
       gap: 0.5rem;
@@ -164,27 +171,27 @@ extra_js:
     }
 
     /* Reuse the existing .game-btn style; define fallback if not present */
-    #tetris-game-wrapper .tetris-btn {
+    #frettris-game-container .tetris-btn {
       font-family: 'VT323', monospace;
       font-size: 1.2rem;
       letter-spacing: 0.08em;
       text-transform: uppercase;
       padding: 0.3rem 1rem;
       background: transparent;
-      color: var(--accent, #00ff9f);
-      border: 1.5px solid var(--accent, #00ff9f);
+      color: #d4a24f;
+      border: 1.5px solid #d4a24f;
       cursor: pointer;
       transition: background 0.15s, color 0.15s, box-shadow 0.15s;
     }
 
-    #tetris-game-wrapper .tetris-btn:hover {
-      background: var(--accent, #00ff9f);
-      color: #000;
-      box-shadow: 0 0 10px var(--accent, #00ff9f);
+    #frettris-game-container .tetris-btn:hover {
+      background: #d4a24f;
+      color: #0f0d0a;
+      box-shadow: 0 0 10px rgba(212,162,79,0.6);
     }
 
     /* Message overlay */
-    #tetris-game-wrapper #tetris-msg {
+    #frettris-game-container #tetris-msg {
       font-family: 'VT323', monospace;
       font-size: 1.2rem;
       color: #fff;
@@ -192,32 +199,32 @@ extra_js:
       letter-spacing: 0.06em;
     }
 
-    #tetris-game-wrapper #tetris-msg .hi {
-      color: var(--accent, #00ff9f);
+    #frettris-game-container #tetris-msg .hi {
+      color: #d4a24f;
     }
 
     /* Mobile touch buttons */
-    #tetris-game-wrapper .tetris-touch {
+    #frettris-game-container .tetris-touch {
       display: none;
       gap: 0.4rem;
       justify-content: center;
       margin-top: 0.5rem;
     }
 
-    #tetris-game-wrapper .touch-row {
+    #frettris-game-container .touch-row {
       display: flex;
       gap: 0.4rem;
       justify-content: center;
     }
 
-    #tetris-game-wrapper .touch-btn {
+    #frettris-game-container .touch-btn {
       font-family: 'VT323', monospace;
       font-size: 1.6rem;
       width: 52px;
       height: 52px;
       background: transparent;
-      color: var(--accent, #00ff9f);
-      border: 1.5px solid var(--accent, #00ff9f);
+      color: #d4a24f;
+      border: 1.5px solid #d4a24f;
       cursor: pointer;
       display: flex;
       align-items: center;
@@ -227,16 +234,16 @@ extra_js:
       transition: background 0.1s, color 0.1s;
     }
 
-    #tetris-game-wrapper .touch-btn:active {
-      background: var(--accent, #00ff9f);
-      color: #000;
+    #frettris-game-container .touch-btn:active {
+      background: #d4a24f;
+      color: #0f0d0a;
     }
 
     @media (max-width: 600px) {
-      #tetris-game-wrapper .tetris-touch { display: flex; flex-direction: column; }
-      #tetris-game-wrapper .tetris-keys  { display: none; }
-      #tetris-game-wrapper .tetris-play-area { flex-direction: column; align-items: center; }
-      #tetris-game-wrapper #tetris-canvas { max-width: min(200px, 90vw); }
+      #frettris-game-container .tetris-touch { display: flex; flex-direction: column; }
+      #frettris-game-container .tetris-keys  { display: none; }
+      #frettris-game-container .tetris-play-area { flex-direction: column; align-items: center; }
+      #frettris-game-container #tetris-canvas { max-width: min(200px, 90vw); }
     }
   </style>
 </head>
@@ -281,10 +288,11 @@ extra_js:
 
   <!-- ══════════════════════════════════════════ -->
   <div class="page tab-fade">
-    <div id="tetris-game-wrapper">
-      <div class="left-col" id="tetris-section">
+    <div id="frettris-game-container">
+      <div class="left-col" id="frettris-section">
 
-        <div class="section-label">Tetris</div>
+        <div class="section-label">Frettris</div>
+        <div class="section-subtitle">Stack the chords. Clear the lines.</div>
         <div id="tetris-msg">&gt; PRESS <span class="hi">START</span> TO PLAY</div>
         <div class="tetris-meta">arrow keys / wasd &nbsp;//&nbsp; space = hard drop &nbsp;//&nbsp; p = pause</div>
 
@@ -351,7 +359,7 @@ extra_js:
           <a class="social-link sc" href="https://soundcloud.com/carl-william-music"   data-icon="radio"     target="_blank" rel="noopener">SoundCloud</a>
           <a class="social-link gh" href="https://github.com/Ahlers94"                 data-icon="github"    target="_blank" rel="noopener">GitHub</a>
           <a class="social-link em" href="mailto:wcarlahlers@gmail.com"                data-icon="mail">wcarlahlers@gmail.com</a>
-          <a class="social-link vm" href="https://venmo.com/carl-william-music"        data-icon="venmo"     target="_blank" rel="noopener">Venmo</a>
+          <a class="social-link vm" href="https://venmo.com/carl-william-music"        data-icon="venmo"     target="_blank" rel="noopener">VenMo</a>
         </div>
         <div class="bio-box">
           <div class="section-label">About</div>
@@ -390,10 +398,10 @@ extra_js:
 
     // ── Piece definitions ─────────────────────────────────
     // Each piece: array of 4x4 rotation matrices (flat, row-major)
-    // Colors tuned to match the site's retro-neon palette
+    // Colors tuned to match the instrument workshop palette
     const PIECES = [
       { // I
-        color: '#00f5ff',
+        color: '#8b6239',
         shapes: [
           [0,0,0,0, 1,1,1,1, 0,0,0,0, 0,0,0,0],
           [0,0,1,0, 0,0,1,0, 0,0,1,0, 0,0,1,0],
@@ -402,7 +410,7 @@ extra_js:
         ]
       },
       { // O
-        color: '#ffe600',
+        color: '#d4a24f',
         shapes: [
           [0,1,1,0, 0,1,1,0, 0,0,0,0, 0,0,0,0],
           [0,1,1,0, 0,1,1,0, 0,0,0,0, 0,0,0,0],
@@ -411,7 +419,7 @@ extra_js:
         ]
       },
       { // T
-        color: '#cc44ff',
+        color: '#e07328',
         shapes: [
           [0,1,0,0, 1,1,1,0, 0,0,0,0, 0,0,0,0],
           [0,1,0,0, 0,1,1,0, 0,1,0,0, 0,0,0,0],
@@ -420,7 +428,7 @@ extra_js:
         ]
       },
       { // S
-        color: '#00ff9f',
+        color: '#b99b6f',
         shapes: [
           [0,1,1,0, 1,1,0,0, 0,0,0,0, 0,0,0,0],
           [0,1,0,0, 0,1,1,0, 0,0,1,0, 0,0,0,0],
@@ -429,7 +437,7 @@ extra_js:
         ]
       },
       { // Z
-        color: '#ff4466',
+        color: '#cca239',
         shapes: [
           [1,1,0,0, 0,1,1,0, 0,0,0,0, 0,0,0,0],
           [0,0,1,0, 0,1,1,0, 0,1,0,0, 0,0,0,0],
@@ -438,7 +446,7 @@ extra_js:
         ]
       },
       { // J
-        color: '#ff8c00',
+        color: '#5b3b24',
         shapes: [
           [1,0,0,0, 1,1,1,0, 0,0,0,0, 0,0,0,0],
           [0,1,1,0, 0,1,0,0, 0,1,0,0, 0,0,0,0],
@@ -447,7 +455,7 @@ extra_js:
         ]
       },
       { // L
-        color: '#ff6ec7',
+        color: '#6f7482',
         shapes: [
           [0,0,1,0, 1,1,1,0, 0,0,0,0, 0,0,0,0],
           [0,1,0,0, 0,1,0,0, 0,1,1,0, 0,0,0,0],
@@ -651,7 +659,7 @@ extra_js:
       if (paused) {
         ctx.fillStyle   = 'rgba(0,0,0,0.6)';
         ctx.fillRect(0, 0, canvas.width, canvas.height);
-        ctx.fillStyle   = '#00ff9f';
+        ctx.fillStyle   = '#d4a24f';
         ctx.font        = `bold ${BLOCK * 2}px 'VT323', monospace`;
         ctx.textAlign   = 'center';
         ctx.fillText('PAUSED', canvas.width / 2, canvas.height / 2);
