@@ -1,12 +1,9 @@
-# SOUNDCLOUD DATA (_data/soundcloud.yml) — site.data.soundcloud
+# SOUNDCLOUD DATA (_data/soundcloud.yml) — site.data.soundcloud (root array)
 # ─────────────────────────────────────────────────────────────────
-# tracks: embeddable SoundCloud tracks
-#
 # title:  display title (caption under player)
 # id:     numeric track id (soundcloud.com/tracks/<id>)
 # type:   "cover" | "original" (used to filter on pages)
 
-tracks:
-  - title: "Waiting on the Weather (Dirty Dustin Hoffman Needs a Bath) [of Montreal cover]"
-    id: "1493831866"
-    type: "cover"
+- title: "Waiting on the Weather (Dirty Dustin Hoffman Needs a Bath) [of Montreal cover]"
+  id: "1493831866"
+  type: "cover"

@@ -51,7 +51,7 @@
 </div>
 {% endif %}
 
-{% assign audio_covers = site.data.soundcloud.tracks | where: "type", "cover" %}
+{% assign audio_covers = site.data.soundcloud | where: "type", "cover" %}
 {% if audio_covers.size > 0 %}
 <h3 class="section-label" style="margin-top: 28px;">Audio Covers</h3>
 <div class="media-grid">
