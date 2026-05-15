@@ -1610,17 +1610,22 @@ layout: null
     })();
 // ── FRETDLE — MUSIC WORDLE ────────────────────────────────────
 (function() {
-  // 1. DATA LOADING & CLEANING
+ // 1. DATA LOADING & CLEANING
   // Safely grab words from Jekyll.
   const rawSource = {{ site.data.words | jsonify }} || [];
-  
-  // Normalize everything: trim spaces, force uppercase, and filter to exactly 5 letters.
-  const WORD_LIST = rawSource.map(entry => {
-    // Handle if YAML is a simple list or a list of objects
-    const val = (typeof entry === 'string') ? entry : (entry.word || "");
+  console.log("Fretdle Debug - Raw Source:", rawSource); // Check F12 console for this!
+
+  // We define WORDS clearly here
+  const WORDS = rawSource.map(entry => {
+    // If it's a string, use it. If it's an object, try to find the 'word' key.
+    const val = (typeof entry === 'string') ? entry : (entry && entry.word ? entry.word : "");
     return val.toString().trim().toUpperCase();
   }).filter(w => w.length === 5);
 
+  // Use the WORDS we just created for our internal list
+  const WORD_LIST = [...new Set(WORDS)];
+
+  console.log("Fretdle Debug - Cleaned WORD_LIST:", WORD_LIST);
   // Common 5-letter words so the player can make valid guesses
   const EXTRA_VALID = [
     'ABOUT','AFTER','AGAIN','GREAT','LIGHT','MIGHT','NIGHT','PLACE','PLANT',
