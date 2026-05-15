@@ -1611,7 +1611,8 @@ layout: null
 
     // ── FRETDLE — MUSIC WORDLE ────────────────────────────────────
     (function() {
-      const WORDS = {{ site.data.words | jsonify }};
+      const rawWords = {{ site.data.words | jsonify }} || [];
+      const WORDS = rawWords.map(w => typeof w === 'string' ? w.toUpperCase() : w.word.toUpperCase());
 
       const WORD_LIST = [...new Set(WORDS)];
 
