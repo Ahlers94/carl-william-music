@@ -1,12 +1,3 @@
-{% comment %}
-  _includes/instagram-reels.html
-  Usage: {% include instagram-reels.html type="originals" title="Instagram Reels & Demos" %}
-  
-  Parameters:
-    type  — the key to look up under site.data.instagram (e.g. "originals" or "covers")
-    title — the section heading to display (optional; falls back to "Instagram Reels")
-{% endcomment %}
-
 {% comment %} Resolve the requested array. Liquid returns nil for missing keys,
                so we assign to a variable first, then check size. {% endcomment %}
 {% assign _ig_type  = include.type | default: "originals" %}
@@ -15,26 +6,30 @@
 
 {% comment %} Guard: if the array is nil OR has no entries, render nothing at all. {% endcomment %}
 {% if _ig_items and _ig_items.size > 0 %}
-<section class="instagram-reels">
-  <h2 class="section-title">{{ _ig_title }}</h2>
 
-  <div class="reels-grid">
-    {% for reel in _ig_items %}
-    <div class="reel-item">
+<!-- Replaces the h2 with your native theme's section divider format -->
+<div class="section-label" style="margin-top: 28px;">{{ _ig_title }}</div>
+
+<!-- Replaces .reels-grid with your native video grid styles, forced to match reel proportions -->
+<div class="video-grid" style="grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));">
+  {% for reel in _ig_items %}
+  <div class="video-small reel-item" style="height: auto; min-height: 480px; background: #111; padding-bottom: 12px; border-radius: 4px;">
+    <div class="reel-video-container" style="position: relative; width: 100%; height: 480px; overflow: hidden; border-radius: 4px;">
       <blockquote
         class="instagram-media"
         data-instgrm-permalink="https://www.instagram.com/reel/{{ reel.reel_id }}/"
         data-instgrm-version="14"
-        style="width:100%; min-width:320px;">
+        style="width: 100%; min-width: 320px; max-width: 100%; border: 0; margin: 0 auto; padding: 0; box-shadow: none;">
       </blockquote>
-      {% if reel.title %}
-      <div class="reel-caption">&gt; {{ reel.title }}</div>
-      {% endif %}
     </div>
-    {% endfor %}
+    {% if reel.title %}
+    <!-- Uses your native video-caption styling layout with your prompt carat -->
+    <div class="video-caption" style="margin-top: 10px;">&gt; {{ reel.title }}</div>
+    {% endif %}
   </div>
+  {% endfor %}
+</div>
 
-  {% comment %} Instagram embed script — loaded once per section, only when there is content {% endcomment %}
-  <script async defer src="//www.instagram.com/embed.js"></script>
-</section>
+{% comment %} Instagram embed script — loaded once per section, only when there is content {% endcomment %}
+<script async defer src="//www.instagram.com/embed.js"></script>
 {% endif %}
