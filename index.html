@@ -1611,27 +1611,7 @@ layout: null
 
     // ── FRETDLE — MUSIC WORDLE ────────────────────────────────────
     (function() {
-      const WORDS = [
-        // Core music theory
-        'CHORD','SCALE','PITCH','TEMPO','BEATS','TONIC','TRIAD','MAJOR','MINOR','MODAL',
-        'NOTES','MODES','STAFF','SHARP','DRONE','PULSE','METER','RESTS','FIFTH','OCTAV',
-        // Instruments & parts
-        'BANJO','PIANO','VIOLA','FLUTE','DRUMS','PEDAL','CAPOS','TUNER','PICKS',
-        'KNOBS','SLIDE','FRETS','STRAP','REEDS','BATON','BELLS','BRASS','CELLO',
-        // Technique & performance
-        'LICKS','RIFFS','SWING','BLUES','FORTE','LARGO','STRUM','PLUCK','TRILL',
-        'MUTED','SWELL','GRIND','LEGAT','GLIDE','BLEND','GROWL','STOMP',
-        // Recording & production
-        'TRACK','TAKES','STEMS','NOISE','PUNCH','PATCH','BUSES','DELAY','LOOPS',
-        'LEVEL','PHASE','BOOST','NOTCH','SWEEP','FLANG','PLATE','Abbey',
-        // Genre & style
-        'INDIE','METAL','ROOTS','FUNKY','GOSPEL','BOSSA','POLKA','MAMBO','WALTZ',
-        // General music words (5 letters)
-        'BANDS','TUNES','SONGS','VOCAL','LYRIC','SCORE','ALBUM','VENUE','STAGE',
-        'CHOIR','DUETS','SOLOS','CANON','FUGUE','RONDO','SUITE','MOTIF','CLAVE',
-        'SYNTH','VOICE','CHORD','FORTE','LARGO','STAFF','SHARP','TONIC','TRIAD',
-        'ATONE','DRONE','METER','MODAL','NOTES','PULSE','RESTS','SCALE','TEMPO',
-      ].map(w => w.toUpperCase()).filter(w => w.length === 5);
+      const WORDS = const WORDS = {{ site.data.words | jsonify }};
 
       const WORD_LIST = [...new Set(WORDS)];
 
