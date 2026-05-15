@@ -1,5 +1,5 @@
 ---
-layout: null
+layout: default
 title: "Carl William Music | Tetris"
 description: "Classic Tetris — Carl William Music style."
 nav: tetris
@@ -41,13 +41,13 @@ extra_js:
   <style>
     /* ── Tetris page styles ── */
 
-    #tetris-section {
+    #tetris-game-wrapper #tetris-section {
       display: flex;
       flex-direction: column;
       gap: 0.75rem;
     }
 
-    .tetris-meta {
+    #tetris-game-wrapper .tetris-meta {
       font-family: 'Space Mono', monospace;
       font-size: 0.7rem;
       color: var(--accent, #00ff9f);
@@ -56,26 +56,26 @@ extra_js:
     }
 
     /* Stats bar */
-    .tetris-stats {
+    #tetris-game-wrapper .tetris-stats {
       display: flex;
       gap: 1.5rem;
       flex-wrap: wrap;
     }
 
-    .tetris-stat {
+    #tetris-game-wrapper .tetris-stat {
       display: flex;
       flex-direction: column;
       align-items: flex-start;
     }
 
-    .tetris-stat .stat-num {
+    #tetris-game-wrapper .tetris-stat .stat-num {
       font-family: 'VT323', monospace;
       font-size: 2rem;
       color: var(--accent, #00ff9f);
       line-height: 1;
     }
 
-    .tetris-stat .stat-label {
+    #tetris-game-wrapper .tetris-stat .stat-label {
       font-family: 'Space Mono', monospace;
       font-size: 0.6rem;
       color: var(--fg, #ccc);
@@ -85,14 +85,14 @@ extra_js:
     }
 
     /* Arena + side panel layout */
-    .tetris-play-area {
+    #tetris-game-wrapper .tetris-play-area {
       display: flex;
       gap: 1.25rem;
       align-items: flex-start;
     }
 
     /* The canvas */
-    #tetris-canvas {
+    #tetris-game-wrapper #tetris-canvas {
       display: block;
       border: 2px solid var(--accent, #00ff9f);
       box-shadow: 0 0 18px var(--accent, #00ff9f), inset 0 0 6px rgba(0,255,159,0.08);
@@ -104,14 +104,14 @@ extra_js:
     }
 
     /* Side panel: next piece + controls */
-    .tetris-side {
+    #tetris-game-wrapper .tetris-side {
       display: flex;
       flex-direction: column;
       gap: 1rem;
       min-width: 90px;
     }
 
-    .tetris-side-label {
+    #tetris-game-wrapper .tetris-side-label {
       font-family: 'VT323', monospace;
       font-size: 1.1rem;
       color: var(--accent, #00ff9f);
@@ -120,7 +120,7 @@ extra_js:
       margin-bottom: 0.2rem;
     }
 
-    #next-canvas {
+    #tetris-game-wrapper #next-canvas {
       display: block;
       border: 1px solid rgba(0,255,159,0.4);
       background: #000;
@@ -128,19 +128,19 @@ extra_js:
     }
 
     /* Level display */
-    .tetris-level {
+    #tetris-game-wrapper .tetris-level {
       font-family: 'VT323', monospace;
       font-size: 1.5rem;
       color: #fff;
       line-height: 1;
     }
 
-    .tetris-level span {
+    #tetris-game-wrapper .tetris-level span {
       color: var(--accent, #00ff9f);
     }
 
     /* Controls hint */
-    .tetris-keys {
+    #tetris-game-wrapper .tetris-keys {
       font-family: 'Space Mono', monospace;
       font-size: 0.58rem;
       color: var(--fg, #ccc);
@@ -149,14 +149,14 @@ extra_js:
       letter-spacing: 0.04em;
     }
 
-    .tetris-keys strong {
+    #tetris-game-wrapper .tetris-keys strong {
       color: var(--accent, #00ff9f);
       opacity: 1;
       font-weight: 700;
     }
 
     /* Buttons */
-    .tetris-controls {
+    #tetris-game-wrapper .tetris-controls {
       display: flex;
       flex-wrap: wrap;
       gap: 0.5rem;
@@ -164,7 +164,7 @@ extra_js:
     }
 
     /* Reuse the existing .game-btn style; define fallback if not present */
-    .tetris-btn {
+    #tetris-game-wrapper .tetris-btn {
       font-family: 'VT323', monospace;
       font-size: 1.2rem;
       letter-spacing: 0.08em;
@@ -177,14 +177,14 @@ extra_js:
       transition: background 0.15s, color 0.15s, box-shadow 0.15s;
     }
 
-    .tetris-btn:hover {
+    #tetris-game-wrapper .tetris-btn:hover {
       background: var(--accent, #00ff9f);
       color: #000;
       box-shadow: 0 0 10px var(--accent, #00ff9f);
     }
 
     /* Message overlay */
-    #tetris-msg {
+    #tetris-game-wrapper #tetris-msg {
       font-family: 'VT323', monospace;
       font-size: 1.2rem;
       color: #fff;
@@ -192,25 +192,25 @@ extra_js:
       letter-spacing: 0.06em;
     }
 
-    #tetris-msg .hi {
+    #tetris-game-wrapper #tetris-msg .hi {
       color: var(--accent, #00ff9f);
     }
 
     /* Mobile touch buttons */
-    .tetris-touch {
+    #tetris-game-wrapper .tetris-touch {
       display: none;
       gap: 0.4rem;
       justify-content: center;
       margin-top: 0.5rem;
     }
 
-    .touch-row {
+    #tetris-game-wrapper .touch-row {
       display: flex;
       gap: 0.4rem;
       justify-content: center;
     }
 
-    .touch-btn {
+    #tetris-game-wrapper .touch-btn {
       font-family: 'VT323', monospace;
       font-size: 1.6rem;
       width: 52px;
@@ -227,16 +227,16 @@ extra_js:
       transition: background 0.1s, color 0.1s;
     }
 
-    .touch-btn:active {
+    #tetris-game-wrapper .touch-btn:active {
       background: var(--accent, #00ff9f);
       color: #000;
     }
 
     @media (max-width: 600px) {
-      .tetris-touch { display: flex; flex-direction: column; }
-      .tetris-keys  { display: none; }
-      .tetris-play-area { flex-direction: column; align-items: center; }
-      #tetris-canvas { max-width: min(200px, 90vw); }
+      #tetris-game-wrapper .tetris-touch { display: flex; flex-direction: column; }
+      #tetris-game-wrapper .tetris-keys  { display: none; }
+      #tetris-game-wrapper .tetris-play-area { flex-direction: column; align-items: center; }
+      #tetris-game-wrapper #tetris-canvas { max-width: min(200px, 90vw); }
     }
   </style>
 </head>
@@ -281,80 +281,82 @@ extra_js:
 
   <!-- ══════════════════════════════════════════ -->
   <div class="page tab-fade">
-    <div class="left-col" id="tetris-section">
+    <div id="tetris-game-wrapper">
+      <div class="left-col" id="tetris-section">
 
-      <div class="section-label">Tetris</div>
-      <div id="tetris-msg">&gt; PRESS <span class="hi">START</span> TO PLAY</div>
-      <div class="tetris-meta">arrow keys / wasd &nbsp;//&nbsp; space = hard drop &nbsp;//&nbsp; p = pause</div>
+        <div class="section-label">Tetris</div>
+        <div id="tetris-msg">&gt; PRESS <span class="hi">START</span> TO PLAY</div>
+        <div class="tetris-meta">arrow keys / wasd &nbsp;//&nbsp; space = hard drop &nbsp;//&nbsp; p = pause</div>
 
-      <!-- Score / Lines / Hi-score -->
-      <div class="tetris-stats">
-        <div class="tetris-stat"><div class="stat-num" id="tet-score">0</div><div class="stat-label">Score</div></div>
-        <div class="tetris-stat"><div class="stat-num" id="tet-lines">0</div><div class="stat-label">Lines</div></div>
-        <div class="tetris-stat"><div class="stat-num" id="tet-hiscore">0</div><div class="stat-label">Best</div></div>
-      </div>
+        <!-- Score / Lines / Hi-score -->
+        <div class="tetris-stats">
+          <div class="tetris-stat"><div class="stat-num" id="tet-score">0</div><div class="stat-label">Score</div></div>
+          <div class="tetris-stat"><div class="stat-num" id="tet-lines">0</div><div class="stat-label">Lines</div></div>
+          <div class="tetris-stat"><div class="stat-num" id="tet-hiscore">0</div><div class="stat-label">Best</div></div>
+        </div>
 
-      <!-- Board + side panel -->
-      <div class="tetris-play-area">
-        <canvas id="tetris-canvas" width="240" height="480"></canvas>
+        <!-- Board + side panel -->
+        <div class="tetris-play-area">
+          <canvas id="tetris-canvas" width="240" height="480"></canvas>
 
-        <div class="tetris-side">
-          <div>
-            <div class="tetris-side-label">Next</div>
-            <canvas id="next-canvas" width="80" height="80"></canvas>
+          <div class="tetris-side">
+            <div>
+              <div class="tetris-side-label">Next</div>
+              <canvas id="next-canvas" width="80" height="80"></canvas>
+            </div>
+            <div>
+              <div class="tetris-side-label">Level</div>
+              <div class="tetris-level" id="tet-level"><span>1</span></div>
+            </div>
+            <div class="tetris-keys">
+              <strong>← →</strong> Move<br>
+              <strong>↑ / Z</strong> Rotate<br>
+              <strong>↓</strong> Soft drop<br>
+              <strong>SPC</strong> Hard drop<br>
+              <strong>P</strong> Pause
+            </div>
           </div>
-          <div>
-            <div class="tetris-side-label">Level</div>
-            <div class="tetris-level" id="tet-level"><span>1</span></div>
+        </div>
+
+        <!-- Touch controls (mobile) -->
+        <div class="tetris-touch" id="tetris-touch">
+          <div class="touch-row">
+            <button class="touch-btn" id="tb-rot">↻</button>
           </div>
-          <div class="tetris-keys">
-            <strong>← →</strong> Move<br>
-            <strong>↑ / Z</strong> Rotate<br>
-            <strong>↓</strong> Soft drop<br>
-            <strong>SPC</strong> Hard drop<br>
-            <strong>P</strong> Pause
+          <div class="touch-row">
+            <button class="touch-btn" id="tb-left">◀</button>
+            <button class="touch-btn" id="tb-down">▼</button>
+            <button class="touch-btn" id="tb-right">▶</button>
+          </div>
+          <div class="touch-row">
+            <button class="touch-btn" id="tb-drop">DROP</button>
           </div>
         </div>
-      </div>
 
-      <!-- Touch controls (mobile) -->
-      <div class="tetris-touch" id="tetris-touch">
-        <div class="touch-row">
-          <button class="touch-btn" id="tb-rot">↻</button>
+        <!-- Buttons -->
+        <div class="tetris-controls">
+          <button class="tetris-btn" id="tet-start-btn">Start</button>
+          <button class="tetris-btn" id="tet-pause-btn" disabled>Pause</button>
+          <button class="tetris-btn" id="tet-reset-btn" disabled>Reset</button>
         </div>
-        <div class="touch-row">
-          <button class="touch-btn" id="tb-left">◀</button>
-          <button class="touch-btn" id="tb-down">▼</button>
-          <button class="touch-btn" id="tb-right">▶</button>
+
+      </div><!-- /.left-col -->
+
+      <!-- Right column — identical social sidebar to fretdle.html -->
+      <div class="right-col">
+        <div class="section-label" id="find-me">Find Me</div>
+        <div class="social-links">
+          <a class="social-link yt" href="https://www.youtube.com/@CarlWilliamMusic"   data-icon="youtube"   target="_blank" rel="noopener">YouTube</a>
+          <a class="social-link ig" href="https://www.instagram.com/carlwilliammusic/" data-icon="instagram" target="_blank" rel="noopener">Instagram</a>
+          <a class="social-link sc" href="https://soundcloud.com/carl-william-music"   data-icon="radio"     target="_blank" rel="noopener">SoundCloud</a>
+          <a class="social-link gh" href="https://github.com/Ahlers94"                 data-icon="github"    target="_blank" rel="noopener">GitHub</a>
+          <a class="social-link em" href="mailto:wcarlahlers@gmail.com"                data-icon="mail">wcarlahlers@gmail.com</a>
+          <a class="social-link vm" href="https://venmo.com/carl-william-music"        data-icon="venmo"     target="_blank" rel="noopener">Venmo</a>
         </div>
-        <div class="touch-row">
-          <button class="touch-btn" id="tb-drop">DROP</button>
+        <div class="bio-box">
+          <div class="section-label">About</div>
+          <p class="bio-text" id="bio-decrypt">🎸 Guitarist | 🎛️ Live Looping Artist | 🔊 Crafting full-band soundscapes</p>
         </div>
-      </div>
-
-      <!-- Buttons -->
-      <div class="tetris-controls">
-        <button class="tetris-btn" id="tet-start-btn">Start</button>
-        <button class="tetris-btn" id="tet-pause-btn" disabled>Pause</button>
-        <button class="tetris-btn" id="tet-reset-btn" disabled>Reset</button>
-      </div>
-
-    </div><!-- /.left-col -->
-
-    <!-- Right column — identical social sidebar to fretdle.html -->
-    <div class="right-col">
-      <div class="section-label" id="find-me">Find Me</div>
-      <div class="social-links">
-        <a class="social-link yt" href="https://www.youtube.com/@CarlWilliamMusic"   data-icon="youtube"   target="_blank" rel="noopener">YouTube</a>
-        <a class="social-link ig" href="https://www.instagram.com/carlwilliammusic/" data-icon="instagram" target="_blank" rel="noopener">Instagram</a>
-        <a class="social-link sc" href="https://soundcloud.com/carl-william-music"   data-icon="radio"     target="_blank" rel="noopener">SoundCloud</a>
-        <a class="social-link gh" href="https://github.com/Ahlers94"                 data-icon="github"    target="_blank" rel="noopener">GitHub</a>
-        <a class="social-link em" href="mailto:wcarlahlers@gmail.com"                data-icon="mail">wcarlahlers@gmail.com</a>
-        <a class="social-link vm" href="https://venmo.com/carl-william-music"        data-icon="venmo"     target="_blank" rel="noopener">Venmo</a>
-      </div>
-      <div class="bio-box">
-        <div class="section-label">About</div>
-        <p class="bio-text" id="bio-decrypt">🎸 Guitarist | 🎛️ Live Looping Artist | 🔊 Crafting full-band soundscapes</p>
       </div>
     </div>
   </div><!-- /.page -->
