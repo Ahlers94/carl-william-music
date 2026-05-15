@@ -1359,15 +1359,18 @@ layout: null
     });
 
 
-    // ── ELEMENT SELECTORS ──────────────────────────────────────────
-    const page             = document.querySelector('.page'); // The main video container
-    const gearSection      = document.getElementById('gear');
-    const aboutSection     = document.getElementById('about');
-    const showsSection     = document.getElementById('shows');
-    const newsSection      = document.getElementById('news');
-    const gameSection      = document.getElementById('fretdle');
-    const originalsSection = document.getElementById('originals-section');
-    const coversSection    = document.getElementById('covers-section');
+// ── UPDATED ELEMENT SELECTORS ──────────────────────────────────────────
+const page             = document.querySelector('.page'); 
+const gearSection      = document.getElementById('gear-section');
+const aboutSection     = document.getElementById('about-section');
+const showsSection     = document.getElementById('shows-section');
+const newsSection      = document.getElementById('news-section');
+const gameSection      = document.getElementById('game-section');
+const matrixSection    = document.getElementById('matrix-section');
+
+// These IDs are inside the .page grid, keep them as is
+const originalsSection = document.getElementById('originals-section');
+const coversSection    = document.getElementById('covers-section');
 
     // Selectors for Matrix/Navigation
     const siteHeader     = document.getElementById('site-header');
@@ -1462,50 +1465,46 @@ function handleRouting() {
 // Global Listeners
 window.addEventListener('hashchange', handleRouting);
 window.addEventListener('load', handleRouting);
-
-// ── UI HELPER FUNCTIONS ──────────────────────────────────────────────
+// ── UPDATED UI HELPER FUNCTIONS ────────────────────────────────────────
 
 function hideAll() {
-    // Hide the main video container
-    page.classList.add('hidden');
-    page.style.display = 'none';
+    // Hide the main video grid
+    if (page) {
+        page.classList.add('hidden');
+        page.style.display = 'none';
+    }
 
-    // Hide all individual content sections
-    // Note: Ensure these match the variable names you defined at the top
+    // Hide all standalone sections
     const allSections = [gearSection, aboutSection, showsSection, newsSection, gameSection];
     allSections.forEach(sec => {
         if (sec) {
             sec.style.display = 'none';
-            sec.classList.remove('tab-fade'); // Reset animation state
+            sec.classList.remove('tab-fade');
         }
     });
 }
 
+// Fixed helper functions to use the correct variables and matching IDs
+function showGear()  { pauseAllVideos(); hideAll(); gearSection.style.display = 'block'; fadeInSection('gear-section'); }
+function showAbout() { pauseAllVideos(); hideAll(); aboutSection.style.display = 'block'; fadeInSection('about-section'); }
+function showShows() { pauseAllVideos(); hideAll(); showsSection.style.display = 'block'; fadeInSection('shows-section'); }
+function showNews()  { pauseAllVideos(); hideAll(); newsSection.style.display = 'block'; fadeInSection('news-section'); }
+function showGame()  { pauseAllVideos(); hideAll(); gameSection.style.display = 'block'; fadeInSection('game-section'); }
+
 function showPage(section) {
     pauseAllVideos();
-    hideAll(); // Hide everything else first
+    hideAll(); 
     
-    // Now bring the main video container back
     page.classList.remove('hidden');
     page.style.display = 'block'; 
     
     const isCovers = (section === 'covers');
-    const originals = document.getElementById('originals-section');
-    const covers = document.getElementById('covers-section');
-
-    if (originals) originals.style.display = isCovers ? 'none' : 'block';
-    if (covers) covers.style.display = isCovers ? 'block' : 'none';
+    if (originalsSection) originalsSection.style.display = isCovers ? 'none' : 'block';
+    if (coversSection) coversSection.style.display = isCovers ? 'block' : 'none';
     
     fadeInSection(isCovers ? 'covers-section' : 'originals-section');
-    setTimeout(() => window.scrollTo({ top: 0, behavior: 'smooth' }), 10);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
 }
-
-// Ensure the ID passed to fadeInSection matches the ID in your HTML exactly
-function showGear()  { pauseAllVideos(); hideAll(); gearSection.style.display = 'block'; fadeInSection('gear'); }
-function showAbout() { pauseAllVideos(); hideAll(); aboutSection.style.display = 'block'; fadeInSection('about'); }
-function showShows() { pauseAllVideos(); hideAll(); showsSection.style.display = 'block'; fadeInSection('shows'); }
-function showNews()  { pauseAllVideos(); hideAll(); newsSection.style.display = 'block'; fadeInSection('news'); }
-function showGame()  { pauseAllVideos(); hideAll(); gameSection.style.display = 'block'; fadeInSection('fretdle'); }
 
 
     // ── ENTER MATRIX ──────────────────────────────────────────────
