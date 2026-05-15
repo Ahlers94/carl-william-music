@@ -424,6 +424,60 @@ layout: null
       border: none;
     }
 
+    /* ── YOUTUBE LITE EMBED ──────────────────────────────────────── */
+    .yt-facade {
+      position: absolute;
+      inset: 0;
+      cursor: pointer;
+      overflow: hidden;
+      background: #06060f;
+    }
+    .yt-facade img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      transition: transform 0.35s ease, filter 0.35s ease;
+      filter: brightness(0.82) saturate(1.1);
+    }
+    .yt-facade:hover img {
+      transform: scale(1.04);
+      filter: brightness(0.65) saturate(1.2);
+    }
+    .yt-play {
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      width: 56px; height: 56px;
+      background: rgba(0, 0, 0, 0.72);
+      border: 2px solid var(--pink);
+      border-radius: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.2s, border-color 0.2s, box-shadow 0.2s, transform 0.2s;
+      box-shadow: 0 0 18px #ff2d7866, inset 0 0 8px #ff2d780d;
+      pointer-events: none;
+    }
+    .yt-facade:hover .yt-play {
+      background: rgba(255, 45, 120, 0.22);
+      border-color: var(--cyan);
+      box-shadow: 0 0 28px #00f5ffaa, inset 0 0 10px #00f5ff11;
+      transform: translate(-50%, -50%) scale(1.1);
+    }
+    .yt-play svg {
+      width: 22px; height: 22px;
+      fill: #fff;
+      margin-left: 4px;
+      filter: drop-shadow(0 0 4px #ffffff88);
+    }
+    .video-featured .yt-play {
+      width: 72px; height: 72px;
+    }
+    .video-featured .yt-play svg {
+      width: 30px; height: 30px;
+    }
+
     /* ── SOCIAL LINKS ───────────────────────────────────────────── */
     .social-links {
       display: flex;
@@ -1079,11 +1133,15 @@ layout: null
         {% for video in site.data.videos.originals %}
           {% if video.featured %}
           <div class="video-featured">
-            <iframe
-              src="https://www.youtube-nocookie.com/embed/{{ video.id }}?enablejsapi=1"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-              allowfullscreen>
-            </iframe>
+            <div class="yt-facade" data-vid="{{ video.id }}">
+              <img src="https://img.youtube.com/vi/{{ video.id }}/maxresdefault.jpg"
+                   onerror="this.src='https://img.youtube.com/vi/{{ video.id }}/hqdefault.jpg'"
+                   alt="{% if video.title %}{{ video.title }}{% else %}Play video{% endif %}"
+                   loading="lazy" decoding="async">
+              <button class="yt-play" aria-label="Play video" tabindex="-1">
+                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><polygon points="5,3 19,12 5,21"/></svg>
+              </button>
+            </div>
           </div>
           {% if video.title %}<div class="video-caption">&gt; {{ video.title }}</div>{% endif %}
           {% endif %}
@@ -1096,11 +1154,15 @@ layout: null
         <div class="video-grid">
           {% for video in non_featured %}
           <div class="video-small">
-            <iframe
-              src="https://www.youtube-nocookie.com/embed/{{ video.id }}?enablejsapi=1"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-              allowfullscreen>
-            </iframe>
+            <div class="yt-facade" data-vid="{{ video.id }}">
+              <img src="https://img.youtube.com/vi/{{ video.id }}/maxresdefault.jpg"
+                   onerror="this.src='https://img.youtube.com/vi/{{ video.id }}/hqdefault.jpg'"
+                   alt="{% if video.title %}{{ video.title }}{% else %}Play video{% endif %}"
+                   loading="lazy" decoding="async">
+              <button class="yt-play" aria-label="Play video" tabindex="-1">
+                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><polygon points="5,3 19,12 5,21"/></svg>
+              </button>
+            </div>
           </div>
           {% endfor %}
         </div>
@@ -1114,11 +1176,15 @@ layout: null
         <div class="video-grid">
           {% for video in site.data.videos.covers %}
           <div class="video-small">
-            <iframe
-              src="https://www.youtube-nocookie.com/embed/{{ video.id }}?enablejsapi=1"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-              allowfullscreen>
-            </iframe>
+            <div class="yt-facade" data-vid="{{ video.id }}">
+              <img src="https://img.youtube.com/vi/{{ video.id }}/maxresdefault.jpg"
+                   onerror="this.src='https://img.youtube.com/vi/{{ video.id }}/hqdefault.jpg'"
+                   alt="{% if video.title %}{{ video.title }}{% else %}Play video{% endif %}"
+                   loading="lazy" decoding="async">
+              <button class="yt-play" aria-label="Play video" tabindex="-1">
+                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><polygon points="5,3 19,12 5,21"/></svg>
+              </button>
+            </div>
           </div>
           {% endfor %}
         </div>
@@ -1284,11 +1350,14 @@ layout: null
           <div class="post-video">
             <div class="post-meta-label" style="margin-top: 16px; padding-top: 14px; border-top: 1px solid #ffffff0d;">Video</div>
             <div class="video-small" style="margin-top: 8px;">
-              <iframe
-                src="https://www.youtube-nocookie.com/embed/{{ post.video_id }}?enablejsapi=1"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                allowfullscreen>
-              </iframe>
+              <div class="yt-facade" data-vid="{{ post.video_id }}">
+                <img src="https://img.youtube.com/vi/{{ post.video_id }}/maxresdefault.jpg"
+                     onerror="this.src='https://img.youtube.com/vi/{{ post.video_id }}/hqdefault.jpg'"
+                     alt="Play video" loading="lazy" decoding="async">
+                <button class="yt-play" aria-label="Play video" tabindex="-1">
+                  <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><polygon points="5,3 19,12 5,21"/></svg>
+                </button>
+              </div>
             </div>
           </div>
           {% endif %}
@@ -1413,6 +1482,20 @@ let animFrame;
         } catch (e) {}
       });
     }
+
+    // ── YOUTUBE LITE EMBED — swap facade for real iframe on click ─
+    document.addEventListener('click', function(e) {
+      const facade = e.target.closest('.yt-facade');
+      if (!facade) return;
+      const vid = facade.dataset.vid;
+      if (!vid) return;
+      const iframe = document.createElement('iframe');
+      iframe.src = 'https://www.youtube-nocookie.com/embed/' + vid + '?autoplay=1&enablejsapi=1';
+      iframe.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture';
+      iframe.allowFullscreen = true;
+      iframe.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;border:none;';
+      facade.replaceWith(iframe);
+    });
 
     // ── GEAR CARD EXPAND ─────────────────────────────────────────
     document.querySelectorAll('.gear-item').forEach(item => {
