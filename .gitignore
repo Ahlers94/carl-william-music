@@ -1,0 +1,3 @@
+# Bundler (local install paths — do not commit)
+vendor/
+.bundle/
