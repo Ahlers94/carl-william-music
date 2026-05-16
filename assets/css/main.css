@@ -64,7 +64,7 @@ header {
 
 @keyframes breathe {
   0%, 100% { text-shadow: 3px 3px 0 #003d10, 0 0 20px #00ff4133, 0 0 40px #00ff4122; }
-  50%       { text-shadow: 3px 3px 0 #003d10, 0 0 30px #00ff41aa, 0 0 60px #00ff4155, 0 0 80px #00ff4122; }
+  50%        { text-shadow: 3px 3px 0 #003d10, 0 0 30px #00ff41aa, 0 0 60px #00ff4155, 0 0 80px #00ff4122; }
 }
 .artist-tagline {
   font-size: 11px;
@@ -164,15 +164,20 @@ nav a {
 #nav-fretdle:hover,
 #nav-fretdle.active   { color: #ff9933; border-bottom: 2px solid #ff9933; text-shadow: 0 0 12px #ff993388; }
 
+#nav-frettris          { color: #cca239; text-shadow: 0 0 8px #cca23966; }
+#nav-frettris:hover,
+#nav-frettris.active   { color: #ffd44f; border-bottom: 2px solid #ffd44f; text-shadow: 0 0 12px #ffd44f88; }
+
 /* ── NAV TAB FADE-IN ──────────────────────────────────────────── */
 #nav-originals { animation: fadeInNav 0.3s ease forwards; animation-delay: 1.7s; opacity: 0; }
-#nav-covers  { animation: fadeInNav 0.3s ease forwards; animation-delay: 1.9s; opacity: 0; }
-#nav-gear   { animation: fadeInNav 0.3s ease forwards; animation-delay: 2.1s; opacity: 0; }
-#nav-about  { animation: fadeInNav 0.3s ease forwards; animation-delay: 2.3s; opacity: 0; }
-#nav-shows  { animation: fadeInNav 0.3s ease forwards; animation-delay: 2.5s; opacity: 0; }
-#nav-news   { animation: fadeInNav 0.3s ease forwards; animation-delay: 2.7s; opacity: 0; }
-#nav-fretdle   { animation: fadeInNav 0.3s ease forwards; animation-delay: 2.9s; opacity: 0; }
-#nav-matrix { animation: fadeInNav 0.3s ease forwards; animation-delay: 3.1s; opacity: 0; }
+#nav-covers   { animation: fadeInNav 0.3s ease forwards; animation-delay: 1.9s; opacity: 0; }
+#nav-gear     { animation: fadeInNav 0.3s ease forwards; animation-delay: 2.1s; opacity: 0; }
+#nav-about    { animation: fadeInNav 0.3s ease forwards; animation-delay: 2.3s; opacity: 0; }
+#nav-shows    { animation: fadeInNav 0.3s ease forwards; animation-delay: 2.5s; opacity: 0; }
+#nav-news     { animation: fadeInNav 0.3s ease forwards; animation-delay: 2.7s; opacity: 0; }
+#nav-fretdle  { animation: fadeInNav 0.3s ease forwards; animation-delay: 2.9s; opacity: 0; }
+#nav-frettris  { animation: fadeInNav 0.3s ease forwards; animation-delay: 3.1s; opacity: 0; }
+#nav-matrix   { animation: fadeInNav 0.3s ease forwards; animation-delay: 3.3s; opacity: 0; }
 @keyframes fadeInNav { to { opacity: 1; } }
 
 /* ── CUSTOM CURSOR GLOW (desktop only) ────────────────────────── */
@@ -188,10 +193,6 @@ nav a {
 }
 @media (hover: none) { #cursor-glow { display: none; } }
 
-/* ── MEDIA CARD SHELLS (YouTube today; SoundCloud / Instagram later) ─────
-   Layout is provider-agnostic: use .media-grid / .media-featured / .media-small
-   on new embed pages, or keep the legacy .video-* names. YouTube-specific
-   chrome lives under .yt-facade, .yt-play, .yt-title only. */
 /* ── VIDEO / MEDIA CARD HOVER GLOW ───────────────────────────────────────── */
 .video-featured:hover,
 .media-featured:hover {
@@ -672,7 +673,7 @@ nav a {
 }
 
 .post-meta {
-  margin-top: 16px;
+  margin-top: 166px; /* Adjusted context space tracking */
   padding-top: 14px;
   border-top: 1px solid #ffffff0d;
   display: flex;
