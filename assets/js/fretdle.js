@@ -26,7 +26,33 @@
   let currentCol;
   let board;
   let gameOver;
-  const stats = { played: 0, won: 0, streak: 0 };
+
+  // --- LOCALSTORAGE PERSISTENCE LAYER ---
+  const STORAGE_KEY = 'fretdle_game_stats';
+  
+  function loadStats() {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (saved) {
+        return JSON.parse(saved);
+      }
+    } catch (e) {
+      console.error("Error reading from localStorage:", e);
+    }
+    return { played: 0, won: 0, streak: 0 };
+  }
+
+  function saveStats(newStats) {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(newStats));
+    } catch (e) {
+      console.error("Error writing to localStorage:", e);
+    }
+  }
+
+  // Initialize stats directly from local storage
+  const stats = loadStats();
+  // --------------------------------------
 
   const boardEl = document.getElementById('game-board');
   const msgEl = document.getElementById('game-msg');
@@ -176,6 +202,7 @@
         stats.played++;
         stats.won++;
         stats.streak++;
+        saveStats(stats); // Commit win to storage
         updateStats();
         gameOver = true;
         const msgs = ['NAILED IT', 'NICE PLAYING', 'ON THE MONEY', 'PERFECT PITCH', 'SHRED MASTER'];
@@ -190,6 +217,7 @@
       if (currentRow >= ROWS) {
         stats.played++;
         stats.streak = 0;
+        saveStats(stats); // Commit loss to storage
         updateStats();
         gameOver = true;
         setTimeout(function () {
@@ -277,8 +305,9 @@
   });
 
   if (newBtn) newBtn.addEventListener('click', function () {
-       newGame();  
-       newBtn.blur();  });
+    newGame();  
+    newBtn.blur();  
+  });
        
   buildKeyboard();
   newGame();
