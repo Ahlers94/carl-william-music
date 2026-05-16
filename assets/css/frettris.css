@@ -19,7 +19,6 @@
   color: #cca239;
   text-shadow: 0 0 6px rgba(204, 162, 57, 0.4);
   letter-spacing: 1px;
-  margin-bottom: 6px;
 }
 
 #frettris-msg .hi {
@@ -28,11 +27,45 @@
   font-weight: bold;
 }
 
+/* ── SPEAKER AUDIO TOGGLE BUTTON ───────────────────────────── */
+.frettris-audio-control {
+  display: inline-flex;
+  align-items: center;
+}
+
+.mute-btn {
+  background: transparent;
+  border: none;
+  color: #cca239;
+  cursor: pointer;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.2s ease, filter 0.2s ease;
+}
+
+.mute-btn:hover {
+  color: #ffd44f;
+  filter: drop-shadow(0 0 5px rgba(255, 212, 79, 0.6));
+}
+
+/* Hide acoustic sound waves when muted */
+.mute-btn.is-muted #speaker-waves {
+  display: none;
+}
+
+/* Subtle cross fallback look when muted */
+.mute-btn.is-muted svg {
+  opacity: 0.4;
+}
+
 .frettris-meta {
   font-size: 9px;
   color: var(--dim);
   text-transform: uppercase;
   letter-spacing: 1px;
+  margin-top: 6px;
   margin-bottom: 24px;
 }
 
@@ -217,28 +250,4 @@
   .frettris-touch {
     display: flex;
   }
-  /* ── AUDIO CONTROL ──────────────────────────────────────────── */
-.frettris-audio-control {
-  display: inline-block;
-  flex-shrink: 0;
-}
-
-.mute-btn {
-  background: transparent;
-  border: none;
-  color: #cca239;
-  cursor: pointer;
-  padding: 4px;
-  line-height: 0;
-  transition: all 0.2s ease;
-}
-
-.mute-btn:hover {
-  color: #ffd44f;
-  filter: drop-shadow(0 0 5px rgba(255, 212, 79, 0.6));
-}
-
-.mute-btn.is-muted #speaker-waves {
-  display: none;
-}
 }
