@@ -4,6 +4,32 @@
 # id:     numeric track id (soundcloud.com/tracks/<id>)
 # type:   "cover" | "original" (used to filter on pages)
 
+
+
+- title: "I Just Want My Soul"
+  id: "1639953765"
+  type: "original"
+
+- title: "JBOD"
+  id: "1027375360"
+  type: "original" 
+
+- title: "Carpe Diem"
+  id: "1780932843"
+  type: "original"
+
+- title: "Reclaimed Momento (demo)"
+  id: "2232991898"
+  type: "original"
+
+- title: "Violin Vantes (my first song I ever wrote!)"
+  id: "1027333681?secret_token=s-nCKcwoGs8nJ"
+  type: "original"
+  
+- title: "[Weezer] QB Blitz"
+  id: "1498255381"
+  type: "cover"
+
 - title: "[of Montreal cover] Waiting on the Weather (Dirty Dustin Hoffman Needs a Bath)"
   id: "1493831866"
   type: "cover"
@@ -11,15 +37,8 @@
 - title: "[of Montreal cover] Sinking The Plane Into The Ground (Dustin Hoffman's Children Enter The Room)"
   id: "1518065803"
   type: "cover"
+  
 
-- title: "JBOD"
-  id: "1027375360"
-  type: "original" 
+
+
   
-- title: "[Weezer] QB Blitz"
-  id: 1498255381
-  type: "cover"
-  
-- title: "Carpe Diem"
-  id: "1780932843"
-  type: "original"
