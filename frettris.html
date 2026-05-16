@@ -208,62 +208,66 @@ extra_js:
   }
 </style>
 
-<div id="frettris-game-container">
-  <div class="left-col" id="frettris-section">
-
+<div class="page">
+  <div class="left-col content-page">
     <div class="section-label">Frettris</div>
-    <div class="section-subtitle">Stack the chords. Clear the lines.</div>
-    <div id="frettris-msg">&gt; PRESS <span class="hi">START</span> TO PLAY</div>
-    <div class="frettris-meta">arrow keys / wasd &nbsp;//&nbsp; space = hard drop &nbsp;//&nbsp; p = pause</div>
+    <div id="frettris-game-container">
+      <div id="frettris-section">
 
-    <div class="frettris-stats">
-      <div class="frettris-stat"><div class="stat-num" id="tet-score">0</div><div class="stat-label">Score</div></div>
-      <div class="frettris-stat"><div class="stat-num" id="tet-lines">0</div><div class="stat-label">Lines</div></div>
-      <div class="frettris-stat"><div class="stat-num" id="tet-hiscore">0</div><div class="stat-label">Best</div></div>
-    </div>
+        <div class="section-subtitle">Stack the chords. Clear the lines.</div>
+        <div id="frettris-msg">&gt; PRESS <span class="hi">START</span> TO PLAY</div>
+        <div class="frettris-meta">arrow keys / wasd &nbsp;//&nbsp; space = hard drop &nbsp;//&nbsp; p = pause</div>
 
-    <div class="frettris-play-area">
-      <canvas id="frettris-canvas" width="240" height="480"></canvas>
-
-      <div class="frettris-side">
-        <div>
-          <div class="frettris-side-label">Next</div>
-          <canvas id="next-canvas" width="80" height="80"></canvas>
+        <div class="frettris-stats">
+          <div class="frettris-stat"><div class="stat-num" id="tet-score">0</div><div class="stat-label">Score</div></div>
+          <div class="frettris-stat"><div class="stat-num" id="tet-lines">0</div><div class="stat-label">Lines</div></div>
+          <div class="frettris-stat"><div class="stat-num" id="tet-hiscore">0</div><div class="stat-label">Best</div></div>
         </div>
-        <div>
-          <div class="frettris-side-label">Level</div>
-          <div class="frettris-level" id="tet-level"><span>1</span></div>
+
+        <div class="frettris-play-area">
+          <canvas id="frettris-canvas" width="240" height="480"></canvas>
+
+          <div class="frettris-side">
+            <div>
+              <div class="frettris-side-label">Next</div>
+              <canvas id="next-canvas" width="80" height="80"></canvas>
+            </div>
+            <div>
+              <div class="frettris-side-label">Level</div>
+              <div class="frettris-level" id="tet-level"><span>1</span></div>
+            </div>
+            <div class="frettris-keys">
+              <strong>← →</strong> Move<br>
+              <strong>↑ / Z</strong> Rotate<br>
+              <strong>↓</strong> Soft drop<br>
+              <strong>SPC</strong> Hard drop<br>
+              <strong>P</strong> Pause
+            </div>
+          </div>
         </div>
-        <div class="frettris-keys">
-          <strong>← →</strong> Move<br>
-          <strong>↑ / Z</strong> Rotate<br>
-          <strong>↓</strong> Soft drop<br>
-          <strong>SPC</strong> Hard drop<br>
-          <strong>P</strong> Pause
+
+        <div class="frettris-touch" id="frettris-touch">
+          <div class="touch-row">
+            <button class="touch-btn" id="tb-rot">↻</button>
+          </div>
+          <div class="touch-row">
+            <button class="touch-btn" id="tb-left">◀</button>
+            <button class="touch-btn" id="tb-down">▼</button>
+            <button class="touch-btn" id="tb-right">▶</button>
+          </div>
+          <div class="touch-row">
+            <button class="touch-btn" id="tb-drop">DROP</button>
+          </div>
         </div>
+
+        <div class="frettris-controls">
+          <button class="frettris-btn" id="tet-start-btn">Start</button>
+          <button class="frettris-btn" id="tet-pause-btn" disabled>Pause</button>
+          <button class="frettris-btn" id="tet-reset-btn" disabled>Reset</button>
+        </div>
+
       </div>
     </div>
-
-    <div class="frettris-touch" id="frettris-touch">
-      <div class="touch-row">
-        <button class="touch-btn" id="tb-rot">↻</button>
-      </div>
-      <div class="touch-row">
-        <button class="touch-btn" id="tb-left">◀</button>
-        <button class="touch-btn" id="tb-down">▼</button>
-        <button class="touch-btn" id="tb-right">▶</button>
-      </div>
-      <div class="touch-row">
-        <button class="touch-btn" id="tb-drop">DROP</button>
-      </div>
-    </div>
-
-    <div class="frettris-controls">
-      <button class="frettris-btn" id="tet-start-btn">Start</button>
-      <button class="frettris-btn" id="tet-pause-btn" disabled>Pause</button>
-      <button class="frettris-btn" id="tet-reset-btn" disabled>Reset</button>
-    </div>
-
   </div>
 
   <div class="right-col">
