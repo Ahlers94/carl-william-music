@@ -1,5 +1,3 @@
-
-<script>
 // ═══════════════════════════════════════════════════════
 //  frettris ENGINE
 // ═══════════════════════════════════════════════════════
@@ -92,13 +90,13 @@
   let initialized = false;
 
   function init() {
-    board       = Array.from({ length: ROWS }, () => Array(COLS).fill(null));
-    score       = 0;
-    lines       = 0;
-    level       = 1;
-    running     = false;
-    paused      = false;
-    gameOver    = false;
+    board        = Array.from({ length: ROWS }, () => Array(COLS).fill(null));
+    score        = 0;
+    lines        = 0;
+    level        = 1;
+    running      = false;
+    paused       = false;
+    gameOver     = false;
     dropCounter = 0;
     dropInterval= 800;
     hiScore     = parseInt(localStorage.getItem('tet_hi') || '0', 10);
@@ -219,6 +217,7 @@
     return gy;
   }
 
+  // Visual scaling architecture
   function drawBlock(context, x, y, color, alpha) {
     context.globalAlpha = alpha || 1;
     context.fillStyle   = color;
@@ -382,7 +381,7 @@
       case 'ArrowDown':  case 's': case 'S': e.preventDefault(); moveDown();   break;
       case 'ArrowUp':    case 'z': case 'Z': e.preventDefault(); rotate();     break;
       case ' ':                              e.preventDefault(); hardDrop();   break;
-      case 'p': case 'P':                    togglePause();                     break;
+      case 'p': case 'P':                    togglePause();                    break;
     }
     if (!paused) drawBoard();
   });
@@ -442,8 +441,6 @@
   } else {
     window.addEventListener('load', launchFrettris);
   }
-  // fallback for bfcache / back-forward navigation so canvas inits correctly
   window.addEventListener('pageshow', launchFrettris);
 
 })();
-</script>
