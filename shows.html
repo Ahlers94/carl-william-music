@@ -31,15 +31,20 @@ permalink: /shows.html
     {% if site.data.shows.past and site.data.shows.past.size > 0 %}
     <div class="section-label" style="margin-top: 36px;">Past Shows</div>
     <div class="shows-list">
-      {% for show in site.data.shows.past %}
-      <div class="show-item">
-        <div class="show-date">{{ show.year }}</div>
-        <div class="show-details">
-          <div class="show-venue">{{ show.event }}</div>
-          {% if show.venue %}<div class="show-location">{{ show.venue }}</div>{% endif %}
-        </div>
-      </div>
-      {% endfor %}
+{% for show in site.data.shows.past %}
+{% assign matched_post = site.data.posts | where: "slug", show.news_slug | first %}
+<div class="show-item{% if matched_post %} has-news{% endif %}">
+  {% if matched_post %}
+  <a href="/news.html#{{ show.news_slug }}" class="show-news-link" aria-label="Read writeup for {{ show.event }}"></a>
+  {% endif %}
+  <div class="show-date">{{ show.year }}</div>
+  <div class="show-details">
+    <div class="show-venue">{{ show.event }}</div>
+    {% if show.venue %}<div class="show-location">{{ show.venue }}</div>{% endif %}
+    {% if matched_post %}<div class="show-news-hint">→ Read writeup</div>{% endif %}
+  </div>
+</div>
+{% endfor %}
     </div>
     {% endif %}
 
