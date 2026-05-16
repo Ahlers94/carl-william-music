@@ -44,3 +44,35 @@
   {% endfor %}
 </div>
 {% endif %}
+
+{% assign original_tracks = site.data.soundcloud | where: "type", "original" %}
+{% if original_tracks.size > 0 %}
+
+<div class="section-label" style="margin-top: 40px;">Audio Tracks</div>
+
+{% assign sc_featured = original_tracks | first %}
+<div class="video-featured">
+  <iframe
+    src="https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/{{ sc_featured.id }}{% if sc_featured.secret_token %}%3Fsecret_token%3D{{ sc_featured.secret_token }}{% endif %}&color=%23ff2d78&auto_play=false&hide_related=false&show_comments=false&show_user=true&show_reposts=false&visual=true"
+    scrolling="no" frameborder="no" allow="autoplay; encrypted-media">
+  </iframe>
+</div>
+<div class="video-caption">&gt; {{ sc_featured.title }}</div>
+
+{% assign sc_rest = original_tracks | shift %}
+{% if sc_rest.size > 0 %}
+<div class="section-label" style="margin-top: 28px;">More Audio</div>
+<div class="video-grid">
+  {% for track in sc_rest %}
+  <div class="video-small media-small--audio">
+    <iframe
+      src="https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/{{ track.id }}{% if track.secret_token %}%3Fsecret_token%3D{{ track.secret_token }}{% endif %}&color=%23ffd700&auto_play=false&hide_related=false&show_comments=false&show_user=true&show_reposts=false&visual=true"
+      scrolling="no" frameborder="no" allow="autoplay; encrypted-media">
+    </iframe>
+    <div class="video-caption">&gt; {{ track.title }}</div>
+  </div>
+  {% endfor %}
+</div>
+{% endif %}
+
+{% endif %}
