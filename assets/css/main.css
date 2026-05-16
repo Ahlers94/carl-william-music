@@ -623,6 +623,29 @@ nav a {
   letter-spacing: 2px;
   text-transform: uppercase;
 }
+.show-item.has-news {
+  position: relative;
+  cursor: pointer;
+}
+
+.show-item.has-news:hover {
+  border-color: #00cccc77;
+  background: #00cccc08;
+}
+
+.show-news-link {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+}
+
+.show-news-hint {
+  font-size: 9px;
+  color: #00cccc;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  margin-top: 4px;
+}
 
 /* ── NEWS / BLOG ────────────────────────────────────────────── */
 .post-list { display: flex; flex-direction: column; gap: 28px; margin-top: 8px; }
