@@ -276,8 +276,10 @@
     if (/^[A-Z]$/.test(k)) handleKey(k);
   });
 
-  if (newBtn) newBtn.addEventListener('click', function () {   newGame();   newBtn.blur(); // prevent Enter from re-triggering this button });
-
+  if (newBtn) newBtn.addEventListener('click', function () {
+       newGame();  
+       newBtn.blur(); // prevent Enter from re-triggering this button });
+  });
   buildKeyboard();
   newGame();
 })();
