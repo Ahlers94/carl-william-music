@@ -217,4 +217,28 @@
   .frettris-touch {
     display: flex;
   }
+  /* ── AUDIO CONTROL ──────────────────────────────────────────── */
+.frettris-audio-control {
+  display: inline-block;
+  flex-shrink: 0;
+}
+
+.mute-btn {
+  background: transparent;
+  border: none;
+  color: #cca239;
+  cursor: pointer;
+  padding: 4px;
+  line-height: 0;
+  transition: all 0.2s ease;
+}
+
+.mute-btn:hover {
+  color: #ffd44f;
+  filter: drop-shadow(0 0 5px rgba(255, 212, 79, 0.6));
+}
+
+.mute-btn.is-muted #speaker-waves {
+  display: none;
+}
 }
