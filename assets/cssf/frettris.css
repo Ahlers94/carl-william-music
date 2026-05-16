@@ -1,0 +1,198 @@
+<style>
+  /* ── Frettris page styles ── */
+
+  #frettris-game-container #frettris-section {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  #frettris-game-container .section-subtitle {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--fg, #ccc);
+    opacity: 0.75;
+    letter-spacing: 0.08em;
+  }
+
+  #frettris-game-container .frettris-meta {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--accent, #d4a24f);
+    opacity: 0.7;
+    letter-spacing: 0.08em;
+  }
+
+  #frettris-game-container .frettris-stats {
+    display: flex;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+  }
+
+  #frettris-game-container .frettris-stat {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  #frettris-game-container .frettris-stat .stat-num {
+    font-family: 'VT323', monospace;
+    font-size: 2rem;
+    color: var(--accent, #d4a24f);
+    line-height: 1;
+  }
+
+  #frettris-game-container .frettris-stat .stat-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.6rem;
+    color: var(--fg, #ccc);
+    opacity: 0.6;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+  }
+
+  #frettris-game-container .frettris-play-area {
+    display: flex;
+    gap: 1.25rem;
+    align-items: flex-start;
+  }
+
+  #frettris-game-container #frettris-canvas {
+    display: block;
+    border: 2px solid #d4a24f;
+    box-shadow: 0 0 18px rgba(212,162,79,0.35), inset 0 0 6px rgba(212,162,79,0.12);
+    image-rendering: pixelated;
+    background: #0f0d0a;
+    max-width: min(240px, 100%);
+    height: auto;
+  }
+
+  #frettris-game-container .frettris-side {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    min-width: 90px;
+  }
+
+  #frettris-game-container .frettris-side-label {
+    font-family: 'VT323', monospace;
+    font-size: 1.1rem;
+    color: #d4a24f;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 0.2rem;
+  }
+
+  #frettris-game-container #next-canvas {
+    display: block;
+    border: 1px solid rgba(212,162,79,0.4);
+    background: #0f0d0a;
+    image-rendering: pixelated;
+  }
+
+  #frettris-game-container .frettris-level {
+    font-family: 'VT323', monospace;
+    font-size: 1.5rem;
+    color: #fff;
+    line-height: 1;
+  }
+
+  #frettris-game-container .frettris-level span {
+    color: #d4a24f;
+  }
+
+  #frettris-game-container .frettris-keys {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.58rem;
+    color: var(--fg, #ccc);
+    opacity: 0.55;
+    line-height: 1.9;
+    letter-spacing: 0.04em;
+  }
+
+  #frettris-game-container .frettris-keys strong {
+    color: #d4a24f;
+    opacity: 1;
+    font-weight: 700;
+  }
+
+  #frettris-game-container .frettris-controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 0.25rem;
+  }
+
+  #frettris-game-container .frettris-btn {
+    font-family: 'VT323', monospace;
+    font-size: 1.2rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 0.3rem 1rem;
+    background: transparent;
+    color: #d4a24f;
+    border: 1.5px solid #d4a24f;
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s, box-shadow 0.15s;
+  }
+
+  #frettris-game-container .frettris-btn:hover {
+    background: #d4a24f;
+    color: #0f0d0a;
+    box-shadow: 0 0 10px rgba(212,162,79,0.6);
+  }
+
+  #frettris-game-container #frettris-msg {
+    font-family: 'VT323', monospace;
+    font-size: 1.2rem;
+    color: #fff;
+    min-height: 1.5rem;
+    letter-spacing: 0.06em;
+  }
+
+  #frettris-game-container #frettris-msg .hi {
+    color: #d4a24f;
+  }
+
+  #frettris-game-container .frettris-touch {
+    display: none;
+    gap: 0.4rem;
+    justify-content: center;
+    margin-top: 0.5rem;
+  }
+
+  #frettris-game-container .touch-row {
+    display: flex;
+    gap: 0.4rem;
+    justify-content: center;
+  }
+
+  #frettris-game-container .touch-btn {
+    font-family: 'VT323', monospace;
+    font-size: 1.6rem;
+    width: 52px;
+    height: 52px;
+    background: transparent;
+    color: #d4a24f;
+    border: 1.5px solid #d4a24f;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+    transition: background 0.1s, color 0.1s;
+  }
+
+  #frettris-game-container .touch-btn:active {
+    background: #d4a24f;
+    color: #0f0d0a;
+  }
+
+  @media (max-width: 600px) {
+    #frettris-game-container .frettris-touch { display: flex; flex-direction: column; }
+    #frettris-game-container .frettris-keys  { display: none; }
+    #frettris-game-container .frettris-play-area { flex-direction: column; align-items: center; }
+    #frettris-game-container #frettris-canvas { max-width: min(200px, 90vw); }
+  }
+</style>
