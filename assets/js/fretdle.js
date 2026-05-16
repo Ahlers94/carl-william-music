@@ -278,8 +278,8 @@
 
   if (newBtn) newBtn.addEventListener('click', function () {
        newGame();  
-       newBtn.blur(); // prevent Enter from re-triggering this button });
-  });
+       newBtn.blur();  });
+       
   buildKeyboard();
   newGame();
 })();
