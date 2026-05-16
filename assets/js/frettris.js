@@ -39,7 +39,7 @@
   let score = 0;
   let lines = 0;
   let level = 1;
-  let hiScore = localStorage.getItem('frettris_hi') ? parseInt(localStorage.getItem('frettris_hi'), 10) : 0;
+  let hiScore = 0; // Initialized via loadHighScore() down below
 
   let activePiece = null;
   let nextPiece = null;
@@ -59,6 +59,30 @@
   const startBtn = document.getElementById('tet-start-btn');
   const pauseBtn = document.getElementById('tet-pause-btn');
   const resetBtn = document.getElementById('tet-reset-btn');
+
+  // ── PERSISTENCE LIFECYCLE FUNCTIONS ────────────────────────
+  const STORAGE_KEY = 'frettris_hi';
+
+  function loadHighScore() {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      return saved ? parseInt(saved, 10) : 0;
+    } catch (e) {
+      console.error("Storage Matrix Link Failure:", e);
+      return 0;
+    }
+  }
+
+  function checkAndUpdateHighScore(currentScore) {
+    if (currentScore > hiScore) {
+      hiScore = currentScore;
+      try {
+        localStorage.setItem(STORAGE_KEY, hiScore);
+      } catch (e) {
+        console.error("Failed to commit High Score to system memory:", e);
+      }
+    }
+  }
 
   // ── GRID CREATION AND SCALE LOGIC ──────────────────────────
   function createGrid() {
@@ -169,10 +193,8 @@
       lines += clearedCount;
       level = Math.floor(lines / 10) + 1;
 
-      if (score > hiScore) {
-        hiScore = score;
-        localStorage.setItem('frettris_hi', hiScore);
-      }
+      // Check storage thresholds during line updates
+      checkAndUpdateHighScore(score);
       updateStateDOM();
     }
   }
@@ -338,26 +360,26 @@
 
       switch (e.key) {
         case 'ArrowLeft':
-case 'a':
+        case 'a':
         case 'A':
           activePiece.x--;
           if (checkCollision(activePiece)) activePiece.x++;
           break;
         case 'ArrowRight':
-case 'd':
+        case 'd':
         case 'D':
           activePiece.x++;
           if (checkCollision(activePiece)) activePiece.x--;
           break;
         case 'ArrowDown':
-case 's':
+        case 's':
         case 'S':
           handleDrop();
           break;
         case 'ArrowUp':
-case 'w':
+        case 'w':
         case 'W':
-case 'z':
+        case 'z':
         case 'Z':
           rotateMatrix(activePiece);
           break;
@@ -406,6 +428,7 @@ case 'z':
 
   // Execution Gateway entry confirmation
   if (CANVAS) {
+    hiScore = loadHighScore(); // Fetch data safely before UI updates
     if (hiScoreEl) hiScoreEl.textContent = hiScore;
     resizeGameCanvas();
     setupControlListeners();
