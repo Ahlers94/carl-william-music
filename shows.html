@@ -35,8 +35,7 @@ permalink: /shows.html
 {% assign matched_post = site.data.posts | where: "slug", show.news_slug | first %}
 <div class="show-item{% if matched_post %} has-news{% endif %}">
   {% if matched_post %}
-<a href="{{ '/news.html' | relative_url }}#{{ show.news_slug }}" class="show-news-link" aria-label="Read writeup for {{ show.event }}"></a>  
-  {% endif %}
+<a href="/carl-william-music/news.html#{{ show.news_slug }}" class="show-news-link" aria-label="Read writeup for {{ show.event }}"></a>  {% endif %}
   <div class="show-date">{{ show.year }}</div>
   <div class="show-details">
     <div class="show-venue">{{ show.event }}</div>
