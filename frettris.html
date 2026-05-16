@@ -724,7 +724,7 @@ extra_js:
   }
 
   const launchFrettris = () => {
-    setTimeout(initOnEntrance, 120);
+    setTimeout(initOnEntrance, 550);
   };
 
   if (document.readyState === 'complete') {
@@ -732,6 +732,8 @@ extra_js:
   } else {
     window.addEventListener('load', launchFrettris);
   }
+  // fallback for bfcache / back-forward navigation so canvas inits correctly
+  window.addEventListener('pageshow', launchFrettris);
 
 })();
 </script>
