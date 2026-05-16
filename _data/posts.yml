@@ -9,6 +9,7 @@
 #           Avoid smart quotes and em dashes; use -- instead of a dash.
 #
 # OPTIONAL fields:
+#   slug:     URL-friendly ID used to link from the Shows page
 #   tag:      One of: show | release | update | gear
 #   venue:    Venue name and/or address (show recaps)
 #   gear:     List of gear items used (show recaps)
@@ -16,8 +17,8 @@
 #   video_id: YouTube video ID (the part after watch?v=) -- embeds below the post
 #
 # ── ORDER: newest entry at the TOP of this file ──────────────────
-
 - title: "Debut at Tanner Brewing"
+  slug: "debut-at-tanner-brewing"
   date: "12-27-2025"
   tag: show
   body: "First gig at Tanner Brewing Company, Haddon Heights, NJ. Played two 1-hour sets. Gig was short notice -- got the offer at 1:30PM, showtime 7PM. Made up a social media post by 2PM and blasted out notifications. Good crowd, about a dozen people showed up on a Saturday night in the snow. Unfortunately forgot to hit record for one set."
@@ -29,8 +30,8 @@
     - 2 Boss BCB-20 boards powered by 1x 18650 cell with buck booster to 9V
     - Boss TU-2, NS-2, CS-3, OD-2, OC-3, CH-1, RC-2
     - Casio VL-1
-
 - title: "Collingswood Porchfest"
+  slug: "collingswood-porchfest"
   date: "9-27-2025"
   tag: show
   video_id: "2cAmtIYPzU4"
