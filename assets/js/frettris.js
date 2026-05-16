@@ -347,7 +347,7 @@ case 'a':
 case 'd':
         case 'D':
           activePiece.x++;
-          if (checkCollision(checkCollision(activePiece))) activePiece.x--;
+          if (checkCollision(activePiece)) activePiece.x--;
           break;
         case 'ArrowDown':
 case 's':
