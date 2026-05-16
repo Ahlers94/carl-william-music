@@ -100,6 +100,8 @@
     }
     if (hintEl) hintEl.textContent = '6 attempts // green = right spot // gold = wrong spot';
     updateStats();
+
+    if (boardEl) boardEl.focus && boardEl.focus();
   }
 
   function updateStats() {
@@ -274,7 +276,7 @@
     if (/^[A-Z]$/.test(k)) handleKey(k);
   });
 
-  if (newBtn) newBtn.addEventListener('click', newGame);
+  if (newBtn) newBtn.addEventListener('click', function () {   newGame();   newBtn.blur(); // prevent Enter from re-triggering this button });
 
   buildKeyboard();
   newGame();
