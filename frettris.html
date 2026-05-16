@@ -1,7 +1,7 @@
 ---
 layout: default
-title: "Carl William Music | frettris"
-description: "Classic frettris — Carl William Music style."
+title: "Carl William Music | Frettris"
+description: "Classic Frettris — Carl William Music style."
 nav: frettris
 extra_css:
   - frettris
@@ -375,6 +375,7 @@ extra_js:
 
   let board, current, next, score, lines, level, hiScore;
   let running, paused, gameOver, rafId, lastTime, dropCounter, dropInterval;
+  let initialized = false;
 
   function init() {
     board       = Array.from({ length: ROWS }, () => Array(COLS).fill(null));
@@ -711,8 +712,22 @@ extra_js:
   document.getElementById('tet-pause-btn').addEventListener('click', togglePause);
   document.getElementById('tet-reset-btn').addEventListener('click', resetGame);
 
-  init();
-  drawBoard();
+  function initOnEntrance() {
+    if (initialized) return;
+    initialized = true;
+    init();
+    drawBoard();
+  }
+
+  const launchFrettris = () => {
+    setTimeout(initOnEntrance, 120);
+  };
+
+  if (document.readyState === 'complete') {
+    launchFrettris();
+  } else {
+    window.addEventListener('load', launchFrettris);
+  }
 
 })();
 </script>
