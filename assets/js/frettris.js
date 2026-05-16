@@ -37,7 +37,7 @@
   // ── CUSTOM THEME AUDIO ENGINE ──────────────────────────────
   const BGM = new Audio('/assets/audio/frettris-theme.mp3');
   BGM.loop = true;
-  BGM.volume = 0.4; // Gain stage ceiling headroom target
+  BGM.volume = 0.4;
   let isMuted = false;
 
   // ── ENGINE STATE VARIABLES ─────────────────────────────────
@@ -98,7 +98,6 @@
         muteBtn.classList.add('is-muted');
       } else {
         muteBtn.classList.remove('is-muted');
-        // Resume engine playback mid-run if active and safe
         if (!isPaused && !gameOver && activePiece && BGM.paused) {
           BGM.play().catch(err => console.log("Audio playback blocked:", err));
         }
@@ -165,14 +164,13 @@
     }
     const originMatrix = piece.matrix;
     piece.matrix = rotated;
-    // Wall kick sequence logic checking
     if (checkCollision(piece)) {
       piece.x += 1;
       if (checkCollision(piece)) {
         piece.x -= 2;
         if (checkCollision(piece)) {
           piece.x += 1;
-          piece.matrix = originMatrix; // Revert matrix mutation
+          piece.matrix = originMatrix;
         }
       }
     }
@@ -230,33 +228,107 @@
     renderGridAndPiece();
   }
 
+  // ── GHOST PIECE ────────────────────────────────────────────
+  function getGhostY() {
+    if (!activePiece) return null;
+    let ghostY = activePiece.y;
+    const ghost = { matrix: activePiece.matrix, x: activePiece.x, y: ghostY };
+    while (!checkCollision({ ...ghost, y: ghost.y + 1 })) {
+      ghost.y++;
+    }
+    return ghost.y;
+  }
+
   // ── RENDERING LOOPS ────────────────────────────────────────
-  function drawBlock(ctx, x, y, colorId, targetSize) {
+
+  // Draw a block with optional glow
+  function drawBlock(ctx, x, y, colorId, targetSize, glowColor, glowBlur) {
+    if (glowColor) {
+      ctx.shadowColor = glowColor;
+      ctx.shadowBlur = glowBlur || 10;
+    }
     ctx.fillStyle = COLORS[colorId];
     ctx.fillRect(x * targetSize, y * targetSize, targetSize, targetSize);
+    ctx.shadowBlur = 0;
+    ctx.shadowColor = 'transparent';
     ctx.strokeStyle = '#0a0a12';
     ctx.lineWidth = 1;
     ctx.strokeRect(x * targetSize, y * targetSize, targetSize, targetSize);
+  }
+
+  // Draw the faint grid lines over the empty field
+  function drawGrid(ctx, width, height) {
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.04)';
+    ctx.lineWidth = 0.5;
+    for (let c = 0; c <= COLS; c++) {
+      ctx.beginPath();
+      ctx.moveTo(c * BLOCK_SIZE, 0);
+      ctx.lineTo(c * BLOCK_SIZE, height);
+      ctx.stroke();
+    }
+    for (let r = 0; r <= ROWS; r++) {
+      ctx.beginPath();
+      ctx.moveTo(0, r * BLOCK_SIZE);
+      ctx.lineTo(width, r * BLOCK_SIZE);
+      ctx.stroke();
+    }
   }
 
   function renderGridAndPiece() {
     if (!CTX) return;
     CTX.clearRect(0, 0, CANVAS.width, CANVAS.height);
 
-    // Draw Static Solid Field Grid
+    // Subtle background grid
+    drawGrid(CTX, CANVAS.width, CANVAS.height);
+
+    // Draw Static Solid Field Grid (with glow)
     for (let r = 0; r < ROWS; r++) {
       for (let c = 0; c < COLS; c++) {
         if (grid[r][c] !== 0) {
-          drawBlock(CTX, c, r, grid[r][c], BLOCK_SIZE);
+          const color = COLORS[grid[r][c]];
+          drawBlock(CTX, c, r, grid[r][c], BLOCK_SIZE, color, 6);
         }
       }
     }
-    // Draw Current Falling Piece Matrix
+
+    // Draw Ghost Piece
     if (activePiece) {
+      const ghostY = getGhostY();
+      // Only draw ghost if it's meaningfully below the active piece
+      if (ghostY !== null && ghostY > activePiece.y) {
+        CTX.globalAlpha = 0.18;
+        activePiece.matrix.forEach((row, r) => {
+          row.forEach((value, c) => {
+            if (value !== 0 && ghostY + r >= 0) {
+              CTX.fillStyle = COLORS[activePiece.id];
+              CTX.fillRect(
+                (activePiece.x + c) * BLOCK_SIZE,
+                (ghostY + r) * BLOCK_SIZE,
+                BLOCK_SIZE,
+                BLOCK_SIZE
+              );
+              CTX.strokeStyle = COLORS[activePiece.id];
+              CTX.lineWidth = 1;
+              CTX.strokeRect(
+                (activePiece.x + c) * BLOCK_SIZE,
+                (ghostY + r) * BLOCK_SIZE,
+                BLOCK_SIZE,
+                BLOCK_SIZE
+              );
+            }
+          });
+        });
+        CTX.globalAlpha = 1.0;
+      }
+    }
+
+    // Draw Current Falling Piece Matrix (with glow)
+    if (activePiece) {
+      const color = COLORS[activePiece.id];
       activePiece.matrix.forEach((row, r) => {
         row.forEach((value, c) => {
           if (value !== 0 && activePiece.y + r >= 0) {
-            drawBlock(CTX, activePiece.x + c, activePiece.y + r, activePiece.id, BLOCK_SIZE);
+            drawBlock(CTX, activePiece.x + c, activePiece.y + r, activePiece.id, BLOCK_SIZE, color, 12);
           }
         });
       });
@@ -270,12 +342,17 @@
     const nSize = 16;
     const offsetX = (NEXT_CANVAS.width - m[0].length * nSize) / 2;
     const offsetY = (NEXT_CANVAS.height - m.length * nSize) / 2;
+    const color = COLORS[nextPiece.id];
 
     m.forEach((row, r) => {
       row.forEach((value, c) => {
         if (value !== 0) {
-          NEXT_CTX.fillStyle = COLORS[nextPiece.id];
+          NEXT_CTX.shadowColor = color;
+          NEXT_CTX.shadowBlur = 8;
+          NEXT_CTX.fillStyle = color;
           NEXT_CTX.fillRect(offsetX + c * nSize, offsetY + r * nSize, nSize, nSize);
+          NEXT_CTX.shadowBlur = 0;
+          NEXT_CTX.shadowColor = 'transparent';
           NEXT_CTX.strokeStyle = '#0a0a12';
           NEXT_CTX.strokeRect(offsetX + c * nSize, offsetY + r * nSize, nSize, nSize);
         }
@@ -323,7 +400,6 @@
     pauseBtn.disabled = false;
     resetBtn.disabled = false;
 
-    // Trigger customized theme logic pipeline
     if (!isMuted) {
       BGM.currentTime = 0;
       BGM.play().catch(err => console.log("Audio presentation blocked until interaction:", err));
@@ -364,7 +440,6 @@
 
   // ── SYSTEM LISTENERS & ROUTING INTERFACES ───────────────────
   function setupControlListeners() {
-    // Keyboard Matrix Action Preventatives
     window.addEventListener('keydown', (e) => {
       if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', ' '].includes(e.key) && !isPaused && !gameOver) {
         if (document.activeElement.tagName !== 'INPUT') e.preventDefault();
@@ -410,7 +485,6 @@
       renderGridAndPiece();
     });
 
-    // Explicit Lifecycle Trigger Buttons
     if (startBtn) startBtn.addEventListener('click', startNewGame);
     if (pauseBtn) pauseBtn.addEventListener('click', togglePause);
     if (resetBtn) resetBtn.addEventListener('click', () => {
@@ -418,7 +492,6 @@
       startNewGame();
     });
 
-    // Mobile Virtual Deck Buttons Mapping
     const mapping = [
       { id: 'tb-left', action: () => { activePiece.x--; if (checkCollision(activePiece)) activePiece.x++; } },
       { id: 'tb-right', action: () => { activePiece.x++; if (checkCollision(activePiece)) activePiece.x--; } },
@@ -442,7 +515,6 @@
     window.addEventListener('resize', resizeGameCanvas);
   }
 
-  // Execution Gateway entrance check
   if (CANVAS) {
     if (hiScoreEl) hiScoreEl.textContent = hiScore;
     resizeGameCanvas();
