@@ -1,12 +1,12 @@
 ---
 layout: default
-title: "Carl William Music | Tetris"
-description: "Classic Tetris — Carl William Music style."
-nav: tetris
+title: "Carl William Music | frettris"
+description: "Classic frettris — Carl William Music style."
+nav: frettris
 extra_css:
-  - tetris
+  - frettris
 extra_js:
-  - tetris
+  - frettris
 ---
 
 <style>
@@ -26,7 +26,7 @@ extra_js:
     letter-spacing: 0.08em;
   }
 
-  #frettris-game-container .tetris-meta {
+  #frettris-game-container .frettris-meta {
     font-family: 'Space Mono', monospace;
     font-size: 0.7rem;
     color: var(--accent, #d4a24f);
@@ -34,26 +34,26 @@ extra_js:
     letter-spacing: 0.08em;
   }
 
-  #frettris-game-container .tetris-stats {
+  #frettris-game-container .frettris-stats {
     display: flex;
     gap: 1.5rem;
     flex-wrap: wrap;
   }
 
-  #frettris-game-container .tetris-stat {
+  #frettris-game-container .frettris-stat {
     display: flex;
     flex-direction: column;
     align-items: flex-start;
   }
 
-  #frettris-game-container .tetris-stat .stat-num {
+  #frettris-game-container .frettris-stat .stat-num {
     font-family: 'VT323', monospace;
     font-size: 2rem;
     color: var(--accent, #d4a24f);
     line-height: 1;
   }
 
-  #frettris-game-container .tetris-stat .stat-label {
+  #frettris-game-container .frettris-stat .stat-label {
     font-family: 'Space Mono', monospace;
     font-size: 0.6rem;
     color: var(--fg, #ccc);
@@ -62,13 +62,13 @@ extra_js:
     letter-spacing: 0.1em;
   }
 
-  #frettris-game-container .tetris-play-area {
+  #frettris-game-container .frettris-play-area {
     display: flex;
     gap: 1.25rem;
     align-items: flex-start;
   }
 
-  #frettris-game-container #tetris-canvas {
+  #frettris-game-container #frettris-canvas {
     display: block;
     border: 2px solid #d4a24f;
     box-shadow: 0 0 18px rgba(212,162,79,0.35), inset 0 0 6px rgba(212,162,79,0.12);
@@ -78,14 +78,14 @@ extra_js:
     height: auto;
   }
 
-  #frettris-game-container .tetris-side {
+  #frettris-game-container .frettris-side {
     display: flex;
     flex-direction: column;
     gap: 1rem;
     min-width: 90px;
   }
 
-  #frettris-game-container .tetris-side-label {
+  #frettris-game-container .frettris-side-label {
     font-family: 'VT323', monospace;
     font-size: 1.1rem;
     color: #d4a24f;
@@ -101,18 +101,18 @@ extra_js:
     image-rendering: pixelated;
   }
 
-  #frettris-game-container .tetris-level {
+  #frettris-game-container .frettris-level {
     font-family: 'VT323', monospace;
     font-size: 1.5rem;
     color: #fff;
     line-height: 1;
   }
 
-  #frettris-game-container .tetris-level span {
+  #frettris-game-container .frettris-level span {
     color: #d4a24f;
   }
 
-  #frettris-game-container .tetris-keys {
+  #frettris-game-container .frettris-keys {
     font-family: 'Space Mono', monospace;
     font-size: 0.58rem;
     color: var(--fg, #ccc);
@@ -121,20 +121,20 @@ extra_js:
     letter-spacing: 0.04em;
   }
 
-  #frettris-game-container .tetris-keys strong {
+  #frettris-game-container .frettris-keys strong {
     color: #d4a24f;
     opacity: 1;
     font-weight: 700;
   }
 
-  #frettris-game-container .tetris-controls {
+  #frettris-game-container .frettris-controls {
     display: flex;
     flex-wrap: wrap;
     gap: 0.5rem;
     margin-top: 0.25rem;
   }
 
-  #frettris-game-container .tetris-btn {
+  #frettris-game-container .frettris-btn {
     font-family: 'VT323', monospace;
     font-size: 1.2rem;
     letter-spacing: 0.08em;
@@ -147,13 +147,13 @@ extra_js:
     transition: background 0.15s, color 0.15s, box-shadow 0.15s;
   }
 
-  #frettris-game-container .tetris-btn:hover {
+  #frettris-game-container .frettris-btn:hover {
     background: #d4a24f;
     color: #0f0d0a;
     box-shadow: 0 0 10px rgba(212,162,79,0.6);
   }
 
-  #frettris-game-container #tetris-msg {
+  #frettris-game-container #frettris-msg {
     font-family: 'VT323', monospace;
     font-size: 1.2rem;
     color: #fff;
@@ -161,11 +161,11 @@ extra_js:
     letter-spacing: 0.06em;
   }
 
-  #frettris-game-container #tetris-msg .hi {
+  #frettris-game-container #frettris-msg .hi {
     color: #d4a24f;
   }
 
-  #frettris-game-container .tetris-touch {
+  #frettris-game-container .frettris-touch {
     display: none;
     gap: 0.4rem;
     justify-content: center;
@@ -201,10 +201,10 @@ extra_js:
   }
 
   @media (max-width: 600px) {
-    #frettris-game-container .tetris-touch { display: flex; flex-direction: column; }
-    #frettris-game-container .tetris-keys  { display: none; }
-    #frettris-game-container .tetris-play-area { flex-direction: column; align-items: center; }
-    #frettris-game-container #tetris-canvas { max-width: min(200px, 90vw); }
+    #frettris-game-container .frettris-touch { display: flex; flex-direction: column; }
+    #frettris-game-container .frettris-keys  { display: none; }
+    #frettris-game-container .frettris-play-area { flex-direction: column; align-items: center; }
+    #frettris-game-container #frettris-canvas { max-width: min(200px, 90vw); }
   }
 </style>
 
@@ -213,28 +213,28 @@ extra_js:
 
     <div class="section-label">Frettris</div>
     <div class="section-subtitle">Stack the chords. Clear the lines.</div>
-    <div id="tetris-msg">&gt; PRESS <span class="hi">START</span> TO PLAY</div>
-    <div class="tetris-meta">arrow keys / wasd &nbsp;//&nbsp; space = hard drop &nbsp;//&nbsp; p = pause</div>
+    <div id="frettris-msg">&gt; PRESS <span class="hi">START</span> TO PLAY</div>
+    <div class="frettris-meta">arrow keys / wasd &nbsp;//&nbsp; space = hard drop &nbsp;//&nbsp; p = pause</div>
 
-    <div class="tetris-stats">
-      <div class="tetris-stat"><div class="stat-num" id="tet-score">0</div><div class="stat-label">Score</div></div>
-      <div class="tetris-stat"><div class="stat-num" id="tet-lines">0</div><div class="stat-label">Lines</div></div>
-      <div class="tetris-stat"><div class="stat-num" id="tet-hiscore">0</div><div class="stat-label">Best</div></div>
+    <div class="frettris-stats">
+      <div class="frettris-stat"><div class="stat-num" id="tet-score">0</div><div class="stat-label">Score</div></div>
+      <div class="frettris-stat"><div class="stat-num" id="tet-lines">0</div><div class="stat-label">Lines</div></div>
+      <div class="frettris-stat"><div class="stat-num" id="tet-hiscore">0</div><div class="stat-label">Best</div></div>
     </div>
 
-    <div class="tetris-play-area">
-      <canvas id="tetris-canvas" width="240" height="480"></canvas>
+    <div class="frettris-play-area">
+      <canvas id="frettris-canvas" width="240" height="480"></canvas>
 
-      <div class="tetris-side">
+      <div class="frettris-side">
         <div>
-          <div class="tetris-side-label">Next</div>
+          <div class="frettris-side-label">Next</div>
           <canvas id="next-canvas" width="80" height="80"></canvas>
         </div>
         <div>
-          <div class="tetris-side-label">Level</div>
-          <div class="tetris-level" id="tet-level"><span>1</span></div>
+          <div class="frettris-side-label">Level</div>
+          <div class="frettris-level" id="tet-level"><span>1</span></div>
         </div>
-        <div class="tetris-keys">
+        <div class="frettris-keys">
           <strong>← →</strong> Move<br>
           <strong>↑ / Z</strong> Rotate<br>
           <strong>↓</strong> Soft drop<br>
@@ -244,7 +244,7 @@ extra_js:
       </div>
     </div>
 
-    <div class="tetris-touch" id="tetris-touch">
+    <div class="frettris-touch" id="frettris-touch">
       <div class="touch-row">
         <button class="touch-btn" id="tb-rot">↻</button>
       </div>
@@ -258,10 +258,10 @@ extra_js:
       </div>
     </div>
 
-    <div class="tetris-controls">
-      <button class="tetris-btn" id="tet-start-btn">Start</button>
-      <button class="tetris-btn" id="tet-pause-btn" disabled>Pause</button>
-      <button class="tetris-btn" id="tet-reset-btn" disabled>Reset</button>
+    <div class="frettris-controls">
+      <button class="frettris-btn" id="tet-start-btn">Start</button>
+      <button class="frettris-btn" id="tet-pause-btn" disabled>Pause</button>
+      <button class="frettris-btn" id="tet-reset-btn" disabled>Reset</button>
     </div>
 
   </div>
@@ -287,14 +287,14 @@ extra_js:
 
 <script>
 // ═══════════════════════════════════════════════════════
-//  TETRIS ENGINE
+//  frettris ENGINE
 // ═══════════════════════════════════════════════════════
 (function () {
   'use strict';
 
   // ── Canvas setup ──────────────────────────────────────
   const COLS = 10, ROWS = 20, BLOCK = 24;
-  const canvas  = document.getElementById('tetris-canvas');
+  const canvas  = document.getElementById('frettris-canvas');
   const ctx     = canvas.getContext('2d');
   const nCanvas = document.getElementById('next-canvas');
   const nCtx    = nCanvas.getContext('2d');
@@ -471,7 +471,7 @@ extra_js:
         localStorage.setItem('tet_hi', hiScore);
       }
       updateHUD();
-      setMsg(`> ${cleared === 4 ? '<span class="hi">TETRIS!!</span>' : cleared + ' LINE' + (cleared > 1 ? 'S' : '') + ' CLEARED'}`);
+      setMsg(`> ${cleared === 4 ? '<span class="hi">frettris!!</span>' : cleared + ' LINE' + (cleared > 1 ? 'S' : '') + ' CLEARED'}`);
     }
   }
 
@@ -580,7 +580,7 @@ extra_js:
   }
 
   function setMsg(html) {
-    document.getElementById('tetris-msg').innerHTML = html;
+    document.getElementById('frettris-msg').innerHTML = html;
   }
 
   function loop(ts) {
