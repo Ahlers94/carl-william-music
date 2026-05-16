@@ -10,6 +10,8 @@ past:
   - year: "2025"
     event: "Carl's debut at Tanner"
     venue: "Tanner Brewing Company"
+    news_slug: "debut-at-tanner-brewing"
   - year: "2025"
     event: "Collingswood Porchfest"
     venue: "Haddon Ave. Collingswood, NJ"
+    news_slug: "collingswood-porchfest"
