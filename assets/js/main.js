@@ -41,7 +41,7 @@
       facade.replaceWith(iframe);
     });
 
-    // ── Gear List Item Accordion Accord ───────────────────
+    // ── Gear List Item Accordion ───────────────────────────
     document.querySelectorAll('.gear-item').forEach(function (item) {
       item.addEventListener('click', function () {
         item.classList.toggle('open');
@@ -113,14 +113,24 @@
     }
   }
 
-  // ── Global Video Pipeline Controls ────────────────────
+  // ── Global Video/Audio Pipeline Controls ──────────────
   function pauseAllVideos() {
     document.querySelectorAll('iframe').forEach(function (iframe) {
+      const src = iframe.src || '';
       try {
-        iframe.contentWindow.postMessage(
-          JSON.stringify({ event: 'command', func: 'pauseVideo', args: [] }),
-          '*'
-        );
+        if (src.includes('youtube') || src.includes('youtu.be')) {
+          // YouTube JS API
+          iframe.contentWindow.postMessage(
+            JSON.stringify({ event: 'command', func: 'pauseVideo', args: [] }),
+            '*'
+          );
+        } else if (src.includes('soundcloud.com/player')) {
+          // SoundCloud Widget API
+          iframe.contentWindow.postMessage(
+            JSON.stringify({ method: 'pause' }),
+            '*'
+          );
+        }
       } catch (e) { /* cross-origin protection */ }
     });
   }
