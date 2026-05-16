@@ -23,7 +23,8 @@
   type: "original"
 
 - title: "Violin Vantes (my first song I ever wrote!)"
-  id: "1027333681?secret_token=s-nCKcwoGs8nJ"
+  id: "1027333681"
+  secret_token: "s-nCKcwoGs8nJ"
   type: "original"
   
 - title: "[Weezer] QB Blitz"
