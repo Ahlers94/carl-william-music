@@ -1,9 +1,9 @@
 (function () {
   'use strict';
 
-  // ── CORE ENVIRONMENT CONFIGURATION ─────────────────────────
-  const COLS = 10;
-  const ROWS = 20;
+  // ── GUITAR FRETBOARD ARCHITECTURE CONFIGURATION ────────────
+  const COLS = 12; // 12 Chromatic Notes in an Octave
+  const ROWS = 21; // 21 Frets on a Fender Stratocaster
   let BLOCK_SIZE = 24;
 
   const CANVAS = document.getElementById('frettris-canvas');
@@ -11,33 +11,88 @@
   const NEXT_CANVAS = document.getElementById('next-canvas');
   const NEXT_CTX = NEXT_CANVAS ? NEXT_CANVAS.getContext('2d') : null;
 
-  // Retro Color Assignment Palette
+  // Real-Time Frequency Palette Mapping (Low Registers -> High Registers)
   const COLORS = [
     null,
-    '#ff2d78', // Z - Pink
-    '#00f5ff', // I - Cyan
-    '#ffd700', // O - Gold
-    '#99cc77', // S - Green
-    '#b06aff', // T - Purple
-    '#ff7700', // L - Orange
-    '#008a44'  // J - Emerald
+    '#ff2d78', // Bass Note E
+    '#ff5e00', // Note F
+    '#ffd700', // Note G
+    '#99cc77', // Note A
+    '#00f5ff', // Note B
+    '#b06aff', // Note C
+    '#3344ff'  // Note D
   ];
 
+  // Modified Geometric Block Wireframes (Decoupled from standard Tetrominos)
   const PIECES = [
     [],
-    [[1, 1, 0], [0, 1, 1], [0, 0, 0]], // Z
-    [[0, 0, 0, 0], [2, 2, 2, 2], [0, 0, 0, 0], [0, 0, 0, 0]], // I
-    [[3, 3], [3, 3]], // O
-    [[0, 4, 4], [4, 4, 0], [0, 0, 0]], // S
-    [[0, 5, 0], [5, 5, 5], [0, 0, 0]], // T
-    [[0, 0, 6], [6, 6, 6], [0, 0, 0]], // L
-    [[7, 0, 0], [7, 7, 7], [0, 0, 0]]  // J
+    [[1, 1, 0], [0, 1, 1], [0, 0, 0]], 
+    [[0, 0, 0, 0], [2, 2, 2, 2], [0, 0, 0, 0], [0, 0, 0, 0]], 
+    [[3, 3], [3, 3]], 
+    [[0, 4, 4], [4, 4, 0], [0, 0, 0]], 
+    [[0, 5, 0], [5, 5, 5], [0, 0, 0]], 
+    [[0, 0, 6], [6, 6, 6], [0, 0, 0]], 
+    [[7, 0, 0], [7, 7, 7], [0, 0, 0]]  
   ];
 
-  // ── CUSTOM THEME AUDIO ENGINE ──────────────────────────────
-  const BGM = new Audio('/assets/audio/frettris-theme.mp3');
-  BGM.loop = true;
-  BGM.volume = 0.4;
+  // Base frequencies mapping to columns for the polyphonic synthesizer engine
+  const BASE_NOTES = [130.81, 138.59, 146.83, 155.56, 164.81, 174.61, 185.00, 196.00, 207.65, 220.00, 233.08, 246.94];
+
+  // ── POLYPHONIC AUDIO SYNTHESIS ENGINE ──────────────────────
+  class LiveSynthEngine {
+    constructor() {
+      this.ctx = null;
+      this.masterGain = null;
+    }
+
+    init() {
+      if (!this.ctx) {
+        this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+        this.masterGain = this.ctx.createGain();
+        this.masterGain.gain.setValueAtTime(0.4, this.ctx.currentTime);
+        this.masterGain.connect(this.ctx.destination);
+      }
+    }
+
+    // Play a dynamically generated chord cascade based on row clearing variables
+    playChord(columnsCleared, multiplier) {
+      if (isMuted || !this.ctx) return;
+      this.init();
+
+      const baseTime = this.ctx.currentTime;
+      columnsCleared.forEach((colIndex, idx) => {
+        let osc = this.ctx.createOscillator();
+        let gainNode = this.ctx.createGain();
+        let panner = this.ctx.createStereoPanner ? this.ctx.createStereoPanner() : null;
+
+        // Calculate frequency scaled by row clearing depth
+        const baseFreq = BASE_NOTES[colIndex % 12];
+        osc.type = idx % 2 === 0 ? 'triangle' : 'sine';
+        osc.frequency.setValueAtTime(baseFreq * (multiplier === 4 ? 2.0 : 1.0), baseTime);
+        
+        // Add progressive pitch modulation
+        osc.frequency.exponentialRampToValueAtTime(baseFreq * 1.5, baseTime + 0.4);
+
+        gainNode.gain.setValueAtTime(0.18, baseTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.001, baseTime + 0.5);
+
+        if (panner) {
+          // Pan notes left-to-right based on fret matrix index positioning
+          panner.pan.setValueAtTime((colIndex / 6) - 1, baseTime);
+          osc.connect(panner);
+          panner.connect(gainNode);
+        } else {
+          osc.connect(gainNode);
+        }
+
+        gainNode.connect(this.masterGain);
+        osc.start(baseTime);
+        osc.stop(baseTime + 0.52);
+      });
+    }
+  }
+
+  const audio = new LiveSynthEngine();
   let isMuted = false;
 
   // ── ENGINE STATE VARIABLES ─────────────────────────────────
@@ -76,12 +131,12 @@
     if (!CANVAS) return;
     if (window.innerWidth <= 480) {
       BLOCK_SIZE = 16;
-      CANVAS.width = 160;
-      CANVAS.height = 320;
+      CANVAS.width = COLS * BLOCK_SIZE; // 192px
+      CANVAS.height = ROWS * BLOCK_SIZE; // 336px
     } else {
       BLOCK_SIZE = 24;
-      CANVAS.width = 240;
-      CANVAS.height = 480;
+      CANVAS.width = COLS * BLOCK_SIZE; // 288px
+      CANVAS.height = ROWS * BLOCK_SIZE; // 504px
     }
     renderGridAndPiece();
   }
@@ -92,15 +147,11 @@
     muteBtn.addEventListener('click', (e) => {
       e.preventDefault();
       isMuted = !isMuted;
-      BGM.muted = isMuted;
-
       if (isMuted) {
         muteBtn.classList.add('is-muted');
       } else {
         muteBtn.classList.remove('is-muted');
-        if (!isPaused && !gameOver && activePiece && BGM.paused) {
-          BGM.play().catch(err => console.log("Audio playback blocked:", err));
-        }
+        audio.init();
       }
     });
   }
@@ -178,9 +229,15 @@
 
   function clearLines() {
     let clearedCount = 0;
+    let columnsCaptured = [];
+
     outer: for (let r = ROWS - 1; r >= 0; r--) {
       for (let c = 0; c < COLS; c++) {
         if (grid[r][c] === 0) continue outer;
+      }
+      // Track row active structural column layout index bounds before slicing out
+      for (let c = 0; c < COLS; c++) {
+        if (!columnsCaptured.includes(c)) columnsCaptured.push(c);
       }
       grid.splice(r, 1);
       grid.unshift(new Array(COLS).fill(0));
@@ -198,6 +255,9 @@
         hiScore = score;
         localStorage.setItem('frettris_hi', hiScore);
       }
+      
+      // Fire live localized dynamic poly-synth instead of a raw mp3 asset trigger
+      audio.playChord(columnsCaptured, clearedCount);
       updateStateDOM();
     }
   }
@@ -239,26 +299,31 @@
     return ghost.y;
   }
 
-  // ── RENDERING LOOPS ────────────────────────────────────────
+  // ── VECTORS RENDERING INTERFACES ───────────────────────────
 
-  // Draw a block with optional glow
-  function drawBlock(ctx, x, y, colorId, targetSize, glowColor, glowBlur) {
+  // Render a clean neon hollow wireframe structure rather than a dense brick tile
+  function drawBlock(ctx, x, y, colorId, targetSize, glowColor) {
+    ctx.save();
     if (glowColor) {
       ctx.shadowColor = glowColor;
-      ctx.shadowBlur = glowBlur || 10;
+      ctx.shadowBlur = 10;
     }
-    ctx.fillStyle = COLORS[colorId];
-    ctx.fillRect(x * targetSize, y * targetSize, targetSize, targetSize);
-    ctx.shadowBlur = 0;
-    ctx.shadowColor = 'transparent';
-    ctx.strokeStyle = '#0a0a12';
-    ctx.lineWidth = 1;
-    ctx.strokeRect(x * targetSize, y * targetSize, targetSize, targetSize);
+    ctx.strokeStyle = COLORS[colorId];
+    ctx.lineWidth = 1.5;
+    
+    // Draw hollow guitar scale block node frame
+    ctx.strokeRect(x * targetSize + 1.5, y * targetSize + 1.5, targetSize - 3, targetSize - 3);
+    
+    // Tiny structural center point core element
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.15)';
+    ctx.fillRect(x * targetSize + (targetSize/2) - 2, y * targetSize + (targetSize/2) - 2, 4, 4);
+    
+    ctx.restore();
   }
 
-  // Draw the faint grid lines over the empty field
+  // Render the structural fretboard guidelines (Strategic fret positions highlighted)
   function drawGrid(ctx, width, height) {
-    ctx.strokeStyle = 'rgba(255, 255, 255, 0.04)';
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.03)';
     ctx.lineWidth = 0.5;
     for (let c = 0; c <= COLS; c++) {
       ctx.beginPath();
@@ -270,6 +335,15 @@
       ctx.beginPath();
       ctx.moveTo(0, r * BLOCK_SIZE);
       ctx.lineTo(width, r * BLOCK_SIZE);
+      
+      // Highlight classic guitar fretboard marker line locations (Fret 3, 5, 7, 9, 12, 15, 17, 19, 21)
+      if ([3, 5, 7, 9, 12, 15, 17, 19, 21].includes(r)) {
+        ctx.strokeStyle = 'rgba(255, 215, 0, 0.14)';
+        ctx.lineWidth = 1.5;
+      } else {
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.03)';
+        ctx.lineWidth = 0.5;
+      }
       ctx.stroke();
     }
   }
@@ -278,57 +352,49 @@
     if (!CTX) return;
     CTX.clearRect(0, 0, CANVAS.width, CANVAS.height);
 
-    // Subtle background grid
     drawGrid(CTX, CANVAS.width, CANVAS.height);
 
-    // Draw Static Solid Field Grid (with glow)
+    // Render Static Board Field Grid
     for (let r = 0; r < ROWS; r++) {
       for (let c = 0; c < COLS; c++) {
         if (grid[r][c] !== 0) {
           const color = COLORS[grid[r][c]];
-          drawBlock(CTX, c, r, grid[r][c], BLOCK_SIZE, color, 6);
+          drawBlock(CTX, c, r, grid[r][c], BLOCK_SIZE, color);
         }
       }
     }
 
-    // Draw Ghost Piece
+    // Render Neon Ghost String Tracker Outline
     if (activePiece) {
       const ghostY = getGhostY();
-      // Only draw ghost if it's meaningfully below the active piece
       if (ghostY !== null && ghostY > activePiece.y) {
-        CTX.globalAlpha = 0.18;
         activePiece.matrix.forEach((row, r) => {
           row.forEach((value, c) => {
             if (value !== 0 && ghostY + r >= 0) {
-              CTX.fillStyle = COLORS[activePiece.id];
-              CTX.fillRect(
-                (activePiece.x + c) * BLOCK_SIZE,
-                (ghostY + r) * BLOCK_SIZE,
-                BLOCK_SIZE,
-                BLOCK_SIZE
-              );
-              CTX.strokeStyle = COLORS[activePiece.id];
+              CTX.save();
+              CTX.strokeStyle = 'rgba(255, 255, 255, 0.08)';
+              CTX.setLineDash([2, 2]);
               CTX.lineWidth = 1;
               CTX.strokeRect(
-                (activePiece.x + c) * BLOCK_SIZE,
-                (ghostY + r) * BLOCK_SIZE,
-                BLOCK_SIZE,
-                BLOCK_SIZE
+                (activePiece.x + c) * BLOCK_SIZE + 2,
+                (ghostY + r) * BLOCK_SIZE + 2,
+                BLOCK_SIZE - 4,
+                BLOCK_SIZE - 4
               );
+              CTX.restore();
             }
           });
         });
-        CTX.globalAlpha = 1.0;
       }
     }
 
-    // Draw Current Falling Piece Matrix (with glow)
+    // Render Falling Structural Piece Matrix
     if (activePiece) {
       const color = COLORS[activePiece.id];
       activePiece.matrix.forEach((row, r) => {
         row.forEach((value, c) => {
           if (value !== 0 && activePiece.y + r >= 0) {
-            drawBlock(CTX, activePiece.x + c, activePiece.y + r, activePiece.id, BLOCK_SIZE, color, 12);
+            drawBlock(CTX, activePiece.x + c, activePiece.y + r, activePiece.id, BLOCK_SIZE, color);
           }
         });
       });
@@ -347,14 +413,13 @@
     m.forEach((row, r) => {
       row.forEach((value, c) => {
         if (value !== 0) {
+          NEXT_CTX.save();
           NEXT_CTX.shadowColor = color;
-          NEXT_CTX.shadowBlur = 8;
-          NEXT_CTX.fillStyle = color;
-          NEXT_CTX.fillRect(offsetX + c * nSize, offsetY + r * nSize, nSize, nSize);
-          NEXT_CTX.shadowBlur = 0;
-          NEXT_CTX.shadowColor = 'transparent';
-          NEXT_CTX.strokeStyle = '#0a0a12';
-          NEXT_CTX.strokeRect(offsetX + c * nSize, offsetY + r * nSize, nSize, nSize);
+          NEXT_CTX.shadowBlur = 6;
+          NEXT_CTX.strokeStyle = color;
+          NEXT_CTX.lineWidth = 1;
+          NEXT_CTX.strokeRect(offsetX + c * nSize + 1, offsetY + r * nSize + 1, nSize - 2, nSize - 2);
+          NEXT_CTX.restore();
         }
       });
     });
@@ -383,6 +448,7 @@
   }
 
   function startNewGame() {
+    audio.init();
     grid = createGrid();
     score = 0;
     lines = 0;
@@ -400,11 +466,6 @@
     pauseBtn.disabled = false;
     resetBtn.disabled = false;
 
-    if (!isMuted) {
-      BGM.currentTime = 0;
-      BGM.play().catch(err => console.log("Audio presentation blocked until interaction:", err));
-    }
-
     lastTime = performance.now();
     dropCounter = 0;
     gameInterval = requestAnimationFrame(gameTick);
@@ -417,22 +478,17 @@
       if (msgEl) msgEl.innerHTML = `STATUS: <span class="hi">PAUSED</span>`;
       pauseBtn.textContent = 'Resume';
       cancelAnimationFrame(gameInterval);
-      BGM.pause();
     } else {
       if (msgEl) msgEl.innerHTML = `STATUS: <span class="hi">LIVE_SYSTEM</span>`;
       pauseBtn.textContent = 'Pause';
       lastTime = performance.now();
-      if (!isMuted) {
-        BGM.play().catch(err => console.log(err));
-      }
       gameInterval = requestAnimationFrame(gameTick);
     }
   }
 
   function endGameLoop() {
     cancelAnimationFrame(gameInterval);
-    BGM.pause();
-    if (msgEl) msgEl.innerHTML = `&gt; ERROR: <span class="hi" style="color:#ff2d78">GAME OVER</span>`;
+    if (msgEl) msgEl.innerHTML = `&gt; ERROR: <span class="hi" style="color:#ff2d78">SYSTEM OVERFLOW</span>`;
     startBtn.disabled = false;
     pauseBtn.disabled = true;
     pauseBtn.textContent = 'Pause';
