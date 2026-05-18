@@ -1,0 +1,31 @@
+/* Custom Vector Viewport Adjustments */
+#frettris-canvas {
+  background: #05050b;
+  border: 2px solid #cca23944;
+  box-shadow: 0 0 15px rgba(204, 162, 57, 0.1);
+  display: block;
+  max-width: 100%;
+  height: auto;
+  margin: 0 auto;
+}
+
+/* Audio control element visibility tracking rules */
+.mute-btn.is-muted #speaker-waves {
+  display: none;
+}
+.mute-btn.is-muted svg {
+  opacity: 0.4;
+}
+
+#touch-shoot {
+  max-width: 100%;
+  font-weight: bold;
+  letter-spacing: 2px;
+}
+
+@media (max-width: 480px) {
+  #frettris-canvas {
+    width: 100%;
+    height: auto;
+  }
+}
