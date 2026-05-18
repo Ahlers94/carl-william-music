@@ -2,7 +2,7 @@
 layout: default
 title: "Carl William Music | Fretwave Invaders"
 description: "Dynamic vector retro arcade module featuring generative synthesis."
-nav: invaders
+nav: arcade
 extra_css:
   - /assets/css/invaders.css
 extra_js:
@@ -10,15 +10,17 @@ extra_js:
 ---
 
 <div class="page">
-  <div class="left-col content-page">
+  <div class="left-col content-page arcade-centered-layout">
     <div class="section-label">Fretwave Invaders</div>
     
     <div id="frettris-game-container" class="canvas-container">
       <div id="frettris-section">
 
-        <!-- Live Terminal System Status & Console Interface -->
+        <div class="section-subtitle">Repel the waves. Accelerate the pulse.</div>
+        
+        <!-- Live System Console & Audio State Rig -->
         <div class="game-system-header">
-          <div id="frettris-msg">&gt; SYSTEM INIT // READY TO ENGAGE</div>
+          <div id="frettris-msg">&gt; PRESS START TO ENGAGE</div>
           <div class="frettris-audio-control">
             <button id="audio-toggle-btn" class="mute-btn is-muted" title="Toggle Music" type="button">
               <svg id="speaker-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16"
@@ -31,25 +33,25 @@ extra_js:
           </div>
         </div>
         
-        <div class="frettris-meta">arrow keys &nbsp;//&nbsp; space = shoot &nbsp;//&nbsp; mobile inputs enabled</div>
+        <div class="frettris-meta">arrow keys &nbsp;//&nbsp; space = shoot &nbsp;//&nbsp; [P] = pause</div>
 
         <!-- Render Playfield Canvas Element -->
         <div class="frettris-play-area">
           <canvas id="frettris-canvas" width="440" height="520"></canvas>
         </div>
 
-        <!-- Onscreen Input Rig (Mobile Viewport) -->
+        <!-- Onscreen Input Rig (Frettris Stylized Mobile Port) -->
         <div class="frettris-touch mobile-gamepad" id="frettris-touch">
           <div class="touch-row">
-            <button class="touch-btn" id="touch-shoot">FIRE</button>
+            <button class="frettris-btn touch-btn" id="touch-shoot">FIRE</button>
           </div>
           <div class="touch-row">
-            <button class="touch-btn" id="touch-left">◀</button>
-            <button class="touch-btn" id="touch-right">▶</button>
+            <button class="frettris-btn touch-btn" id="touch-left">◀</button>
+            <button class="frettris-btn touch-btn" id="touch-right">▶</button>
           </div>
         </div>
 
-        <!-- Execution Panel Control Layout -->
+        <!-- Execution Panel Control Layout (Frettris Stylized) -->
         <div class="frettris-controls game-controls">
           <button class="frettris-btn" id="start-btn" type="button">Start Game</button>
         </div>
