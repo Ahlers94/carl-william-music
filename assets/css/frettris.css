@@ -1,7 +1,7 @@
 /* ── FRETTRIS GAME UI STYLES ───────────────────────────────── */
 
 #frettris-game-container {
-  max-width: 480px;
+  max-width: 520px; /* Expanded slightly to give the wider 12-col fretboard breathing room */
   margin: 0 auto;
 }
 
@@ -16,14 +16,14 @@
 #frettris-msg {
   font-family: 'VT323', monospace;
   font-size: 18px;
-  color: #cca239;
-  text-shadow: 0 0 6px rgba(204, 162, 57, 0.4);
+  color: #ff2d78; /* Shifted to Neon Magenta signature frequency */
+  text-shadow: 0 0 6px rgba(255, 45, 120, 0.4);
   letter-spacing: 1px;
 }
 
 #frettris-msg .hi {
-  color: #ffd44f;
-  text-shadow: 0 0 10px rgba(255, 212, 79, 0.6);
+  color: #00f5ff; /* Hyper-Cyan live indicator */
+  text-shadow: 0 0 10px rgba(0, 245, 255, 0.6);
   font-weight: bold;
 }
 
@@ -36,7 +36,7 @@
 .mute-btn {
   background: transparent;
   border: none;
-  color: #cca239;
+  color: #00f5ff;
   cursor: pointer;
   padding: 4px;
   display: flex;
@@ -46,8 +46,8 @@
 }
 
 .mute-btn:hover {
-  color: #ffd44f;
-  filter: drop-shadow(0 0 5px rgba(255, 212, 79, 0.6));
+  color: #ff2d78;
+  filter: drop-shadow(0 0 5px rgba(255, 45, 120, 0.6));
 }
 
 /* Hide acoustic sound waves when muted */
@@ -57,7 +57,7 @@
 
 /* Subtle cross fallback look when muted */
 .mute-btn.is-muted svg {
-  opacity: 0.4;
+  opacity: 0.3;
 }
 
 .frettris-meta {
@@ -73,7 +73,7 @@
 .frettris-stats {
   display: flex;
   background: var(--surface);
-  border: 1px solid #cca23922;
+  border: 1px solid rgba(0, 245, 255, 0.15);
   margin-bottom: 18px;
   justify-content: stretch;
 }
@@ -82,7 +82,7 @@
   flex: 1;
   text-align: center;
   padding: 10px;
-  border-right: 1px solid #cca23922;
+  border-right: 1px solid rgba(0, 245, 255, 0.15);
 }
 
 .frettris-stat:last-child {
@@ -92,9 +92,9 @@
 .stat-num {
   font-family: 'Space Mono', monospace;
   font-size: 18px;
-  color: #ffd44f;
+  color: #00f5ff;
   font-weight: bold;
-  text-shadow: 0 0 8px rgba(255, 212, 79, 0.3);
+  text-shadow: 0 0 8px rgba(0, 245, 255, 0.3);
 }
 
 .stat-label {
@@ -105,7 +105,7 @@
   margin-top: 2px;
 }
 
-/* ── PLAY GRID VIEWPORT ─────────────────────────────────────── */
+/* ── PLAY GRID VIEWPORT (12 COLS x 21 ROWS) ─────────────────── */
 .frettris-play-area {
   display: flex;
   gap: 20px;
@@ -114,10 +114,11 @@
 }
 
 #frettris-canvas {
-  background: #05050b;
-  border: 2px solid #cca23944;
-  box-shadow: 0 0 15px rgba(204, 162, 57, 0.1);
+  background: #030308; /* Deepened matrix core space */
+  border: 2px solid rgba(0, 245, 255, 0.25);
+  box-shadow: 0 0 20px rgba(0, 245, 255, 0.08);
   display: block;
+  /* Aspect ratio explicitly defined by JS resize handler to balance standard vs mobile blocks */
 }
 
 .frettris-side {
@@ -136,8 +137,8 @@
 }
 
 #next-canvas {
-  background: #05050b;
-  border: 1px solid #ffffff11;
+  background: #030308;
+  border: 1px solid rgba(255, 255, 255, 0.05);
   display: block;
 }
 
@@ -152,7 +153,7 @@
   color: var(--dim);
   line-height: 1.8;
   letter-spacing: 0.5px;
-  border-top: 1px solid #ffffff0d;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
   padding-top: 12px;
 }
 
@@ -169,8 +170,8 @@
 .frettris-btn {
   flex: 1;
   background: var(--surface);
-  border: 1px solid #cca23944;
-  color: #cca239;
+  border: 1px solid rgba(0, 245, 255, 0.2);
+  color: #00f5ff;
   font-family: 'Space Mono', monospace;
   font-size: 10px;
   text-transform: uppercase;
@@ -181,16 +182,16 @@
 }
 
 .frettris-btn:hover:not(:disabled) {
-  background: #cca23911;
-  color: #ffd44f;
-  border-color: #ffd44f;
-  box-shadow: 0 0 8px rgba(255, 212, 79, 0.2);
+  background: rgba(0, 245, 255, 0.06);
+  color: #ffffff;
+  border-color: #00f5ff;
+  box-shadow: 0 0 12px rgba(0, 245, 255, 0.25);
 }
 
 .frettris-btn:disabled {
-  opacity: 0.3;
+  opacity: 0.25;
   cursor: not-allowed;
-  border-color: #ffffff0d;
+  border-color: rgba(255, 255, 255, 0.05);
   color: var(--dim);
 }
 
@@ -210,8 +211,8 @@
 }
 
 .touch-btn {
-  background: #121224;
-  border: 1px solid #ffffff15;
+  background: #0a0a14;
+  border: 1px solid rgba(255, 255, 255, 0.08);
   color: var(--text);
   padding: 14px;
   font-size: 16px;
@@ -221,12 +222,14 @@
   text-align: center;
   cursor: pointer;
   touch-action: manipulation;
+  transition: background 0.1s ease;
 }
 
 .touch-btn:active {
-  background: var(--cyan);
-  color: var(--bg);
-  border-color: var(--cyan);
+  background: #ff2d78; /* Flash magenta on raw touch strike */
+  color: #ffffff;
+  border-color: #ff2d78;
+  box-shadow: 0 0 10px rgba(255, 45, 120, 0.4);
 }
 
 #tb-drop {
@@ -236,17 +239,22 @@
   font-weight: bold;
 }
 
+/* ── RESPONSIVE ENGINE VIEWPORT MEDIA QUERY ─────────────────── */
 @media (max-width: 480px) {
   .frettris-play-area {
-    gap: 10px;
+    gap: 12px;
   }
+  
+  /* Adjusted to fit the 12:21 Strat block grid width constraint perfectly without overflow */
   #frettris-canvas {
-    width: 160px;
-    height: 320px;
+    width: 192px;  /* 12 Columns * 16px block size */
+    height: 336px; /* 21 Rows * 16px block size */
   }
+  
   .frettris-keys {
     display: none;
   }
+  
   .frettris-touch {
     display: flex;
   }
