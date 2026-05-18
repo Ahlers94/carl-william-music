@@ -1,21 +1,27 @@
 /**
- * FRETTRIS ENGINE v2.0 - CAGED Chord Matrix System
+ * FRETTRIS ENGINE v2.1 - CAGED Chord Matrix System (Lazy-Loaded Audio)
  * Custom-built for Carl William Music
  */
 
-// ── AUDIO HARDWARE ENGINE ───────────────────────────────────
+// ── AUDIO HARDWARE ENGINE (LAZY LOADED & UNBLOCKED) ─────────
 const AudioEngine = {
   ctx: null,
   stringBases: [82.41, 110.00, 146.83, 196.00, 246.94, 329.63], // E2, A2, D3, G3, B3, E4
 
-  init() {
+  async init() {
+    // Only spin up the hardware audio thread if it doesn't exist yet
     if (!this.ctx) {
       this.ctx = new (window.AudioContext || window.webkitAudioContext)();
     }
+    // If the browser suspended it due to autoplay rules, cleanly force it alive
+    if (this.ctx.state === 'suspended') {
+      await this.ctx.resume();
+    }
   },
 
-  strum(frets) {
-    this.init();
+  async strum(frets) {
+    // Ensure the hardware path is completely open before processing frequencies
+    await this.init();
     const now = this.ctx.currentTime;
     
     frets.forEach((fret, stringIdx) => {
@@ -35,7 +41,7 @@ const AudioEngine = {
       osc.connect(gainNode);
       gainNode.connect(this.ctx.destination);
       
-      // 30ms stagger delay for a realistic physical pick stroke
+      // 30ms stagger delay for a realistic physical pick stroke down the strings
       const strumDelay = stringIdx * 0.03;
       osc.start(now + strumDelay);
       osc.stop(now + strumDelay + 1.5);
@@ -80,7 +86,7 @@ const Frettris = {
     this.generateNewTarget();
     this.draw();
     
-    // Load High Score
+    // Load High Score safely from storage
     this.bestScore = localStorage.getItem('frettris_hi') || 0;
     document.getElementById('tet-hiscore').innerText = this.bestScore;
   },
@@ -101,9 +107,9 @@ const Frettris = {
     window.addEventListener('keydown', (e) => this.handleInput(e));
     this.canvas.addEventListener('click', (e) => this.handleMouseClick(e));
     
-    // UI Interface Wiring
-    document.getElementById('tet-start-btn').addEventListener('click', () => {
-      AudioEngine.init();
+    // UI Interface Wiring (Now handles async audio handshake)
+    document.getElementById('tet-start-btn').addEventListener('click', async () => {
+      await AudioEngine.init();
       this.resetGame();
     });
   },
@@ -130,7 +136,10 @@ const Frettris = {
     this.draw();
   },
 
-  handleMouseClick(e) {
+  async handleMouseClick(e) {
+    // Wake up audio context on click/tap events to comply with user-gesture requirements
+    await AudioEngine.init();
+
     const rect = this.canvas.getBoundingClientRect();
     const clickX = e.clientX - rect.left;
     const clickY = e.clientY - rect.top;
@@ -205,7 +214,6 @@ const Frettris = {
     for (let s = 0; s < this.STRINGS; s++) {
       let expectedFret = template[s];
       if (expectedFret !== null) {
-        // Adjust baseline calculations across the chord system matrix mapping
         expectedFret = expectedFret; 
       }
       
