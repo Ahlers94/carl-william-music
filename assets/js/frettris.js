@@ -1,580 +1,362 @@
-(function () {
-  'use strict';
+/**
+ * FRETTRIS ENGINE v2.0 - CAGED Chord Matrix System
+ * Custom-built for Carl William Music
+ */
 
-  // ── GUITAR FRETBOARD ARCHITECTURE CONFIGURATION ────────────
-  const COLS = 12; // 12 Chromatic Notes in an Octave
-  const ROWS = 21; // 21 Frets on a Fender Stratocaster
-  let BLOCK_SIZE = 24;
+// ── AUDIO HARDWARE ENGINE ───────────────────────────────────
+const AudioEngine = {
+  ctx: null,
+  stringBases: [82.41, 110.00, 146.83, 196.00, 246.94, 329.63], // E2, A2, D3, G3, B3, E4
 
-  const CANVAS = document.getElementById('frettris-canvas');
-  const CTX = CANVAS ? CANVAS.getContext('2d') : null;
-  const NEXT_CANVAS = document.getElementById('next-canvas');
-  const NEXT_CTX = NEXT_CANVAS ? NEXT_CANVAS.getContext('2d') : null;
-
-  // Real-Time Frequency Palette Mapping (Low Registers -> High Registers)
-  const COLORS = [
-    null,
-    '#ff2d78', // Bass Note E
-    '#ff5e00', // Note F
-    '#ffd700', // Note G
-    '#99cc77', // Note A
-    '#00f5ff', // Note B
-    '#b06aff', // Note C
-    '#3344ff'  // Note D
-  ];
-
-  // Modified Geometric Block Wireframes (Decoupled from standard Tetrominos)
-  const PIECES = [
-    [],
-    [[1, 1, 0], [0, 1, 1], [0, 0, 0]], 
-    [[0, 0, 0, 0], [2, 2, 2, 2], [0, 0, 0, 0], [0, 0, 0, 0]], 
-    [[3, 3], [3, 3]], 
-    [[0, 4, 4], [4, 4, 0], [0, 0, 0]], 
-    [[0, 5, 0], [5, 5, 5], [0, 0, 0]], 
-    [[0, 0, 6], [6, 6, 6], [0, 0, 0]], 
-    [[7, 0, 0], [7, 7, 7], [0, 0, 0]]  
-  ];
-
-  // Base frequencies mapping to columns for the polyphonic synthesizer engine
-  const BASE_NOTES = [130.81, 138.59, 146.83, 155.56, 164.81, 174.61, 185.00, 196.00, 207.65, 220.00, 233.08, 246.94];
-
-  // ── POLYPHONIC AUDIO SYNTHESIS ENGINE ──────────────────────
-  class LiveSynthEngine {
-    constructor() {
-      this.ctx = null;
-      this.masterGain = null;
+  init() {
+    if (!this.ctx) {
+      this.ctx = new (window.AudioContext || window.webkitAudioContext)();
     }
+  },
 
-    init() {
-      if (!this.ctx) {
-        this.ctx = new (window.AudioContext || window.webkitAudioContext)();
-        this.masterGain = this.ctx.createGain();
-        this.masterGain.gain.setValueAtTime(0.4, this.ctx.currentTime);
-        this.masterGain.connect(this.ctx.destination);
-      }
-    }
-
-    // Play a dynamically generated chord cascade based on row clearing variables
-    playChord(columnsCleared, multiplier) {
-      if (isMuted || !this.ctx) return;
-      this.init();
-
-      const baseTime = this.ctx.currentTime;
-      columnsCleared.forEach((colIndex, idx) => {
-        let osc = this.ctx.createOscillator();
-        let gainNode = this.ctx.createGain();
-        let panner = this.ctx.createStereoPanner ? this.ctx.createStereoPanner() : null;
-
-        // Calculate frequency scaled by row clearing depth
-        const baseFreq = BASE_NOTES[colIndex % 12];
-        osc.type = idx % 2 === 0 ? 'triangle' : 'sine';
-        osc.frequency.setValueAtTime(baseFreq * (multiplier === 4 ? 2.0 : 1.0), baseTime);
-        
-        // Add progressive pitch modulation
-        osc.frequency.exponentialRampToValueAtTime(baseFreq * 1.5, baseTime + 0.4);
-
-        gainNode.gain.setValueAtTime(0.18, baseTime);
-        gainNode.gain.exponentialRampToValueAtTime(0.001, baseTime + 0.5);
-
-        if (panner) {
-          // Pan notes left-to-right based on fret matrix index positioning
-          panner.pan.setValueAtTime((colIndex / 6) - 1, baseTime);
-          osc.connect(panner);
-          panner.connect(gainNode);
-        } else {
-          osc.connect(gainNode);
-        }
-
-        gainNode.connect(this.masterGain);
-        osc.start(baseTime);
-        osc.stop(baseTime + 0.52);
-      });
-    }
-  }
-
-  const audio = new LiveSynthEngine();
-  let isMuted = false;
-
-  // ── ENGINE STATE VARIABLES ─────────────────────────────────
-  let grid = createGrid();
-  let score = 0;
-  let lines = 0;
-  let level = 1;
-  let hiScore = localStorage.getItem('frettris_hi') ? parseInt(localStorage.getItem('frettris_hi'), 10) : 0;
-
-  let activePiece = null;
-  let nextPiece = null;
-  let gameOver = false;
-  let isPaused = false;
-  let gameInterval = null;
-  let dropCounter = 0;
-  let lastTime = 0;
-
-  // UI Targets
-  const msgEl = document.getElementById('frettris-msg');
-  const scoreEl = document.getElementById('tet-score');
-  const linesEl = document.getElementById('tet-lines');
-  const levelEl = document.getElementById('tet-level');
-  const hiScoreEl = document.getElementById('tet-hiscore');
-
-  const startBtn = document.getElementById('tet-start-btn');
-  const pauseBtn = document.getElementById('tet-pause-btn');
-  const resetBtn = document.getElementById('tet-reset-btn');
-  const muteBtn = document.getElementById('frettris-mute-btn');
-
-  // ── GRID CREATION AND SCALE LOGIC ──────────────────────────
-  function createGrid() {
-    return Array.from({ length: ROWS }, () => new Array(COLS).fill(0));
-  }
-
-  function resizeGameCanvas() {
-    if (!CANVAS) return;
-    if (window.innerWidth <= 480) {
-      BLOCK_SIZE = 16;
-      CANVAS.width = COLS * BLOCK_SIZE; // 192px
-      CANVAS.height = ROWS * BLOCK_SIZE; // 336px
-    } else {
-      BLOCK_SIZE = 24;
-      CANVAS.width = COLS * BLOCK_SIZE; // 288px
-      CANVAS.height = ROWS * BLOCK_SIZE; // 504px
-    }
-    renderGridAndPiece();
-  }
-
-  // ── AUDIO CONTROL LIFECYCLE ────────────────────────────────
-  function initAudioPipeline() {
-    if (!muteBtn) return;
-    muteBtn.addEventListener('click', (e) => {
-      e.preventDefault();
-      isMuted = !isMuted;
-      if (isMuted) {
-        muteBtn.classList.add('is-muted');
-      } else {
-        muteBtn.classList.remove('is-muted');
-        audio.init();
-      }
+  strum(frets) {
+    this.init();
+    const now = this.ctx.currentTime;
+    
+    frets.forEach((fret, stringIdx) => {
+      if (fret === null) return;
+      
+      const freq = this.stringBases[stringIdx] * Math.pow(2, fret / 12);
+      const osc = this.ctx.createOscillator();
+      const gainNode = this.ctx.createGain();
+      
+      // Cyberpunk triangle-synth texture
+      osc.type = 'triangle';
+      osc.frequency.value = freq;
+      
+      gainNode.gain.setValueAtTime(0.25, now);
+      gainNode.gain.exponentialRampToValueAtTime(0.001, now + 1.5);
+      
+      osc.connect(gainNode);
+      gainNode.connect(this.ctx.destination);
+      
+      // 30ms stagger delay for a realistic physical pick stroke
+      const strumDelay = stringIdx * 0.03;
+      osc.start(now + strumDelay);
+      osc.stop(now + strumDelay + 1.5);
     });
   }
+};
 
-  // ── CORE GAME MECHANICS ────────────────────────────────────
-  function generateRandomPiece() {
-    const id = Math.floor(Math.random() * 7) + 1;
-    const matrix = PIECES[id];
-    return {
-      id: id,
-      matrix: JSON.parse(JSON.stringify(matrix)),
-      x: Math.floor((COLS - matrix[0].length) / 2),
-      y: id === 2 ? -1 : 0
+// ── GAME STATE CONFIGURATION ────────────────────────────────
+const Frettris = {
+  canvas: null,
+  ctx: null,
+  isMobile: false,
+
+  // Grid Properties (6 Strings, 21 Frets)
+  STRINGS: 6,
+  FRETS: 21,
+  
+  // Game State Metrics
+  score: 0,
+  bestScore: 0,
+  level: 1,
+  
+  // Interaction Coordinates
+  cursor: { string: 0, fret: 0 },
+  userFretboard: Array(6).fill(null), // Holds placed notes [null, null, 3, 5, 5, null]
+  
+  // Current Quest Target
+  currentTarget: {
+    rootNoteName: "C",
+    rootFretOffset: 3, // Target root position on the board
+    chordType: "Major",
+    shapeName: "A_Shape"
+  },
+
+  init() {
+    this.canvas = document.getElementById('frettris-canvas');
+    if (!this.canvas) return;
+    this.ctx = this.canvas.getContext('2d');
+    
+    this.checkViewport();
+    this.setupListeners();
+    this.generateNewTarget();
+    this.draw();
+    
+    // Load High Score
+    this.bestScore = localStorage.getItem('frettris_hi') || 0;
+    document.getElementById('tet-hiscore').innerText = this.bestScore;
+  },
+
+  checkViewport() {
+    this.isMobile = window.innerWidth <= 480;
+    // Set fixed sizing layouts safely for responsive canvas rendering
+    if (this.isMobile) {
+      this.canvas.width = 192;  // Flips geometry vertically for sleek mobile views
+      this.canvas.height = 420;
+    } else {
+      this.canvas.width = 460;
+      this.canvas.height = 200;
+    }
+  },
+
+  setupListeners() {
+    window.addEventListener('keydown', (e) => this.handleInput(e));
+    this.canvas.addEventListener('click', (e) => this.handleMouseClick(e));
+    
+    // UI Interface Wiring
+    document.getElementById('tet-start-btn').addEventListener('click', () => {
+      AudioEngine.init();
+      this.resetGame();
+    });
+  },
+
+  handleInput(e) {
+    switch(e.key.toUpperCase()) {
+      case 'ARROWLEFT': case 'A':
+        if (this.cursor.fret > 0) this.cursor.fret--;
+        break;
+      case 'ARROWRIGHT': case 'D':
+        if (this.cursor.fret < this.FRETS - 1) this.cursor.fret++;
+        break;
+      case 'ARROWUP': case 'W':
+        if (this.cursor.string < this.STRINGS - 1) this.cursor.string++;
+        break;
+      case 'ARROWDOWN': case 'S':
+        if (this.cursor.string > 0) this.cursor.string--;
+        break;
+      case ' ': // Spacebar triggers a block placement strike
+        e.preventDefault();
+        this.toggleFret(this.cursor.string, this.cursor.fret);
+        break;
+    }
+    this.draw();
+  },
+
+  handleMouseClick(e) {
+    const rect = this.canvas.getBoundingClientRect();
+    const clickX = e.clientX - rect.left;
+    const clickY = e.clientY - rect.top;
+    
+    let targetString, targetFret;
+    
+    if (this.isMobile) {
+      // Mobile Layout: Vertical Fretboard Layout Engine
+      const fretHeight = this.canvas.height / this.FRETS;
+      const stringWidth = this.canvas.width / (this.STRINGS + 1);
+      targetFret = Math.floor(clickY / fretHeight);
+      targetString = Math.floor(clickX / stringWidth) - 1;
+    } else {
+      // Standard Desktop Layout: Horizontal Fretboard Layout Engine
+      const fretWidth = this.canvas.width / this.FRETS;
+      const stringHeight = this.canvas.height / (this.STRINGS + 1);
+      targetFret = Math.floor(clickX / fretWidth);
+      targetString = this.STRINGS - Math.floor(clickY / stringHeight);
+    }
+    
+    if (targetString >= 0 && targetString < this.STRINGS && targetFret >= 0 && targetFret < this.FRETS) {
+      this.cursor = { string: targetString, fret: targetFret };
+      this.toggleFret(targetString, targetFret);
+      this.draw();
+    }
+  },
+
+  toggleFret(string, fret) {
+    if (this.userFretboard[string] === fret) {
+      this.userFretboard[string] = null; // Remove note if clicked again
+    } else {
+      this.userFretboard[string] = fret; // Place structural block marker
+    }
+    this.checkChordMatch();
+  },
+
+  generateNewTarget() {
+    const keys = ["C", "A", "G", "E", "D"];
+    const types = Object.keys(CAGED_DICTIONARY);
+    
+    // Scale difficulty safely based on current score levels
+    let selectedType = "Major";
+    if (this.score >= 300) selectedType = types[Math.floor(Math.random() * types.length)];
+    else if (this.score >= 100) selectedType = Math.random() > 0.5 ? "Minor" : "Major";
+
+    const shapes = Object.keys(CAGED_DICTIONARY[selectedType]);
+    const selectedShape = shapes[Math.floor(Math.random() * shapes.length)];
+    
+    // Assign structural fret placement offsets based on shape constraints
+    const rootOffsets = { "C_Shape": 3, "A_Shape": 5, "G_Shape": 8, "E_Shape": 8, "D_Shape": 10 };
+    
+    this.currentTarget = {
+      rootNoteName: keys[Math.floor(Math.random() * keys.length)],
+      rootFretOffset: rootOffsets[selectedShape] || 3,
+      chordType: selectedType,
+      shapeName: selectedShape
     };
-  }
 
-  function checkCollision(piece, offsetGrid) {
-    const matrix = piece.matrix;
-    for (let r = 0; r < matrix.length; r++) {
-      for (let c = 0; c < matrix[r].length; c++) {
-        if (matrix[r][c] !== 0) {
-          let nextX = piece.x + c;
-          let nextY = piece.y + r;
-          if (offsetGrid) {
-            nextX += offsetGrid.x || 0;
-            nextY += offsetGrid.y || 0;
-          }
-          if (nextX < 0 || nextX >= COLS || nextY >= ROWS) {
-            return true;
-          }
-          if (nextY >= 0 && grid[nextY][nextX] !== 0) {
-            return true;
-          }
-        }
-      }
+    // Prompt user via HTML UI element update
+    const msgElement = document.getElementById('frettris-msg');
+    if (msgElement) {
+      msgElement.innerHTML = `BUILD: <span class="hi">${this.currentTarget.rootNoteName} ${this.currentTarget.chordType.replace('_', ' ')}</span> (${this.currentTarget.shapeName.replace('_', ' ')})`;
     }
-    return false;
-  }
+  },
 
-  function mergeActivePieceToGrid() {
-    activePiece.matrix.forEach((row, r) => {
-      row.forEach((value, c) => {
-        if (value !== 0) {
-          const targetY = activePiece.y + r;
-          if (targetY >= 0) {
-            grid[targetY][activePiece.x + c] = activePiece.id;
-          }
-        }
-      });
-    });
-  }
+  checkChordMatch() {
+    const template = CAGED_DICTIONARY[this.currentTarget.chordType][this.currentTarget.shapeName];
+    if (!template) return;
 
-  function rotateMatrix(piece) {
-    const matrix = piece.matrix;
-    const n = matrix.length;
-    let rotated = Array.from({ length: n }, () => new Array(n).fill(0));
-    for (let r = 0; r < n; r++) {
-      for (let c = 0; c < n; c++) {
-        rotated[c][n - 1 - r] = matrix[r][c];
-      }
-    }
-    const originMatrix = piece.matrix;
-    piece.matrix = rotated;
-    if (checkCollision(piece)) {
-      piece.x += 1;
-      if (checkCollision(piece)) {
-        piece.x -= 2;
-        if (checkCollision(piece)) {
-          piece.x += 1;
-          piece.matrix = originMatrix;
-        }
-      }
-    }
-  }
-
-  function clearLines() {
-    let clearedCount = 0;
-    let columnsCaptured = [];
-
-    outer: for (let r = ROWS - 1; r >= 0; r--) {
-      for (let c = 0; c < COLS; c++) {
-        if (grid[r][c] === 0) continue outer;
-      }
-      // Track row active structural column layout index bounds before slicing out
-      for (let c = 0; c < COLS; c++) {
-        if (!columnsCaptured.includes(c)) columnsCaptured.push(c);
-      }
-      grid.splice(r, 1);
-      grid.unshift(new Array(COLS).fill(0));
-      clearedCount++;
-      r++;
-    }
-
-    if (clearedCount > 0) {
-      const scoringTable = [0, 100, 300, 500, 800];
-      score += (scoringTable[clearedCount] || 800) * level;
-      lines += clearedCount;
-      level = Math.floor(lines / 10) + 1;
-
-      if (score > hiScore) {
-        hiScore = score;
-        localStorage.setItem('frettris_hi', hiScore);
+    // Verify absolute fret layouts relative to structural base offsets
+    let isMatch = true;
+    for (let s = 0; s < this.STRINGS; s++) {
+      let expectedFret = template[s];
+      if (expectedFret !== null) {
+        // Adjust baseline calculations across the chord system matrix mapping
+        expectedFret = expectedFret; 
       }
       
-      // Fire live localized dynamic poly-synth instead of a raw mp3 asset trigger
-      audio.playChord(columnsCaptured, clearedCount);
-      updateStateDOM();
-    }
-  }
-
-  function handleDrop() {
-    activePiece.y++;
-    if (checkCollision(activePiece)) {
-      activePiece.y--;
-      mergeActivePieceToGrid();
-      clearLines();
-      activePiece = nextPiece;
-      nextPiece = generateRandomPiece();
-      if (checkCollision(activePiece)) {
-        gameOver = true;
-        endGameLoop();
+      if (this.userFretboard[s] !== expectedFret) {
+        isMatch = false;
+        break;
       }
-      renderNextPiece();
     }
-    dropCounter = 0;
-  }
 
-  function hardDrop() {
-    if (gameOver || isPaused || !activePiece) return;
-    while (!checkCollision(activePiece, { x: 0, y: 1 })) {
-      activePiece.y++;
-    }
-    handleDrop();
-    renderGridAndPiece();
-  }
-
-  // ── GHOST PIECE ────────────────────────────────────────────
-  function getGhostY() {
-    if (!activePiece) return null;
-    let ghostY = activePiece.y;
-    const ghost = { matrix: activePiece.matrix, x: activePiece.x, y: ghostY };
-    while (!checkCollision({ ...ghost, y: ghost.y + 1 })) {
-      ghost.y++;
-    }
-    return ghost.y;
-  }
-
-  // ── VECTORS RENDERING INTERFACES ───────────────────────────
-
-  // Render a clean neon hollow wireframe structure rather than a dense brick tile
-  function drawBlock(ctx, x, y, colorId, targetSize, glowColor) {
-    ctx.save();
-    if (glowColor) {
-      ctx.shadowColor = glowColor;
-      ctx.shadowBlur = 10;
-    }
-    ctx.strokeStyle = COLORS[colorId];
-    ctx.lineWidth = 1.5;
-    
-    // Draw hollow guitar scale block node frame
-    ctx.strokeRect(x * targetSize + 1.5, y * targetSize + 1.5, targetSize - 3, targetSize - 3);
-    
-    // Tiny structural center point core element
-    ctx.fillStyle = 'rgba(255, 255, 255, 0.15)';
-    ctx.fillRect(x * targetSize + (targetSize/2) - 2, y * targetSize + (targetSize/2) - 2, 4, 4);
-    
-    ctx.restore();
-  }
-
-  // Render the structural fretboard guidelines (Strategic fret positions highlighted)
-  function drawGrid(ctx, width, height) {
-    ctx.strokeStyle = 'rgba(255, 255, 255, 0.03)';
-    ctx.lineWidth = 0.5;
-    for (let c = 0; c <= COLS; c++) {
-      ctx.beginPath();
-      ctx.moveTo(c * BLOCK_SIZE, 0);
-      ctx.lineTo(c * BLOCK_SIZE, height);
-      ctx.stroke();
-    }
-    for (let r = 0; r <= ROWS; r++) {
-      ctx.beginPath();
-      ctx.moveTo(0, r * BLOCK_SIZE);
-      ctx.lineTo(width, r * BLOCK_SIZE);
+    if (isMatch) {
+      // Trigger Audio feedback engine instantly on evaluation match
+      AudioEngine.strum(this.userFretboard);
+      this.score += 50;
+      document.getElementById('tet-score').innerText = this.score;
       
-      // Highlight classic guitar fretboard marker line locations (Fret 3, 5, 7, 9, 12, 15, 17, 19, 21)
-      if ([3, 5, 7, 9, 12, 15, 17, 19, 21].includes(r)) {
-        ctx.strokeStyle = 'rgba(255, 215, 0, 0.14)';
-        ctx.lineWidth = 1.5;
-      } else {
-        ctx.strokeStyle = 'rgba(255, 255, 255, 0.03)';
-        ctx.lineWidth = 0.5;
+      if (this.score > this.bestScore) {
+        this.bestScore = this.score;
+        localStorage.setItem('frettris_hi', this.bestScore);
+        document.getElementById('tet-hiscore').innerText = this.bestScore;
       }
-      ctx.stroke();
+
+      // Flash Success Vector Matrix Loop
+      this.userFretboard = Array(6).fill(null);
+      this.generateNewTarget();
     }
-  }
+  },
 
-  function renderGridAndPiece() {
-    if (!CTX) return;
-    CTX.clearRect(0, 0, CANVAS.width, CANVAS.height);
+  resetGame() {
+    this.score = 0;
+    this.userFretboard = Array(6).fill(null);
+    document.getElementById('tet-score').innerText = this.score;
+    this.generateNewTarget();
+    this.draw();
+  },
 
-    drawGrid(CTX, CANVAS.width, CANVAS.height);
-
-    // Render Static Board Field Grid
-    for (let r = 0; r < ROWS; r++) {
-      for (let c = 0; c < COLS; c++) {
-        if (grid[r][c] !== 0) {
-          const color = COLORS[grid[r][c]];
-          drawBlock(CTX, c, r, grid[r][c], BLOCK_SIZE, color);
-        }
-      }
-    }
-
-    // Render Neon Ghost String Tracker Outline
-    if (activePiece) {
-      const ghostY = getGhostY();
-      if (ghostY !== null && ghostY > activePiece.y) {
-        activePiece.matrix.forEach((row, r) => {
-          row.forEach((value, c) => {
-            if (value !== 0 && ghostY + r >= 0) {
-              CTX.save();
-              CTX.strokeStyle = 'rgba(255, 255, 255, 0.08)';
-              CTX.setLineDash([2, 2]);
-              CTX.lineWidth = 1;
-              CTX.strokeRect(
-                (activePiece.x + c) * BLOCK_SIZE + 2,
-                (ghostY + r) * BLOCK_SIZE + 2,
-                BLOCK_SIZE - 4,
-                BLOCK_SIZE - 4
-              );
-              CTX.restore();
-            }
-          });
-        });
-      }
-    }
-
-    // Render Falling Structural Piece Matrix
-    if (activePiece) {
-      const color = COLORS[activePiece.id];
-      activePiece.matrix.forEach((row, r) => {
-        row.forEach((value, c) => {
-          if (value !== 0 && activePiece.y + r >= 0) {
-            drawBlock(CTX, activePiece.x + c, activePiece.y + r, activePiece.id, BLOCK_SIZE, color);
-          }
-        });
-      });
-    }
-  }
-
-  function renderNextPiece() {
-    if (!NEXT_CTX || !nextPiece) return;
-    NEXT_CTX.clearRect(0, 0, NEXT_CANVAS.width, NEXT_CANVAS.height);
-    const m = nextPiece.matrix;
-    const nSize = 16;
-    const offsetX = (NEXT_CANVAS.width - m[0].length * nSize) / 2;
-    const offsetY = (NEXT_CANVAS.height - m.length * nSize) / 2;
-    const color = COLORS[nextPiece.id];
-
-    m.forEach((row, r) => {
-      row.forEach((value, c) => {
-        if (value !== 0) {
-          NEXT_CTX.save();
-          NEXT_CTX.shadowColor = color;
-          NEXT_CTX.shadowBlur = 6;
-          NEXT_CTX.strokeStyle = color;
-          NEXT_CTX.lineWidth = 1;
-          NEXT_CTX.strokeRect(offsetX + c * nSize + 1, offsetY + r * nSize + 1, nSize - 2, nSize - 2);
-          NEXT_CTX.restore();
-        }
-      });
-    });
-  }
-
-  function updateStateDOM() {
-    if (scoreEl) scoreEl.textContent = score;
-    if (linesEl) linesEl.textContent = lines;
-    if (levelEl) levelEl.querySelector('span').textContent = level;
-    if (hiScoreEl) hiScoreEl.textContent = hiScore;
-  }
-
-  // ── RUNTIME ENGINE GAME LIFECYCLE ──────────────────────────
-  function gameTick(timestamp) {
-    if (gameOver || isPaused) return;
-    const delta = timestamp - lastTime;
-    lastTime = timestamp;
-    dropCounter += delta;
-
-    const speed = Math.max(50, 600 - (level - 1) * 55);
-    if (dropCounter > speed) {
-      handleDrop();
-    }
-    renderGridAndPiece();
-    gameInterval = requestAnimationFrame(gameTick);
-  }
-
-  function startNewGame() {
-    audio.init();
-    grid = createGrid();
-    score = 0;
-    lines = 0;
-    level = 1;
-    gameOver = false;
-    isPaused = false;
-    activePiece = generateRandomPiece();
-    nextPiece = generateRandomPiece();
-
-    updateStateDOM();
-    renderNextPiece();
-
-    if (msgEl) msgEl.innerHTML = `STATUS: <span class="hi">LIVE_SYSTEM</span>`;
-    startBtn.disabled = true;
-    pauseBtn.disabled = false;
-    resetBtn.disabled = false;
-
-    lastTime = performance.now();
-    dropCounter = 0;
-    gameInterval = requestAnimationFrame(gameTick);
-  }
-
-  function togglePause() {
-    if (gameOver) return;
-    isPaused = !isPaused;
-    if (isPaused) {
-      if (msgEl) msgEl.innerHTML = `STATUS: <span class="hi">PAUSED</span>`;
-      pauseBtn.textContent = 'Resume';
-      cancelAnimationFrame(gameInterval);
+  // ── GRAPHICS RENDER PIPELINE ───────────────────────────────
+  draw() {
+    this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+    
+    if (this.isMobile) {
+      this.renderVerticalFretboard();
     } else {
-      if (msgEl) msgEl.innerHTML = `STATUS: <span class="hi">LIVE_SYSTEM</span>`;
-      pauseBtn.textContent = 'Pause';
-      lastTime = performance.now();
-      gameInterval = requestAnimationFrame(gameTick);
+      this.renderHorizontalFretboard();
     }
-  }
+  },
 
-  function endGameLoop() {
-    cancelAnimationFrame(gameInterval);
-    if (msgEl) msgEl.innerHTML = `&gt; ERROR: <span class="hi" style="color:#ff2d78">SYSTEM OVERFLOW</span>`;
-    startBtn.disabled = false;
-    pauseBtn.disabled = true;
-    pauseBtn.textContent = 'Pause';
-  }
+  renderHorizontalFretboard() {
+    const w = this.canvas.width;
+    const h = this.canvas.height;
+    const fretW = w / this.FRETS;
+    const stringH = h / (this.STRINGS + 1);
 
-  // ── SYSTEM LISTENERS & ROUTING INTERFACES ───────────────────
-  function setupControlListeners() {
-    window.addEventListener('keydown', (e) => {
-      if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', ' '].includes(e.key) && !isPaused && !gameOver) {
-        if (document.activeElement.tagName !== 'INPUT') e.preventDefault();
-      }
-      if (gameOver || isPaused || !activePiece) {
-        if (e.key.toLowerCase() === 'p') togglePause();
-        return;
-      }
-
-      switch (e.key) {
-        case 'ArrowLeft':
-        case 'a':
-        case 'A':
-          activePiece.x--;
-          if (checkCollision(activePiece)) activePiece.x++;
-          break;
-        case 'ArrowRight':
-        case 'd':
-        case 'D':
-          activePiece.x++;
-          if (checkCollision(activePiece)) activePiece.x--;
-          break;
-        case 'ArrowDown':
-        case 's':
-        case 'S':
-          handleDrop();
-          break;
-        case 'ArrowUp':
-        case 'w':
-        case 'W':
-        case 'z':
-        case 'Z':
-          rotateMatrix(activePiece);
-          break;
-        case ' ':
-          hardDrop();
-          break;
-        case 'p':
-        case 'P':
-          togglePause();
-          break;
-      }
-      renderGridAndPiece();
+    // Draw wood fret markers (Dots on frets 3, 5, 7, 9, 12, 15, 17, 19)
+    const markers = [3, 5, 7, 9, 12, 15, 17, 19];
+    this.ctx.fillStyle = "rgba(255, 255, 255, 0.03)";
+    markers.forEach(f => {
+      const x = (f * fretW) - (fretW / 2);
+      this.ctx.beginPath();
+      this.ctx.arc(x, h / 2, 6, 0, Math.PI * 2);
+      this.ctx.fill();
     });
 
-    if (startBtn) startBtn.addEventListener('click', startNewGame);
-    if (pauseBtn) pauseBtn.addEventListener('click', togglePause);
-    if (resetBtn) resetBtn.addEventListener('click', () => {
-      cancelAnimationFrame(gameInterval);
-      startNewGame();
+    // Draw Nickel Wireframe Frets
+    this.ctx.strokeStyle = "rgba(0, 245, 255, 0.15)";
+    for (let f = 0; f < this.FRETS; f++) {
+      this.ctx.beginPath();
+      this.ctx.moveTo(f * fretW, 0);
+      this.ctx.lineTo(f * fretW, h);
+      this.ctx.stroke();
+    }
+
+    // Draw Core Strings (Varying gauges from low to high)
+    for (let s = 0; s < this.STRINGS; s++) {
+      const y = stringH + (s * stringH);
+      this.ctx.strokeStyle = `rgba(255, 255, 255, ${0.2 + (s * 0.1)})`;
+      this.ctx.lineWidth = 1 + (this.STRINGS - s) * 0.5;
+      this.ctx.beginPath();
+      this.ctx.moveTo(0, y);
+      this.ctx.lineTo(w, y);
+      this.ctx.stroke();
+    }
+    this.ctx.lineWidth = 1; // reset
+
+    // Render Active Block Fretted Notes
+    this.userFretboard.forEach((fret, stringIdx) => {
+      if (fret === null) return;
+      const x = (fret * fretW) + (fretW / 2);
+      const y = h - (stringH + (stringIdx * stringH));
+      
+      this.ctx.fillStyle = "#ff2d78";
+      this.ctx.shadowBlur = 10;
+      this.ctx.shadowColor = "#ff2d78";
+      this.ctx.beginPath();
+      this.ctx.arc(x, y, 8, 0, Math.PI * 2);
+      this.ctx.fill();
+      this.ctx.shadowBlur = 0; // reset
     });
 
-    const mapping = [
-      { id: 'tb-left', action: () => { activePiece.x--; if (checkCollision(activePiece)) activePiece.x++; } },
-      { id: 'tb-right', action: () => { activePiece.x++; if (checkCollision(activePiece)) activePiece.x--; } },
-      { id: 'tb-rot', action: () => rotateMatrix(activePiece) },
-      { id: 'tb-down', action: () => handleDrop() },
-      { id: 'tb-drop', action: () => hardDrop() }
-    ];
+    // Render Interactive Selection Cursor Box
+    const cx = (this.cursor.fret * fretW);
+    const cy = h - (stringH + (this.cursor.string * stringH)) - (stringH / 2);
+    this.ctx.strokeStyle = "#00f5ff";
+    this.ctx.lineWidth = 2;
+    this.ctx.strokeRect(cx + 2, cy + 4, fretW - 4, stringH - 8);
+    this.ctx.lineWidth = 1;
+  },
 
-    mapping.forEach(bind => {
-      const btn = document.getElementById(bind.id);
-      if (btn) {
-        btn.addEventListener('click', (e) => {
-          e.preventDefault();
-          if (gameOver || isPaused || !activePiece) return;
-          bind.action();
-          renderGridAndPiece();
-        });
-      }
+  renderVerticalFretboard() {
+    const w = this.canvas.width;
+    const h = this.canvas.height;
+    const fretH = h / this.FRETS;
+    const stringW = w / (this.STRINGS + 1);
+
+    // Draw Mobile Nickel Frets
+    this.ctx.strokeStyle = "rgba(0, 245, 255, 0.15)";
+    for (let f = 0; f < this.FRETS; f++) {
+      this.ctx.beginPath();
+      this.ctx.moveTo(0, f * fretH);
+      this.ctx.lineTo(w, f * fretH);
+      this.ctx.stroke();
+    }
+
+    // Draw Mobile Strings
+    for (let s = 0; s < this.STRINGS; s++) {
+      const x = stringW + (s * stringW);
+      this.ctx.strokeStyle = `rgba(255, 255, 255, ${0.2 + (s * 0.1)})`;
+      this.ctx.beginPath();
+      this.ctx.moveTo(x, 0);
+      this.ctx.lineTo(x, h);
+      this.ctx.stroke();
+    }
+
+    // Render Active Mobile Fretted Notes
+    this.userFretboard.forEach((fret, stringIdx) => {
+      if (fret === null) return;
+      const x = stringW + (stringIdx * stringW);
+      const y = (fret * fretH) + (fretH / 2);
+      
+      this.ctx.fillStyle = "#ff2d78";
+      this.ctx.beginPath();
+      this.ctx.arc(x, y, 7, 0, Math.PI * 2);
+      this.ctx.fill();
     });
 
-    window.addEventListener('resize', resizeGameCanvas);
+    // Mobile Selection Cursor
+    const cx = stringW + (this.cursor.string * stringW) - (stringW / 2);
+    const cy = (this.cursor.fret * fretH);
+    this.ctx.strokeStyle = "#00f5ff";
+    this.ctx.strokeRect(cx + 2, cy + 2, stringW - 4, fretH - 4);
   }
+};
 
-  if (CANVAS) {
-    if (hiScoreEl) hiScoreEl.textContent = hiScore;
-    resizeGameCanvas();
-    setupControlListeners();
-    initAudioPipeline();
-  }
-})();
+// Initialize Engine on Document Load Sequence
+document.addEventListener('DOMContentLoaded', () => Frettris.init());
