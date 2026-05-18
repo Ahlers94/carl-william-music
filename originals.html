@@ -6,6 +6,23 @@ permalink: /originals.html
 <div class="page tab-fade">
   <div class="left-col">
     {% include originals-videos.html %}
+
+    {% assign original_tracks = site.data.soundcloud | where: "type", "original" %}
+    {% if original_tracks.size > 0 %}
+      <div class="section-label" style="margin-top: 40px;">Audio Tracks</div>
+      <div class="soundcloud-grid" style="margin-top: 15px;">
+        {% for track in original_tracks %}
+          <div class="soundcloud-track-wrapper" style="margin-bottom: 25px;">
+            <iframe width="100%" height="300" scrolling="no" frameborder="no"
+              allow="autoplay; encrypted-media"
+              src="https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/{{ track.id }}{% if track.secret_token %}%3Fsecret_token%3D{{ track.secret_token }}{% endif %}&color=%23ff5500&auto_play=false&hide_related=false&show_comments=true&show_user=true&show_reposts=false&show_teaser=true&visual=true">
+            </iframe>
+            <div class="video-caption" style="margin-top: 5px;">&gt; {{ track.title }}</div>
+          </div>
+        {% endfor %}
+      </div>
+    {% endif %}
   </div>
+
   {% include social-sidebar.html %}
 </div>

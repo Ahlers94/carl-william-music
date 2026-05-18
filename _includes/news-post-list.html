@@ -2,8 +2,7 @@
 <div class="post-list">
   {% if site.data.posts and site.data.posts.size > 0 %}
     {% for post in site.data.posts %}
-    <div class="post-card">
-      <div class="post-header">
+   <div class="post-card" {% if post.slug %}id="{{ post.slug }}"{% endif %}>      <div class="post-header">
         <div class="post-date">{{ post.date }}</div>
         <div class="post-title">{{ post.title }}</div>
         {% if post.tag %}<span class="post-tag {{ post.tag }}">{{ post.tag }}</span>{% endif %}
