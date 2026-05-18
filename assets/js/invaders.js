@@ -114,9 +114,10 @@ let invaderDirection = 1;
 let invaderTickTimer = 0;
 let toneSequenceTracker = 0;
 
-// Anti-Camping Variables
+// Anti-Camping & Fire Throttling State Variables
 let lastPlayerX = 0;
 let playerStationaryFrames = 0;
+let antiCampCooldown = 0;
 
 class Player {
   constructor() {
@@ -323,7 +324,6 @@ class Barrier {
     return false;
   }
 
-  // ── HOOK: EAT BARRIER BLOCKS WHEN INVADERS HIT THEM ───────
   eatBlocksFromInvaderBounds(invX, invY, invW, invH) {
     const left = invX - invW / 2;
     const right = invX + invW / 2;
@@ -375,6 +375,7 @@ function initGame() {
   shipChunks = [];
   toneSequenceTracker = 0;
   playerStationaryFrames = 0;
+  antiCampCooldown = 0;
   buildInvaderGrid();
   buildBarriers();
   updateConsoleMessage("> DISCRETE SEQUENCER LOCKED IN");
@@ -433,7 +434,6 @@ function drawHUD() {
   ctx.fillText(`HI-SCORE: ${String(highScore).padStart(4, '0')}`, canvas.width / 2, 28);
   
   ctx.textAlign = "right";
-  // FIX: Labels updated dynamically back to strict LIVES matching arcade spec
   ctx.fillText(`LIVES X ${lives}`, canvas.width - 16, 28);
   ctx.restore();
 }
@@ -442,7 +442,6 @@ function loop() {
   if (!isRunning) return;
   
   if (isPaused) {
-    // Keep rendering background & text overlays so screen doesn't go completely black
     ctx.fillStyle = 'rgba(5, 5, 11, 0.05)';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
     
@@ -487,7 +486,7 @@ function loop() {
     }
   }
 
-  // ── HOOK: CHOPIER STEP-SEQUENCER ENGINE TICK ─────────────
+  // ── STEP-SEQUENCER AUDIO MATRIC TICK ─────────────────────
   invaderTickTimer += 1 / 60; 
   if (invaderTickTimer >= audio.getInterval()) {
     invaderTickTimer = 0; 
@@ -500,7 +499,6 @@ function loop() {
     for (let inv of invaders) {
       inv.x += stepAmountX;
       
-      // Clear out barriers if an invader steps into them
       for (let b of barriers) {
         b.eatBlocksFromInvaderBounds(inv.x, inv.y, inv.w, inv.h);
       }
@@ -582,21 +580,23 @@ function loop() {
 
   for (let inv of invaders) inv.draw();
 
-  // ── HOOK: SMART FIRE / ANTI-CAMPING RADAR MECHANIC ───────
+  // ── FIXED: CALIBRATED ANTI-CAMPING CHOKE LOOP ───────────────
+  if (antiCampCooldown > 0) antiCampCooldown--;
+
   if (!player.isExploding && invaders.length > 0) {
     let fireChance = 0.006 + (55 - invaders.length) * 0.0003;
     let selectedInvader = null;
 
-    // If player stays frozen too long, pinpoint columns directly above them
-    if (playerStationaryFrames > 45 && Math.random() < 0.25) {
-      let alignedInvaders = invaders.filter(inv => Math.abs(inv.x - player.x) < 24);
+    // Pinpoint static positions fairly, dropping a targeted bolt instead of a flat wall
+    if (playerStationaryFrames > 50 && antiCampCooldown === 0 && Math.random() < 0.15) {
+      let alignedInvaders = invaders.filter(inv => Math.abs(inv.x - player.x) < 26);
       if (alignedInvaders.length > 0) {
-        // Pick the lowest invader in that column to clear bullet lines
         selectedInvader = alignedInvaders.reduce((lowest, curr) => curr.y > lowest.y ? curr : lowest, alignedInvaders[0]);
+        antiCampCooldown = 70; // Lock structural re-fire out for ~1.15 seconds
       }
     }
 
-    // Fallback to classic random firing if player is moving normally
+    // Classic random rhythm matrix fallback
     if (!selectedInvader && Math.random() < fireChance) {
       selectedInvader = invaders[Math.floor(Math.random() * invaders.length)];
     }
