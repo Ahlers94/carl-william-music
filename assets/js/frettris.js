@@ -1,5 +1,5 @@
 /**
- * FRETTRIS ENGINE v2.1 - CAGED Chord Matrix System (Lazy-Loaded Audio)
+ * FRETTRIS ENGINE v2.2 - CAGED Chord Matrix System
  * Custom-built for Carl William Music
  */
 
@@ -107,11 +107,19 @@ const Frettris = {
     window.addEventListener('keydown', (e) => this.handleInput(e));
     this.canvas.addEventListener('click', (e) => this.handleMouseClick(e));
     
-    // UI Interface Wiring (Now handles async audio handshake)
-    document.getElementById('tet-start-btn').addEventListener('click', async () => {
-      await AudioEngine.init();
-      this.resetGame();
-    });
+    // UI Interface Wiring - Explicitly bound to Frettris scope to prevent arrow-function crash
+    const startBtn = document.getElementById('tet-start-btn');
+    if (startBtn) {
+      startBtn.addEventListener('click', async () => {
+        try {
+          await AudioEngine.init();
+        } catch (err) {
+          console.warn("Audio hardware initialization deferred until interaction:", err);
+        }
+        // Force execution explicitly on the main engine object context
+        Frettris.resetGame();
+      });
+    }
   },
 
   handleInput(e) {
