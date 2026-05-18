@@ -16,11 +16,9 @@ extra_js:
     <div id="frettris-game-container" class="canvas-container">
       <div id="frettris-section">
 
-        <div class="section-subtitle">Repel the waves. Accelerate the pulse.</div>
-        
-        <!-- Live System Console & Audio State Rig -->
+        <!-- Live Terminal System Status & Console Interface -->
         <div class="game-system-header">
-          <div id="frettris-msg">&gt; PRESS <span class="hi">START</span> TO ENGAGE</div>
+          <div id="frettris-msg">&gt; SYSTEM INIT // READY TO ENGAGE</div>
           <div class="frettris-audio-control">
             <button id="audio-toggle-btn" class="mute-btn is-muted" title="Toggle Music" type="button">
               <svg id="speaker-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16"
@@ -33,30 +31,14 @@ extra_js:
           </div>
         </div>
         
-        <div class="frettris-meta">arrow keys &nbsp;//&nbsp; space = shoot &nbsp;//&nbsp; mobile touch overlays ready</div>
-
-        <!-- Metric Scoreboard Block (DOM Linked) -->
-        <div class="frettris-stats">
-          <div class="frettris-stat">
-            <div class="stat-num" id="score-val">0000</div>
-            <div class="stat-label">Score</div>
-          </div>
-          <div class="frettris-stat">
-            <div class="stat-num" id="hi-score-val">0000</div>
-            <div class="stat-label">Best</div>
-          </div>
-          <div class="frettris-stat">
-            <div id="lives-container" class="stat-num grid-lives"></div>
-            <div class="stat-label">Lives</div>
-          </div>
-        </div>
+        <div class="frettris-meta">arrow keys &nbsp;//&nbsp; space = shoot &nbsp;//&nbsp; mobile inputs enabled</div>
 
         <!-- Render Playfield Canvas Element -->
         <div class="frettris-play-area">
           <canvas id="frettris-canvas" width="440" height="520"></canvas>
         </div>
 
-        <!-- Onscreen Input Rig (Mobile Port Viewport) -->
+        <!-- Onscreen Input Rig (Mobile Viewport) -->
         <div class="frettris-touch mobile-gamepad" id="frettris-touch">
           <div class="touch-row">
             <button class="touch-btn" id="touch-shoot">FIRE</button>
