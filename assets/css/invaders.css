@@ -1,48 +1,153 @@
-/* ── UNIFIED SYSTEM INTERFACE TERMINAL ─────────────────────── */
+/* ── UNIFIED RETRO VIEWPORT LAYOUT ─────────────────────────── */
+.arcade-centered-layout {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  margin: 0 auto;
+}
+
+.canvas-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  margin: 10px auto;
+  max-width: 100%;
+}
+
 .game-system-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: var(--surface);
-  border: 1px solid var(--dim);
-  padding: 12px 16px;
+  background: #0d0d16;
+  border: 1px solid var(--dim, #333);
+  padding: 10px 14px;
+  width: 100%;
   max-width: 440px;
-  margin: 0 auto 6px auto;
+  box-sizing: border-box;
+  margin: 0 auto 4px auto;
 }
 
 #frettris-msg {
   font-family: 'Space Mono', monospace;
   font-size: 11px;
   letter-spacing: 1px;
-  color: var(--text);
-}
-
-#frettris-msg span.hi {
-  color: var(--pink);
-  font-weight: bold;
+  color: var(--text, #fff);
 }
 
 .frettris-meta {
   font-size: 10px;
-  color: var(--dim);
+  color: var(--dim, #666);
   text-transform: uppercase;
   letter-spacing: 1px;
-  text-align: center;
-  margin-bottom: 14px;
+  margin-bottom: 12px;
 }
 
+#frettris-canvas {
+  background: #05050b;
+  border: 2px solid #cca23944;
+  box-shadow: 0 0 15px rgba(204, 162, 57, 0.1);
+  display: block;
+  max-width: 100%;
+  height: auto;
+  margin: 0 auto;
+  image-rendering: pixelated;
+}
+
+/* ── FRETTRIS BUTTON STYLE CONVERSION ───────────────────────── */
+.frettris-btn {
+  background: #0d0d16;
+  border: 1px solid var(--cyan, #00f5ff);
+  color: var(--cyan, #00f5ff);
+  font-family: 'Space Mono', monospace;
+  font-size: 11px;
+  padding: 12px;
+  cursor: pointer;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  transition: all 0.2s ease;
+  box-sizing: border-box;
+}
+
+.frettris-btn:hover:not(:disabled) {
+  background: rgba(0, 245, 255, 0.1);
+  box-shadow: 0 0 10px var(--cyan, #00f5ff);
+}
+
+.frettris-btn:disabled {
+  border-color: var(--dim, #444);
+  color: var(--dim, #444);
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+/* Execution Trays */
+.game-controls {
+  width: 100%;
+  max-width: 440px;
+  margin: 12px auto 0 auto;
+}
+
+.game-controls button {
+  width: 100%;
+}
+
+/* Onscreen Touch Gamepad Layer */
+.mobile-gamepad {
+  display: none;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+  max-width: 440px;
+  margin: 12px auto 0 auto;
+  box-sizing: border-box;
+}
+
+.touch-row {
+  display: flex;
+  gap: 8px;
+  width: 100%;
+}
+
+.touch-row button {
+  flex: 1;
+  padding: 16px;
+  font-size: 14px;
+  touch-action: manipulation;
+  user-select: none;
+}
+
+#touch-shoot {
+  border-color: var(--pink, #ff2d78);
+  color: var(--pink, #ff2d78);
+  font-weight: bold;
+}
+
+#touch-shoot:hover:not(:disabled) {
+  background: rgba(255, 45, 120, 0.1);
+  box-shadow: 0 0 10px var(--pink, #ff2d78);
+}
+
+@media (max-width: 720px) {
+  .mobile-gamepad {
+    display: flex;
+  }
+}
+
+/* Audio States */
 .frettris-audio-control button {
   background: transparent;
   border: none;
-  color: var(--cyan);
+  color: var(--cyan, #00f5ff);
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 2px;
-  transition: color 0.2s ease;
 }
 
-.frettris-audio-control button:hover {
-  color: var(--pink);
-}
+.frettris-audio-control button:hover { color: var(--pink, #ff2d78); }
+.mute-btn.is-muted #speaker-waves { display: none; }
+.mute-btn.is-muted svg { opacity: 0.4; }
