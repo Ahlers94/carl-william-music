@@ -114,11 +114,13 @@
 }
 
 #frettris-canvas {
-  background: #030308; /* Deepened matrix core space */
+  background: #030308;
   border: 2px solid rgba(0, 245, 255, 0.25);
   box-shadow: 0 0 20px rgba(0, 245, 255, 0.08);
   display: block;
-  /* Aspect ratio explicitly defined by JS resize handler to balance standard vs mobile blocks */
+  width: 100%; /* Allows it to expand horizontally across the page column */
+  max-width: 460px;
+  height: auto;
 }
 
 .frettris-side {
