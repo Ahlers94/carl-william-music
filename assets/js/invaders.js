@@ -106,12 +106,17 @@ let score = 0;
 let highScore = parseInt(localStorage.getItem('invaders_hi_score')) || 0;
 let lives = 3;
 let isRunning = false;
+let isPaused = false;
 let keys = {};
 
 let player, lasers, invaders, particles, barriers, shipChunks;
 let invaderDirection = 1;
 let invaderTickTimer = 0;
 let toneSequenceTracker = 0;
+
+// Anti-Camping Variables
+let lastPlayerX = 0;
+let playerStationaryFrames = 0;
 
 class Player {
   constructor() {
@@ -124,7 +129,7 @@ class Player {
   }
 
   resetToBaselinePosition() {
-    this.x = 40; // Spawn clear over on the absolute left side
+    this.x = 40; 
     this.y = canvas.height - 40;
   }
 
@@ -145,6 +150,14 @@ class Player {
     if (keys['ArrowLeft'] || keys['Left']) this.x = Math.max(this.w, this.x - this.speed);
     if (keys['ArrowRight'] || keys['Right']) this.x = Math.min(canvas.width - this.w, this.x + this.speed);
     
+    // Track stationary position for anti-camping weapon logic
+    if (Math.abs(this.x - lastPlayerX) < 0.1) {
+      playerStationaryFrames++;
+    } else {
+      playerStationaryFrames = 0;
+    }
+    lastPlayerX = this.x;
+
     if (keys[' ']) {
       const activeFiredLaser = lasers.some(l => l.vy < 0);
       if (!activeFiredLaser) {
@@ -156,10 +169,9 @@ class Player {
 
   triggerFractureSequence() {
     this.isExploding = true;
-    this.respawnTimer = 75; // Stay disabled through particle velocity lifecycle
+    this.respawnTimer = 75; 
     shipChunks = [];
     
-    // Explicit vector lines torn apart into physical rigid-body simulations
     const structuralLines = [
       { x1: -12, y1: 8,  x2: 12,  y2: 8 },
       { x1: 12,  y1: 8,  x2: 12,  y2: 2 },
@@ -229,7 +241,7 @@ class Invader {
     this.y = y;
     this.w = 22;
     this.h = 22;
-    this.type = type; // 0: Hofner, 1: Strat, 2: Flying V
+    this.type = type; 
   }
 
   draw() {
@@ -310,6 +322,25 @@ class Barrier {
     }
     return false;
   }
+
+  // ── HOOK: EAT BARRIER BLOCKS WHEN INVADERS HIT THEM ───────
+  eatBlocksFromInvaderBounds(invX, invY, invW, invH) {
+    const left = invX - invW / 2;
+    const right = invX + invW / 2;
+    const top = invY - invH / 2;
+    const bottom = invY + invH / 2;
+
+    for (let i = this.blocks.length - 1; i >= 0; i--) {
+      let b = this.blocks[i];
+      let bx = this.x + b.relX;
+      let by = this.y + b.relY;
+
+      if (bx + this.blockSize >= left && bx <= right &&
+          by + this.blockSize >= top && by <= bottom) {
+        this.blocks.splice(i, 1);
+      }
+    }
+  }
 }
 
 class Particle {
@@ -343,6 +374,7 @@ function initGame() {
   particles = [];
   shipChunks = [];
   toneSequenceTracker = 0;
+  playerStationaryFrames = 0;
   buildInvaderGrid();
   buildBarriers();
   updateConsoleMessage("> DISCRETE SEQUENCER LOCKED IN");
@@ -377,14 +409,23 @@ function updateConsoleMessage(txt) {
   document.getElementById('frettris-msg').innerText = txt;
 }
 
+function togglePause() {
+  if (!isRunning) return;
+  isPaused = !isPaused;
+  if (isPaused) {
+    updateConsoleMessage("// SYSTEM PAUSED");
+  } else {
+    updateConsoleMessage("> SEQUENCER RE-ENGAGED");
+  }
+}
+
 function drawHUD() {
   ctx.save();
   ctx.font = "20px 'VT323'";
-  ctx.fillStyle = '#ffd700'; // --gold match
+  ctx.fillStyle = '#ffd700'; 
   ctx.shadowBlur = 4;
   ctx.shadowColor = '#ffd700';
   
-  // Vector textual components printed inside layout clear matrix
   ctx.textAlign = "left";
   ctx.fillText(`SCORE: ${String(score).padStart(4, '0')}`, 16, 28);
   
@@ -392,12 +433,31 @@ function drawHUD() {
   ctx.fillText(`HI-SCORE: ${String(highScore).padStart(4, '0')}`, canvas.width / 2, 28);
   
   ctx.textAlign = "right";
-  ctx.fillText(`ARMOR X ${lives}`, canvas.width - 16, 28);
+  // FIX: Labels updated dynamically back to strict LIVES matching arcade spec
+  ctx.fillText(`LIVES X ${lives}`, canvas.width - 16, 28);
   ctx.restore();
 }
 
 function loop() {
   if (!isRunning) return;
+  
+  if (isPaused) {
+    // Keep rendering background & text overlays so screen doesn't go completely black
+    ctx.fillStyle = 'rgba(5, 5, 11, 0.05)';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    
+    ctx.save();
+    ctx.font = "32px 'VT323'";
+    ctx.fillStyle = '#ffd700';
+    ctx.textAlign = "center";
+    ctx.shadowBlur = 8;
+    ctx.shadowColor = '#ffd700';
+    ctx.fillText("PAUSED", canvas.width / 2, canvas.height / 2);
+    ctx.restore();
+    
+    requestAnimationFrame(loop);
+    return;
+  }
 
   ctx.fillStyle = '#05050b';
   ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -408,7 +468,6 @@ function loop() {
 
   for (let b of barriers) b.draw();
 
-  // ── HOOK: EXPLODING SHIP VECTORS CHUNKS ───────────────────
   if (player.isExploding) {
     for (let chunk of shipChunks) {
       chunk.x1 += chunk.vx; chunk.y1 += chunk.vy;
@@ -428,19 +487,24 @@ function loop() {
     }
   }
 
-  // ── ENGINE HOOK: CHOPIER STEP-SEQUENCER Ticks ──────────────
-  invaderTickTimer += 1 / 60; // Delta scale frame step accumulation
+  // ── HOOK: CHOPIER STEP-SEQUENCER ENGINE TICK ─────────────
+  invaderTickTimer += 1 / 60; 
   if (invaderTickTimer >= audio.getInterval()) {
     invaderTickTimer = 0; 
     audio.playStepTone(toneSequenceTracker);
     toneSequenceTracker++;
 
     let shiftDown = false;
-    // Step resolution shifts exactly across crisp 12px units
     let stepAmountX = 12 * invaderDirection;
 
     for (let inv of invaders) {
       inv.x += stepAmountX;
+      
+      // Clear out barriers if an invader steps into them
+      for (let b of barriers) {
+        b.eatBlocksFromInvaderBounds(inv.x, inv.y, inv.w, inv.h);
+      }
+
       if (inv.x > canvas.width - inv.w/2 || inv.x < inv.w/2) {
         shiftDown = true;
       }
@@ -449,8 +513,8 @@ function loop() {
     if (shiftDown) {
       invaderDirection *= -1;
       for (let inv of invaders) {
-        inv.x += 12 * invaderDirection; // Step execution adjust
-        inv.y += 24;                    // Discrete downward drop
+        inv.x += 12 * invaderDirection; 
+        inv.y += 24;                    
         if (inv.y > player.y - player.h) {
           endGame("BREACHED");
         }
@@ -458,7 +522,7 @@ function loop() {
     }
   }
 
-  // Laser Collision System Processing Block
+  // Laser Collisions
   for (let i = lasers.length - 1; i >= 0; i--) {
     let l = lasers[i];
     l.update();
@@ -518,11 +582,29 @@ function loop() {
 
   for (let inv of invaders) inv.draw();
 
-  // Attack generation parameter metrics
-  if (!player.isExploding && invaders.length > 0 && Math.random() < 0.006 + (55 - invaders.length) * 0.0003) {
-    let randomInv = invaders[Math.floor(Math.random() * invaders.length)];
-    let color = randomInv.type === 0 ? '#ff2d78' : randomInv.type === 1 ? '#ffd700' : '#b06aff';
-    lasers.push(new Laser(randomInv.x, randomInv.y + randomInv.h/2, 3.8, color));
+  // ── HOOK: SMART FIRE / ANTI-CAMPING RADAR MECHANIC ───────
+  if (!player.isExploding && invaders.length > 0) {
+    let fireChance = 0.006 + (55 - invaders.length) * 0.0003;
+    let selectedInvader = null;
+
+    // If player stays frozen too long, pinpoint columns directly above them
+    if (playerStationaryFrames > 45 && Math.random() < 0.25) {
+      let alignedInvaders = invaders.filter(inv => Math.abs(inv.x - player.x) < 24);
+      if (alignedInvaders.length > 0) {
+        // Pick the lowest invader in that column to clear bullet lines
+        selectedInvader = alignedInvaders.reduce((lowest, curr) => curr.y > lowest.y ? curr : lowest, alignedInvaders[0]);
+      }
+    }
+
+    // Fallback to classic random firing if player is moving normally
+    if (!selectedInvader && Math.random() < fireChance) {
+      selectedInvader = invaders[Math.floor(Math.random() * invaders.length)];
+    }
+
+    if (selectedInvader) {
+      let color = selectedInvader.type === 0 ? '#ff2d78' : selectedInvader.type === 1 ? '#ffd700' : '#b06aff';
+      lasers.push(new Laser(selectedInvader.x, selectedInvader.y + selectedInvader.h/2, 3.8, color));
+    }
   }
 
   if (invaders.length === 0) {
@@ -556,9 +638,13 @@ function endGame(reasonText) {
   document.getElementById('start-btn').innerText = "Try Again";
 }
 
-// Global System Event Bindings
+// System Event Bindings
 window.addEventListener('keydown', e => {
   if (['ArrowLeft', 'ArrowRight', ' '].includes(e.key)) e.preventDefault();
+  if (e.key.toLowerCase() === 'p') {
+    e.preventDefault();
+    togglePause();
+  }
   keys[e.key] = true;
 });
 window.addEventListener('keyup', e => { keys[e.key] = false; });
@@ -587,6 +673,7 @@ document.getElementById('audio-toggle-btn').addEventListener('click', (e) => {
 document.getElementById('start-btn').addEventListener('click', (e) => {
   e.currentTarget.disabled = true;
   isRunning = true;
+  isPaused = false;
   initGame();
   audio.init();
   loop();
