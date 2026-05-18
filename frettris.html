@@ -15,44 +15,45 @@ extra_js:
     <div id="frettris-game-container">
       <div id="frettris-section">
 
-        <div class="section-subtitle">Stack the chords. Clear the lines.</div>
+        <div class="section-subtitle">Stack the chords. Clear the frets.</div>
         <div style="display:flex; align-items:center; gap:8px;">
-  <div id="frettris-msg">&gt; PRESS <span class="hi">START</span> TO PLAY</div>
-  <div class="frettris-audio-control">
-    <button id="frettris-mute-btn" class="mute-btn" title="Toggle Music">
-      <svg id="speaker-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16"
-           viewBox="0 0 24 24" fill="none" stroke="currentColor"
-           stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
-        <path id="speaker-waves" d="M15.54 8.46a5 5 0 0 1 0 7.07M19.07 4.93a10 10 0 0 1 0 14.14"></path>
-      </svg>
-    </button>
-  </div>
-</div>
+          <div id="frettris-msg">&gt; PRESS <span class="hi">START</span> TO ENGAGE SYSTEM</div>
+          <div class="frettris-audio-control">
+            <button id="frettris-mute-btn" class="mute-btn" title="Toggle Live Synth Engine">
+              <svg id="speaker-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                   viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                   stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+                <path id="speaker-waves" d="M15.54 8.46a5 5 0 0 1 0 7.07M19.07 4.93a10 10 0 0 1 0 14.14"></path>
+              </svg>
+            </button>
+          </div>
+        </div>
         <div class="frettris-meta">arrow keys / wasd &nbsp;//&nbsp; space = hard drop &nbsp;//&nbsp; p = pause</div>
 
         <div class="frettris-stats">
           <div class="frettris-stat"><div class="stat-num" id="tet-score">0</div><div class="stat-label">Score</div></div>
-          <div class="frettris-stat"><div class="stat-num" id="tet-lines">0</div><div class="stat-label">Lines</div></div>
+          <div class="frettris-stat"><div class="stat-num" id="tet-lines">0</div><div class="stat-label">Frets</div></div>
           <div class="frettris-stat"><div class="stat-num" id="tet-hiscore">0</div><div class="stat-label">Best</div></div>
         </div>
 
         <div class="frettris-play-area">
-          <canvas id="frettris-canvas" width="240" height="480"></canvas>
+          <!-- Width and Height are calculated dynamically via frettris.js responsively -->
+          <canvas id="frettris-canvas"></canvas>
 
           <div class="frettris-side">
             <div>
-              <div class="frettris-side-label">Next</div>
+              <div class="frettris-side-label">Next Note</div>
               <canvas id="next-canvas" width="80" height="80"></canvas>
             </div>
             <div>
-              <div class="frettris-side-label">Level</div>
+              <div class="frettris-side-label">Octave Level</div>
               <div class="frettris-level" id="tet-level"><span>1</span></div>
             </div>
             <div class="frettris-keys">
-              <strong>← →</strong> Move<br>
-              <strong>↑ / Z</strong> Rotate<br>
-              <strong>↓</strong> Soft drop<br>
+              <strong>← → / A D</strong> Move<br>
+              <strong>↑ / W / Z</strong> Rotate<br>
+              <strong>↓ / S</strong> Soft drop<br>
               <strong>SPC</strong> Hard drop<br>
               <strong>P</strong> Pause
             </div>
@@ -91,7 +92,7 @@ extra_js:
       <a class="social-link sc" href="https://soundcloud.com/carl-william-music"   data-icon="radio"     target="_blank" rel="noopener">SoundCloud</a>
       <a class="social-link gh" href="https://github.com/Ahlers94"                 data-icon="github"    target="_blank" rel="noopener">GitHub</a>
       <a class="social-link em" href="mailto:wcarlahlers@gmail.com"                data-icon="mail">wcarlahlers@gmail.com</a>
-      <a class="social-link vm" href="https://venmo.com/carl-william-music"        data-icon="venmo"     target="_blank" rel="noopener">VenMo</a>
+      <a class="social-link vm" href="https://venmo.com/carl-william-music"         data-icon="venmo"     target="_blank" rel="noopener">VenMo</a>
     </div>
     <div class="bio-box">
       <div class="section-label">About</div>
