@@ -1,6 +1,9 @@
 /**
  * AUDIO SEQUENCER ENGINE (Web Audio API)
  */
+/**
+ * AUDIO SEQUENCER ENGINE (Web Audio API with Master Saturation Stage)
+ */
 class AudioEngine {
   constructor() {
     this.ctx = null;
@@ -9,16 +12,48 @@ class AudioEngine {
     this.seqIndex = 0;
     this.bpm = 55;
     this.nextTickTime = 0;
+    
+    // Master Nodes
+    this.masterGain = null;
+    this.distortion = null;
   }
 
   init() {
     if (!this.ctx) {
       this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+      
+      // Create master chain nodes
+      this.distortion = this.ctx.createWaveShaper();
+      this.masterGain = this.ctx.createGain();
+      
+      // Generate a smooth soft-clipping curve for analog warmth and brickwall protection
+      this.distortion.curve = this.makeDistortionCurve(25); 
+      this.distortion.oversample = '4x';
+      
+      // Set master headroom volume (1.40 = structural boost)
+      this.masterGain.gain.setValueAtTime(1.40, this.ctx.currentTime);
+      
+      // Connect: Synth Voice -> Distortion (Saturation) -> Master Gain -> Output
+      this.distortion.connect(this.masterGain);
+      this.masterGain.connect(this.ctx.destination);
     }
   }
 
+  // Sigmoid curve formula for soft-clipping saturation
+  makeDistortionCurve(amount) {
+    const k = typeof amount === 'number' ? amount : 50;
+    const n_samples = 44100;
+    const curve = new Float32Array(n_samples);
+    const deg = Math.PI / 180;
+    for (let i = 0; i < n_samples; ++i) {
+      const x = (i * 2) / n_samples - 1;
+      curve[i] = ((3 + k) * x * 20 * deg) / (Math.PI + k * Math.abs(x));
+    }
+    return curve;
+  }
+
   getInterval() {
-    return 60.0 / this.bpm; // Time duration per step block beat
+    return 60.0 / this.bpm;
   }
 
   playStepTone(index) {
@@ -33,16 +68,19 @@ class AudioEngine {
 
     const dynamicCutoff = Math.min(2200, 400 + (this.bpm * 4.5));
     filter.type = 'lowpass';
-    filter.Q.setValueAtTime(4, this.ctx.currentTime);
+    filter.Q.setValueAtTime(5, this.ctx.currentTime); // Slight punch resonance boost
     filter.frequency.setValueAtTime(dynamicCutoff, this.ctx.currentTime);
     filter.frequency.exponentialRampToValueAtTime(80, this.ctx.currentTime + 0.15);
 
-    gain.gain.setValueAtTime(0.08, this.ctx.currentTime);
+    // Cranked engine baseline note mix (0.08 -> 0.28)
+    gain.gain.setValueAtTime(0.28, this.ctx.currentTime);
     gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.15);
 
     osc.connect(filter);
     filter.connect(gain);
-    gain.connect(this.ctx.destination);
+    
+    // Route to master saturation strip instead of raw destination
+    gain.connect(this.distortion);
 
     osc.start();
     osc.stop(this.ctx.currentTime + 0.16);
@@ -54,14 +92,16 @@ class AudioEngine {
     let gain = this.ctx.createGain();
     
     osc.type = 'triangle';
-    osc.frequency.setValueAtTime(550, this.ctx.currentTime);
-    osc.frequency.exponentialRampToValueAtTime(100, this.ctx.currentTime + 0.08);
+    osc.frequency.setValueAtTime(580, this.ctx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(120, this.ctx.currentTime + 0.08);
 
-    gain.gain.setValueAtTime(0.10, this.ctx.currentTime);
+    // Laser output push (0.10 -> 0.35)
+    gain.gain.setValueAtTime(0.35, this.ctx.currentTime);
     gain.gain.linearRampToValueAtTime(0.001, this.ctx.currentTime + 0.08);
 
     osc.connect(gain);
-    gain.connect(this.ctx.destination);
+    gain.connect(this.distortion);
+    
     osc.start();
     osc.stop(this.ctx.currentTime + 0.09);
   }
@@ -80,15 +120,16 @@ class AudioEngine {
 
     let filter = this.ctx.createBiquadFilter();
     filter.type = 'lowpass';
-    filter.frequency.setValueAtTime(320, this.ctx.currentTime);
+    filter.frequency.setValueAtTime(420, this.ctx.currentTime); // Slightly wider footprint
 
     let gain = this.ctx.createGain();
-    gain.gain.setValueAtTime(0.20, this.ctx.currentTime);
+    // Heavy detonation push (0.20 -> 0.55)
+    gain.gain.setValueAtTime(0.55, this.ctx.currentTime);
     gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.24);
 
     noise.connect(filter);
     filter.connect(gain);
-    gain.connect(this.ctx.destination);
+    gain.connect(this.distortion);
 
     noise.start();
     noise.stop(this.ctx.currentTime + 0.25);
