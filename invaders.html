@@ -12,13 +12,14 @@ extra_js:
 <div class="page">
   <div class="left-col content-page">
     <div class="section-label">Fretwave Invaders</div>
-    <div id="frettris-game-container">
+    
+    <div id="frettris-game-container" class="canvas-container">
       <div id="frettris-section">
 
         <div class="section-subtitle">Repel the waves. Accelerate the pulse.</div>
         
-        <!-- Live Messaging & Sequencer Mute Engine Hooks -->
-        <div style="display:flex; align-items:center; gap:8px;">
+        <!-- Live System Console & Audio State Rig -->
+        <div class="game-system-header">
           <div id="frettris-msg">&gt; PRESS <span class="hi">START</span> TO ENGAGE</div>
           <div class="frettris-audio-control">
             <button id="audio-toggle-btn" class="mute-btn is-muted" title="Toggle Music" type="button">
@@ -31,14 +32,21 @@ extra_js:
             </button>
           </div>
         </div>
+        
         <div class="frettris-meta">arrow keys &nbsp;//&nbsp; space = shoot &nbsp;//&nbsp; mobile touch overlays ready</div>
 
-        <!-- Metric Scoreboard Block -->
+        <!-- Metric Scoreboard Block (DOM Linked) -->
         <div class="frettris-stats">
-          <div class="frettris-stat"><div class="stat-num" id="score-val">0</div><div class="stat-label">Score</div></div>
-          <div class="frettris-stat"><div class="stat-num" id="hi-score-val">0</div><div class="stat-label">Best</div></div>
           <div class="frettris-stat">
-            <div id="lives-container" class="stat-num" style="display: flex; justify-content: center; gap: 6px; align-items: center; height: 28px;"></div>
+            <div class="stat-num" id="score-val">0000</div>
+            <div class="stat-label">Score</div>
+          </div>
+          <div class="frettris-stat">
+            <div class="stat-num" id="hi-score-val">0000</div>
+            <div class="stat-label">Best</div>
+          </div>
+          <div class="frettris-stat">
+            <div id="lives-container" class="stat-num grid-lives"></div>
             <div class="stat-label">Lives</div>
           </div>
         </div>
@@ -48,8 +56,8 @@ extra_js:
           <canvas id="frettris-canvas" width="440" height="520"></canvas>
         </div>
 
-        <!-- Native Touch Engine Interface Links -->
-        <div class="frettris-touch" id="frettris-touch">
+        <!-- Onscreen Input Rig (Mobile Port Viewport) -->
+        <div class="frettris-touch mobile-gamepad" id="frettris-touch">
           <div class="touch-row">
             <button class="touch-btn" id="touch-shoot">FIRE</button>
           </div>
@@ -60,8 +68,8 @@ extra_js:
         </div>
 
         <!-- Execution Panel Control Layout -->
-        <div class="frettris-controls">
-          <button class="frettris-btn" id="start-btn" type="button">Start</button>
+        <div class="frettris-controls game-controls">
+          <button class="frettris-btn" id="start-btn" type="button">Start Game</button>
         </div>
 
       </div>
@@ -75,9 +83,9 @@ extra_js:
       <a class="social-link yt" href="https://www.youtube.com/@CarlWilliamMusic"   data-icon="youtube"   target="_blank" rel="noopener">YouTube</a>
       <a class="social-link ig" href="https://www.instagram.com/carlwilliammusic/" data-icon="instagram" target="_blank" rel="noopener">Instagram</a>
       <a class="social-link sc" href="https://soundcloud.com/carl-william-music"   data-icon="radio"     target="_blank" rel="noopener">SoundCloud</a>
-      <a class="social-link gh" href="https://github.com/Ahlers94"                 data-icon="github"    target="_blank" rel="noopener">GitHub</a>
+      <a class="social-link gh" href="https://github.com/Ahlers94"                data-icon="github"    target="_blank" rel="noopener">GitHub</a>
       <a class="social-link em" href="mailto:wcarlahlers@gmail.com"                data-icon="mail">wcarlahlers@gmail.com</a>
-      <a class="social-link vm" href="https://venmo.com/carl-william-music"        data-icon="venmo"     target="_blank" rel="noopener">VenMo</a>
+      <a class="social-link vm" href="https://venmo.com/carl-william-music"         data-icon="venmo"     target="_blank" rel="noopener">VenMo</a>
     </div>
     <div class="bio-box">
       <div class="section-label">About</div>
