@@ -17,7 +17,7 @@
     <a href="pi-rig.html" style="color:#00f5ff;letter-spacing:2px;font-size:10px;">LEARN MORE →</a>
 
 - label: Radionics Midi Controller
-  image: photos/radionics-box.jpg
+  image: photos/radionics-box-gutted.jpg
   description: >
     My project to convert a Radionics box into a MIDI controller with 9 knobs.
     
