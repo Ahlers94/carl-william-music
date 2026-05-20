@@ -45,7 +45,7 @@
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            padding: 0.2in;
+            padding: 0.15in 0.2in;
             overflow: hidden;
             background: #fff;
             position: relative; /* Required for absolute positioning of tab elements */
@@ -54,10 +54,10 @@
         /* --- Front Side Specifics & Tab Border --- */
         .front .logo {
             font-family: 'VT323', monospace;
-            font-size: 2.3rem; 
+            font-size: 2.2rem; 
             line-height: 1;
             text-align: center;
-            margin-bottom: 0.1in;
+            margin-bottom: 0.08in;
             text-transform: uppercase;
             letter-spacing: -1px;
             background: #fff; /* Blocks out the tab lines behind it */
@@ -86,32 +86,35 @@
             border-top: 1px dashed #444; /* Clean, minimalist dashed strings */
         }
 
-        /* Horizontal row combining the assets side-by-side */
+        /* Widescreen Container combining the preview image and QR code side-by-side */
         .front-assets-row {
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 15px; /* Spacing between logo icon and QR code */
+            gap: 12px; /* Spacing between the widescreen image and QR code */
             background: #fff;
             padding: 0 6px;
             z-index: 2;
+            width: 100%;
         }
 
-        /* Custom Favicon Image Framing */
-        .brand-icon {
-            width: 0.9in;
-            height: 0.9in;
+        /* Custom Widescreen Social Preview Framing */
+        .brand-widescreen {
+            width: 1.7in; /* Scaled down horizontally to perfectly preserve its 2:1 aspect ratio alongside the QR */
+            height: 0.85in;
             display: block;
-            object-fit: contain;
+            object-fit: cover;
+            border: 1px solid #000; /* Sharp frame border */
         }
 
-        /* QR Container to handle central mapping context */
+        /* QR Container sizing matched perfectly to the preview image height */
         .qr-container {
             position: relative;
-            width: 0.9in;
-            height: 0.9in;
+            width: 0.85in;
+            height: 0.85in;
             background: #fff;
             padding: 2px;
+            border: 1px solid #000; /* Symmetrical boundary line */
         }
         .front .qr-code {
             width: 100%;
@@ -125,15 +128,15 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            width: 18px;
-            height: 18px;
+            width: 16px;
+            height: 16px;
             background: #fff;
-            border: 1.5px solid #000;
+            border: 1px solid #000;
             display: flex;
             align-items: center;
             justify-content: center;
             font-family: Arial, sans-serif;
-            font-size: 13px;
+            font-size: 11px;
             font-weight: bold;
             line-height: 1;
         }
@@ -181,7 +184,7 @@
         @media print {
             @page {
                 size: letter;
-                margin: 0 !important; /* Strips browser-enforced print margins */
+                margin: 0 !important;
             }
             html, body {
                 width: 8.5in;
@@ -194,7 +197,7 @@
                 box-shadow: none;
             }
             .card {
-                outline: none; /* Hides guidelines for final laser print run */
+                outline: none;
             }
         }
     </style>
@@ -219,9 +222,9 @@
 
                         <div class="logo">Carl-William-Music</div>
                         
-                        <!-- Side-by-side Favicon and QR code row -->
+                        <!-- Side-by-side Widescreen Preview and QR code row -->
                         <div class="front-assets-row">
-                            <img src="photos/favicon.jpg" class="brand-icon" alt="Logo Icon" />
+                            <img src="photos/social-preview.jpg" class="brand-widescreen" alt="Site Preview" />
                             <div class="qr-container">
                                 <img src="qr-code.svg" class="qr-code" alt="QR Code" />
                                 <div class="qr-center-icon">♫</div>
