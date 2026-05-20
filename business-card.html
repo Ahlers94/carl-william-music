@@ -64,7 +64,7 @@
         /* --- Back Side Specifics --- */
         .back {
             align-items: flex-start; /* Left-aligned look for the tech links */
-            justify-content: space-between;
+            justify-content: center; /* Changes from space-between to center the blocks vertically */
             padding: 0.2in 0.25in;
         }
         .back .header {
@@ -73,14 +73,15 @@
             border-bottom: 1px solid #000;
             width: 100%;
             padding-bottom: 2px;
-            margin-bottom: 6px;
+            margin-bottom: 0; /* Let the links margin handle the gap */
         }
         .back .links {
             display: flex;
             flex-direction: column;
             gap: 4px;
-            font-size: 0.67rem; /* Subtly adjusted to maximize horizontal line space */
+            font-size: 0.67rem; 
             width: 100%;
+            margin-top: 10px; /* Perfectly balances the text block under the border line */
         }
         .back .link-line {
             display: flex;
