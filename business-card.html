@@ -57,7 +57,7 @@
             font-size: 2.3rem; 
             line-height: 1;
             text-align: center;
-            margin-bottom: 0.05in;
+            margin-bottom: 0.1in;
             text-transform: uppercase;
             letter-spacing: -1px;
             background: #fff; /* Blocks out the tab lines behind it */
@@ -86,15 +86,32 @@
             border-top: 1px dashed #444; /* Clean, minimalist dashed strings */
         }
 
+        /* Horizontal row combining the assets side-by-side */
+        .front-assets-row {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px; /* Spacing between logo icon and QR code */
+            background: #fff;
+            padding: 0 6px;
+            z-index: 2;
+        }
+
+        /* Custom Favicon Image Framing */
+        .brand-icon {
+            width: 0.9in;
+            height: 0.9in;
+            display: block;
+            object-fit: contain;
+        }
+
         /* QR Container to handle central mapping context */
         .qr-container {
             position: relative;
             width: 0.9in;
             height: 0.9in;
-            margin: 0 auto;
             background: #fff;
             padding: 2px;
-            z-index: 2;
         }
         .front .qr-code {
             width: 100%;
@@ -201,9 +218,14 @@
                         </div>
 
                         <div class="logo">Carl-William-Music</div>
-                        <div class="qr-container">
-                            <img src="qr-code.svg" class="qr-code" alt="QR Code" />
-                            <div class="qr-center-icon">♫</div>
+                        
+                        <!-- Side-by-side Favicon and QR code row -->
+                        <div class="front-assets-row">
+                            <img src="photos/favicon.jpg" class="brand-icon" alt="Logo Icon" />
+                            <div class="qr-container">
+                                <img src="qr-code.svg" class="qr-code" alt="QR Code" />
+                                <div class="qr-center-icon">♫</div>
+                            </div>
                         </div>
                     </div>
                 `);
