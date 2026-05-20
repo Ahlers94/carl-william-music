@@ -1,3 +1,5 @@
+---
+---
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -28,6 +30,12 @@
             box-shadow: 0 0 10px rgba(0,0,0,0.1);
         }
 
+        /* Forces a clean duplex break between the front and back template views */
+        .page-break {
+            page-break-after: always;
+            break-after: page;
+        }
+
         /* --- Individual Card Styling --- */
         .card {
             width: 3.5in;
@@ -37,37 +45,107 @@
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            padding: 0.2in;
+            padding: 0.15in 0.2in;
             overflow: hidden;
             background: #fff;
+            position: relative; /* Required for absolute positioning of tab elements */
         }
 
-        /* --- Front Side Specifics --- */
+        /* --- Front Side Specifics & Tab Border --- */
         .front .logo {
             font-family: 'VT323', monospace;
-            font-size: 2.5rem;
+            font-size: 2.2rem; 
             line-height: 1;
             text-align: center;
-            margin-bottom: 0.1in;
+            margin-bottom: 0.08in;
             text-transform: uppercase;
             letter-spacing: -1px;
+            background: #fff; /* Blocks out the tab lines behind it */
+            padding: 0 10px;
+            z-index: 2;
         }
-        .front .qr-placeholder {
-            width: 0.85in;
-            height: 0.85in;
-            border: 2px solid #000;
+        
+        /* The Guitar Tab Outer Border Container */
+        .tab-border {
+            position: absolute;
+            top: 0.12in;
+            bottom: 0.12in;
+            left: 0.15in;
+            right: 0.15in;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            pointer-events: none;
+            z-index: 1;
+        }
+        
+        /* Individual string lines */
+        .tab-line {
+            width: 100%;
+            height: 0;
+            border-top: 1px dashed #444; /* Clean, minimalist dashed strings */
+        }
+
+        /* Widescreen Container combining the preview image and QR code side-by-side */
+        .front-assets-row {
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 0.5rem;
+            gap: 12px; /* Spacing between the widescreen image and QR code */
+            background: #fff;
+            padding: 0 6px;
+            z-index: 2;
+            width: 100%;
+        }
+
+        /* Custom Widescreen Social Preview Framing */
+        .brand-widescreen {
+            width: 1.7in; /* Scaled down horizontally to perfectly preserve its 2:1 aspect ratio alongside the QR */
+            height: 0.85in;
+            display: block;
+            object-fit: cover;
+            border: 1px solid #000; /* Sharp frame border */
+        }
+
+        /* QR Container sizing matched perfectly to the preview image height */
+        .qr-container {
+            position: relative;
+            width: 0.85in;
+            height: 0.85in;
+            background: #fff;
+            padding: 2px;
+            border: 1px solid #000; /* Symmetrical boundary line */
+        }
+        .front .qr-code {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+        
+        /* The central custom icon layout mask */
+        .qr-center-icon {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 16px;
+            height: 16px;
+            background: #fff;
+            border: 1px solid #000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: Arial, sans-serif;
+            font-size: 11px;
             font-weight: bold;
+            line-height: 1;
         }
 
         /* --- Back Side Specifics --- */
         .back {
-            align-items: flex-start; /* Left-aligned look for the tech links */
-            justify-content: space-between;
-            padding: 0.25in;
+            align-items: flex-start;
+            justify-content: center;
+            padding: 0.2in 0.25in;
         }
         .back .header {
             font-family: 'VT323', monospace;
@@ -75,14 +153,15 @@
             border-bottom: 1px solid #000;
             width: 100%;
             padding-bottom: 2px;
-            margin-bottom: 5px;
+            margin-bottom: 0;
         }
         .back .links {
             display: flex;
             flex-direction: column;
             gap: 4px;
-            font-size: 0.75rem;
+            font-size: 0.67rem; 
             width: 100%;
+            margin-top: 10px;
         }
         .back .link-line {
             display: flex;
@@ -90,25 +169,35 @@
         }
         .back .label {
             font-weight: bold;
-            width: 45px;
+            width: 78px;
             flex-shrink: 0;
         }
         .back .value {
             white-space: nowrap;
             overflow: hidden;
-            text-overflow: ellipsis;
+            text-transform: lowercase;
+            letter-spacing: -0.2px;
+            padding-left: 4px;
         }
 
         /* --- Print Optimization Layout --- */
         @media print {
-            body { background: none; }
+            @page {
+                size: letter;
+                margin: 0 !important;
+            }
+            html, body {
+                width: 8.5in;
+                height: 11in;
+                background: none;
+            }
             .page {
-                margin: 0;
+                margin: 0 !important;
+                border: none;
                 box-shadow: none;
-                page-break-after: always;
             }
             .card {
-                outline: none; /* Removes the dashed line when printing onto real card stock */
+                outline: none;
             }
         }
     </style>
@@ -116,15 +205,31 @@
 <body>
 
     <!-- ================= PAGE 1: FRONTS ================= -->
-    <div class="page">
-        <!-- We repeat this block 10 times to fill the 2x5 grid -->
+    <div class="page page-break">
         <script>
             for(let i=0; i<10; i++) {
                 document.write(`
                     <div class="card front">
+                        <!-- Clean 6-String Tab Lines Background -->
+                        <div class="tab-border">
+                            <div class="tab-line"></div>
+                            <div class="tab-line"></div>
+                            <div class="tab-line"></div>
+                            <div class="tab-line"></div>
+                            <div class="tab-line"></div>
+                            <div class="tab-line"></div>
+                        </div>
+
                         <div class="logo">Carl-William-Music</div>
-                        <!-- Swap out this placeholder div with an actual SVG/PNG QR code component -->
-                        <div class="qr-placeholder">[ QR CODE ]</div>
+                        
+                        <!-- Side-by-side Widescreen Preview and QR code row -->
+                        <div class="front-assets-row">
+                            <img src="photos/social-preview.jpg" class="brand-widescreen" alt="Site Preview" />
+                            <div class="qr-container">
+                                <img src="qr-code.svg" class="qr-code" alt="QR Code" />
+                                <div class="qr-center-icon">♫</div>
+                            </div>
+                        </div>
                     </div>
                 `);
             }
@@ -139,10 +244,11 @@
                     <div class="card back">
                         <div class="header">// CONTACT_INFO</div>
                         <div class="links">
-                            <div class="link-line"><span class="label">EML:</span><span class="value">wcarlahlers@gmail.com</span></div>
-                            <div class="link-line"><span class="label">GIT:</span><span class="value">github.com/Ahlers94</span></div>
-                            <div class="link-line"><span class="label">YT :</span><span class="value">@CarlWilliamMusic</span></div>
-                            <div class="link-line"><span class="label">IG :</span><span class="value">@carlwilliammusic</span></div>
+                            <div class="link-line"><span class="label">WEBSITE:</span><span class="value">ahlers94.github.io/carl-william-music/</span></div>
+                            <div class="link-line"><span class="label">E-MAIL:</span><span class="value">wcarlahlers@gmail.com</span></div>
+                            <div class="link-line"><span class="label">YOUTUBE:</span><span class="value">@CarlWilliamMusic</span></div>
+                            <div class="link-line"><span class="label">INSTAGRAM:</span><span class="value">@carlwilliammusic</span></div>
+                            <div class="link-line"><span class="label">GITHUB:</span><span class="value">github.com/Ahlers94</span></div>
                         </div>
                     </div>
                 `);
