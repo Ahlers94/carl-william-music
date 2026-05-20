@@ -79,7 +79,7 @@
             display: flex;
             flex-direction: column;
             gap: 4px;
-            font-size: 0.7rem; 
+            font-size: 0.67rem; /* Subtly adjusted to maximize horizontal line space */
             width: 100%;
         }
         .back .link-line {
@@ -96,6 +96,7 @@
             overflow: hidden;
             text-transform: lowercase; /* Lowercase monospace letters take up less horizontal space */
             letter-spacing: -0.2px;    /* Subtly tightens kerning to fit the full line comfortably */
+            padding-left: 4px;         /* Moves the entire column over to prevent truncation */
         }
 
         /* --- Print Optimization Layout --- */
