@@ -48,7 +48,7 @@
         /* --- Front Side Specifics & Tab Border --- */
         .front .logo {
             font-family: 'VT323', monospace;
-            font-size: 2.3rem; /* Tweak slightly to fit comfortably inside the tab lines */
+            font-size: 2.3rem; 
             line-height: 1;
             text-align: center;
             margin-bottom: 0.05in;
@@ -77,19 +77,7 @@
         .tab-line {
             width: 100%;
             height: 0;
-            border-top: 1px dashed #444; /* Retro tab look */
-            position: relative;
-        }
-        
-        /* Fret numbers scattered on the strings */
-        .fret {
-            position: absolute;
-            background: #fff;
-            padding: 0 3px;
-            font-size: 0.6rem;
-            font-weight: bold;
-            line-height: 1;
-            top: -5px;
+            border-top: 1px dashed #444; /* Clean, minimalist dashed strings */
         }
 
         /* QR Container to handle central mapping context */
@@ -188,14 +176,14 @@
             for(let i=0; i<10; i++) {
                 document.write(`
                     <div class="card front">
-                        <!-- 6-String Guitar Tab Border Background -->
+                        <!-- Clean 6-String Tab Lines Background -->
                         <div class="tab-border">
-                            <div class="tab-line"><span class="fret" style="left: 15%;">0</span><span class="fret" style="right: 20%;">12</span></div>
-                            <div class="tab-line"><span class="fret" style="left: 45%;">3</span></div>
                             <div class="tab-line"></div>
-                            <div class="tab-line"><span class="fret" style="right: 35%;">5</span></div>
-                            <div class="tab-line"><span class="fret" style="left: 25%;">2</span></div>
-                            <div class="tab-line"><span class="fret" style="right: 10%;">0</span></div>
+                            <div class="tab-line"></div>
+                            <div class="tab-line"></div>
+                            <div class="tab-line"></div>
+                            <div class="tab-line"></div>
+                            <div class="tab-line"></div>
                         </div>
 
                         <div class="logo">Carl-William-Music</div>
