@@ -79,7 +79,7 @@
             display: flex;
             flex-direction: column;
             gap: 4px;
-            font-size: 0.68rem; /* Scaled slightly to fit long URLs gracefully */
+            font-size: 0.7rem; 
             width: 100%;
         }
         .back .link-line {
@@ -88,13 +88,14 @@
         }
         .back .label {
             font-weight: bold;
-            width: 95px; /* Aligns values uniformly past the longest text string */
+            width: 78px; /* Perfectly sized for the text labels */
             flex-shrink: 0;
         }
         .back .value {
             white-space: nowrap;
             overflow: hidden;
-            text-overflow: ellipsis;
+            text-transform: lowercase; /* Lowercase monospace letters take up less horizontal space */
+            letter-spacing: -0.2px;    /* Subtly tightens kerning to fit the full line comfortably */
         }
 
         /* --- Print Optimization Layout --- */
@@ -131,14 +132,13 @@
 
     <!-- ================= PAGE 2: BACKS ================= -->
     <div class="page">
-        <!-- Re-ordered and updated sequence based exactly on specification -->
         <script>
             for(let i=0; i<10; i++) {
                 document.write(`
                     <div class="card back">
                         <div class="header">// CONTACT_INFO</div>
                         <div class="links">
-                            <div class="link-line"><span class="label">WEBSITE:</span><span class="value">https://ahlers94.github.io/carl-william-music/</span></div>
+                            <div class="link-line"><span class="label">WEBSITE:</span><span class="value">ahlers94.github.io/carl-william-music/</span></div>
                             <div class="link-line"><span class="label">E-MAIL:</span><span class="value">wcarlahlers@gmail.com</span></div>
                             <div class="link-line"><span class="label">YOUTUBE:</span><span class="value">@CarlWilliamMusic</span></div>
                             <div class="link-line"><span class="label">INSTAGRAM:</span><span class="value">@carlwilliammusic</span></div>
