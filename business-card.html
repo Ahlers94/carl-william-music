@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Business Card Print Layout</title>
+    <!-- Importing your fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=VT323&display=swap" rel="stylesheet">
+    
+    <style>
+        /* --- Browser Preview & Reset --- */
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { background: #e0e0e0; font-family: 'Share Tech Mono', monospace; color: #000; }
+
+        /* --- Page Dimensions (Avery Standard Letter) --- */
+        .page {
+            width: 8.5in;
+            height: 11in;
+            background: #fff;
+            margin: 20px auto;
+            padding: 0.5in 0.75in; /* Standard Avery margins: 0.5" top/bottom, 0.75" sides */
+            display: grid;
+            grid-template-columns: repeat(2, 3.5in);
+            grid-template-rows: repeat(5, 2in);
+            grid-gap: 0; /* Cards are flush against each other on the sheet */
+            position: relative;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+
+        /* --- Individual Card Styling --- */
+        .card {
+            width: 3.5in;
+            height: 2in;
+            outline: 1px dashed #ccc; /* Visual guide for browser preview */
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 0.2in;
+            overflow: hidden;
+            background: #fff;
+        }
+
+        /* --- Front Side Specifics --- */
+        .front .logo {
+            font-family: 'VT323', monospace;
+            font-size: 2.5rem;
+            line-height: 1;
+            text-align: center;
+            margin-bottom: 0.1in;
+            text-transform: uppercase;
+            letter-spacing: -1px;
+        }
+        .front .qr-placeholder {
+            width: 0.85in;
+            height: 0.85in;
+            border: 2px solid #000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.5rem;
+            font-weight: bold;
+        }
+
+        /* --- Back Side Specifics --- */
+        .back {
+            align-items: flex-start; /* Left-aligned look for the tech links */
+            justify-content: space-between;
+            padding: 0.25in;
+        }
+        .back .header {
+            font-family: 'VT323', monospace;
+            font-size: 1.2rem;
+            border-bottom: 1px solid #000;
+            width: 100%;
+            padding-bottom: 2px;
+            margin-bottom: 5px;
+        }
+        .back .links {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            font-size: 0.75rem;
+            width: 100%;
+        }
+        .back .link-line {
+            display: flex;
+            width: 100%;
+        }
+        .back .label {
+            font-weight: bold;
+            width: 45px;
+            flex-shrink: 0;
+        }
+        .back .value {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* --- Print Optimization Layout --- */
+        @media print {
+            body { background: none; }
+            .page {
+                margin: 0;
+                box-shadow: none;
+                page-break-after: always;
+            }
+            .card {
+                outline: none; /* Removes the dashed line when printing onto real card stock */
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ================= PAGE 1: FRONTS ================= -->
+    <div class="page">
+        <!-- We repeat this block 10 times to fill the 2x5 grid -->
+        <script>
+            for(let i=0; i<10; i++) {
+                document.write(`
+                    <div class="card front">
+                        <div class="logo">Carl-William-Music</div>
+                        <!-- Swap out this placeholder div with an actual SVG/PNG QR code component -->
+                        <div class="qr-placeholder">[ QR CODE ]</div>
+                    </div>
+                `);
+            }
+        </script>
+    </div>
+
+    <!-- ================= PAGE 2: BACKS ================= -->
+    <div class="page">
+        <script>
+            for(let i=0; i<10; i++) {
+                document.write(`
+                    <div class="card back">
+                        <div class="header">// CONTACT_INFO</div>
+                        <div class="links">
+                            <div class="link-line"><span class="label">EML:</span><span class="value">wcarlahlers@gmail.com</span></div>
+                            <div class="link-line"><span class="label">GIT:</span><span class="value">github.com/Ahlers94</span></div>
+                            <div class="link-line"><span class="label">YT :</span><span class="value">@CarlWilliamMusic</span></div>
+                            <div class="link-line"><span class="label">IG :</span><span class="value">@carlwilliammusic</span></div>
+                        </div>
+                    </div>
+                `);
+            }
+        </script>
+    </div>
+
+</body>
+</html>
