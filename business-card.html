@@ -79,7 +79,7 @@
             display: flex;
             flex-direction: column;
             gap: 4px;
-            font-size: 0.7rem; /* Slightly dropped to ensure 5 rows breathe nicely */
+            font-size: 0.68rem; /* Scaled slightly to fit long URLs gracefully */
             width: 100%;
         }
         .back .link-line {
@@ -88,7 +88,7 @@
         }
         .back .label {
             font-weight: bold;
-            width: 85px; /* Widened slightly to cleanly align the new labels */
+            width: 95px; /* Aligns values uniformly past the longest text string */
             flex-shrink: 0;
         }
         .back .value {
@@ -131,6 +131,7 @@
 
     <!-- ================= PAGE 2: BACKS ================= -->
     <div class="page">
+        <!-- Re-ordered and updated sequence based exactly on specification -->
         <script>
             for(let i=0; i<10; i++) {
                 document.write(`
