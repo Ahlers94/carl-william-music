@@ -42,25 +42,65 @@
             padding: 0.2in;
             overflow: hidden;
             background: #fff;
+            position: relative; /* Required for absolute positioning of tab elements */
         }
 
-        /* --- Front Side Specifics --- */
+        /* --- Front Side Specifics & Tab Border --- */
         .front .logo {
             font-family: 'VT323', monospace;
-            font-size: 2.5rem;
+            font-size: 2.3rem; /* Tweak slightly to fit comfortably inside the tab lines */
             line-height: 1;
             text-align: center;
-            margin-bottom: 0.1in;
+            margin-bottom: 0.05in;
             text-transform: uppercase;
             letter-spacing: -1px;
+            background: #fff; /* Blocks out the tab lines behind it */
+            padding: 0 10px;
+            z-index: 2;
         }
         
+        /* The Guitar Tab Outer Border Container */
+        .tab-border {
+            position: absolute;
+            top: 0.12in;
+            bottom: 0.12in;
+            left: 0.15in;
+            right: 0.15in;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            pointer-events: none;
+            z-index: 1;
+        }
+        
+        /* Individual string lines */
+        .tab-line {
+            width: 100%;
+            height: 0;
+            border-top: 1px dashed #444; /* Retro tab look */
+            position: relative;
+        }
+        
+        /* Fret numbers scattered on the strings */
+        .fret {
+            position: absolute;
+            background: #fff;
+            padding: 0 3px;
+            font-size: 0.6rem;
+            font-weight: bold;
+            line-height: 1;
+            top: -5px;
+        }
+
         /* QR Container to handle central mapping context */
         .qr-container {
             position: relative;
-            width: 0.95in;
-            height: 0.95in;
+            width: 0.9in;
+            height: 0.9in;
             margin: 0 auto;
+            background: #fff;
+            padding: 2px;
+            z-index: 2;
         }
         .front .qr-code {
             width: 100%;
@@ -74,14 +114,14 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            width: 18px;  /* Keeps the mask size perfectly safe under the 30% limit */
+            width: 18px;
             height: 18px;
-            background: #fff; /* Solid white background blocks out the grid segments below */
+            background: #fff;
             border: 1.5px solid #000;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-family: Arial, sans-serif; /* Clean rendering font for geometric symbols */
+            font-family: Arial, sans-serif;
             font-size: 13px;
             font-weight: bold;
             line-height: 1;
@@ -148,10 +188,19 @@
             for(let i=0; i<10; i++) {
                 document.write(`
                     <div class="card front">
+                        <!-- 6-String Guitar Tab Border Background -->
+                        <div class="tab-border">
+                            <div class="tab-line"><span class="fret" style="left: 15%;">0</span><span class="fret" style="right: 20%;">12</span></div>
+                            <div class="tab-line"><span class="fret" style="left: 45%;">3</span></div>
+                            <div class="tab-line"></div>
+                            <div class="tab-line"><span class="fret" style="right: 35%;">5</span></div>
+                            <div class="tab-line"><span class="fret" style="left: 25%;">2</span></div>
+                            <div class="tab-line"><span class="fret" style="right: 10%;">0</span></div>
+                        </div>
+
                         <div class="logo">Carl-William-Music</div>
                         <div class="qr-container">
                             <img src="qr-code.svg" class="qr-code" alt="QR Code" />
-                            <!-- Unified center icon: Choose '♫' or '🎸' below -->
                             <div class="qr-center-icon">♫</div>
                         </div>
                     </div>
