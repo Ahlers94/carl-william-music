@@ -1,3 +1,5 @@
+---
+---
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -52,15 +54,11 @@
             text-transform: uppercase;
             letter-spacing: -1px;
         }
-        .front .qr-placeholder {
-            width: 0.85in;
-            height: 0.85in;
-            border: 2px solid #000;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.5rem;
-            font-weight: bold;
+        .front .qr-code {
+            width: 0.95in;  /* Scaled perfectly to stay compact yet easily scannable */
+            height: 0.95in;
+            display: block;
+            margin: 0 auto;
         }
 
         /* --- Back Side Specifics --- */
@@ -123,8 +121,8 @@
                 document.write(`
                     <div class="card front">
                         <div class="logo">Carl-William-Music</div>
-                        <!-- Swap out this placeholder div with an actual SVG/PNG QR code component -->
-                        <div class="qr-placeholder">[ QR CODE ]</div>
+                        <!-- Your local vector QR code asset -->
+                        <img src="qr-code.svg" class="qr-code" alt="QR Code" />
                     </div>
                 `);
             }
