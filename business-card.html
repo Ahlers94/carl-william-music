@@ -30,6 +30,12 @@
             box-shadow: 0 0 10px rgba(0,0,0,0.1);
         }
 
+        /* Forces a clean duplex break between the front and back template views */
+        .page-break {
+            page-break-after: always;
+            break-after: page;
+        }
+
         /* --- Individual Card Styling --- */
         .card {
             width: 3.5in;
@@ -156,14 +162,22 @@
 
         /* --- Print Optimization Layout --- */
         @media print {
-            body { background: none; }
+            @page {
+                size: letter;
+                margin: 0 !important; /* Strips browser-enforced print margins */
+            }
+            html, body {
+                width: 8.5in;
+                height: 11in;
+                background: none;
+            }
             .page {
-                margin: 0;
+                margin: 0 !important;
+                border: none;
                 box-shadow: none;
-                page-break-after: always;
             }
             .card {
-                outline: none;
+                outline: none; /* Hides guidelines for final laser print run */
             }
         }
     </style>
@@ -171,7 +185,7 @@
 <body>
 
     <!-- ================= PAGE 1: FRONTS ================= -->
-    <div class="page">
+    <div class="page page-break">
         <script>
             for(let i=0; i<10; i++) {
                 document.write(`
