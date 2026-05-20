@@ -65,7 +65,7 @@
         .back {
             align-items: flex-start; /* Left-aligned look for the tech links */
             justify-content: space-between;
-            padding: 0.25in;
+            padding: 0.2in 0.25in;
         }
         .back .header {
             font-family: 'VT323', monospace;
@@ -73,13 +73,13 @@
             border-bottom: 1px solid #000;
             width: 100%;
             padding-bottom: 2px;
-            margin-bottom: 5px;
+            margin-bottom: 6px;
         }
         .back .links {
             display: flex;
             flex-direction: column;
             gap: 4px;
-            font-size: 0.75rem;
+            font-size: 0.7rem; /* Slightly dropped to ensure 5 rows breathe nicely */
             width: 100%;
         }
         .back .link-line {
@@ -88,7 +88,7 @@
         }
         .back .label {
             font-weight: bold;
-            width: 45px;
+            width: 85px; /* Widened slightly to cleanly align the new labels */
             flex-shrink: 0;
         }
         .back .value {
@@ -137,10 +137,11 @@
                     <div class="card back">
                         <div class="header">// CONTACT_INFO</div>
                         <div class="links">
-                            <div class="link-line"><span class="label">EML:</span><span class="value">wcarlahlers@gmail.com</span></div>
-                            <div class="link-line"><span class="label">GIT:</span><span class="value">github.com/Ahlers94</span></div>
-                            <div class="link-line"><span class="label">YT :</span><span class="value">@CarlWilliamMusic</span></div>
-                            <div class="link-line"><span class="label">IG :</span><span class="value">@carlwilliammusic</span></div>
+                            <div class="link-line"><span class="label">WEBSITE:</span><span class="value">https://ahlers94.github.io/carl-william-music/</span></div>
+                            <div class="link-line"><span class="label">E-MAIL:</span><span class="value">wcarlahlers@gmail.com</span></div>
+                            <div class="link-line"><span class="label">YOUTUBE:</span><span class="value">@CarlWilliamMusic</span></div>
+                            <div class="link-line"><span class="label">INSTAGRAM:</span><span class="value">@carlwilliammusic</span></div>
+                            <div class="link-line"><span class="label">GITHUB:</span><span class="value">github.com/Ahlers94</span></div>
                         </div>
                     </div>
                 `);
