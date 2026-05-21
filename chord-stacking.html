@@ -66,7 +66,6 @@ permalink: /theory/chord-stacking/
 .cs-legend-item { display: flex; align-items: center; gap: 7px; }
 .cs-legend-dot { width: 8px; height: 8px; flex-shrink: 0; }
 
-/* Table — no scroll wrapper, fits desktop */
 table.cs-table {
   width: 100%;
   border-collapse: collapse;
@@ -84,14 +83,13 @@ table.cs-table::before {
   background: linear-gradient(90deg, transparent, #a855f7, #00f5ff, transparent);
 }
 
-/* Column widths — tuned to fit ~1100px desktop */
-table.cs-table col.c-stack    { width: 14%; }
-table.cs-table col.c-tech     { width: 12%; }
-table.cs-table col.c-sound    { width: 20%; }
-table.cs-table col.c-scale    { width: 20%; }
+table.cs-table col.c-stack    { width: 13%; }
+table.cs-table col.c-tech     { width: 11%; }
+table.cs-table col.c-sound    { width: 19%; }
+table.cs-table col.c-scale    { width: 21%; }
 table.cs-table col.c-spicy    { width: 7%;  }
 table.cs-table col.c-identity { width: 10%; }
-table.cs-table col.c-feeling  { width: 17%; }
+table.cs-table col.c-feeling  { width: 19%; }
 
 table.cs-table thead tr { background: #0a0a18; border-bottom: 1px solid #a855f744; }
 table.cs-table thead th {
@@ -118,51 +116,39 @@ table.cs-table tbody td {
   overflow: hidden;
 }
 
-/* ── VIBRANT ROW TINTS ── much stronger than before */
 .row-major    td { background: #00ff4114; color: #b3ffcc; }
-.row-minor    td { background: #ff2d7814; color: #ffb3cc; }
+.row-minor    td { background: #c084fc18; color: #ddb3ff; }
 .row-sus      td { background: #ffd70014; color: #fff0a0; }
-.row-unstable td { background: #b06aff18; color: #ddb3ff; }
+.row-unstable td { background: #ff2d7814; color: #ffb3cc; }
 
 td.cs-stack {
   font-size: 9.5px;
   font-weight: 700;
-  white-space: nowrap;
   overflow: hidden;
-  text-overflow: ellipsis;
 }
-/* Per-row stack label colors matching the feeling */
 .row-major    td.cs-stack { color: #00ff41; text-shadow: 0 0 8px #00ff4166; }
-.row-minor    td.cs-stack { color: #ff2d78; text-shadow: 0 0 8px #ff2d7866; }
+.row-minor    td.cs-stack { color: #c084fc; text-shadow: 0 0 8px #c084fc66; }
 .row-sus      td.cs-stack { color: #ffd700; text-shadow: 0 0 8px #ffd70066; }
-.row-unstable td.cs-stack { color: #c084fc; text-shadow: 0 0 8px #c084fc66; }
+.row-unstable td.cs-stack { color: #ff2d78; text-shadow: 0 0 8px #ff2d7866; }
 
-td.cs-tech {
-  font-size: 8.5px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
+td.cs-tech { font-size: 8.5px; overflow: hidden; text-overflow: ellipsis; }
 .row-major    td.cs-tech { color: #00e87a; }
-.row-minor    td.cs-tech { color: #ff6699; }
+.row-minor    td.cs-tech { color: #bf7fff; }
 .row-sus      td.cs-tech { color: #ffe066; }
-.row-unstable td.cs-tech { color: #bf7fff; }
+.row-unstable td.cs-tech { color: #ff6699; }
 
 td.cs-sound { font-size: 9px; line-height: 1.5; }
 td.cs-scale { font-size: 8.5px; line-height: 1.65; }
 
-td.cs-spicy {
-  font-weight: 700;
-  font-size: 10px;
-  white-space: nowrap;
-}
+td.cs-spicy { font-weight: 700; font-size: 10px; white-space: nowrap; }
 .row-major    td.cs-spicy { color: #00ff41; text-shadow: 0 0 6px #00ff4155; }
-.row-minor    td.cs-spicy { color: #ff2d78; text-shadow: 0 0 6px #ff2d7855; }
+.row-minor    td.cs-spicy { color: #c084fc; text-shadow: 0 0 6px #c084fc55; }
 .row-sus      td.cs-spicy { color: #ffd700; text-shadow: 0 0 6px #ffd70055; }
-.row-unstable td.cs-spicy { color: #c084fc; text-shadow: 0 0 6px #c084fc55; }
+.row-unstable td.cs-spicy { color: #ff2d78; text-shadow: 0 0 6px #ff2d7855; }
 
 td.cs-identity { font-size: 8.5px; white-space: nowrap; }
-
 td.cs-feeling { white-space: nowrap; }
+
 .feeling-badge {
   display: inline-block;
   font-size: 8px;
@@ -173,9 +159,43 @@ td.cs-feeling { white-space: nowrap; }
   white-space: nowrap;
 }
 .badge-major    { color: #00ff41; border-color: #00ff4155; background: #00ff4110; text-shadow: 0 0 6px #00ff4155; }
-.badge-minor    { color: #ff2d78; border-color: #ff2d7855; background: #ff2d7810; text-shadow: 0 0 6px #ff2d7855; }
+.badge-minor    { color: #c084fc; border-color: #c084fc55; background: #c084fc10; text-shadow: 0 0 6px #c084fc55; }
 .badge-sus      { color: #ffd700; border-color: #ffd70055; background: #ffd70010; text-shadow: 0 0 6px #ffd70055; }
-.badge-unstable { color: #c084fc; border-color: #c084fc55; background: #c084fc10; text-shadow: 0 0 6px #c084fc55; }
+.badge-unstable { color: #ff2d78; border-color: #ff2d7855; background: #ff2d7810; text-shadow: 0 0 6px #ff2d7855; }
+
+/* ── PLAY BUTTONS ── */
+.cs-cell-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+.cs-play-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-family: 'Space Mono', monospace;
+  font-size: 7.5px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  border: 1px solid;
+  padding: 2px 6px;
+  background: transparent;
+  cursor: pointer;
+  transition: background 0.15s, text-shadow 0.15s;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.cs-play-btn svg { flex-shrink: 0; }
+.cs-play-btn.playing { opacity: 0.5; cursor: default; }
+
+.row-major    .cs-play-btn { color: #00ff41; border-color: #00ff4133; }
+.row-major    .cs-play-btn:hover { background: #00ff4110; text-shadow: 0 0 6px #00ff4155; }
+.row-minor    .cs-play-btn { color: #c084fc; border-color: #c084fc33; }
+.row-minor    .cs-play-btn:hover { background: #c084fc10; text-shadow: 0 0 6px #c084fc55; }
+.row-sus      .cs-play-btn { color: #ffd700; border-color: #ffd70033; }
+.row-sus      .cs-play-btn:hover { background: #ffd70010; text-shadow: 0 0 6px #ffd70055; }
+.row-unstable .cs-play-btn { color: #ff2d78; border-color: #ff2d7833; }
+.row-unstable .cs-play-btn:hover { background: #ff2d7810; text-shadow: 0 0 6px #ff2d7855; }
 
 .cs-footnote {
   margin-top: 16px;
@@ -185,7 +205,6 @@ td.cs-feeling { white-space: nowrap; }
   text-transform: uppercase;
 }
 
-/* Mobile: allow scroll on small screens only */
 @media (max-width: 900px) {
   .cs-table-scroll { overflow-x: auto; }
   table.cs-table { min-width: 820px; table-layout: auto; }
@@ -216,16 +235,16 @@ td.cs-feeling { white-space: nowrap; }
       <span style="color:#00ff41">Resolved / Major</span>
     </span>
     <span class="cs-legend-item">
-      <span class="cs-legend-dot" style="background:#ff2d7833;border:1px solid #ff2d7866"></span>
-      <span style="color:#ff2d78">Dark / Minor</span>
+      <span class="cs-legend-dot" style="background:#c084fc33;border:1px solid #c084fc66"></span>
+      <span style="color:#c084fc">Dark / Minor</span>
     </span>
     <span class="cs-legend-item">
       <span class="cs-legend-dot" style="background:#ffd70033;border:1px solid #ffd70066"></span>
       <span style="color:#ffd700">Suspended / Ambiguous</span>
     </span>
     <span class="cs-legend-item">
-      <span class="cs-legend-dot" style="background:#c084fc33;border:1px solid #c084fc66"></span>
-      <span style="color:#c084fc">Tense / Unstable</span>
+      <span class="cs-legend-dot" style="background:#ff2d7833;border:1px solid #ff2d7866"></span>
+      <span style="color:#ff2d78">Tense / Unstable</span>
     </span>
   </div>
 
@@ -254,140 +273,284 @@ td.cs-feeling { white-space: nowrap; }
       <tbody>
 
         <tr class="row-major">
-          <td class="cs-stack">E Min / C Maj</td>
+          <td class="cs-stack">
+            <div class="cs-cell-wrap">
+              E Min / C Maj
+              <button class="cs-play-btn" data-type="stack" data-lower="C4,E4,G4" data-upper="E4,G4,B4">
+                <svg width="8" height="8" viewBox="0 0 24 24" fill="currentColor"><polygon points="5,3 19,12 5,21"/></svg>▸ stack
+              </button>
+            </div>
+          </td>
           <td class="cs-tech">Cmaj7</td>
           <td class="cs-sound">Tonic: stable, "open" major. Dreamy, nostalgic</td>
-          <td class="cs-scale">C Ionian (C–D–E–F–G–A–B)<br>C Lydian (C–D–E–F#–G–A–B)</td>
+          <td class="cs-scale">
+            <div class="cs-cell-wrap">
+              C Ionian (C–D–E–F–G–A–B)<br>C Lydian (C–D–E–F#–G–A–B)
+              <button class="cs-play-btn" data-type="scale" data-notes="C4,D4,E4,F4,G4,A4,B4,C5">▸ ionian</button>
+              <button class="cs-play-btn" data-type="scale" data-notes="C4,D4,E4,F#4,G4,A4,B4,C5">▸ lydian</button>
+            </div>
+          </td>
           <td class="cs-spicy">F#</td>
           <td class="cs-identity">#4 (Lydian)</td>
           <td class="cs-feeling"><span class="feeling-badge badge-major">Resolved / Major</span></td>
         </tr>
 
         <tr class="row-major">
-          <td class="cs-stack">G Maj / C Maj</td>
+          <td class="cs-stack">
+            <div class="cs-cell-wrap">
+              G Maj / C Maj
+              <button class="cs-play-btn" data-type="stack" data-lower="C4,E4,G4" data-upper="G4,B4,D5">▸ stack</button>
+            </div>
+          </td>
           <td class="cs-tech">Cmaj9</td>
           <td class="cs-sound">Grand: classic, rich — all notes of the major scale</td>
-          <td class="cs-scale">C Ionian (C–D–E–F–G–A–B)</td>
+          <td class="cs-scale">
+            <div class="cs-cell-wrap">
+              C Ionian (C–D–E–F–G–A–B)
+              <button class="cs-play-btn" data-type="scale" data-notes="C4,D4,E4,F4,G4,A4,B4,C5">▸ ionian</button>
+            </div>
+          </td>
           <td class="cs-spicy">—</td>
           <td class="cs-identity">Stable</td>
           <td class="cs-feeling"><span class="feeling-badge badge-major">Resolved / Major</span></td>
         </tr>
 
         <tr class="row-major">
-          <td class="cs-stack">D Min / C Maj</td>
+          <td class="cs-stack">
+            <div class="cs-cell-wrap">
+              D Min / C Maj
+              <button class="cs-play-btn" data-type="stack" data-lower="C4,E4,G4" data-upper="D4,F4,A4">▸ stack</button>
+            </div>
+          </td>
           <td class="cs-tech">Cmaj11</td>
           <td class="cs-sound">Modern Diatonic: lush, "pop-jazz," sophisticated, smooth</td>
-          <td class="cs-scale">C Ionian (C–D–E–F–G–A–B)</td>
+          <td class="cs-scale">
+            <div class="cs-cell-wrap">
+              C Ionian (C–D–E–F–G–A–B)
+              <button class="cs-play-btn" data-type="scale" data-notes="C4,D4,E4,F4,G4,A4,B4,C5">▸ ionian</button>
+            </div>
+          </td>
           <td class="cs-spicy">B</td>
           <td class="cs-identity">Nat. 6th, 11th</td>
           <td class="cs-feeling"><span class="feeling-badge badge-major">Resolved / Major</span></td>
         </tr>
 
         <tr class="row-major">
-          <td class="cs-stack">D / C (no 3rd)</td>
+          <td class="cs-stack">
+            <div class="cs-cell-wrap">
+              D / C (no 3rd)
+              <button class="cs-play-btn" data-type="stack" data-lower="C4,G4" data-upper="D4,F#4,A4">▸ stack</button>
+            </div>
+          </td>
           <td class="cs-tech">Csus2</td>
           <td class="cs-sound">Open/vast: ambiguous, neutral, folk/indie space</td>
-          <td class="cs-scale">C Ionian (C–D–E–F–G–A–B)</td>
+          <td class="cs-scale">
+            <div class="cs-cell-wrap">
+              C Ionian (C–D–E–F–G–A–B)
+              <button class="cs-play-btn" data-type="scale" data-notes="C4,D4,E4,F4,G4,A4,B4,C5">▸ ionian</button>
+            </div>
+          </td>
           <td class="cs-spicy">D</td>
           <td class="cs-identity">9th</td>
           <td class="cs-feeling"><span class="feeling-badge badge-major">Resolved / Major</span></td>
         </tr>
 
         <tr class="row-major">
-          <td class="cs-stack">D Maj / C Maj</td>
+          <td class="cs-stack">
+            <div class="cs-cell-wrap">
+              D Maj / C Maj
+              <button class="cs-play-btn" data-type="stack" data-lower="C4,E4,G4" data-upper="D4,F#4,A4">▸ stack</button>
+            </div>
+          </td>
           <td class="cs-tech">Cmaj7(#11) / D/C</td>
           <td class="cs-sound">Lydian: dreamy, expansive, cinematic</td>
-          <td class="cs-scale">C Lydian (C–D–E–F#–G–A–B)</td>
+          <td class="cs-scale">
+            <div class="cs-cell-wrap">
+              C Lydian (C–D–E–F#–G–A–B)
+              <button class="cs-play-btn" data-type="scale" data-notes="C4,D4,E4,F#4,G4,A4,B4,C5">▸ lydian</button>
+            </div>
+          </td>
           <td class="cs-spicy">F#</td>
           <td class="cs-identity">#4</td>
           <td class="cs-feeling"><span class="feeling-badge badge-major">Resolved / Major</span></td>
         </tr>
 
         <tr class="row-sus">
-          <td class="cs-stack">Bb Maj / C Maj</td>
+          <td class="cs-stack">
+            <div class="cs-cell-wrap">
+              Bb Maj / C Maj
+              <button class="cs-play-btn" data-type="stack" data-lower="C4,E4,G4" data-upper="Bb3,D4,F4">▸ stack</button>
+            </div>
+          </td>
           <td class="cs-tech">C9(sus4) / Bb/C</td>
           <td class="cs-sound">Dominant 7th: bluesy, modern, unresolved tension</td>
-          <td class="cs-scale">C Mixolydian (C–D–E–F–G–A–Bb)<br>C Blues (C–Eb–F–Gb–G–Bb)</td>
+          <td class="cs-scale">
+            <div class="cs-cell-wrap">
+              C Mixolydian (C–D–E–F–G–A–Bb)<br>C Blues (C–Eb–F–Gb–G–Bb)
+              <button class="cs-play-btn" data-type="scale" data-notes="C4,D4,E4,F4,G4,A4,Bb4,C5">▸ mixolydian</button>
+              <button class="cs-play-btn" data-type="scale" data-notes="C4,Eb4,F4,Gb4,G4,Bb4,C5">▸ blues</button>
+            </div>
+          </td>
           <td class="cs-spicy">Bb</td>
           <td class="cs-identity">b7</td>
           <td class="cs-feeling"><span class="feeling-badge badge-sus">Suspended / Ambiguous</span></td>
         </tr>
 
         <tr class="row-major">
-          <td class="cs-stack">F Maj / C Maj</td>
+          <td class="cs-stack">
+            <div class="cs-cell-wrap">
+              F Maj / C Maj
+              <button class="cs-play-btn" data-type="stack" data-lower="C4,E4,G4" data-upper="F4,A4,C5">▸ stack</button>
+            </div>
+          </td>
           <td class="cs-tech">Csus4 / Cadd11</td>
           <td class="cs-sound">Suspended 4th: floating, lacks resolved major third</td>
-          <td class="cs-scale">C Ionian (C–D–E–F–G–A–B)</td>
+          <td class="cs-scale">
+            <div class="cs-cell-wrap">
+              C Ionian (C–D–E–F–G–A–B)
+              <button class="cs-play-btn" data-type="scale" data-notes="C4,D4,E4,F4,G4,A4,B4,C5">▸ ionian</button>
+            </div>
+          </td>
           <td class="cs-spicy">—</td>
           <td class="cs-identity">—</td>
           <td class="cs-feeling"><span class="feeling-badge badge-major">Resolved / Major</span></td>
         </tr>
 
         <tr class="row-minor">
-          <td class="cs-stack">Eb Maj / C</td>
+          <td class="cs-stack">
+            <div class="cs-cell-wrap">
+              Eb Maj / C
+              <button class="cs-play-btn" data-type="stack" data-lower="C4,Eb4,G4" data-upper="Eb4,G4,Bb4">▸ stack</button>
+            </div>
+          </td>
           <td class="cs-tech">Cm7 / Eb/C</td>
           <td class="cs-sound">Aeolian: serious, tragic, gothic</td>
-          <td class="cs-scale">C Aeolian / Nat. Minor<br>(C–D–Eb–F–G–Ab–Bb)</td>
+          <td class="cs-scale">
+            <div class="cs-cell-wrap">
+              C Aeolian / Nat. Minor<br>(C–D–Eb–F–G–Ab–Bb)
+              <button class="cs-play-btn" data-type="scale" data-notes="C4,D4,Eb4,F4,G4,Ab4,Bb4,C5">▸ aeolian</button>
+            </div>
+          </td>
           <td class="cs-spicy">Ab</td>
           <td class="cs-identity">b3, b7</td>
           <td class="cs-feeling"><span class="feeling-badge badge-minor">Dark / Minor</span></td>
         </tr>
 
         <tr class="row-minor">
-          <td class="cs-stack">Ab Maj / C</td>
+          <td class="cs-stack">
+            <div class="cs-cell-wrap">
+              Ab Maj / C
+              <button class="cs-play-btn" data-type="stack" data-lower="C4,G4" data-upper="Ab3,C4,Eb4">▸ stack</button>
+            </div>
+          </td>
           <td class="cs-tech">C(b6,b13) / Ab/C</td>
           <td class="cs-sound">Phrygian: tense, ancient, ominous, dark</td>
-          <td class="cs-scale">C Phrygian (C–Db–Eb–F–G–Ab–Bb)</td>
+          <td class="cs-scale">
+            <div class="cs-cell-wrap">
+              C Phrygian (C–Db–Eb–F–G–Ab–Bb)
+              <button class="cs-play-btn" data-type="scale" data-notes="C4,Db4,Eb4,F4,G4,Ab4,Bb4,C5">▸ phrygian</button>
+            </div>
+          </td>
           <td class="cs-spicy">Db</td>
           <td class="cs-identity">b3, b6</td>
           <td class="cs-feeling"><span class="feeling-badge badge-minor">Dark / Minor</span></td>
         </tr>
 
         <tr class="row-minor">
-          <td class="cs-stack">Db Maj / C</td>
+          <td class="cs-stack">
+            <div class="cs-cell-wrap">
+              Db Maj / C
+              <button class="cs-play-btn" data-type="stack" data-lower="C4,G4" data-upper="Db4,F4,Ab4">▸ stack</button>
+            </div>
+          </td>
           <td class="cs-tech">C(b2,b6) / Db/C</td>
           <td class="cs-sound">Phrygian Dominant: lost, dread, alien, unstable</td>
-          <td class="cs-scale">C Phryg. Dom.<br>(C–Db–E–F–G–Ab–Bb)</td>
+          <td class="cs-scale">
+            <div class="cs-cell-wrap">
+              C Phryg. Dom.<br>(C–Db–E–F–G–Ab–Bb)
+              <button class="cs-play-btn" data-type="scale" data-notes="C4,Db4,E4,F4,G4,Ab4,Bb4,C5">▸ phryg. dom.</button>
+            </div>
+          </td>
           <td class="cs-spicy">Db</td>
           <td class="cs-identity">b2, b6</td>
           <td class="cs-feeling"><span class="feeling-badge badge-minor">Dark / Minor</span></td>
         </tr>
 
         <tr class="row-unstable">
-          <td class="cs-stack">Gb Maj / C (no 5)</td>
+          <td class="cs-stack">
+            <div class="cs-cell-wrap">
+              Gb Maj / C (no 5)
+              <button class="cs-play-btn" data-type="stack" data-lower="C4" data-upper="Gb3,Bb3,Db4">▸ stack</button>
+            </div>
+          </td>
           <td class="cs-tech">C(b2,b3,b5,b6,b7)</td>
           <td class="cs-sound">Locrian: broken, void, horror, unhinged</td>
-          <td class="cs-scale">C Locrian (C–Db–Eb–F–Gb–Ab–Bb)</td>
+          <td class="cs-scale">
+            <div class="cs-cell-wrap">
+              C Locrian (C–Db–Eb–F–Gb–Ab–Bb)
+              <button class="cs-play-btn" data-type="scale" data-notes="C4,Db4,Eb4,F4,Gb4,Ab4,Bb4,C5">▸ locrian</button>
+            </div>
+          </td>
           <td class="cs-spicy">Gb</td>
           <td class="cs-identity">b2, b3, b5</td>
           <td class="cs-feeling"><span class="feeling-badge badge-unstable">Tense / Unstable</span></td>
         </tr>
 
         <tr class="row-minor">
-          <td class="cs-stack">Bdim / C</td>
+          <td class="cs-stack">
+            <div class="cs-cell-wrap">
+              Bdim / C
+              <button class="cs-play-btn" data-type="stack" data-lower="C4,G4" data-upper="B3,D4,F4">▸ stack</button>
+            </div>
+          </td>
           <td class="cs-tech">Cmaj7(b9)</td>
           <td class="cs-sound">High anxiety: unstable, shrinking, demands resolution</td>
-          <td class="cs-scale">C Harmonic Minor<br>(C–D–Eb–F–G–Ab–B)</td>
+          <td class="cs-scale">
+            <div class="cs-cell-wrap">
+              C Harmonic Minor<br>(C–D–Eb–F–G–Ab–B)
+              <button class="cs-play-btn" data-type="scale" data-notes="C4,D4,Eb4,F4,G4,Ab4,B4,C5">▸ harm. minor</button>
+            </div>
+          </td>
           <td class="cs-spicy">B</td>
           <td class="cs-identity">Leading tone, b9</td>
           <td class="cs-feeling"><span class="feeling-badge badge-minor">Dark / Minor</span></td>
         </tr>
 
         <tr class="row-sus">
-          <td class="cs-stack">Ab Aug / C</td>
+          <td class="cs-stack">
+            <div class="cs-cell-wrap">
+              Ab Aug / C
+              <button class="cs-play-btn" data-type="stack" data-lower="C4,E4,G#4" data-upper="Ab3,C4,E4">▸ stack</button>
+            </div>
+          </td>
           <td class="cs-tech">Caug</td>
           <td class="cs-sound">Rising: magical, ethereal, "twilight zone" expansion</td>
-          <td class="cs-scale">C Whole Tone (C–D–E–F#–Ab–Bb)</td>
+          <td class="cs-scale">
+            <div class="cs-cell-wrap">
+              C Whole Tone (C–D–E–F#–Ab–Bb)
+              <button class="cs-play-btn" data-type="scale" data-notes="C4,D4,E4,F#4,Ab4,Bb4,C5">▸ whole tone</button>
+            </div>
+          </td>
           <td class="cs-spicy">Ab, E</td>
           <td class="cs-identity">Aug 5th</td>
           <td class="cs-feeling"><span class="feeling-badge badge-sus">Suspended / Ambiguous</span></td>
         </tr>
 
         <tr class="row-minor">
-          <td class="cs-stack">Cm / C</td>
+          <td class="cs-stack">
+            <div class="cs-cell-wrap">
+              Cm / C
+              <button class="cs-play-btn" data-type="stack" data-lower="C4,Eb4,G4" data-upper="C4,Eb4,G4">▸ stack</button>
+            </div>
+          </td>
           <td class="cs-tech">Cmin/maj7</td>
           <td class="cs-sound">Dark/heavy: dense, grounded, intense, minor gravity</td>
-          <td class="cs-scale">C Melodic Minor (C–D–Eb–F–G–A–B)</td>
+          <td class="cs-scale">
+            <div class="cs-cell-wrap">
+              C Melodic Minor (C–D–Eb–F–G–A–B)
+              <button class="cs-play-btn" data-type="scale" data-notes="C4,D4,Eb4,F4,G4,A4,B4,C5">▸ mel. minor</button>
+            </div>
+          </td>
           <td class="cs-spicy">Eb, B</td>
           <td class="cs-identity">b3, maj7</td>
           <td class="cs-feeling"><span class="feeling-badge badge-minor">Dark / Minor</span></td>
@@ -400,3 +563,134 @@ td.cs-feeling { white-space: nowrap; }
   <p class="cs-footnote">// stacking two triads creates richer harmonic color than either chord alone. upper triad played over the lower root.</p>
 
 </div>
+
+<script>
+(function() {
+  var NOTE_FREQ = {
+    'C3':130.81,'D3':146.83,'Eb3':155.56,'E3':164.81,'F3':174.61,'F#3':185.00,
+    'Gb3':185.00,'G3':196.00,'Ab3':207.65,'G#3':207.65,'A3':220.00,'Bb3':233.08,
+    'B3':246.94,
+    'C4':261.63,'Db4':277.18,'D4':293.66,'Eb4':311.13,'E4':329.63,'F4':349.23,
+    'F#4':369.99,'Gb4':369.99,'G4':392.00,'G#4':415.30,'Ab4':415.30,'A4':440.00,
+    'Bb4':466.16,'B4':493.88,
+    'C5':523.25,'Db5':554.37,'D5':587.33,'Eb5':622.25,'E5':659.25,'F5':698.46,
+    'F#5':739.99,'G5':783.99,'Ab5':830.61,'A5':880.00,'Bb5':932.33,'B5':987.77
+  };
+
+  var ctx = null;
+  function getCtx() {
+    if (!ctx) ctx = new (window.AudioContext || window.webkitAudioContext)();
+    return ctx;
+  }
+
+  function synth(ac, freq, startTime, duration) {
+    var osc1 = ac.createOscillator();
+    var osc2 = ac.createOscillator();
+    var osc3 = ac.createOscillator();
+    var gain = ac.createGain();
+
+    osc1.type = 'sawtooth';
+    osc2.type = 'square';
+    osc3.type = 'sine';
+
+    osc1.frequency.value = freq;
+    osc2.frequency.value = freq * 2.001;
+    osc3.frequency.value = freq * 0.5;
+
+    var g1 = ac.createGain(); g1.gain.value = 0.28;
+    var g2 = ac.createGain(); g2.gain.value = 0.08;
+    var g3 = ac.createGain(); g3.gain.value = 0.18;
+
+    var filter = ac.createBiquadFilter();
+    filter.type = 'lowpass';
+    filter.frequency.value = 2200;
+    filter.Q.value = 1.2;
+
+    osc1.connect(g1); osc2.connect(g2); osc3.connect(g3);
+    g1.connect(filter); g2.connect(filter); g3.connect(filter);
+    filter.connect(gain);
+    gain.connect(ac.destination);
+
+    gain.gain.setValueAtTime(0, startTime);
+    gain.gain.linearRampToValueAtTime(0.22, startTime + 0.025);
+    gain.gain.exponentialRampToValueAtTime(0.12, startTime + 0.15);
+    gain.gain.exponentialRampToValueAtTime(0.001, startTime + duration);
+
+    osc1.start(startTime); osc2.start(startTime); osc3.start(startTime);
+    osc1.stop(startTime + duration + 0.05);
+    osc2.stop(startTime + duration + 0.05);
+    osc3.stop(startTime + duration + 0.05);
+  }
+
+  function parseNotes(str) {
+    return str.split(',').map(function(n) { return n.trim(); });
+  }
+
+  function playStack(lower, upper, btn) {
+    var ac = getCtx();
+    var t = ac.currentTime + 0.05;
+    var lNotes = parseNotes(lower);
+    var uNotes = parseNotes(upper);
+    var arp = 0.13;
+    var hold = 0.45;
+
+    lNotes.forEach(function(n, i) {
+      if (NOTE_FREQ[n]) synth(ac, NOTE_FREQ[n], t + i * arp, hold);
+    });
+    var uStart = t + lNotes.length * arp + 0.08;
+    uNotes.forEach(function(n, i) {
+      if (NOTE_FREQ[n]) synth(ac, NOTE_FREQ[n], uStart + i * arp, hold);
+    });
+    var cStart = uStart + uNotes.length * arp + 0.12;
+    var all = lNotes.concat(uNotes);
+    var seen = {};
+    all.forEach(function(n) {
+      if (NOTE_FREQ[n] && !seen[n]) {
+        seen[n] = true;
+        synth(ac, NOTE_FREQ[n], cStart, 1.6);
+      }
+    });
+    var totalDur = (cStart - ac.currentTime) + 1.8;
+    lockBtn(btn, totalDur * 1000);
+  }
+
+  function playScale(notes, btn) {
+    var ac = getCtx();
+    var t = ac.currentTime + 0.05;
+    var parsed = parseNotes(notes);
+    var step = 0.22;
+    var noteDur = 0.38;
+
+    parsed.forEach(function(n, i) {
+      if (NOTE_FREQ[n]) synth(ac, NOTE_FREQ[n], t + i * step, noteDur);
+    });
+    var descStart = t + parsed.length * step + 0.1;
+    var rev = parsed.slice().reverse();
+    rev.forEach(function(n, i) {
+      if (NOTE_FREQ[n]) synth(ac, NOTE_FREQ[n], descStart + i * step, noteDur);
+    });
+    var totalDur = (descStart - ac.currentTime) + rev.length * step + 0.5;
+    lockBtn(btn, totalDur * 1000);
+  }
+
+  function lockBtn(btn, ms) {
+    btn.classList.add('playing');
+    btn.disabled = true;
+    setTimeout(function() {
+      btn.classList.remove('playing');
+      btn.disabled = false;
+    }, ms);
+  }
+
+  document.addEventListener('click', function(e) {
+    var btn = e.target.closest('.cs-play-btn');
+    if (!btn || btn.disabled) return;
+    var type = btn.dataset.type;
+    if (type === 'stack') {
+      playStack(btn.dataset.lower, btn.dataset.upper, btn);
+    } else if (type === 'scale') {
+      playScale(btn.dataset.notes, btn);
+    }
+  });
+})();
+</script>
