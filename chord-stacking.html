@@ -7,33 +7,29 @@ permalink: /theory/chord-stacking/
 ---
 
 <style>
-/* ── PAGE WRAPPER ─────────────────────────────────────── */
 .cs-page {
-  padding: 36px 36px 64px 48px;
-  max-width: 1100px;
+  padding: 32px 32px 64px 40px;
 }
-@media (max-width: 720px) { .cs-page { padding: 24px 16px 48px; } }
+@media (max-width: 720px) { .cs-page { padding: 20px 14px 48px; } }
 
-/* ── PAGE HEADER ──────────────────────────────────────── */
-.cs-page-header {
-  margin-bottom: 28px;
-}
+.cs-page-header { margin-bottom: 22px; }
+
 .cs-page-header h1 {
   font-family: 'VT323', monospace;
-  font-size: clamp(32px, 6vw, 52px);
-  color: #a855f7;
-  text-shadow: 2px 2px 0 #3b0764, 0 0 30px #a855f766;
+  font-size: clamp(30px, 5vw, 48px);
+  color: #c084fc;
+  text-shadow: 2px 2px 0 #3b0764, 0 0 28px #a855f799;
   letter-spacing: 3px;
   line-height: 1;
-  margin-bottom: 8px;
+  margin-bottom: 6px;
 }
-.cs-page-header .cs-sub {
+.cs-sub {
   font-size: 10px;
   color: var(--cyan);
   letter-spacing: 3px;
   text-transform: uppercase;
   opacity: 0.75;
-  margin-bottom: 18px;
+  margin-bottom: 16px;
 }
 .cs-download-btn {
   display: inline-flex;
@@ -44,167 +40,155 @@ permalink: /theory/chord-stacking/
   letter-spacing: 2px;
   text-transform: uppercase;
   text-decoration: none;
-  color: #a855f7;
-  border: 1px solid #a855f755;
-  padding: 8px 18px;
-  background: transparent;
-  text-shadow: 0 0 8px #a855f766;
-  transition: background 0.2s, border-color 0.2s, text-shadow 0.2s, color 0.2s;
+  color: #c084fc;
+  border: 1px solid #a855f766;
+  padding: 7px 16px;
+  text-shadow: 0 0 8px #a855f777;
+  transition: background 0.2s, border-color 0.2s, text-shadow 0.2s;
 }
 .cs-download-btn:hover {
-  background: #a855f711;
-  border-color: #a855f7aa;
-  text-shadow: 0 0 14px #a855f7bb;
-  color: #c084fc;
+  background: #a855f718;
+  border-color: #c084fcaa;
+  text-shadow: 0 0 14px #c084fccc;
 }
 .cs-download-btn svg { flex-shrink: 0; stroke: currentColor; }
 
-/* ── LEGEND ───────────────────────────────────────────── */
 .cs-legend {
   display: flex;
   flex-wrap: wrap;
-  gap: 6px 20px;
-  margin-bottom: 18px;
+  gap: 5px 18px;
+  margin-bottom: 14px;
   font-family: 'Space Mono', monospace;
   font-size: 9px;
   letter-spacing: 2px;
   text-transform: uppercase;
 }
 .cs-legend-item { display: flex; align-items: center; gap: 7px; }
-.cs-legend-dot {
-  width: 8px; height: 8px;
-  flex-shrink: 0;
-}
+.cs-legend-dot { width: 8px; height: 8px; flex-shrink: 0; }
 
-/* ── TABLE SCROLL WRAP ────────────────────────────────── */
-.cs-table-scroll {
-  overflow-x: auto;
-  border: 1px solid #a855f733;
-  box-shadow: 0 0 24px #a855f711, inset 0 0 0 1px #ffffff05;
-  position: relative;
-}
-.cs-table-scroll::before {
-  content: '';
-  position: absolute;
-  top: 0; left: 0; right: 0;
-  height: 2px;
-  background: linear-gradient(90deg, transparent, #a855f7, #00f5ff, transparent);
-  z-index: 2;
-}
-
-/* ── TABLE ────────────────────────────────────────────── */
+/* Table — no scroll wrapper, fits desktop */
 table.cs-table {
   width: 100%;
   border-collapse: collapse;
   font-family: 'Space Mono', monospace;
-  font-size: 10px;
-  min-width: 900px;
-  background: var(--surface);
+  font-size: 9.5px;
+  table-layout: fixed;
+  border: 1px solid #a855f733;
+  box-shadow: 0 0 20px #a855f710;
+  position: relative;
+}
+table.cs-table::before {
+  content: '';
+  display: block;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, #a855f7, #00f5ff, transparent);
 }
 
-table.cs-table thead tr {
-  background: #0d0d1a;
-  border-bottom: 1px solid #a855f733;
-}
+/* Column widths — tuned to fit ~1100px desktop */
+table.cs-table col.c-stack    { width: 14%; }
+table.cs-table col.c-tech     { width: 12%; }
+table.cs-table col.c-sound    { width: 20%; }
+table.cs-table col.c-scale    { width: 20%; }
+table.cs-table col.c-spicy    { width: 7%;  }
+table.cs-table col.c-identity { width: 10%; }
+table.cs-table col.c-feeling  { width: 17%; }
+
+table.cs-table thead tr { background: #0a0a18; border-bottom: 1px solid #a855f744; }
 table.cs-table thead th {
-  padding: 10px 14px;
+  padding: 9px 10px;
   text-align: left;
-  font-size: 9px;
-  letter-spacing: 3px;
+  font-size: 8.5px;
+  letter-spacing: 2.5px;
   text-transform: uppercase;
-  color: var(--cyan);
+  color: #00f5ff;
   white-space: nowrap;
   border-right: 1px solid #ffffff08;
   font-weight: 400;
+  overflow: hidden;
 }
 
-table.cs-table tbody tr {
-  border-bottom: 1px solid #ffffff08;
-  transition: filter 0.15s;
-}
-table.cs-table tbody tr:hover { filter: brightness(1.12); }
+table.cs-table tbody tr { border-bottom: 1px solid #ffffff0d; transition: filter 0.15s; }
+table.cs-table tbody tr:hover { filter: brightness(1.18); }
 
 table.cs-table tbody td {
-  padding: 10px 14px;
+  padding: 9px 10px;
   vertical-align: top;
-  border-right: 1px solid #ffffff06;
-  line-height: 1.6;
-  color: var(--muted);
+  border-right: 1px solid #ffffff08;
+  line-height: 1.55;
+  overflow: hidden;
 }
 
-/* stack col */
+/* ── VIBRANT ROW TINTS ── much stronger than before */
+.row-major    td { background: #00ff4114; color: #b3ffcc; }
+.row-minor    td { background: #ff2d7814; color: #ffb3cc; }
+.row-sus      td { background: #ffd70014; color: #fff0a0; }
+.row-unstable td { background: #b06aff18; color: #ddb3ff; }
+
 td.cs-stack {
-  color: var(--text);
+  font-size: 9.5px;
+  font-weight: 700;
   white-space: nowrap;
-  font-size: 10px;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
+/* Per-row stack label colors matching the feeling */
+.row-major    td.cs-stack { color: #00ff41; text-shadow: 0 0 8px #00ff4166; }
+.row-minor    td.cs-stack { color: #ff2d78; text-shadow: 0 0 8px #ff2d7866; }
+.row-sus      td.cs-stack { color: #ffd700; text-shadow: 0 0 8px #ffd70066; }
+.row-unstable td.cs-stack { color: #c084fc; text-shadow: 0 0 8px #c084fc66; }
 
-/* tech name */
 td.cs-tech {
-  color: var(--cyan);
-  font-size: 9px;
-  white-space: nowrap;
-  text-shadow: 0 0 6px #00f5ff44;
+  font-size: 8.5px;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
+.row-major    td.cs-tech { color: #00e87a; }
+.row-minor    td.cs-tech { color: #ff6699; }
+.row-sus      td.cs-tech { color: #ffe066; }
+.row-unstable td.cs-tech { color: #bf7fff; }
 
-/* sound effect */
-td.cs-sound {
-  font-size: 10px;
-  color: var(--muted);
-  min-width: 200px;
-}
+td.cs-sound { font-size: 9px; line-height: 1.5; }
+td.cs-scale { font-size: 8.5px; line-height: 1.65; }
 
-/* scale */
-td.cs-scale {
-  font-size: 9px;
-  min-width: 190px;
-  line-height: 1.8;
-}
-
-/* spicy note */
 td.cs-spicy {
-  white-space: nowrap;
-  color: var(--pink);
-  text-shadow: 0 0 8px #ff2d7866;
+  font-weight: 700;
   font-size: 10px;
-}
-
-/* scale identity */
-td.cs-identity {
-  font-size: 9px;
   white-space: nowrap;
 }
+.row-major    td.cs-spicy { color: #00ff41; text-shadow: 0 0 6px #00ff4155; }
+.row-minor    td.cs-spicy { color: #ff2d78; text-shadow: 0 0 6px #ff2d7855; }
+.row-sus      td.cs-spicy { color: #ffd700; text-shadow: 0 0 6px #ffd70055; }
+.row-unstable td.cs-spicy { color: #c084fc; text-shadow: 0 0 6px #c084fc55; }
 
-/* feeling badge */
+td.cs-identity { font-size: 8.5px; white-space: nowrap; }
+
 td.cs-feeling { white-space: nowrap; }
 .feeling-badge {
   display: inline-block;
   font-size: 8px;
-  letter-spacing: 2px;
+  letter-spacing: 1.5px;
   text-transform: uppercase;
-  padding: 3px 8px;
+  padding: 3px 7px;
   border: 1px solid;
+  white-space: nowrap;
 }
+.badge-major    { color: #00ff41; border-color: #00ff4155; background: #00ff4110; text-shadow: 0 0 6px #00ff4155; }
+.badge-minor    { color: #ff2d78; border-color: #ff2d7855; background: #ff2d7810; text-shadow: 0 0 6px #ff2d7855; }
+.badge-sus      { color: #ffd700; border-color: #ffd70055; background: #ffd70010; text-shadow: 0 0 6px #ffd70055; }
+.badge-unstable { color: #c084fc; border-color: #c084fc55; background: #c084fc10; text-shadow: 0 0 6px #c084fc55; }
 
-/* ── ROW TINTS ────────────────────────────────────────── */
-.row-major    td { background: #00a55008; }
-.row-minor    td { background: #ff2d7808; }
-.row-sus      td { background: #ffd70008; }
-.row-unstable td { background: #b06aff08; }
-
-/* ── BADGES ───────────────────────────────────────────── */
-.badge-major    { color: #00a550; border-color: #00a55044; text-shadow: 0 0 6px #00a55066; }
-.badge-minor    { color: var(--pink); border-color: #ff2d7844; text-shadow: 0 0 6px #ff2d7866; }
-.badge-sus      { color: var(--gold); border-color: #ffd70044; text-shadow: 0 0 6px #ffd70066; }
-.badge-unstable { color: var(--purple); border-color: #b06aff44; text-shadow: 0 0 6px #b06aff66; }
-
-/* ── FOOTER NOTE ──────────────────────────────────────── */
 .cs-footnote {
-  margin-top: 18px;
+  margin-top: 16px;
   font-size: 9px;
   color: var(--dim);
   letter-spacing: 2px;
   text-transform: uppercase;
+}
+
+/* Mobile: allow scroll on small screens only */
+@media (max-width: 900px) {
+  .cs-table-scroll { overflow-x: auto; }
+  table.cs-table { min-width: 820px; table-layout: auto; }
 }
 </style>
 
@@ -228,8 +212,8 @@ td.cs-feeling { white-space: nowrap; }
 
   <div class="cs-legend">
     <span class="cs-legend-item">
-      <span class="cs-legend-dot" style="background:#00a55033;border:1px solid #00a55066"></span>
-      <span style="color:#00a550">Resolved / Major</span>
+      <span class="cs-legend-dot" style="background:#00ff4133;border:1px solid #00ff4166"></span>
+      <span style="color:#00ff41">Resolved / Major</span>
     </span>
     <span class="cs-legend-item">
       <span class="cs-legend-dot" style="background:#ff2d7833;border:1px solid #ff2d7866"></span>
@@ -240,30 +224,39 @@ td.cs-feeling { white-space: nowrap; }
       <span style="color:#ffd700">Suspended / Ambiguous</span>
     </span>
     <span class="cs-legend-item">
-      <span class="cs-legend-dot" style="background:#b06aff33;border:1px solid #b06aff66"></span>
-      <span style="color:#b06aff">Tense / Unstable</span>
+      <span class="cs-legend-dot" style="background:#c084fc33;border:1px solid #c084fc66"></span>
+      <span style="color:#c084fc">Tense / Unstable</span>
     </span>
   </div>
 
   <div class="cs-table-scroll">
     <table class="cs-table">
+      <colgroup>
+        <col class="c-stack">
+        <col class="c-tech">
+        <col class="c-sound">
+        <col class="c-scale">
+        <col class="c-spicy">
+        <col class="c-identity">
+        <col class="c-feeling">
+      </colgroup>
       <thead>
         <tr>
-          <th>Stack (Upper / Lower)</th>
+          <th>Stack</th>
           <th>Technical Name</th>
-          <th>The Sound Effect</th>
+          <th>Sound Effect</th>
           <th>Recommended Scale</th>
-          <th>Spicy Note</th>
-          <th>Scale Identity</th>
+          <th>Spicy</th>
+          <th>Scale ID</th>
           <th>Feeling</th>
         </tr>
       </thead>
       <tbody>
 
         <tr class="row-major">
-          <td class="cs-stack">E Minor / C Major</td>
+          <td class="cs-stack">E Min / C Maj</td>
           <td class="cs-tech">Cmaj7</td>
-          <td class="cs-sound">Tonic: Very stable, "open" major sound. Dreamy, nostalgic</td>
+          <td class="cs-sound">Tonic: stable, "open" major. Dreamy, nostalgic</td>
           <td class="cs-scale">C Ionian (C–D–E–F–G–A–B)<br>C Lydian (C–D–E–F#–G–A–B)</td>
           <td class="cs-spicy">F#</td>
           <td class="cs-identity">#4 (Lydian)</td>
@@ -271,9 +264,9 @@ td.cs-feeling { white-space: nowrap; }
         </tr>
 
         <tr class="row-major">
-          <td class="cs-stack">G Major / C Major</td>
+          <td class="cs-stack">G Maj / C Maj</td>
           <td class="cs-tech">Cmaj9</td>
-          <td class="cs-sound">Grand: Classic, rich — all notes of the major scale</td>
+          <td class="cs-sound">Grand: classic, rich — all notes of the major scale</td>
           <td class="cs-scale">C Ionian (C–D–E–F–G–A–B)</td>
           <td class="cs-spicy">—</td>
           <td class="cs-identity">Stable</td>
@@ -281,19 +274,19 @@ td.cs-feeling { white-space: nowrap; }
         </tr>
 
         <tr class="row-major">
-          <td class="cs-stack">D Minor / C Major</td>
+          <td class="cs-stack">D Min / C Maj</td>
           <td class="cs-tech">Cmaj11</td>
-          <td class="cs-sound">Modern Diatonic: Lush, "pop-jazz," sophisticated, smooth</td>
+          <td class="cs-sound">Modern Diatonic: lush, "pop-jazz," sophisticated, smooth</td>
           <td class="cs-scale">C Ionian (C–D–E–F–G–A–B)</td>
           <td class="cs-spicy">B</td>
-          <td class="cs-identity">Natural 6th, 11th</td>
+          <td class="cs-identity">Nat. 6th, 11th</td>
           <td class="cs-feeling"><span class="feeling-badge badge-major">Resolved / Major</span></td>
         </tr>
 
         <tr class="row-major">
           <td class="cs-stack">D / C (no 3rd)</td>
           <td class="cs-tech">Csus2</td>
-          <td class="cs-sound">Open/vast: Ambiguous, neutral, "folk/indie" space</td>
+          <td class="cs-sound">Open/vast: ambiguous, neutral, folk/indie space</td>
           <td class="cs-scale">C Ionian (C–D–E–F–G–A–B)</td>
           <td class="cs-spicy">D</td>
           <td class="cs-identity">9th</td>
@@ -301,9 +294,9 @@ td.cs-feeling { white-space: nowrap; }
         </tr>
 
         <tr class="row-major">
-          <td class="cs-stack">D Major / C Major</td>
+          <td class="cs-stack">D Maj / C Maj</td>
           <td class="cs-tech">Cmaj7(#11) / D/C</td>
-          <td class="cs-sound">Lydian: Dreamy, expansive, cinematic</td>
+          <td class="cs-sound">Lydian: dreamy, expansive, cinematic</td>
           <td class="cs-scale">C Lydian (C–D–E–F#–G–A–B)</td>
           <td class="cs-spicy">F#</td>
           <td class="cs-identity">#4</td>
@@ -311,9 +304,9 @@ td.cs-feeling { white-space: nowrap; }
         </tr>
 
         <tr class="row-sus">
-          <td class="cs-stack">Bb Major / C Major</td>
+          <td class="cs-stack">Bb Maj / C Maj</td>
           <td class="cs-tech">C9(sus4) / Bb/C</td>
-          <td class="cs-sound">Dominant 7th: Bluesy, modern, unresolved tension</td>
+          <td class="cs-sound">Dominant 7th: bluesy, modern, unresolved tension</td>
           <td class="cs-scale">C Mixolydian (C–D–E–F–G–A–Bb)<br>C Blues (C–Eb–F–Gb–G–Bb)</td>
           <td class="cs-spicy">Bb</td>
           <td class="cs-identity">b7</td>
@@ -321,9 +314,9 @@ td.cs-feeling { white-space: nowrap; }
         </tr>
 
         <tr class="row-major">
-          <td class="cs-stack">F Major / C Major</td>
+          <td class="cs-stack">F Maj / C Maj</td>
           <td class="cs-tech">Csus4 / Cadd11</td>
-          <td class="cs-sound">Suspended 4th: Floating, lacks the "resolved" major third</td>
+          <td class="cs-sound">Suspended 4th: floating, lacks resolved major third</td>
           <td class="cs-scale">C Ionian (C–D–E–F–G–A–B)</td>
           <td class="cs-spicy">—</td>
           <td class="cs-identity">—</td>
@@ -331,19 +324,19 @@ td.cs-feeling { white-space: nowrap; }
         </tr>
 
         <tr class="row-minor">
-          <td class="cs-stack">Eb Major / C root</td>
+          <td class="cs-stack">Eb Maj / C</td>
           <td class="cs-tech">Cm7 / Eb/C</td>
-          <td class="cs-sound">Aeolian: Serious, tragic, gothic</td>
-          <td class="cs-scale">C Aeolian / Natural Minor<br>(C–D–Eb–F–G–Ab–Bb)</td>
+          <td class="cs-sound">Aeolian: serious, tragic, gothic</td>
+          <td class="cs-scale">C Aeolian / Nat. Minor<br>(C–D–Eb–F–G–Ab–Bb)</td>
           <td class="cs-spicy">Ab</td>
           <td class="cs-identity">b3, b7</td>
           <td class="cs-feeling"><span class="feeling-badge badge-minor">Dark / Minor</span></td>
         </tr>
 
         <tr class="row-minor">
-          <td class="cs-stack">Ab Major / C root</td>
-          <td class="cs-tech">C(b6, b13) / Ab/C</td>
-          <td class="cs-sound">Phrygian: Atmospheric, tense, ancient, ominous, dark</td>
+          <td class="cs-stack">Ab Maj / C</td>
+          <td class="cs-tech">C(b6,b13) / Ab/C</td>
+          <td class="cs-sound">Phrygian: tense, ancient, ominous, dark</td>
           <td class="cs-scale">C Phrygian (C–Db–Eb–F–G–Ab–Bb)</td>
           <td class="cs-spicy">Db</td>
           <td class="cs-identity">b3, b6</td>
@@ -351,19 +344,19 @@ td.cs-feeling { white-space: nowrap; }
         </tr>
 
         <tr class="row-minor">
-          <td class="cs-stack">Db Major / C root</td>
-          <td class="cs-tech">C(b2, b6) / Db/C</td>
-          <td class="cs-sound">Phrygian Dominant: Lost, trapped, dread, alien, unstable</td>
-          <td class="cs-scale">C Phrygian Dominant<br>(C–Db–E–F–G–Ab–Bb)</td>
+          <td class="cs-stack">Db Maj / C</td>
+          <td class="cs-tech">C(b2,b6) / Db/C</td>
+          <td class="cs-sound">Phrygian Dominant: lost, dread, alien, unstable</td>
+          <td class="cs-scale">C Phryg. Dom.<br>(C–Db–E–F–G–Ab–Bb)</td>
           <td class="cs-spicy">Db</td>
           <td class="cs-identity">b2, b6</td>
           <td class="cs-feeling"><span class="feeling-badge badge-minor">Dark / Minor</span></td>
         </tr>
 
         <tr class="row-unstable">
-          <td class="cs-stack">Gb Major / C (no 5th)</td>
-          <td class="cs-tech">C(b2,b3,b5,b6,b7) / Gb/C</td>
-          <td class="cs-sound">Locrian: Broken, void, horror, unhinged</td>
+          <td class="cs-stack">Gb Maj / C (no 5)</td>
+          <td class="cs-tech">C(b2,b3,b5,b6,b7)</td>
+          <td class="cs-sound">Locrian: broken, void, horror, unhinged</td>
           <td class="cs-scale">C Locrian (C–Db–Eb–F–Gb–Ab–Bb)</td>
           <td class="cs-spicy">Gb</td>
           <td class="cs-identity">b2, b3, b5</td>
@@ -373,7 +366,7 @@ td.cs-feeling { white-space: nowrap; }
         <tr class="row-minor">
           <td class="cs-stack">Bdim / C</td>
           <td class="cs-tech">Cmaj7(b9)</td>
-          <td class="cs-sound">High anxiety: unstable, shrinking, demanding resolution</td>
+          <td class="cs-sound">High anxiety: unstable, shrinking, demands resolution</td>
           <td class="cs-scale">C Harmonic Minor<br>(C–D–Eb–F–G–Ab–B)</td>
           <td class="cs-spicy">B</td>
           <td class="cs-identity">Leading tone, b9</td>
@@ -383,7 +376,7 @@ td.cs-feeling { white-space: nowrap; }
         <tr class="row-sus">
           <td class="cs-stack">Ab Aug / C</td>
           <td class="cs-tech">Caug</td>
-          <td class="cs-sound">Rising action: magical, ethereal, "twilight zone" expansion</td>
+          <td class="cs-sound">Rising: magical, ethereal, "twilight zone" expansion</td>
           <td class="cs-scale">C Whole Tone (C–D–E–F#–Ab–Bb)</td>
           <td class="cs-spicy">Ab, E</td>
           <td class="cs-identity">Aug 5th</td>
@@ -393,7 +386,7 @@ td.cs-feeling { white-space: nowrap; }
         <tr class="row-minor">
           <td class="cs-stack">Cm / C</td>
           <td class="cs-tech">Cmin/maj7</td>
-          <td class="cs-sound">Dark/heavy: Dense, grounded, intense, minor gravity</td>
+          <td class="cs-sound">Dark/heavy: dense, grounded, intense, minor gravity</td>
           <td class="cs-scale">C Melodic Minor (C–D–Eb–F–G–A–B)</td>
           <td class="cs-spicy">Eb, B</td>
           <td class="cs-identity">b3, maj7</td>
@@ -404,6 +397,6 @@ td.cs-feeling { white-space: nowrap; }
     </table>
   </div>
 
-  <p class="cs-footnote">// stacking two triads a step apart creates richer harmonic color than either chord alone. upper triad played over the lower root.</p>
+  <p class="cs-footnote">// stacking two triads creates richer harmonic color than either chord alone. upper triad played over the lower root.</p>
 
 </div>
