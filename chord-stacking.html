@@ -563,6 +563,7 @@ td.cs-feeling { white-space: nowrap; }
     return ctx;
   }
 
+  /* ── SYNTH (one-shot, louder) ── */
   function synth(ac, freq, startTime, duration) {
     var osc1 = ac.createOscillator();
     var osc2 = ac.createOscillator();
@@ -577,9 +578,9 @@ td.cs-feeling { white-space: nowrap; }
     osc2.frequency.value = freq * 2.001;
     osc3.frequency.value = freq * 0.5;
 
-    var g1 = ac.createGain(); g1.gain.value = 0.28;
-    var g2 = ac.createGain(); g2.gain.value = 0.08;
-    var g3 = ac.createGain(); g3.gain.value = 0.18;
+    var g1 = ac.createGain(); g1.gain.value = 0.52;   /* was 0.28 */
+    var g2 = ac.createGain(); g2.gain.value = 0.16;   /* was 0.08 */
+    var g3 = ac.createGain(); g3.gain.value = 0.34;   /* was 0.18 */
 
     var filter = ac.createBiquadFilter();
     filter.type = 'lowpass';
@@ -592,8 +593,8 @@ td.cs-feeling { white-space: nowrap; }
     gain.connect(ac.destination);
 
     gain.gain.setValueAtTime(0, startTime);
-    gain.gain.linearRampToValueAtTime(0.22, startTime + 0.025);
-    gain.gain.exponentialRampToValueAtTime(0.12, startTime + 0.15);
+    gain.gain.linearRampToValueAtTime(0.42, startTime + 0.025);  /* was 0.22 */
+    gain.gain.exponentialRampToValueAtTime(0.22, startTime + 0.15); /* was 0.12 */
     gain.gain.exponentialRampToValueAtTime(0.001, startTime + duration);
 
     osc1.start(startTime); osc2.start(startTime); osc3.start(startTime);
@@ -602,6 +603,78 @@ td.cs-feeling { white-space: nowrap; }
     osc3.stop(startTime + duration + 0.05);
   }
 
+  /* ── HOLD ENGINE ── */
+  var holdNodes = [];   /* active oscillators for current hold */
+  var holdGain  = null; /* master gain for current hold */
+  var activeHoldBtn = null;
+
+  function stopHold() {
+    if (holdGain) {
+      var ac = getCtx();
+      holdGain.gain.setValueAtTime(holdGain.gain.value, ac.currentTime);
+      holdGain.gain.exponentialRampToValueAtTime(0.001, ac.currentTime + 0.35);
+      var g = holdGain;
+      setTimeout(function() { try { g.disconnect(); } catch(e){} }, 500);
+    }
+    holdNodes.forEach(function(o) { try { o.stop(); } catch(e){} });
+    holdNodes = [];
+    holdGain  = null;
+    if (activeHoldBtn) {
+      activeHoldBtn.classList.remove('hold-active');
+      activeHoldBtn.textContent = '⏸ hold';
+      activeHoldBtn = null;
+    }
+  }
+
+  function startHold(lower, upper, btn) {
+    var ac = getCtx();
+    var lNotes = parseNotes(lower);
+    var uNotes = parseNotes(upper);
+    var allNotes = lNotes.concat(uNotes);
+    var seen = {};
+    var freqs = [];
+    allNotes.forEach(function(n) {
+      if (NOTE_FREQ[n] && !seen[n]) { seen[n] = true; freqs.push(NOTE_FREQ[n]); }
+    });
+
+    holdGain = ac.createGain();
+    holdGain.gain.setValueAtTime(0, ac.currentTime);
+    holdGain.gain.linearRampToValueAtTime(0.38, ac.currentTime + 0.06);
+    holdGain.connect(ac.destination);
+
+    /* arp then hold */
+    var arp = 0.11;
+    freqs.forEach(function(freq, i) {
+      var osc1 = ac.createOscillator();
+      var osc2 = ac.createOscillator();
+      var g1   = ac.createGain();
+      var g2   = ac.createGain();
+
+      osc1.type = 'sawtooth';  osc1.frequency.value = freq;
+      osc2.type = 'sine';      osc2.frequency.value = freq * 0.5;
+      g1.gain.value = 0.46;
+      g2.gain.value = 0.28;
+
+      var filt = ac.createBiquadFilter();
+      filt.type = 'lowpass';
+      filt.frequency.value = 1800;
+      filt.Q.value = 1.0;
+
+      osc1.connect(g1); osc2.connect(g2);
+      g1.connect(filt); g2.connect(filt);
+      filt.connect(holdGain);
+
+      osc1.start(ac.currentTime + i * arp);
+      osc2.start(ac.currentTime + i * arp);
+      holdNodes.push(osc1, osc2);
+    });
+
+    activeHoldBtn = btn;
+    btn.classList.add('hold-active');
+    btn.textContent = '■ stop';
+  }
+
+  /* ── PLAY STACK / SCALE (unchanged logic, louder via synth) ── */
   function parseNotes(str) {
     return str.split(',').map(function(n) { return n.trim(); });
   }
@@ -662,7 +735,53 @@ td.cs-feeling { white-space: nowrap; }
     }, ms);
   }
 
+  /* ── INJECT HOLD BUTTONS + STYLES ── */
+  var holdStyle = document.createElement('style');
+  holdStyle.textContent = [
+    '.cs-hold-btn {',
+    '  display:inline-flex;align-items:center;gap:4px;',
+    '  font-family:"Space Mono",monospace;font-size:7.5px;',
+    '  letter-spacing:1.5px;text-transform:uppercase;',
+    '  border:1px solid;padding:2px 6px;background:transparent;',
+    '  cursor:pointer;white-space:nowrap;flex-shrink:0;',
+    '  transition:background 0.15s,box-shadow 0.15s;',
+    '}',
+    '.row-major    .cs-hold-btn{color:#00ff41;border-color:#00ff4133;}',
+    '.row-minor    .cs-hold-btn{color:#c084fc;border-color:#c084fc33;}',
+    '.row-sus      .cs-hold-btn{color:#ffd700;border-color:#ffd70033;}',
+    '.row-unstable .cs-hold-btn{color:#ff2d78;border-color:#ff2d7833;}',
+    '.row-major    .cs-hold-btn.hold-active{background:#00ff4122;border-color:#00ff41;box-shadow:0 0 8px #00ff4166;}',
+    '.row-minor    .cs-hold-btn.hold-active{background:#c084fc22;border-color:#c084fc;box-shadow:0 0 8px #c084fc66;}',
+    '.row-sus      .cs-hold-btn.hold-active{background:#ffd70022;border-color:#ffd700;box-shadow:0 0 8px #ffd70066;}',
+    '.row-unstable .cs-hold-btn.hold-active{background:#ff2d7822;border-color:#ff2d78;box-shadow:0 0 8px #ff2d7866;}'
+  ].join('');
+  document.head.appendChild(holdStyle);
+
+  /* inject a Hold btn after every Stack play btn */
+  document.querySelectorAll('.cs-play-btn[data-type="stack"]').forEach(function(playBtn) {
+    var holdBtn = document.createElement('button');
+    holdBtn.className = 'cs-hold-btn';
+    holdBtn.textContent = '⏸ hold';
+    holdBtn.dataset.lower = playBtn.dataset.lower;
+    holdBtn.dataset.upper = playBtn.dataset.upper;
+    playBtn.parentNode.insertBefore(holdBtn, playBtn.nextSibling);
+  });
+
+  /* ── CLICK HANDLER ── */
   document.addEventListener('click', function(e) {
+    /* hold button */
+    var hBtn = e.target.closest('.cs-hold-btn');
+    if (hBtn) {
+      if (hBtn === activeHoldBtn) {
+        stopHold();
+      } else {
+        stopHold();
+        startHold(hBtn.dataset.lower, hBtn.dataset.upper, hBtn);
+      }
+      return;
+    }
+
+    /* play / scale buttons */
     var btn = e.target.closest('.cs-play-btn');
     if (!btn || btn.disabled) return;
     var type = btn.dataset.type;
