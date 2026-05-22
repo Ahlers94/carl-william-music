@@ -150,83 +150,34 @@ header {
   margin-left: -48px; /* Pulls the gradient over the last items correctly */
 }
 /* ... (Ensure all other #nav- IDs remain in your CSS below this) */
-/* ── PER-TAB COLORS (Super Famicom Palette) ─────────────────── */
 
-/* Logic: Combine :hover, .active, and [aria-current="page"] to ensure 
-   the active color persists whenever the page matches the link. */
+/* ── PER-TAB COLORS ─────────────────────────────────────────── */
 
-#nav-originals:hover,
-#nav-originals.active,
-#nav-originals[aria-current="page"] { 
-  color: #d4001a; 
-  border-bottom: 2px solid #d4001a; 
-  text-shadow: 0 0 12px #d4001a88; 
-}
+/* 1. Reset the base link color to a neutral state */
+#site-nav li a { color: #9988aa; } 
 
-#nav-covers:hover,
-#nav-covers.active,
-#nav-covers[aria-current="page"] { 
-  color: #0070c9; 
-  border-bottom: 2px solid #0070c9; 
-  text-shadow: 0 0 12px #0070c988; 
-}
+/* 2. Target the ACTIVE/CURRENT page specifically to override the base color */
+#site-nav #nav-originals[aria-current="page"] { color: #d4001a; border-bottom: 2px solid #d4001a; text-shadow: 0 0 12px #d4001a88; }
+#site-nav #nav-covers[aria-current="page"]    { color: #0070c9; border-bottom: 2px solid #0070c9; text-shadow: 0 0 12px #0070c988; }
+#site-nav #nav-gear[aria-current="page"]      { color: #e4a100; border-bottom: 2px solid #e4a100; text-shadow: 0 0 12px #e4a10088; }
+#site-nav #nav-matrix[aria-current="page"]    { color: #00a550; border-bottom: 2px solid #00a550; text-shadow: 0 0 12px #00a55088; }
+#site-nav #nav-about[aria-current="page"]     { color: #aa66ff; border-bottom: 2px solid #aa66ff; text-shadow: 0 0 12px #aa66ff88; }
+#site-nav #nav-shows[aria-current="page"]     { color: #00cccc; border-bottom: 2px solid #00cccc; text-shadow: 0 0 12px #00cccc88; }
+#site-nav #nav-news[aria-current="page"]      { color: #cc88ff; border-bottom: 2px solid #cc88ff; text-shadow: 0 0 12px #cc88ff88; }
+#site-nav #nav-theory[aria-current="page"]    { color: #ff9933; border-bottom: 2px solid #ff9933; text-shadow: 0 0 12px #ff993388; }
+#site-nav #nav-sampler[aria-current="page"]   { color: #00f5ff; border-bottom: 2px solid #00f5ff; text-shadow: 0 0 12px #00f5ff88; }
 
-#nav-gear:hover,
-#nav-gear.active,
-#nav-gear[aria-current="page"] { 
-  color: #e4a100; 
-  border-bottom: 2px solid #e4a100; 
-  text-shadow: 0 0 12px #e4a10088; 
-}
+/* 3. Keep the hover effect for inactive links */
+#site-nav #nav-originals:hover { color: #d4001a; }
+#site-nav #nav-covers:hover    { color: #0070c9; }
+#site-nav #nav-gear:hover      { color: #e4a100; }
+#site-nav #nav-matrix:hover    { color: #00a550; }
+#site-nav #nav-about:hover     { color: #aa66ff; }
+#site-nav #nav-shows:hover     { color: #00cccc; }
+#site-nav #nav-news:hover      { color: #cc88ff; }
+#site-nav #nav-theory:hover    { color: #ff9933; }
+#site-nav #nav-sampler:hover   { color: #00f5ff; }
 
-#nav-matrix:hover,
-#nav-matrix.active,
-#nav-matrix[aria-current="page"] { 
-  color: #00a550; 
-  border-bottom: 2px solid #00a550; 
-  text-shadow: 0 0 12px #00a55088; 
-}
-
-#nav-about:hover,
-#nav-about.active,
-#nav-about[aria-current="page"] { 
-  color: #aa66ff; 
-  border-bottom: 2px solid #aa66ff; 
-  text-shadow: 0 0 12px #aa66ff88; 
-}
-
-#nav-shows:hover,
-#nav-shows.active,
-#nav-shows[aria-current="page"] { 
-  color: #00cccc; 
-  border-bottom: 2px solid #00cccc; 
-  text-shadow: 0 0 12px #00cccc88; 
-}
-
-#nav-news:hover,
-#nav-news.active,
-#nav-news[aria-current="page"] { 
-  color: #cc88ff; 
-  border-bottom: 2px solid #cc88ff; 
-  text-shadow: 0 0 12px #cc88ff88; 
-}
-
-#nav-theory:hover,
-#nav-theory.active,
-#nav-theory[aria-current="page"] { 
-  color: #ff9933; 
-  border-bottom: 2px solid #ff9933; 
-  text-shadow: 0 0 12px #ff993388; 
-}
-
-/* Add Sampler to the list */
-#nav-sampler:hover,
-#nav-sampler.active,
-#nav-sampler[aria-current="page"] { 
-  color: #00f5ff; 
-  border-bottom: 2px solid #00f5ff; 
-  text-shadow: 0 0 12px #00f5ff88; 
-}
 /* ── NAV TAB FADE-IN ──────────────────────────────────────────── */
 #site-nav li a {
   opacity: 0;           /* Hides them so they can fade in */
