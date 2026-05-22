@@ -1,85 +1,636 @@
----
-layout: default
-title: "Web MPC Sampler | Carl William Music"
-description: "Custom web-based 4x4 pad sampler and loop tool."
-extra_js:
-  - /assets/js/mpc.js
-nav: sampler
----
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Retro Sampler Keyboard (SK-5 Clone)</title>
+    <!-- Insert your custom CSS style tag here -->
+</head>
+<body>
 
-<main class="content-page narrow">
-  
-  <div class="section-label">Live Sampler</div>
-  
-  <!-- ── DAW / MPC CLONE ──────────────────────────────────────── -->
-  <div class="daw-interface tab-fade">
+<div id="sk5-app-container">
     
-    <!-- Status Screen -->
-    <header class="status-screen">
-      <div class="section-label">System Dashboard</div>
-      <div class="lcd-panel">
-        <span id="tempo-display">120 BPM</span>
-        <span id="filter-display">8000 Hz</span>
-        <span id="midi-status" class="blink">MIDI: WAIT</span>
-      </div>
-      <!-- Added current structural state indicators -->
-      <div class="lcd-panel-sub">
-        <span>BANK: <strong id="display-bank">A</strong></span>
-        <span>MODE: <strong id="display-mode">PATTERN</strong></span>
-        <span>SWING: <strong id="display-swing">0%</strong></span>
-      </div>
-      <!-- Fixed canvas coordinates matching standard resolution mapping -->
-      <canvas id="step-progress" width="400" height="10"></canvas>
-    </header>
+    <!-- Top Control Console -->
+    <div class="control-panel">
+        
+        <!-- Left Side: Global / Sampler State Controls -->
+        <div class="panel-section left-controls">
+            <div class="toggle-container">
+                <label class="switch-label">SAMPLER MODE</label>
+                <input type="checkbox" id="sampler-toggle">
+                <span class="led-indicator" id="sampler-led"></span>
+            </div>
+            
+            <div class="button-container">
+                <button id="rec-button" class="pad-style red-button">REC</button>
+            </div>
+            
+            <div class="toggle-container">
+                <label class="switch-label">QUALITY</label>
+                <div class="toggle-switch">
+                    <span class="toggle-text">LO (8-bit)</span>
+                    <input type="checkbox" id="quality-toggle" checked>
+                    <span class="toggle-text">HI</span>
+                </div>
+            </div>
 
-    <!-- Global Parameters & Macro Knobs -->
-    <section class="global-macro-controls" aria-label="Engine Settings">
-      <div class="control-group">
-        <label for="slider-bpm" class="macro-label">Tempo Control</label>
-        <input type="range" id="slider-bpm" min="60" max="200" value="120" class="macro-slider">
-      </div>
-      <div class="control-group">
-        <label for="slider-swing" class="macro-label">Groove Swing</label>
-        <input type="range" id="slider-swing" min="0" max="75" value="0" class="macro-slider">
-      </div>
-    </section>
+            <div class="toggle-container">
+                <label class="switch-label">SAMPLE LENGTH</label>
+                <div class="toggle-switch">
+                    <span class="toggle-text">SHORT</span>
+                    <input type="checkbox" id="length-toggle">
+                    <span class="toggle-text">LONG</span>
+                </div>
+            </div>
+        </div>
 
-    <!-- Production Workflow Strips (Banks, Modes, Sampling Bus) -->
-    <nav class="workflow-strip" aria-label="Production Modes">
-      <!-- 4-Bank Hardware Switching Matrices -->
-      <div class="bank-selector" role="group" aria-label="Pad Bank Assignment">
-        <button class="bank-btn bank-active" data-bank="A">BANK A</button>
-        <button class="bank-btn" data-bank="B">BANK B</button>
-        <button class="bank-btn" data-bank="C">BANK C</button>
-        <button class="bank-btn" data-bank="D">BANK D</button>
-      </div>
+        <!-- Center: The 8 Yellow Performance Pads -->
+        <div class="panel-section pads-container">
+            <!-- Group 1: Internal Drum Voice Pads -->
+            <div class="pad-group drum-pads">
+                <button class="yellow-pad" data-pad="hi-bongo">HI BONGO</button>
+                <button class="yellow-pad" data-pad="lo-bongo">LOW BONGO</button>
+                <button class="yellow-pad" data-pad="kick">KICK</button>
+                <button class="yellow-pad" data-pad="snare">SNARE</button>
+            </div>
+            
+            <!-- Group 2: Sample Trigger Pads -->
+            <div class="pad-group sample-pads">
+                <button class="yellow-pad" data-pad="sample-1">SAMPLE 1</button>
+                <button class="yellow-pad" data-pad="sample-2">SAMPLE 2</button>
+                <button class="yellow-pad" data-pad="sample-3">SAMPLE 3</button>
+                <button class="yellow-pad" data-pad="sample-4">SAMPLE 4</button>
+            </div>
+        </div>
 
-      <!-- Engine Workflow Selection and Target Microphone Inputs -->
-      <div class="utility-controls">
-        <button id="btn-mode-toggle" class="workflow-btn">TOGGLE SONG MODE</button>
-        <button id="btn-mic-sample" class="workflow-btn sampling-btn">HOLD TO SAMPLE</button>
-      </div>
-    </nav>
+        <!-- Right Side: Signal Parameters & Selectors -->
+        <div class="panel-section dropdowns-sliders">
+            <div class="menu-item">
+                <label>FX SELECT</label>
+                <select id="fx-dropdown">
+                    <option value="none">None</option>
+                    <option value="loop">Looping</option>
+                    <option value="reverse">Reverse Playback</option>
+                    <option value="envelope">ADSR Envelope</option>
+                </select>
+            </div>
 
-    <!-- Transport Bar -->
-    <nav class="transport-bar">
-      <!-- Added standard semantic role tracking buttons for accessibility engines -->
-      <button id="btn-rec" class="transport-btn stop-propagation" aria-label="Record Toggle">REC</button>
-      <button id="btn-stop" class="transport-btn stop-propagation" aria-label="Stop Playback">STOP</button>
-      <button id="btn-play" class="transport-btn stop-propagation" aria-label="Start Playback">PLAY</button>
-    </nav>
+            <div class="menu-item">
+                <label>ACTIVE SAMPLE slot</label>
+                <select id="sample-dropdown">
+                    <option value="0">Sample 1</option>
+                    <option value="1">Sample 2</option>
+                    <option value="2">Sample 3</option>
+                    <option value="3">Sample 4</option>
+                </select>
+            </div>
 
-    <!-- 4x4 Pad Matrix -->
-    <section class="pad-grid" role="region" aria-label="MPC Pad Grid">
-      {% for pad in site.data.daw.pads %}
-        <button class="mpc-pad" 
-                data-pad-id="{{ pad.id }}" 
-                data-note="{{ pad.note }}" 
-                data-type="one-shot">
-          <span class="pad-label">{{ pad.label }}</span>
-        </button>
-      {% endfor %}
-    </section>
+            <div class="menu-item">
+                <label>VOICE PRESET</label>
+                <select id="voice-dropdown">
+                    <option value="piano">Piano (PCM)</option>
+                    <option value="flute">Flute (PCM)</option>
+                    <option value="trumpet">Trumpet (PCM)</option>
+                    <option value="violin">Violin (PCM)</option>
+                    <option value="pipe-organ">Pipe Organ (PCM)</option>
+                    <option value="vibraphone">Vibraphone (PCM)</option>
+                    <option value="synth">Synth (PCM)</option>
+                    <option value="chorus">Chorus (PCM)</option>
+                </select>
+            </div>
 
-  </div>
-</main>
+            <div class="menu-item">
+                <label>RHYTHM TRACK</label>
+                <select id="rhythm-dropdown">
+                    <option value="none">Stop Rhythm</option>
+                    <option value="rock1">Rock 1</option>
+                    <option value="disco1">Disco 1</option>
+                    <option value="16beat">16 Beat</option>
+                    <option value="bossanova">Bossa Nova</option>
+                    <option value="slowrock">Slow Rock</option>
+                    <option value="rock2">Rock 2</option>
+                    <option value="disco2">Disco 2</option>
+                    <option value="march">March</option>
+                    <option value="samba">Samba</option>
+                    <option value="waltz">Waltz</option>
+                </select>
+            </div>
+
+            <div class="tuning-container">
+                <label>SAMPLE TUNE</label>
+                <button id="tune-down-btn" class="small-btn">-</button>
+                <button id="tune-up-btn" class="small-btn">+</button>
+                <input type="range" id="fine-tune-slider" min="-100" max="100" value="0" step="1">
+            </div>
+
+            <div class="volume-container">
+                <label>MASTER VOLUME</label>
+                <input type="range" id="master-volume" min="0" max="1" value="0.7" step="0.01">
+            </div>
+        </div>
+    </div>
+
+    <!-- Music Keyboard: 32 Mini Keys -->
+    <div id="keyboard-bed" class="keyboard">
+        <!-- Generated Programmatically via JS -->
+    </div>
+</div>
+
+<script>
+/**
+ * Casio SK-5 Web Audio Engine Core
+ */
+class SK5Engine {
+    constructor() {
+        this.audioCtx = null;
+        this.masterGain = null;
+        this.polyphonyLimit = 4;
+        this.activeNotes = []; // Tracks objects: { midiNote, sourceNodes, gainNode }
+        
+        // Runtime State
+        this.samplerActive = false;
+        this.isRecording = false;
+        this.sampleSlots = [null, null, null, null]; // AudioBuffers
+        this.sampleTuningCents = [0, 0, 0, 0]; // Relative offsets per slot
+        
+        // Settings Map
+        this.activeVoice = 'piano';
+        this.activeSampleSlot = 0;
+        this.currentFx = 'none';
+        
+        // Media Recorder assets
+        this.mediaRecorder = null;
+        this.audioChunks = [];
+        this.stream = null;
+
+        // Debounce tracking arrays for keyboard & hardware pad elements
+        this.pressedPads = new Set();
+        this.pressedKeys = new Set();
+
+        // ADSR Envelope Configuration Parameters
+        this.adsr = { attack: 0.02, decay: 0.15, sustain: 0.6, release: 0.4 };
+
+        this.initDOM();
+    }
+
+    initAudio() {
+        if (this.audioCtx) return;
+        this.audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        this.masterGain = this.audioCtx.createGain();
+        this.masterGain.gain.setValueAtTime(parseFloat(document.getElementById('master-volume').value), this.audioCtx.currentTime);
+        this.masterGain.connect(this.audioCtx.destination);
+        this.loadSamplesFromStorage();
+    }
+
+    initDOM() {
+        this.build32KeyBed();
+        this.bindHardwareEvents();
+    }
+
+    build32KeyBed() {
+        const keyboardBed = document.getElementById('keyboard-bed');
+        // 32 Keys starting at F3 (MIDI 53) through C6 (MIDI 84)
+        const totalKeys = 32;
+        const startMidi = 53; 
+        const pattern = [0, 1, 0, 1, 0, 0, 1, 0, 1, 0, 1, 0]; // F is 0 relative to scale structure
+
+        let currentMidi = startMidi;
+        for (let i = 0; i < totalKeys; i++) {
+            const keyElement = document.createElement('div');
+            const noteInOctave = currentMidi % 12;
+            const isBlack = (noteInOctave === 1 || noteInOctave === 3 || noteInOctave === 6 || noteInOctave === 8 || noteInOctave === 10);
+            
+            keyElement.className = isBlack ? 'key black-key' : 'key white-key';
+            keyElement.dataset.midi = currentMidi;
+            
+            // Interaction bindings
+            keyElement.addEventListener('mousedown', (e) => this.handleNoteOn(parseInt(e.target.dataset.midi)));
+            keyElement.addEventListener('mouseup', (e) => this.handleNoteOff(parseInt(e.target.dataset.midi)));
+            keyElement.addEventListener('mouseleave', (e) => this.handleNoteOff(parseInt(e.target.dataset.midi)));
+            
+            keyboardBed.appendChild(keyElement);
+            currentMidi++;
+        }
+    }
+
+    bindHardwareEvents() {
+        // Master Volume
+        document.getElementById('master-volume').addEventListener('input', (e) => {
+            if (this.masterGain) {
+                this.masterGain.gain.setValueAtTime(parseFloat(e.target.value), this.audioCtx?.currentTime || 0);
+            }
+        });
+
+        // Sampler Mode Activation Toggle
+        const samplerToggle = document.getElementById('sampler-toggle');
+        const led = document.getElementById('sampler-led');
+        samplerToggle.addEventListener('change', (e) => {
+            this.initAudio();
+            this.samplerActive = e.target.checked;
+            led.classList.toggle('led-on', this.samplerActive);
+        });
+
+        // Dynamic State Selectors
+        document.getElementById('voice-dropdown').addEventListener('change', (e) => this.activeVoice = e.target.value);
+        document.getElementById('sample-dropdown').addEventListener('change', (e) => this.activeSampleSlot = parseInt(e.target.value));
+        document.getElementById('fx-dropdown').addEventListener('change', (e) => this.currentFx = e.target.value);
+
+        // Tuning Infrastructure Actions
+        document.getElementById('tune-up-btn').addEventListener('click', () => this.offsetTuning(25));
+        document.getElementById('tune-down-btn').addEventListener('click', () => this.offsetTuning(-25));
+        document.getElementById('fine-tune-slider').addEventListener('input', (e) => {
+            this.sampleTuningCents[this.activeSampleSlot] = parseInt(e.target.value);
+        });
+
+        // Performance Yellow Pads Interaction Logic (Strict Non-Bouncing Single Triggering)
+        const pads = document.querySelectorAll('.yellow-pad');
+        pads.forEach(pad => {
+            pad.addEventListener('mousedown', (e) => {
+                this.initAudio();
+                const targetPad = e.target.dataset.pad;
+                if (!this.pressedPads.has(targetPad)) {
+                    this.pressedPads.add(targetPad);
+                    e.target.classList.add('pad-active-glow');
+                    this.triggerPadAudio(targetPad);
+                }
+            });
+            pad.addEventListener('mouseup', (e) => {
+                const targetPad = e.target.dataset.pad;
+                this.pressedPads.delete(targetPad);
+                e.target.classList.remove('pad-active-glow');
+            });
+            pad.addEventListener('mouseleave', (e) => {
+                const targetPad = e.target.dataset.pad;
+                this.pressedPads.delete(targetPad);
+                e.target.classList.remove('pad-active-glow');
+            });
+        });
+
+        // Microphone Hardware Access & Record Lifecycle Management
+        const recBtn = document.getElementById('rec-button');
+        recBtn.addEventListener('mousedown', () => this.startMicrophoneRecording());
+        recBtn.addEventListener('mouseup', () => this.stopMicrophoneRecording());
+        recBtn.addEventListener('mouseleave', () => this.stopMicrophoneRecording());
+
+        // Mapping Physical PC Keys for performance testing
+        window.addEventListener('keydown', (e) => {
+            if (e.repeat) return; // Native system keyboard bounce filtering
+            // Quick map: keys Z through ',' map to the first row of white keys
+            const keyMap = {'z':53, 's':54, 'x':55, 'd':56, 'c':57, 'v':59, 'g':60, 'b':61};
+            if (keyMap[e.key]) {
+                this.handleNoteOn(keyMap[e.key]);
+                const keyDom = document.querySelector(`[data-midi="${keyMap[e.key]}"]`);
+                keyDom?.classList.add('key-active');
+            }
+        });
+        window.addEventListener('keyup', (e) => {
+            const keyMap = {'z':53, 's':54, 'x':55, 'd':56, 'c':57, 'v':59, 'g':60, 'b':61};
+            if (keyMap[e.key]) {
+                this.handleNoteOff(keyMap[e.key]);
+                const keyDom = document.querySelector(`[data-midi="${keyMap[e.key]}"]`);
+                keyDom?.classList.remove('key-active');
+            }
+        });
+    }
+
+    offsetTuning(centsAmount) {
+        const slider = document.getElementById('fine-tune-slider');
+        let newTuning = this.sampleTuningCents[this.activeSampleSlot] + centsAmount;
+        newTuning = Math.max(-100, Math.min(100, newTuning));
+        this.sampleTuningCents[this.activeSampleSlot] = newTuning;
+        slider.value = newTuning;
+    }
+
+    // --- Audio Logic Block ---
+
+    triggerPadAudio(padName) {
+        if (!this.audioCtx) return;
+        
+        // Route performance pads dynamically between standard drum samples or stored configurations
+        if (padName.startsWith('sample-')) {
+            const slotIndex = parseInt(padName.split('-')[1]) - 1;
+            this.playBufferAtPitch(this.sampleSlots[slotIndex], 60, slotIndex); // Base pitch mapping
+            return;
+        }
+
+        // Procedural generation fallback for standard drum elements if binary items are missing
+        this.synthesizeDrumPreset(padName);
+    }
+
+    synthesizeDrumPreset(type) {
+        const osc = this.audioCtx.createOscillator();
+        const gainNode = this.audioCtx.createGain();
+        osc.connect(gainNode);
+        gainNode.connect(this.masterGain);
+
+        const now = this.audioCtx.currentTime;
+        if (type === 'kick') {
+            osc.frequency.setValueAtTime(120, now);
+            osc.frequency.exponentialRampToValueAtTime(0.01, now + 0.12);
+            gainNode.gain.setValueAtTime(1, now);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.12);
+            osc.start(now);
+            osc.stop(now + 0.13);
+        } else if (type === 'snare') {
+            osc.type = 'triangle';
+            osc.frequency.setValueAtTime(180, now);
+            gainNode.gain.setValueAtTime(0.7, now);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.1);
+            osc.start(now);
+            osc.stop(now + 0.11);
+        } else {
+            // Bongos configuration fallback
+            osc.frequency.setValueAtTime(type === 'hi-bongo' ? 440 : 220, now);
+            gainNode.gain.setValueAtTime(0.5, now);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.08);
+            osc.start(now);
+            osc.stop(now + 0.09);
+        }
+    }
+
+    handleNoteOn(midiNote) {
+        this.initAudio();
+        if (this.pressedKeys.has(midiNote)) return; // Debounce guards
+        this.pressedKeys.add(midiNote);
+
+        // Enforce rigid 4-note polyphony bounds
+        if (this.activeNotes.length >= this.polyphonyLimit) {
+            const oldestNote = this.activeNotes.shift();
+            this.killNoteNodeImmediate(oldestNote);
+        }
+
+        const voiceNodeContext = this.samplerActive 
+            ? this.createSampleVoiceContext(midiNote) 
+            : this.createPCMPresetVoiceContext(midiNote);
+
+        if (voiceNodeContext) {
+            this.activeNotes.push({ midiNote, ...voiceNodeContext });
+        }
+    }
+
+    handleNoteOff(midiNote) {
+        this.pressedKeys.delete(midiNote);
+        const matchIndex = this.activeNotes.findIndex(n => n.midiNote === midiNote);
+        if (matchIndex !== -1) {
+            const noteObj = this.activeNotes[matchIndex];
+            this.applyReleaseEnvelope(noteObj);
+            this.activeNotes.splice(matchIndex, 1);
+        }
+    }
+
+    createPCMPresetVoiceContext(midiNote) {
+        const now = this.audioCtx.currentTime;
+        const osc = this.audioCtx.createOscillator();
+        const gainNode = this.audioCtx.createGain();
+        
+        // Replicate vintage square/saw waves of early resolution engines
+        osc.type = (this.activeVoice === 'pipe-organ' || this.activeVoice === 'synth') ? 'square' : 'sawtooth';
+        
+        // Frequency Calculation formula
+        const frequency = 440 * Math.pow(2, (midiNote - 69) / 12);
+        osc.frequency.setValueAtTime(frequency, now);
+
+        // Base Filter modification emulation based on voice definitions
+        let filterNode = null;
+        if (this.activeVoice === 'flute' || this.activeVoice === 'chorus') {
+            filterNode = this.audioCtx.createBiquadFilter();
+            filterNode.type = 'lowpass';
+            filterNode.frequency.setValueAtTime(800, now);
+        }
+
+        // Connection Routing matrix
+        if (filterNode) {
+            osc.connect(filterNode);
+            filterNode.connect(gainNode);
+        } else {
+            osc.connect(gainNode);
+        }
+        gainNode.connect(this.masterGain);
+
+        // Basic Note Attack Curve setup
+        gainNode.gain.setValueAtTime(0, now);
+        gainNode.gain.linearRampToValueAtTime(0.5, now + this.adsr.attack);
+
+        osc.start(now);
+        return { sourceNodes: [osc], gainNode };
+    }
+
+    createSampleVoiceContext(midiNote) {
+        const buffer = this.sampleSlots[this.activeSampleSlot];
+        if (!buffer) return null; // Slot empty flag
+
+        return this.playBufferAtPitch(buffer, midiNote, this.activeSampleSlot);
+    }
+
+    playBufferAtPitch(buffer, midiNote, slotIndex) {
+        const now = this.audioCtx.currentTime;
+        
+        let targetBuffer = buffer;
+        // Process Reverse Playback Transform dynamically if toggle state is matched
+        if (this.currentFx === 'reverse') {
+            targetBuffer = this.cloneAndReverseBuffer(buffer);
+        }
+
+        const bufferSource = this.audioCtx.createBufferSource();
+        bufferSource.buffer = targetBuffer;
+
+        // Base sample frequency root pitch defined at MIDI Note 60 (Middle C)
+        const rootPitch = 60;
+        const totalCentsOffset = ((midiNote - rootPitch) * 100) + this.sampleTuningCents[slotIndex];
+        const playbackRate = Math.pow(2, totalCentsOffset / 1200);
+        bufferSource.playbackRate.setValueAtTime(playbackRate, now);
+
+        if (this.currentFx === 'loop') {
+            bufferSource.loop = true;
+        }
+
+        const gainNode = this.audioCtx.createGain();
+        bufferSource.connect(gainNode);
+        gainNode.connect(this.masterGain);
+
+        // Handle ADSR Envelope Modulation logic execution paths
+        if (this.currentFx === 'envelope') {
+            gainNode.gain.setValueAtTime(0, now);
+            gainNode.gain.linearRampToValueAtTime(0.8, now + this.adsr.attack);
+            gainNode.gain.linearRampToValueAtTime(this.adsr.sustain * 0.8, now + this.adsr.attack + this.adsr.decay);
+        } else {
+            gainNode.gain.setValueAtTime(0.8, now);
+        }
+
+        bufferSource.start(now);
+        return { sourceNodes: [bufferSource], gainNode };
+    }
+
+    applyReleaseEnvelope(noteObj) {
+        const now = this.audioCtx.currentTime;
+        const gainNode = noteObj.gainNode;
+        
+        try {
+            const currentGainVal = gainNode.gain.value;
+            gainNode.gain.cancelScheduledValues(now);
+            gainNode.gain.setValueAtTime(currentGainVal, now);
+            
+            const releaseDuration = this.currentFx === 'envelope' ? this.adsr.release : 0.05;
+            gainNode.gain.exponentialRampToValueAtTime(0.001, now + releaseDuration);
+            
+            noteObj.sourceNodes.forEach(node => {
+                if (typeof node.stop === 'function') node.stop(now + releaseDuration + 0.02);
+            });
+        } catch(e) {
+            this.killNoteNodeImmediate(noteObj);
+        }
+    }
+
+    killNoteNodeImmediate(noteObj) {
+        try {
+            noteObj.gainNode.disconnect();
+            noteObj.sourceNodes.forEach(n => { if(typeof n.stop === 'function') n.stop(); });
+        } catch(e){}
+    }
+
+    cloneAndReverseBuffer(buffer) {
+        const numChannels = buffer.numberOfChannels;
+        const numSamples = buffer.length;
+        const sampleRate = buffer.sampleRate;
+        const reversedBuffer = this.audioCtx.createBuffer(numChannels, numSamples, sampleRate);
+        
+        for (let channel = 0; channel < numChannels; channel++) {
+            const sourceData = buffer.getChannelData(channel);
+            const reversedData = reversedBuffer.getChannelData(channel);
+            for (let i = 0; i < numSamples; i++) {
+                reversedData[i] = sourceData[numSamples - 1 - i];
+            }
+        }
+        return reversedBuffer;
+    }
+
+    // --- Sampling Execution Layer ---
+
+    async startMicrophoneRecording() {
+        this.initAudio();
+        if (this.isRecording) return;
+        
+        const isLongMode = document.getElementById('length-toggle').checked;
+        const maxTimeLimit = isLongMode ? 1400 : 700; // Limit scope configurations up to 1.4s
+
+        try {
+            this.stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
+            this.audioChunks = [];
+            this.mediaRecorder = new MediaRecorder(this.stream);
+            
+            this.mediaRecorder.ondataavailable = (e) => {
+                if (e.data.size > 0) this.audioChunks.push(e.data);
+            };
+
+            this.mediaRecorder.onstop = () => this.processRecordedAudio();
+
+            this.isRecording = true;
+            document.getElementById('rec-button').classList.add('rec-glowing-active');
+            this.mediaRecorder.start();
+
+            // Hardware bounded safety cutoff time windows
+            this.recordingTimeout = setTimeout(() => {
+                this.stopMicrophoneRecording();
+            }, maxTimeLimit);
+
+        } catch (err) {
+            console.error("Microphone hardware configuration access refused:", err);
+            this.isRecording = false;
+        }
+    }
+
+    stopMicrophoneRecording() {
+        if (!this.isRecording) return;
+        clearTimeout(this.recordingTimeout);
+        this.isRecording = false;
+        document.getElementById('rec-button').classList.remove('rec-glowing-active');
+        
+        if (this.mediaRecorder && this.mediaRecorder.state !== 'inactive') {
+            this.mediaRecorder.stop();
+        }
+        if (this.stream) {
+            this.stream.getTracks().forEach(track => track.stop());
+        }
+    }
+
+    async processRecordedAudio() {
+        const audioBlob = new Blob(this.audioChunks, { type: 'audio/webm' });
+        const arrayBuffer = await audioBlob.arrayBuffer();
+        
+        this.audioCtx.decodeAudioData(arrayBuffer, (decodedBuffer) => {
+            const isLowQuality = !document.getElementById('quality-toggle').checked;
+            
+            // Route raw stream modifications to match vintage 8-bit resolution specs if selected
+            const finalBuffer = isLowQuality ? this.apply8BitCrusherDownsample(decodedBuffer) : decodedBuffer;
+            
+            this.sampleSlots[this.activeSampleSlot] = finalBuffer;
+            this.persistSampleToStorage(this.activeSampleSlot, finalBuffer);
+        });
+    }
+
+    apply8BitCrusherDownsample(buffer) {
+        const numChannels = buffer.numberOfChannels;
+        const sampleRate = buffer.sampleRate;
+        
+        // Emulate vintage conversion by skipping index steps or lowering frequency down to roughly 11kHz
+        const downsampleFactor = 4; 
+        const targetLength = Math.floor(buffer.length / downsampleFactor);
+        const crushedBuffer = this.audioCtx.createBuffer(numChannels, targetLength, sampleRate / downsampleFactor);
+
+        for (let channel = 0; channel < numChannels; channel++) {
+            const sourceData = buffer.getChannelData(channel);
+            const crushedData = crushedBuffer.getChannelData(channel);
+            
+            for (let i = 0; i < targetLength; i++) {
+                const sourceIndex = i * downsampleFactor;
+                const sampleRaw = sourceData[sourceIndex];
+                
+                // Quantize step calculations mapping standard floats straight into 8 distinct bit spaces [-128, 127]
+                const stepQuantized = Math.round(sampleRaw * 127);
+                crushedData[i] = stepQuantized / 127; 
+            }
+        }
+        return crushedBuffer;
+    }
+
+    // --- Persistence Infrastructure Layer ---
+
+    persistSampleToStorage(slotIndex, audioBuffer) {
+        try {
+            const leftChannelData = audioBuffer.getChannelData(0);
+            // Compress floats into array structures for simple storage strings
+            const dataArray = Array.from(leftChannelData);
+            const payload = {
+                sampleRate: audioBuffer.sampleRate,
+                rawData: dataArray
+            };
+            localStorage.setItem(`sk5_sample_slot_${slotIndex}`, JSON.stringify(payload));
+        } catch (e) {
+            console.warn("Storage write limit reached. Use a compact array allocation.", e);
+        }
+    }
+
+    loadSamplesFromStorage() {
+        for (let i = 0; i < 4; i++) {
+            const rawDataString = localStorage.getItem(`sk5_sample_slot_${i}`);
+            if (rawDataString) {
+                try {
+                    const payload = JSON.parse(rawDataString);
+                    const bufferArray = new Float32Array(payload.rawData);
+                    const audioBuffer = this.audioCtx.createBuffer(1, bufferArray.length, payload.sampleRate);
+                    audioBuffer.copyToChannel(bufferArray, 0);
+                    this.sampleSlots[i] = audioBuffer;
+                } catch(err) {
+                    console.error("Failed executing storage string parsed reconstructions", err);
+                }
+            }
+        }
+    }
+}
+
+// Instantiate engine configuration when viewport setup finishes
+window.addEventListener('DOMContentLoaded', () => {
+    window.sk5AppEngineInstance = new SK5Engine();
+});
+</script>
+</body>
+</html>
