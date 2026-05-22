@@ -836,9 +836,9 @@ footer span {
 
 /* Hidden sub-menu container resting directly flush against your sticky bar */
 .nav-dropdown-content {
-  display: none;
+  display: none !important;    /* FORCED: Guarantees the browser completely hides it by default */
   position: fixed;             
-  top: 40px;                   /* Pulled slightly up to catch your cursor position */
+  top: 40px;                   
   background: #10101e;         
   border: 1px solid #ffffff15;
   border-top: none;
@@ -848,7 +848,6 @@ footer span {
 }
 
 /* ── MOUSE HITBOX BRIDGE ── */
-/* Creates an invisible geometric bridge above the box so mouse tracking never breaks */
 .nav-dropdown-content::before {
   content: '';
   position: absolute;
@@ -860,8 +859,9 @@ footer span {
 }
 
 /* Pull open menu drawer cleanly on desktop mouse-hover events */
+/* FORCED DISPLAY: Overrides the hidden state only when your mouse is over the container */
 .nav-dropdown-wrapper:hover .nav-dropdown-content {
-  display: flex;
+  display: flex !important;
   flex-direction: column;
 }
 
@@ -894,4 +894,3 @@ footer span {
   text-shadow: 0 0 10px #ff9933cc;
   border-bottom-color: transparent;
 }
-
