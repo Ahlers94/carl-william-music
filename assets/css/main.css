@@ -92,8 +92,10 @@ header {
 }
 
 /* ── NAVIGATION ─────────────────────────────────────────────── */
-nav {
+/* Update your main.css to target the specific ID */
+#site-nav {
   display: flex;
+  flex-direction: row;        /* Explicitly forces horizontal row */
   background: #10101e;
   border-bottom: 1px solid #ffffff15;
   position: sticky;
@@ -102,12 +104,17 @@ nav {
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
   scrollbar-width: none;
+  /* Add this to ensure it doesn't try to wrap */
+  flex-wrap: nowrap; 
 }
-nav::-webkit-scrollbar { display: none; }
 
-nav::after {
+/* Ensure the scrollbar override targets the ID as well */
+#site-nav::-webkit-scrollbar { display: none; }
+
+/* If you have that pseudo-element, make sure it targets the ID too */
+#site-nav::after {
   content: '';
-  position: sticky;
+  position: absolute; /* Changed from sticky to absolute for stability */
   right: 0;
   top: 0;
   min-width: 48px;
