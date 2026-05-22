@@ -815,82 +815,24 @@ footer span {
   }
   .right-col { display: none; }
   .left-col { padding: 24px; }
-/* ── THEORY NAV DROPDOWN EXTENSIONS ─────────────────────────── */
+/* ── FLAT THEORY SUB-NAV EXTENSIONS ─────────────────────────── */
 
-/* Wrap the dropdown anchor safely inside your flex navigation container */
-.nav-dropdown-wrapper {
-  position: relative;
-  display: flex;
-  align-items: stretch;
-  animation: fadeInNav 0.3s ease forwards;
-  animation-delay: 1.45s; 
-  opacity: 0;
+/* Assign matching theory palettes to both pages */
+#nav-theory-stack, #nav-theory-torus { 
+  color: #ff7700; 
+  text-shadow: 0 0 8px rgba(255, 119, 0, 0.4); 
 }
 
-/* Keep the parent Theory link text exactly in line inside the flex bar */
-.nav-dropdown-wrapper > a {
-  height: 100%;
-  display: flex;
-  align-items: center;
+#nav-theory-stack:hover, #nav-theory-stack.active,
+#nav-theory-torus:hover, #nav-theory-torus.active { 
+  color: #ff9933; 
+  border-bottom: 2px solid #ff9933; 
+  text-shadow: 0 0 12px #ff993388; 
 }
 
-/* Hidden sub-menu container resting directly flush against your sticky bar */
-.nav-dropdown-content {
-  display: none !important;    /* FORCED: Guarantees the browser completely hides it by default */
-  position: fixed;             
-  top: 40px;                   
-  background: #10101e;         
-  border: 1px solid #ffffff15;
-  border-top: none;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6);
-  min-width: 180px;
-  z-index: 1000;               
-}
+/* Let the sequential fade-in timings run perfectly in line */
+#nav-theory-stack { animation: fadeInNav 0.3s ease forwards; animation-delay: 1.45s; opacity: 0; }
+#nav-theory-torus { animation: fadeInNav 0.3s ease forwards; animation-delay: 1.55s; opacity: 0; }
 
-/* ── MOUSE HITBOX BRIDGE ── */
-.nav-dropdown-content::before {
-  content: '';
-  position: absolute;
-  top: -12px;
-  left: 0;
-  width: 100%;
-  height: 14px;
-  background: transparent;
-}
-
-/* Pull open menu drawer cleanly on desktop mouse-hover events */
-/* FORCED DISPLAY: Overrides the hidden state only when your mouse is over the container */
-.nav-dropdown-wrapper:hover .nav-dropdown-content {
-  display: flex !important;
-  flex-direction: column;
-}
-
-/* Sub-navigation interior elements inheriting Space Mono properties */
-.nav-dropdown-content a {
-  display: block;
-  font-family: 'Space Mono', monospace;
-  font-size: 9px;
-  letter-spacing: 1.5px;
-  color: #ff7700 !important;   
-  text-shadow: 0 0 6px rgba(255, 119, 0, 0.4);
-  padding: 12px 20px;
-  text-decoration: none;
-  text-align: left;
-  border-right: none;
-  border-bottom: 1px solid #ffffff0d;
-  transition: background 0.15s, color 0.15s, text-shadow 0.15s;
-}
-
-/* Clean up edge lines on the final list element */
-.nav-dropdown-content a:last-child {
-  border-bottom: none;
-}
-
-/* Hover & Active highlights using the Super Famicom Orange theory palette */
-.nav-dropdown-content a:hover,
-.nav-dropdown-content a.sub-active {
-  background: rgba(255, 119, 0, 0.12) !important;
-  color: #ff9933 !important;
-  text-shadow: 0 0 10px #ff9933cc;
-  border-bottom-color: transparent;
-}
+/* Shift your final Matrix tab down one animation frame slot */
+#nav-matrix       { animation-delay: 1.65s !important; }
