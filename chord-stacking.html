@@ -771,15 +771,25 @@ td.cs-feeling { white-space: nowrap; }
   ].join('');
   document.head.appendChild(holdStyle);
 
-  /* inject a Hold btn after every Stack play btn */
-  document.querySelectorAll('.cs-play-btn[data-type="stack"]').forEach(function(playBtn) {
+/* ── INJECT HOLD BUTTONS + STYLES ── */
+/* Inject a Hold btn into the Technical Name cell for every row */
+document.querySelectorAll('tr.row-major, tr.row-minor, tr.row-sus, tr.row-unstable').forEach(function(row) {
+  var playBtn = row.querySelector('.cs-play-btn[data-type="stack"]');
+  var techCell = row.querySelector('.cs-tech');
+  
+  if (playBtn && techCell) {
+    // Create the hold button
     var holdBtn = document.createElement('button');
     holdBtn.className = 'cs-hold-btn';
     holdBtn.textContent = '⏸ hold';
     holdBtn.dataset.lower = playBtn.dataset.lower;
     holdBtn.dataset.upper = playBtn.dataset.upper;
-    playBtn.parentNode.insertBefore(holdBtn, playBtn.nextSibling);
-  });
+    
+    // Add a line break for spacing, then the button
+    techCell.appendChild(document.createElement('br'));
+    techCell.appendChild(holdBtn);
+  }
+});
 
   /* ── CLICK HANDLER ── */
   document.addEventListener('click', function(e) {
