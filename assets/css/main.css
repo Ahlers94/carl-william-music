@@ -171,7 +171,7 @@ nav a {
 #nav-about     { animation: fadeInNav 0.3s ease forwards; animation-delay: 1.15s; opacity: 0; }
 #nav-shows     { animation: fadeInNav 0.3s ease forwards; animation-delay: 1.25s; opacity: 0; }
 #nav-news      { animation: fadeInNav 0.3s ease forwards; animation-delay: 1.35s; opacity: 0; }
-/* #nav-theory    { animation: fadeInNav 0.3s ease forwards; animation-delay: 1.45s; opacity: 0; } */
+#nav-theory    { animation: fadeInNav 0.3s ease forwards; animation-delay: 1.45s; opacity: 0; }
 #nav-matrix    { animation: fadeInNav 0.3s ease forwards; animation-delay: 1.55s; opacity: 0; }
 @keyframes fadeInNav { to { opacity: 1; } }
 
