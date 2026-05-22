@@ -123,18 +123,28 @@ var BrowserDAW = {
     this.visualizePad(note, true);
   },
 
-  stopPad: function(note) {
-    if (this.activeVoices[note] && this.activeVoices[note].length > 0) {
-      while (this.activeVoices[note].length > 0) {
-        var voice = this.activeVoices[note].shift();
-        try {
-          // Smoothly ramp down the gain envelope to handle clean tail fades without popping
-          voice.gain.gain.setValueAtTime(voice.gain.gain.value, this.audioCtx.currentTime);
-          voice.gain.gain.linearRampToValueAtTime(0.0, this.audioCtx.currentTime + 0.005);
-          
-          // Hard kill the source oscillator right after the fade clears
-          voice.source.stop(this.audioCtx.currentTime + 0.006);
-        } catch (e) {}
+stopPad: function(note) {
+    if (!this.activeVoices[note] || this.activeVoices[note].length === 0) return;
+
+    // Create a local reference and clear the global stack immediately
+    // to prevent race conditions during the fade-out process
+    var voicesToStop = this.activeVoices[note];
+    this.activeVoices[note] = []; 
+
+    for (var i = 0; i < voicesToStop.length; i++) {
+      var voice = voicesToStop[i];
+      try {
+        var now = this.audioCtx.currentTime;
+        
+        // 1. Gain envelope: Ramp down to avoid clicks
+        voice.gain.gain.cancelScheduledValues(now);
+        voice.gain.gain.setValueAtTime(voice.gain.gain.value, now);
+        voice.gain.gain.linearRampToValueAtTime(0.0, now + 0.005);
+        
+        // 2. Stop source: Schedule after the fade clears
+        voice.source.stop(now + 0.006);
+      } catch (e) {
+        // Silently catch errors if the node already stopped naturally
       }
     }
     this.visualizePad(note, false);
