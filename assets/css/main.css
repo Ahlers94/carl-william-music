@@ -171,7 +171,7 @@ nav a {
 #nav-about     { animation: fadeInNav 0.3s ease forwards; animation-delay: 1.15s; opacity: 0; }
 #nav-shows     { animation: fadeInNav 0.3s ease forwards; animation-delay: 1.25s; opacity: 0; }
 #nav-news      { animation: fadeInNav 0.3s ease forwards; animation-delay: 1.35s; opacity: 0; }
-/* #nav-theory    { animation: fadeInNav 0.3s ease forwards; animation-delay: 1.45s; opacity: 0; } */
+#nav-theory    { animation: fadeInNav 0.3s ease forwards; animation-delay: 1.45s; opacity: 0; }
 #nav-matrix    { animation: fadeInNav 0.3s ease forwards; animation-delay: 1.55s; opacity: 0; }
 @keyframes fadeInNav { to { opacity: 1; } }
 
@@ -816,79 +816,4 @@ footer span {
   .right-col { display: none; }
   .left-col { padding: 24px; }
   
-/* ── THEORY DROPDOWN SYSTEM ─────────────────────────────────── */
-
-/* 1. Handle the master fade-in animation for the whole Theory tab block */
-#nav-theory-wrapper {
-  position: relative;
-  display: inline-flex;
-  align-items: stretch;
-  animation: fadeInNav 0.3s ease forwards;
-  animation-delay: 1.45s; /* Keeps your exact site timing sequence */
-  opacity: 0;
-}
-
-/* 2. Format the main "Theory" trigger text button */
-#nav-theory-trigger {
-  color: #ff7700;
-  text-shadow: 0 0 8px rgba(255, 119, 0, 0.4);
-  height: 100%;
-  display: flex;
-  align-items: center;
-}
-#nav-theory-wrapper:hover #nav-theory-trigger,
-#nav-theory-trigger.active {
-  color: #ff9933;
-  border-bottom: 2px solid #ff9933;
-  text-shadow: 0 0 12px #ff993388;
-}
-
-/* 3. The hidden dropdown box (Kept invisible until hovered) */
-#nav-theory-wrapper .nav-dropdown-content {
-  visibility: hidden;
-  opacity: 0;
-  position: absolute;
-  top: 100%; /* Sits perfectly beneath the nav bar line */
-  left: 0;
-  background: #10101e; /* Matches your navbar color exactly */
-  border: 1px solid #ffffff15;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.7);
-  min-width: 190px;
-  z-index: 9999;
-  display: flex;
-  flex-direction: column;
-  transition: opacity 0.15s ease, visibility 0.15s ease;
-}
-
-/* 4. Reveal the menu cleanly only when hovering the wrapper */
-#nav-theory-wrapper:hover .nav-dropdown-content {
-  visibility: visible;
-  opacity: 1;
-}
-
-/* 5. Sub-menu link styling matching Space Mono design patterns */
-.nav-dropdown-content a {
-  font-family: 'Space Mono', monospace;
-  font-size: 9px;
-  letter-spacing: 1.5px;
-  color: #ff7700 !important;
-  padding: 12px 18px !important;
-  text-decoration: none;
-  text-align: left;
-  border-right: none !important;
-  border-bottom: 1px solid #ffffff0d !important;
-  text-shadow: 0 0 6px rgba(255, 119, 0, 0.4);
-}
-
-.nav-dropdown-content a:last-child {
-  border-bottom: none !important;
-}
-
-/* 6. Highlighting the open/active sub-menu items */
-.nav-dropdown-content a:hover,
-.nav-dropdown-content a.sub-active {
-  background: rgba(255, 119, 0, 0.12) !important;
-  color: #ff9933 !important;
-  text-shadow: 0 0 10px #ff9933cc;
-}
 
