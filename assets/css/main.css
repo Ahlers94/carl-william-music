@@ -171,7 +171,7 @@ nav a {
 #nav-about     { animation: fadeInNav 0.3s ease forwards; animation-delay: 1.15s; opacity: 0; }
 #nav-shows     { animation: fadeInNav 0.3s ease forwards; animation-delay: 1.25s; opacity: 0; }
 #nav-news      { animation: fadeInNav 0.3s ease forwards; animation-delay: 1.35s; opacity: 0; }
-#nav-theory    { animation: fadeInNav 0.3s ease forwards; animation-delay: 1.45s; opacity: 0; }
+/* #nav-theory    { animation: fadeInNav 0.3s ease forwards; animation-delay: 1.45s; opacity: 0; } */
 #nav-matrix    { animation: fadeInNav 0.3s ease forwards; animation-delay: 1.55s; opacity: 0; }
 @keyframes fadeInNav { to { opacity: 1; } }
 
@@ -816,3 +816,77 @@ footer span {
   .right-col { display: none; }
   .left-col { padding: 24px; }
 }
+
+/* ── THEORY NAV DROPDOWN EXTENSIONS ─────────────────────────── */
+
+/* Wrap the dropdown anchor safely inside your flex navigation container */
+.nav-dropdown-wrapper {
+  position: relative;
+  display: flex;
+  align-items: stretch;
+}
+
+/* Inherit the existing entry fade-in delay animation targeting your Theory slot */
+.nav-dropdown-wrapper {
+  animation: fadeInNav 0.3s ease forwards;
+  animation-delay: 1.45s; 
+  opacity: 0;
+}
+
+/* Keep the parent Theory link text exactly in line inside the flex bar */
+.nav-dropdown-wrapper > a {
+  height: 100%;
+  display: flex;
+  align-items: center;
+}
+
+/* Hidden sub-menu container resting directly flush against your sticky bar */
+.nav-dropdown-content {
+  display: none;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  background: #10101e; /* Matches your master nav background value */
+  border: 1px solid #ffffff15;
+  border-top: none;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6);
+  min-width: 180px;
+  z-index: 100;
+}
+
+/* Pull open menu drawer cleanly on desktop mouse-hover events */
+.nav-dropdown-wrapper:hover .nav-dropdown-content {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Sub-navigation interior elements inheriting Space Mono properties */
+.nav-dropdown-content a {
+  display: block;
+  font-family: 'Space Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 1.5px;
+  color: #ff7700 !important; /* Forces your beautiful signature theory orange */
+  text-shadow: 0 0 6px rgba(255, 119, 0, 0.4);
+  padding: 12px 20px;
+  text-decoration: none;
+  text-align: left;
+  border-right: none;
+  border-bottom: 1px solid #ffffff0d;
+  transition: background 0.15s, color 0.15s, text-shadow 0.15s;
+}
+
+/* Clean up edge lines on the final list element */
+.nav-dropdown-content a:last-child {
+  border-bottom: none;
+}
+
+/* Hover & Active highlights using the Super Famicom Orange theory palette */
+.nav-dropdown-content a:hover,
+.nav-dropdown-content a.sub-active {
+  background: rgba(255, 119, 0, 0.12) !important;
+  color: #ff9933 !important;
+  text-shadow: 0 0 10px #ff9933cc;
+  border-bottom-color: transparent;
+}
+
