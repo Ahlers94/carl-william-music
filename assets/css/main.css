@@ -815,7 +815,6 @@ footer span {
   }
   .right-col { display: none; }
   .left-col { padding: 24px; }
-}
 /* ── THEORY NAV DROPDOWN EXTENSIONS ─────────────────────────── */
 
 /* Wrap the dropdown anchor safely inside your flex navigation container */
@@ -838,14 +837,26 @@ footer span {
 /* Hidden sub-menu container resting directly flush against your sticky bar */
 .nav-dropdown-content {
   display: none;
-  position: fixed;             /* CHANGED from absolute to fixed to bypass nav overflow limits */
-  top: 41px;                   /* Aligns perfectly underneath your 11px font + 12px vertical padding header */
-  background: #10101e;         /* Matches your master nav background value */
+  position: fixed;             
+  top: 40px;                   /* Pulled slightly up to catch your cursor position */
+  background: #10101e;         
   border: 1px solid #ffffff15;
   border-top: none;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6);
   min-width: 180px;
-  z-index: 1000;               /* Pushes the dropdown completely in front of all screen elements */
+  z-index: 1000;               
+}
+
+/* ── MOUSE HITBOX BRIDGE ── */
+/* Creates an invisible geometric bridge above the box so mouse tracking never breaks */
+.nav-dropdown-content::before {
+  content: '';
+  position: absolute;
+  top: -12px;
+  left: 0;
+  width: 100%;
+  height: 14px;
+  background: transparent;
 }
 
 /* Pull open menu drawer cleanly on desktop mouse-hover events */
@@ -860,7 +871,7 @@ footer span {
   font-family: 'Space Mono', monospace;
   font-size: 9px;
   letter-spacing: 1.5px;
-  color: #ff7700 !important;   /* Forces your beautiful signature theory orange */
+  color: #ff7700 !important;   
   text-shadow: 0 0 6px rgba(255, 119, 0, 0.4);
   padding: 12px 20px;
   text-decoration: none;
@@ -883,5 +894,4 @@ footer span {
   text-shadow: 0 0 10px #ff9933cc;
   border-bottom-color: transparent;
 }
-
 
