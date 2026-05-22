@@ -1,0 +1,59 @@
+---
+layout: default
+title: "Web MPC Sampler | Carl William Music"
+description: "Custom web-based 4x4 pad sampler and loop tool."
+extra_js:
+  - /assets/js/mpc.js
+---
+
+<main class="content-page narrow">
+  
+  <div class="section-label">Live Sampler</div>
+  
+  <!-- ── DAW / MPC CLONE ──────────────────────────────────────── -->
+  <div class="daw-interface tab-fade">
+    
+    <!-- Status Screen -->
+    <header class="status-screen">
+      <div class="section-label">System Dashboard</div>
+      <div class="lcd-panel">
+        <span id="tempo-display">120 BPM</span>
+        <span id="filter-display">8000 Hz</span>
+        <span id="midi-status" class="blink">MIDI: WAIT</span>
+      </div>
+      <canvas id="step-progress" width="400" height="10"></canvas>
+    </header>
+
+    <!-- Transport Bar -->
+    <nav class="transport-bar">
+      <button id="btn-rec" class="transport-btn stop-propagation">REC</button>
+      <button id="btn-stop" class="transport-btn stop-propagation">STOP</button>
+      <button id="btn-play" class="transport-btn stop-propagation">PLAY</button>
+    </nav>
+
+    <!-- 4x4 Pad Matrix -->
+    <section class="pad-grid">
+      <!-- You can hardcode these or use a Jekyll data file like site.data.daw.pads -->
+      <button class="mpc-pad" data-pad-id="1" data-note="36"><span class="pad-label">KICK</span></button>
+      <button class="mpc-pad" data-pad-id="2" data-note="38"><span class="pad-label">SNARE</span></button>
+      <button class="mpc-pad" data-pad-id="3" data-note="42"><span class="pad-label">CH HAT</span></button>
+      <button class="mpc-pad" data-pad-id="4" data-note="46"><span class="pad-label">OH HAT</span></button>
+      
+      <button class="mpc-pad" data-pad-id="5" data-note="48"><span class="pad-label">TOM 1</span></button>
+      <button class="mpc-pad" data-pad-id="6" data-note="45"><span class="pad-label">TOM 2</span></button>
+      <button class="mpc-pad" data-pad-id="7" data-note="41"><span class="pad-label">TOM 3</span></button>
+      <button class="mpc-pad" data-pad-id="8" data-note="49"><span class="pad-label">CRASH</span></button>
+      
+      <button class="mpc-pad" data-pad-id="9" data-note="51"><span class="pad-label">RIDE</span></button>
+      <button class="mpc-pad" data-pad-id="10" data-note="60"><span class="pad-label">SAMP 1</span></button>
+      <button class="mpc-pad" data-pad-id="11" data-note="62"><span class="pad-label">SAMP 2</span></button>
+      <button class="mpc-pad" data-pad-id="12" data-note="64"><span class="pad-label">SAMP 3</span></button>
+      
+      <button class="mpc-pad" data-pad-id="13" data-note="65"><span class="pad-label">LOOP A</span></button>
+      <button class="mpc-pad" data-pad-id="14" data-note="67"><span class="pad-label">LOOP B</span></button>
+      <button class="mpc-pad" data-pad-id="15" data-note="69"><span class="pad-label">FX 1</span></button>
+      <button class="mpc-pad" data-pad-id="16" data-note="71"><span class="pad-label">FX 2</span></button>
+    </section>
+
+  </div>
+</main>
