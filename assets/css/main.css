@@ -125,7 +125,8 @@ header {
 }
 
 nav a {
-  display: block;
+  display: flex;         /* Change from 'block' to 'flex' */
+  align-items: center;   /* Keeps text perfectly centered vertically */
   padding: 12px 24px;
   font-size: 11px;
   letter-spacing: 2px;
