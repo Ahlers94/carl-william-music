@@ -1,0 +1,18 @@
+config:
+  pads: 16
+  start_note: 36
+choke_groups:
+  - id: 1
+    name: "Hi-Hats"
+    pads: [7, 8] # Maps to MIDI notes 43 (Closed) and 44 (Open)
+pads:
+  - id: 1
+    note: 36
+    label: "KICK 1"
+  - id: 2
+    note: 37
+    label: "KICK 2"
+  - id: 3
+    note: 38
+    label: "SNARE 1"
+  # ... Add remaining pads up to 16 (Note 51)
