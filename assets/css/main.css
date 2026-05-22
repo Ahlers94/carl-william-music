@@ -184,15 +184,24 @@ header {
 #nav-theory.active   { color: #ff9933; border-bottom: 2px solid #ff9933; text-shadow: 0 0 12px #ff993388; }
 
 /* ── NAV TAB FADE-IN ──────────────────────────────────────────── */
-#nav-originals { animation: fadeInNav 0.3s ease forwards; animation-delay: 0.85s; opacity: 0; }
-#nav-covers    { animation: fadeInNav 0.3s ease forwards; animation-delay: 0.95s; opacity: 0; }
-#nav-gear      { animation: fadeInNav 0.3s ease forwards; animation-delay: 1.05s; opacity: 0; }
-#nav-about     { animation: fadeInNav 0.3s ease forwards; animation-delay: 1.15s; opacity: 0; }
-#nav-shows     { animation: fadeInNav 0.3s ease forwards; animation-delay: 1.25s; opacity: 0; }
-#nav-news      { animation: fadeInNav 0.3s ease forwards; animation-delay: 1.35s; opacity: 0; }
-#nav-theory    { animation: fadeInNav 0.3s ease forwards; animation-delay: 1.45s; opacity: 0; }
-#nav-matrix    { animation: fadeInNav 0.3s ease forwards; animation-delay: 1.55s; opacity: 0; }
-@keyframes fadeInNav { to { opacity: 1; } }
+#site-nav li a {
+  opacity: 0; /* Everything is hidden by default */
+  animation: fadeInNav 0.3s ease forwards;
+}
+
+/* Staggered delays */
+#nav-originals { animation-delay: 0.85s; }
+#nav-covers    { animation-delay: 0.95s; }
+#nav-gear      { animation-delay: 1.05s; }
+#nav-about     { animation-delay: 1.15s; }
+#nav-shows     { animation-delay: 1.25s; }
+#nav-news      { animation-delay: 1.35s; }
+#nav-theory    { animation-delay: 1.45s; }
+#nav-matrix    { animation-delay: 1.55s; }
+
+@keyframes fadeInNav { 
+  to { opacity: 1; } 
+}
 
 /* ── CUSTOM CURSOR GLOW (desktop only) ────────────────────────── */
 #cursor-glow {
