@@ -817,3 +817,109 @@ footer span {
   .left-col { padding: 24px; }
 } /* <-- This brace is required to close the @media query */
 
+/* ── DAW / MPC CLONE STYLES ─────────────────────────────────── */
+.daw-interface {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  width: 100%;
+  max-width: 600px; /* Constrains layout on desktop */
+  margin: 0 auto;
+}
+
+/* Status Dashboard */
+.status-screen {
+  background: var(--surface);
+  border: 1px solid #00ff4133;
+  padding: 16px 20px;
+  box-shadow: inset 0 0 20px rgba(0, 255, 65, 0.05);
+}
+
+.lcd-panel {
+  display: flex;
+  justify-content: space-between;
+  font-family: 'VT323', monospace;
+  font-size: clamp(20px, 4vw, 28px);
+  color: #00ff41;
+  text-shadow: 0 0 8px #00ff4166;
+  letter-spacing: 2px;
+  margin-top: 8px;
+}
+
+#step-progress {
+  width: 100%;
+  height: 6px;
+  background: #06060f;
+  border: 1px solid #00ff4133;
+  margin-top: 12px;
+  display: block;
+}
+
+/* Transport Bar */
+.transport-bar {
+  display: flex;
+  gap: 12px;
+}
+
+.transport-btn {
+  flex: 1;
+  padding: 14px;
+  background: var(--surface);
+  font-family: 'Space Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  border: 1px solid var(--dim);
+  cursor: pointer;
+  touch-action: manipulation;
+  transition: all 0.2s ease;
+}
+
+/* Base button colors mapping to site palette */
+#btn-rec { color: var(--pink); border-color: #ff2d7844; }
+#btn-stop { color: var(--gold); border-color: #ffd70044; }
+#btn-play { color: var(--cyan); border-color: #00f5ff44; }
+
+/* Active states with matching neon glow */
+#btn-rec:active { background: #ff2d7811; box-shadow: inset 0 0 12px #ff2d7833, 0 0 16px #ff2d7844; }
+#btn-stop:active { background: #ffd70011; box-shadow: inset 0 0 12px #ffd70033, 0 0 16px #ffd70044; }
+#btn-play:active { background: #00f5ff11; box-shadow: inset 0 0 12px #00f5ff33, 0 0 16px #00f5ff44; }
+
+/* 4x4 Pad Matrix */
+.pad-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  grid-template-rows: repeat(4, 1fr);
+  gap: 16px;
+  aspect-ratio: 1 / 1;
+  touch-action: manipulation;
+}
+
+@media (max-width: 720px) {
+  .pad-grid { gap: 10px; }
+}
+
+.mpc-pad {
+  background: #06060f;
+  border: 1px solid var(--purple);
+  border-color: #b06aff44;
+  color: var(--dim);
+  font-family: 'Space Mono', monospace;
+  font-size: 10px;
+  display: flex;
+  align-items: flex-end;
+  padding: 10px;
+  cursor: pointer;
+  box-shadow: 0 6px 0 #04040a, inset 0 0 12px rgba(176, 106, 255, 0.05);
+  transition: transform 0.05s, box-shadow 0.05s, background 0.05s, border-color 0.05s, color 0.05s;
+}
+
+/* Active Pad State (Neon Cyan Trigger) */
+.mpc-pad:active, .mpc-pad.active {
+  background: rgba(0, 245, 255, 0.08);
+  border-color: var(--cyan);
+  color: var(--text);
+  transform: translateY(6px); /* Tactile press down */
+  box-shadow: 0 0 0 #04040a, inset 0 0 16px #00f5ff33, 0 0 20px #00f5ff44;
+  text-shadow: 0 0 8px var(--cyan);
+}
