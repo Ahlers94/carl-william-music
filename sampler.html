@@ -22,9 +22,44 @@ nav: sampler
         <span id="filter-display">8000 Hz</span>
         <span id="midi-status" class="blink">MIDI: WAIT</span>
       </div>
+      <!-- Added current structural state indicators -->
+      <div class="lcd-panel-sub">
+        <span>BANK: <strong id="display-bank">A</strong></span>
+        <span>MODE: <strong id="display-mode">PATTERN</strong></span>
+        <span>SWING: <strong id="display-swing">0%</strong></span>
+      </div>
       <!-- Fixed canvas coordinates matching standard resolution mapping -->
       <canvas id="step-progress" width="400" height="10"></canvas>
     </header>
+
+    <!-- Global Parameters & Macro Knobs -->
+    <section class="global-macro-controls" aria-label="Engine Settings">
+      <div class="control-group">
+        <label for="slider-bpm" class="macro-label">Tempo Control</label>
+        <input type="range" id="slider-bpm" min="60" max="200" value="120" class="macro-slider">
+      </div>
+      <div class="control-group">
+        <label for="slider-swing" class="macro-label">Groove Swing</label>
+        <input type="range" id="slider-swing" min="0" max="75" value="0" class="macro-slider">
+      </div>
+    </section>
+
+    <!-- Production Workflow Strips (Banks, Modes, Sampling Bus) -->
+    <nav class="workflow-strip" aria-label="Production Modes">
+      <!-- 4-Bank Hardware Switching Matrices -->
+      <div class="bank-selector" role="group" aria-label="Pad Bank Assignment">
+        <button class="bank-btn bank-active" data-bank="A">BANK A</button>
+        <button class="bank-btn" data-bank="B">BANK B</button>
+        <button class="bank-btn" data-bank="C">BANK C</button>
+        <button class="bank-btn" data-bank="D">BANK D</button>
+      </div>
+
+      <!-- Engine Workflow Selection and Target Microphone Inputs -->
+      <div class="utility-controls">
+        <button id="btn-mode-toggle" class="workflow-btn">TOGGLE SONG MODE</button>
+        <button id="btn-mic-sample" class="workflow-btn sampling-btn">HOLD TO SAMPLE</button>
+      </div>
+    </nav>
 
     <!-- Transport Bar -->
     <nav class="transport-bar">
@@ -35,16 +70,16 @@ nav: sampler
     </nav>
 
     <!-- 4x4 Pad Matrix -->
- <section class="pad-grid" role="region" aria-label="MPC Pad Grid">
-  {% for pad in site.data.daw.pads %}
-    <button class="mpc-pad" 
-            data-pad-id="{{ pad.id }}" 
-            data-note="{{ pad.note }}" 
-            data-type="one-shot">
-      <span class="pad-label">{{ pad.label }}</span>
-    </button>
-  {% endfor %}
-</section>
+    <section class="pad-grid" role="region" aria-label="MPC Pad Grid">
+      {% for pad in site.data.daw.pads %}
+        <button class="mpc-pad" 
+                data-pad-id="{{ pad.id }}" 
+                data-note="{{ pad.note }}" 
+                data-type="one-shot">
+          <span class="pad-label">{{ pad.label }}</span>
+        </button>
+      {% endfor %}
+    </section>
 
   </div>
 </main>
