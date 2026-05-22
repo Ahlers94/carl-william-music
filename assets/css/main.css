@@ -816,7 +816,6 @@ footer span {
   .right-col { display: none; }
   .left-col { padding: 24px; }
 }
-
 /* ── THEORY NAV DROPDOWN EXTENSIONS ─────────────────────────── */
 
 /* Wrap the dropdown anchor safely inside your flex navigation container */
@@ -824,10 +823,6 @@ footer span {
   position: relative;
   display: flex;
   align-items: stretch;
-}
-
-/* Inherit the existing entry fade-in delay animation targeting your Theory slot */
-.nav-dropdown-wrapper {
   animation: fadeInNav 0.3s ease forwards;
   animation-delay: 1.45s; 
   opacity: 0;
@@ -843,15 +838,14 @@ footer span {
 /* Hidden sub-menu container resting directly flush against your sticky bar */
 .nav-dropdown-content {
   display: none;
-  position: absolute;
-  top: 100%;
-  left: 0;
-  background: #10101e; /* Matches your master nav background value */
+  position: fixed;             /* CHANGED from absolute to fixed to bypass nav overflow limits */
+  top: 41px;                   /* Aligns perfectly underneath your 11px font + 12px vertical padding header */
+  background: #10101e;         /* Matches your master nav background value */
   border: 1px solid #ffffff15;
   border-top: none;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6);
   min-width: 180px;
-  z-index: 100;
+  z-index: 1000;               /* Pushes the dropdown completely in front of all screen elements */
 }
 
 /* Pull open menu drawer cleanly on desktop mouse-hover events */
@@ -866,7 +860,7 @@ footer span {
   font-family: 'Space Mono', monospace;
   font-size: 9px;
   letter-spacing: 1.5px;
-  color: #ff7700 !important; /* Forces your beautiful signature theory orange */
+  color: #ff7700 !important;   /* Forces your beautiful signature theory orange */
   text-shadow: 0 0 6px rgba(255, 119, 0, 0.4);
   padding: 12px 20px;
   text-decoration: none;
@@ -889,4 +883,5 @@ footer span {
   text-shadow: 0 0 10px #ff9933cc;
   border-bottom-color: transparent;
 }
+
 
