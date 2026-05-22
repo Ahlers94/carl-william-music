@@ -1,42 +1,13 @@
 <nav id="site-nav" aria-label="Main Navigation">
   <ul class="nav-links">
-    <li>
-      <a href="{{ '/' | relative_url }}" class="{% if page.permalink == '/' or page.permalink == '/originals.html' %}active{% endif %}" id="nav-originals">Originals</a>
-    </li>
-    <li>
-      <a href="{{ '/covers.html' | relative_url }}" class="{% if page.nav == 'covers' %}active{% endif %}" id="nav-covers">Covers</a>
-    </li>
-    <li>
-      <a href="{{ '/gear.html' | relative_url }}" class="{% if page.nav == 'gear' %}active{% endif %}" id="nav-gear">Gear</a>
-    </li>
-    <li>
-      <a href="{{ '/about.html' | relative_url }}" class="{% if page.nav == 'about' %}active{% endif %}" id="nav-about">About Me</a>
-    </li>
-    <li>
-      <a href="{{ '/shows.html' | relative_url }}" class="{% if page.nav == 'shows' %}active{% endif %}" id="nav-shows">Shows</a>
-    </li>
-    <li>
-      <a href="{{ '/news.html' | relative_url }}" class="{% if page.permalink == '/news.html' %}active{% endif %}" id="nav-news">News</a>
-    </li>
-    
-    <!-- Game Integrations (Archived)
-    <li><a href="{{ '/fretdle.html' | relative_url }}" class="{% if page.nav == 'fretdle' %}active{% endif %}" id="nav-fretdle">Fretdle</a></li>
-    <li><a href="{{ '/frettris.html' | relative_url }}" class="{% if page.nav == 'frettris' %}active{% endif %}" id="nav-frettris">Frettris</a></li>
-    <li><a href="{{ '/invaders.html' | relative_url }}" class="{% if page.nav == 'invaders' %}active{% endif %}" id="nav-invaders">Invaders</a></li>
-    -->
-    
-    <li>
-      <a href="{{ '/theory/chord-stacking/' | relative_url }}" class="{% if page.nav == 'theory' %}active{% endif %}" id="nav-theory">Theory</a>
-    </li>
-    <li>
-      <a href="{{ '/matrix.html' | relative_url }}" class="{% if page.nav == 'matrix' %}active{% endif %}" id="nav-matrix">The Matrix</a>
-    </li>
-    
-    <!-- New MPC Sampler Tab -->
-    <li>
-      <a href="{{ '/sampler.html' | relative_url }}" class="{% if page.nav == 'sampler' or page.permalink == '/sampler.html' %}active{% endif %}" id="nav-sampler" {% if page.nav == 'sampler' %}aria-current="page"{% endif %}>
-        <span class="nav-icon">■</span> Sampler
-      </a>
-    </li>
+    <li><a href="{{ '/' | relative_url }}" id="nav-originals" {% if page.permalink == '/' or page.permalink == '/originals.html' %}aria-current="page"{% endif %}>Originals</a></li>
+    <li><a href="{{ '/covers.html' | relative_url }}" id="nav-covers" {% if page.nav == 'covers' %}aria-current="page"{% endif %}>Covers</a></li>
+    <li><a href="{{ '/gear.html' | relative_url }}" id="nav-gear" {% if page.nav == 'gear' %}aria-current="page"{% endif %}>Gear</a></li>
+    <li><a href="{{ '/about.html' | relative_url }}" id="nav-about" {% if page.nav == 'about' %}aria-current="page"{% endif %}>About Me</a></li>
+    <li><a href="{{ '/shows.html' | relative_url }}" id="nav-shows" {% if page.nav == 'shows' %}aria-current="page"{% endif %}>Shows</a></li>
+    <li><a href="{{ '/news.html' | relative_url }}" id="nav-news" {% if page.permalink == '/news.html' %}aria-current="page"{% endif %}>News</a></li>
+    <li><a href="{{ '/theory/chord-stacking/' | relative_url }}" id="nav-theory" {% if page.nav == 'theory' %}aria-current="page"{% endif %}>Theory</a></li>
+    <li><a href="{{ '/matrix.html' | relative_url }}" id="nav-matrix" {% if page.nav == 'matrix' %}aria-current="page"{% endif %}>The Matrix</a></li>
+    <li><a href="{{ '/sampler.html' | relative_url }}" id="nav-sampler" {% if page.nav == 'sampler' or page.permalink == '/sampler.html' %}aria-current="page"{% endif %}><span class="nav-icon">■</span> Sampler</a></li>
   </ul>
 </nav>
