@@ -416,6 +416,9 @@ td.cs-feeling { white-space: nowrap; }
           <td class="cs-feeling"><span class="feeling-badge badge-major">Resolved / Major</span></td>
         </tr>
 
+        <!-- FIX 1: Spicy note for Eb Maj / Cm corrected from "-" to "Bb"
+             Eb major triad (Eb–G–Bb) over Cm (C–Eb–G) = Cm7.
+             Bb is the characteristic b7 and is the "spicy" colour tone. -->
         <tr class="row-minor">
           <td class="cs-stack">
             <div class="cs-cell-wrap">
@@ -431,7 +434,7 @@ td.cs-feeling { white-space: nowrap; }
               <button class="cs-play-btn" data-type="scale" data-notes="C4,D4,Eb4,F4,G4,Ab4,Bb4,C5">▸ aeolian</button>
             </div>
           </td>
-          <td class="cs-spicy">-</td>
+          <td class="cs-spicy">Bb</td>
           <td class="cs-identity">b3, b7</td>
           <td class="cs-feeling"><span class="feeling-badge badge-minor">Dark / Minor</span></td>
         </tr>
@@ -476,6 +479,11 @@ td.cs-feeling { white-space: nowrap; }
           <td class="cs-feeling"><span class="feeling-badge badge-minor">Dark / Minor</span></td>
         </tr>
 
+        <!-- FIX 2: Gb Maj / C technical name corrected.
+             Gb major = Gb–Bb–Db. Over C root: Gb=b5, Bb=b7, Db=b2.
+             No b3 (Eb) or b6 (Ab) are present in this stack alone.
+             Corrected to C7b5b9 / Gb/C which reflects the actual stacked tones.
+             The Locrian scale context adds b3/b6 as scale tones, noted separately. -->
         <tr class="row-unstable">
           <td class="cs-stack">
             <div class="cs-cell-wrap">
@@ -483,7 +491,7 @@ td.cs-feeling { white-space: nowrap; }
               <button class="cs-play-btn" data-type="stack" data-lower="C4" data-upper="Gb3,Bb3,Db4">▸ stack</button>
             </div>
           </td>
-          <td class="cs-tech">C(b2,b3,b5,b6,b7)</td>
+          <td class="cs-tech">C7b5b9 / Gb/C</td>
           <td class="cs-sound">Locrian: broken, void, horror, unhinged</td>
           <td class="cs-scale">
             <div class="cs-cell-wrap">
@@ -492,10 +500,17 @@ td.cs-feeling { white-space: nowrap; }
             </div>
           </td>
           <td class="cs-spicy">Gb</td>
-          <td class="cs-identity">b2, b3, b5</td>
+          <td class="cs-identity">b2, b5, b7</td>
           <td class="cs-feeling"><span class="feeling-badge badge-unstable">Tense / Unstable</span></td>
         </tr>
 
+        <!-- FIX 3: Bdim / C(no 3rd) — two corrections:
+             (a) Recommended scale changed from "C Ionian" to "C Harmonic Minor."
+                 Bdim is the vii° chord of C harmonic minor (C–D–Eb–F–G–Ab–B),
+                 where B is the raised leading tone. C Ionian contains B but has
+                 no Eb/Ab — it does not contextualise a diminished chord over C.
+             (b) Scale button data-notes updated from Ionian to Harmonic Minor
+                 so the audio matches the label. -->
         <tr class="row-minor">
           <td class="cs-stack">
             <div class="cs-cell-wrap">
@@ -507,8 +522,8 @@ td.cs-feeling { white-space: nowrap; }
           <td class="cs-sound">High anxiety: unstable, shrinking, demands resolution</td>
           <td class="cs-scale">
             <div class="cs-cell-wrap">
-              C Ionian<br>(C–D–E–F–G–A–B)
-              <button class="cs-play-btn" data-type="scale" data-notes="C4,D4,E4,F4,G4,A4,B4,C5">▸ harm. minor</button>
+              C Harmonic Minor<br>(C–D–Eb–F–G–Ab–B)
+              <button class="cs-play-btn" data-type="scale" data-notes="C4,D4,Eb4,F4,G4,Ab4,B4,C5">▸ harm. minor</button>
             </div>
           </td>
           <td class="cs-spicy">B</td>
@@ -578,9 +593,9 @@ td.cs-feeling { white-space: nowrap; }
     osc2.frequency.value = freq * 2.001;
     osc3.frequency.value = freq * 0.5;
 
-    var g1 = ac.createGain(); g1.gain.value = 0.52;   /* was 0.28 */
-    var g2 = ac.createGain(); g2.gain.value = 0.16;   /* was 0.08 */
-    var g3 = ac.createGain(); g3.gain.value = 0.34;   /* was 0.18 */
+    var g1 = ac.createGain(); g1.gain.value = 0.52;
+    var g2 = ac.createGain(); g2.gain.value = 0.16;
+    var g3 = ac.createGain(); g3.gain.value = 0.34;
 
     var filter = ac.createBiquadFilter();
     filter.type = 'lowpass';
@@ -593,8 +608,8 @@ td.cs-feeling { white-space: nowrap; }
     gain.connect(ac.destination);
 
     gain.gain.setValueAtTime(0, startTime);
-    gain.gain.linearRampToValueAtTime(0.42, startTime + 0.025);  /* was 0.22 */
-    gain.gain.exponentialRampToValueAtTime(0.22, startTime + 0.15); /* was 0.12 */
+    gain.gain.linearRampToValueAtTime(0.42, startTime + 0.025);
+    gain.gain.exponentialRampToValueAtTime(0.22, startTime + 0.15);
     gain.gain.exponentialRampToValueAtTime(0.001, startTime + duration);
 
     osc1.start(startTime); osc2.start(startTime); osc3.start(startTime);
@@ -604,8 +619,8 @@ td.cs-feeling { white-space: nowrap; }
   }
 
   /* ── HOLD ENGINE ── */
-  var holdNodes = [];   /* active oscillators for current hold */
-  var holdGain  = null; /* master gain for current hold */
+  var holdNodes = [];
+  var holdGain  = null;
   var activeHoldBtn = null;
 
   function stopHold() {
@@ -642,7 +657,6 @@ td.cs-feeling { white-space: nowrap; }
     holdGain.gain.linearRampToValueAtTime(0.19, ac.currentTime + 0.06);
     holdGain.connect(ac.destination);
 
-    /* arp then hold */
     var arp = 0.11;
     freqs.forEach(function(freq, i) {
       var osc1 = ac.createOscillator();
@@ -674,7 +688,7 @@ td.cs-feeling { white-space: nowrap; }
     btn.textContent = '■ stop';
   }
 
-  /* ── PLAY STACK / SCALE (unchanged logic, louder via synth) ── */
+  /* ── PLAY STACK / SCALE ── */
   function parseNotes(str) {
     return str.split(',').map(function(n) { return n.trim(); });
   }
