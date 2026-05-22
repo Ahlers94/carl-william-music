@@ -5,15 +5,11 @@
   <a href="{{ '/about.html' | relative_url }}" class="{% if page.nav == 'about' %}active{% endif %}" id="nav-about">About Me</a>
   <a href="{{ '/shows.html' | relative_url }}" class="{% if page.nav == 'shows' %}active{% endif %}" id="nav-shows">Shows</a>
   <a href="{{ '/news.html' | relative_url }}" class="{% if page.permalink == '/news.html' %}active{% endif %}" id="nav-news">News</a>
-  
-  <!-- The Theory Dropdown Group -->
-  <div class="nav-dropdown-wrapper" id="nav-theory-wrapper">
-    <a href="{{ '/theory/chord-stacking/' | relative_url }}" class="{% if page.nav == 'theory' %}active{% endif %}" id="nav-theory-trigger">Theory</a>
-    <div class="nav-dropdown-content">
-      <a href="{{ '/theory/chord-stacking/' | relative_url }}" class="{% if page.url == '/theory/chord-stacking/' %}sub-active{% endif %}">// CHORD STACKING</a>
-      <a href="{{ '/theory/torus-of-fifths/' | relative_url }}" class="{% if page.url == '/theory/torus-of-fifths/' %}sub-active{% endif %}">// TORUS OF 5THS</a>
-    </div>
-  </div>
-
+  <!--
+  <a href="{{ '/fretdle.html' | relative_url }}" class="{% if page.nav == 'fretdle' %}active{% endif %}" id="nav-fretdle">Fretdle</a>
+  <a href="{{ '/frettris.html' | relative_url }}" class="{% if page.nav == 'frettris' %}active{% endif %}" id="nav-frettris">Frettris</a>
+  <a href="{{ '/invaders.html' | relative_url }}" class="{% if page.nav == 'invaders' %}active{% endif %}" id="nav-invaders">Invaders</a>
+  -->
+  <a href="{{ '/theory/chord-stacking/' | relative_url }}" class="{% if page.nav == 'theory' %}active{% endif %}" id="nav-theory">Theory</a>
   <a href="{{ '/matrix.html' | relative_url }}" class="{% if page.nav == 'matrix' %}active{% endif %}" id="nav-matrix">The Matrix</a>
 </nav>
