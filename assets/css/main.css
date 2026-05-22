@@ -150,42 +150,87 @@ header {
   margin-left: -48px; /* Pulls the gradient over the last items correctly */
 }
 /* ... (Ensure all other #nav- IDs remain in your CSS below this) */
-/* Per-tab colors — Super Famicom button palette */
-#nav-originals        { color: #b3001a; text-shadow: 0 0 8px #b3001a66; }
+/* ── PER-TAB COLORS (Super Famicom Palette) ─────────────────── */
+
+/* Logic: Combine :hover, .active, and [aria-current="page"] to ensure 
+   the active color persists whenever the page matches the link. */
+
 #nav-originals:hover,
-#nav-originals.active { color: #d4001a; border-bottom: 2px solid #d4001a; text-shadow: 0 0 12px #d4001a88; }
+#nav-originals.active,
+#nav-originals[aria-current="page"] { 
+  color: #d4001a; 
+  border-bottom: 2px solid #d4001a; 
+  text-shadow: 0 0 12px #d4001a88; 
+}
 
-#nav-covers         { color: #005fa8; text-shadow: 0 0 8px #005fa866; }
 #nav-covers:hover,
-#nav-covers.active  { color: #0070c9; border-bottom: 2px solid #0070c9; text-shadow: 0 0 12px #0070c988; }
+#nav-covers.active,
+#nav-covers[aria-current="page"] { 
+  color: #0070c9; 
+  border-bottom: 2px solid #0070c9; 
+  text-shadow: 0 0 12px #0070c988; 
+}
 
-#nav-gear          { color: #c08800; text-shadow: 0 0 8px #c0880066; }
 #nav-gear:hover,
-#nav-gear.active   { color: #e4a100; border-bottom: 2px solid #e4a100; text-shadow: 0 0 12px #e4a10088; }
+#nav-gear.active,
+#nav-gear[aria-current="page"] { 
+  color: #e4a100; 
+  border-bottom: 2px solid #e4a100; 
+  text-shadow: 0 0 12px #e4a10088; 
+}
 
-#nav-matrix        { color: #008a44; text-shadow: 0 0 8px #008a4466; }
 #nav-matrix:hover,
-#nav-matrix.active { color: #00a550; border-bottom: 2px solid #00a550; text-shadow: 0 0 12px #00a55088; }
+#nav-matrix.active,
+#nav-matrix[aria-current="page"] { 
+  color: #00a550; 
+  border-bottom: 2px solid #00a550; 
+  text-shadow: 0 0 12px #00a55088; 
+}
 
-#nav-about         { color: #8844cc; text-shadow: 0 0 8px #8844cc66; }
 #nav-about:hover,
-#nav-about.active  { color: #aa66ff; border-bottom: 2px solid #aa66ff; text-shadow: 0 0 12px #aa66ff88; }
+#nav-about.active,
+#nav-about[aria-current="page"] { 
+  color: #aa66ff; 
+  border-bottom: 2px solid #aa66ff; 
+  text-shadow: 0 0 12px #aa66ff88; 
+}
 
-#nav-shows         { color: #009999; text-shadow: 0 0 8px #00999966; }
 #nav-shows:hover,
-#nav-shows.active  { color: #00cccc; border-bottom: 2px solid #00cccc; text-shadow: 0 0 12px #00cccc88; }
+#nav-shows.active,
+#nav-shows[aria-current="page"] { 
+  color: #00cccc; 
+  border-bottom: 2px solid #00cccc; 
+  text-shadow: 0 0 12px #00cccc88; 
+}
 
-#nav-news          { color: #b06aff; text-shadow: 0 0 8px #b06aff66; }
 #nav-news:hover,
-#nav-news.active   { color: #cc88ff; border-bottom: 2px solid #cc88ff; text-shadow: 0 0 12px #cc88ff88; }
+#nav-news.active,
+#nav-news[aria-current="page"] { 
+  color: #cc88ff; 
+  border-bottom: 2px solid #cc88ff; 
+  text-shadow: 0 0 12px #cc88ff88; 
+}
 
-#nav-theory          { color: #ff7700; text-shadow: 0 0 8px #ff770066; }
 #nav-theory:hover,
-#nav-theory.active   { color: #ff9933; border-bottom: 2px solid #ff9933; text-shadow: 0 0 12px #ff993388; }
+#nav-theory.active,
+#nav-theory[aria-current="page"] { 
+  color: #ff9933; 
+  border-bottom: 2px solid #ff9933; 
+  text-shadow: 0 0 12px #ff993388; 
+}
 
+/* Add Sampler to the list */
+#nav-sampler:hover,
+#nav-sampler.active,
+#nav-sampler[aria-current="page"] { 
+  color: #00f5ff; 
+  border-bottom: 2px solid #00f5ff; 
+  text-shadow: 0 0 12px #00f5ff88; 
+}
 /* ── NAV TAB FADE-IN ──────────────────────────────────────────── */
 #site-nav li a {
-  opacity: 0; /* Everything is hidden by default */
+  opacity: 0;           /* Hides them so they can fade in */
+  will-change: opacity;/* Everything is hidden by default */
   animation: fadeInNav 0.3s ease forwards;
 }
 
@@ -198,6 +243,7 @@ header {
 #nav-news      { animation-delay: 1.35s; }
 #nav-theory    { animation-delay: 1.45s; }
 #nav-matrix    { animation-delay: 1.55s; }
+#nav-sampler   { animation-delay: 1.65s; }
 
 @keyframes fadeInNav { 
   to { opacity: 1; } 
