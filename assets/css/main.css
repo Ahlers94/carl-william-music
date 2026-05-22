@@ -951,3 +951,381 @@ footer span {
     flex-shrink: 0;
   }
 }
+
+
+<style>
+/* --- Casio SK-5 Retro Aesthetic Core --- */
+body {
+    background-color: #1a1a1a;
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    color: #e0e0e0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    margin: 0;
+    padding: 20px;
+    box-sizing: border-box;
+    user-select: none;
+}
+
+#sk5-app-container {
+    background-color: #2e3136; /* Matte charcoal chassis */
+    border: 6px solid #1f2124;
+    border-radius: 8px;
+    padding: 20px;
+    width: 960px;
+    box-shadow: 0 15px 35px rgba(0,0,0,0.6), inset 0 2px 2px rgba(255,255,255,0.1);
+}
+
+/* --- Control Console Layout --- */
+.control-panel {
+    display: flex;
+    justify-content: space-between;
+    background-color: #242629;
+    border-radius: 4px;
+    padding: 15px;
+    margin-bottom: 25px;
+    border-bottom: 4px solid #191b1d;
+}
+
+.panel-section {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    background-color: #1b1d20;
+    border: 1px solid #3a3f44;
+    border-radius: 4px;
+    padding: 12px;
+}
+
+/* Left Side Controls */
+.left-controls {
+    width: 20%;
+    gap: 12px;
+}
+
+.toggle-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    background: #242629;
+    padding: 6px;
+    border-radius: 3px;
+    border: 1px solid #111;
+}
+
+.switch-label {
+    font-size: 10px;
+    font-weight: bold;
+    letter-spacing: 1px;
+    color: #a0a6af;
+    text-align: center;
+}
+
+/* Retro Toggle Switches */
+.toggle-switch {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 9px;
+    font-weight: bold;
+}
+
+.toggle-text {
+    color: #888;
+}
+
+input[type="checkbox"]#quality-toggle,
+input[type="checkbox"]#length-toggle {
+    appearance: none;
+    width: 34px;
+    height: 16px;
+    background-color: #111;
+    border-radius: 3px;
+    position: relative;
+    cursor: pointer;
+    border: 1px solid #444;
+}
+
+input[type="checkbox"]#quality-toggle::before,
+input[type="checkbox"]#length-toggle::before {
+    content: '';
+    position: absolute;
+    width: 16px;
+    height: 14px;
+    background: #6c757d;
+    border-radius: 2px;
+    top: 0;
+    left: 0;
+    transition: left 0.1s ease;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.3), 0 1px 3px rgba(0,0,0,0.5);
+}
+
+input[type="checkbox"]:checked::before {
+    left: 16px;
+    background: #7ba29b; /* Muted teal accents popular on late-80s Casios */
+}
+
+/* Main Sampler Mode Toggle */
+input[type="checkbox"]#sampler-toggle {
+    appearance: none;
+    width: 40px;
+    height: 20px;
+    background-color: #151515;
+    border-radius: 10px;
+    position: relative;
+    cursor: pointer;
+    box-shadow: inset 0 2px 5px rgba(0,0,0,0.8);
+}
+
+input[type="checkbox"]#sampler-toggle::before {
+    content: '';
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: #999;
+    top: 2px;
+    left: 2px;
+    transition: all 0.1s ease;
+}
+
+input[type="checkbox"]#sampler-toggle:checked::before {
+    left: 22px;
+    background: #e0e0e0;
+}
+
+/* LED Indicator */
+.led-indicator {
+    width: 8px;
+    height: 8px;
+    background-color: #3a1111;
+    border-radius: 50%;
+    box-shadow: inset 0 1px 1px rgba(0,0,0,0.7);
+    transition: background-color 0.1s ease;
+}
+
+.led-indicator.led-on {
+    background-color: #ff3b30;
+    box-shadow: 0 0 8px #ff3b30, inset 0 1px 0 rgba(255,255,255,0.4);
+}
+
+/* Vintage Recording Button */
+.red-button {
+    background-color: #a92323;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    padding: 8px 16px;
+    font-weight: bold;
+    font-size: 11px;
+    letter-spacing: 1px;
+    cursor: pointer;
+    width: 100%;
+    box-shadow: 0 3px 0 #5c1313, 0 4px 5px rgba(0,0,0,0.4);
+}
+
+.red-button:active {
+    transform: translateY(2px);
+    box-shadow: 0 1px 0 #5c1313, 0 1px 2px rgba(0,0,0,0.4);
+}
+
+.red-button.rec-glowing-active {
+    background-color: #ef3b30;
+    animation: rec-pulse 1s infinite alternate;
+}
+
+@keyframes rec-pulse {
+    from { box-shadow: 0 0 4px #ff3b30; }
+    to { box-shadow: 0 0 14px #ff3b30; }
+}
+
+/* --- Center Section: Yellow Performance Pads --- */
+.pads-container {
+    width: 48%;
+    display: flex;
+    flex-direction: row;
+    gap: 12px;
+    justify-content: space-between;
+}
+
+.pad-group {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    grid-template-rows: repeat(2, 1fr);
+    gap: 8px;
+    width: 48%;
+}
+
+.yellow-pad {
+    background-color: #dcb342; /* Classic Casio Mustard Yellow */
+    color: #222;
+    font-weight: 800;
+    font-size: 10px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    box-shadow: 0 4px 0 #947424, 0 4px 6px rgba(0,0,0,0.4);
+    text-shadow: 0 1px 0 rgba(255,255,255,0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 10px 4px;
+    transition: transform 0.05s ease, box-shadow 0.05s ease;
+}
+
+.yellow-pad:active, .yellow-pad.pad-active-glow {
+    transform: translateY(3px);
+    box-shadow: 0 1px 0 #947424, 0 1px 2px rgba(0,0,0,0.4);
+    background-color: #ecd05b;
+}
+
+/* --- Right Side Parameters --- */
+.dropdowns-sliders {
+    width: 26%;
+    gap: 8px;
+}
+
+.menu-item {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.menu-item label {
+    font-size: 8.5px;
+    font-weight: bold;
+    color: #8a909a;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+}
+
+.dropdowns-sliders select {
+    background-color: #2a2d32;
+    color: #e0e0e0;
+    border: 1px solid #484e54;
+    border-radius: 3px;
+    padding: 4px;
+    font-size: 11px;
+    outline: none;
+}
+
+.tuning-container, .volume-container {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    margin-top: 4px;
+}
+
+.tuning-container label, .volume-container label {
+    font-size: 8.5px;
+    font-weight: bold;
+    color: #8a909a;
+}
+
+.tuning-container {
+    flex-direction: row;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.tuning-container label { width: 100%; }
+
+.small-btn {
+    background-color: #3a3f44;
+    color: #fff;
+    border: 1px solid #4f565f;
+    border-radius: 3px;
+    width: 24px;
+    height: 20px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.small-btn:active { background-color: #242629; }
+
+/* Retro Sliders */
+input[type="range"] {
+    appearance: none;
+    background: #111;
+    height: 6px;
+    border-radius: 3px;
+    outline: none;
+    border: 1px solid #333;
+    width: 100%;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+    appearance: none;
+    width: 12px;
+    height: 18px;
+    background: #6c757d;
+    border-radius: 2px;
+    cursor: pointer;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.4);
+    border: 1px solid #222;
+}
+
+/* --- Keybed Engine Section --- */
+.keyboard {
+    display: flex;
+    background-color: #111;
+    padding: 4px;
+    border-radius: 4px;
+    box-shadow: inset 0 4px 10px rgba(0,0,0,0.8), 0 1px 1px rgba(255,255,255,0.1);
+    position: relative;
+    height: 160px;
+}
+
+.key {
+    position: relative;
+    cursor: pointer;
+}
+
+.white-key {
+    background: linear-gradient(to bottom, #eeeeee 0%, #ffffff 100%);
+    width: 48px;
+    height: 100%;
+    border-left: 1px solid #bbb;
+    border-right: 1px solid #bbb;
+    border-bottom: 4px solid #d0d0d0;
+    border-radius: 0 0 3px 3px;
+    z-index: 1;
+    box-sizing: border-box;
+    transition: background 0.05s ease;
+}
+
+.white-key:active, .white-key.key-active {
+    background: linear-gradient(to bottom, #dddddd 0%, #e5e5e5 100%);
+    border-bottom: 1px solid #bbb;
+    height: calc(100% - 3px);
+    transform: translateY(3px);
+}
+
+.black-key {
+    background: linear-gradient(to bottom, #2b2b2b 0%, #111111 100%);
+    width: 28px;
+    height: 60%;
+    border-left: 1px solid #000;
+    border-right: 1px solid #000;
+    border-bottom: 3px solid #000;
+    border-radius: 0 0 2px 2px;
+    margin-left: -14px;
+    margin-right: -14px;
+    z-index: 2;
+    box-sizing: border-box;
+    box-shadow: 2px 3px 4px rgba(0,0,0,0.4);
+    transition: background 0.05s ease;
+}
+
+.black-key:active, .black-key.key-active {
+    background: linear-gradient(to bottom, #151515 0%, #000000 100%);
+    height: calc(60% - 2px);
+    transform: translateY(2px);
+    box-shadow: 1px 1px 2px rgba(0,0,0,0.4);
+}
+</style>
