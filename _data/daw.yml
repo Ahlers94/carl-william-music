@@ -15,4 +15,43 @@ pads:
   - id: 3
     note: 38
     label: "SNARE 1"
+  - id: 4
+    note: 39
+    label: "KICK 1"
+  - id: 5
+    note: 40
+    label: "KICK 2"
+  - id: 6
+    note: 41
+    label: "SNARE 1"
+  - id: 7
+    note: 42
+    label: "KICK 1"
+  - id: 8
+    note: 43
+    label: "KICK 2"
+  - id: 9
+    note: 44
+    label: "SNARE 1"
+  - id: 10
+    note: 45
+    label: "KICK 1"
+  - id: 11
+    note: 46
+    label: "KICK 2"
+  - id: 12
+    note: 47
+    label: "SNARE 1"
+  - id: 13
+    note: 48
+    label: "KICK 1"
+  - id: 14
+    note: 49
+    label: "KICK 2"
+  - id: 15
+    note: 50
+    label: "SNARE 1"
+  - id: 16
+    note: 51
+    label: "SNARE 1"
   # ... Add remaining pads up to 16 (Note 51)
