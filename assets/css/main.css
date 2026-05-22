@@ -815,5 +815,5 @@ footer span {
   }
   .right-col { display: none; }
   .left-col { padding: 24px; }
-  
+} /* <-- This brace is required to close the @media query */
 
