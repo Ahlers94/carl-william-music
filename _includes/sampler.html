@@ -1,0 +1,127 @@
+<div id="sk5-app-container">
+    
+    <!-- Top Control Console -->
+    <div class="control-panel">
+        
+        <!-- Left Side: Global / Sampler State Controls -->
+        <div class="panel-section left-controls">
+            <div class="toggle-container">
+                <label class="switch-label">SAMPLER MODE</label>
+                <input type="checkbox" id="sampler-toggle">
+                <span class="led-indicator" id="sampler-led"></span>
+            </div>
+            
+            <div class="button-container">
+                <button id="rec-button" class="pad-style red-button">REC</button>
+            </div>
+            
+            <div class="toggle-container">
+                <label class="switch-label">QUALITY</label>
+                <div class="toggle-switch">
+                    <span class="toggle-text">LO (8-bit)</span>
+                    <input type="checkbox" id="quality-toggle" checked>
+                    <span class="toggle-text">HI</span>
+                </div>
+            </div>
+
+            <div class="toggle-container">
+                <label class="switch-label">SAMPLE LENGTH</label>
+                <div class="toggle-switch">
+                    <span class="toggle-text">SHORT</span>
+                    <input type="checkbox" id="length-toggle">
+                    <span class="toggle-text">LONG</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Center: The 8 Yellow Performance Pads -->
+        <div class="panel-section pads-container">
+            <!-- Group 1: Internal Drum Voice Pads -->
+            <div class="pad-group drum-pads">
+                <button class="yellow-pad" data-pad="hi-bongo">HI BONGO</button>
+                <button class="yellow-pad" data-pad="lo-bongo">LOW BONGO</button>
+                <button class="yellow-pad" data-pad="kick">KICK</button>
+                <button class="yellow-pad" data-pad="snare">SNARE</button>
+            </div>
+            
+            <!-- Group 2: Sample Trigger Pads -->
+            <div class="pad-group sample-pads">
+                <button class="yellow-pad" data-pad="sample-1">SAMPLE 1</button>
+                <button class="yellow-pad" data-pad="sample-2">SAMPLE 2</button>
+                <button class="yellow-pad" data-pad="sample-3">SAMPLE 3</button>
+                <button class="yellow-pad" data-pad="sample-4">SAMPLE 4</button>
+            </div>
+        </div>
+
+        <!-- Right Side: Signal Parameters & Selectors -->
+        <div class="panel-section dropdowns-sliders">
+            <div class="menu-item">
+                <label>FX SELECT</label>
+                <select id="fx-dropdown">
+                    <option value="none">None</option>
+                    <option value="loop">Looping</option>
+                    <option value="reverse">Reverse Playback</option>
+                    <option value="envelope">ADSR Envelope</option>
+                </select>
+            </div>
+
+            <div class="menu-item">
+                <label>ACTIVE SAMPLE SLOT</label>
+                <select id="sample-dropdown">
+                    <option value="0">Sample 1</option>
+                    <option value="1">Sample 2</option>
+                    <option value="2">Sample 3</option>
+                    <option value="3">Sample 4</option>
+                </select>
+            </div>
+
+            <div class="menu-item">
+                <label>VOICE PRESET</label>
+                <select id="voice-dropdown">
+                    <option value="piano">Piano (PCM)</option>
+                    <option value="flute">Flute (PCM)</option>
+                    <option value="trumpet">Trumpet (PCM)</option>
+                    <option value="violin">Violin (PCM)</option>
+                    <option value="pipe-organ">Pipe Organ (PCM)</option>
+                    <option value="vibraphone">Vibraphone (PCM)</option>
+                    <option value="synth">Synth (PCM)</option>
+                    <option value="chorus">Chorus (PCM)</option>
+                </select>
+            </div>
+
+            <div class="menu-item">
+                <label>RHYTHM TRACK</label>
+                <select id="rhythm-dropdown">
+                    <option value="none">Stop Rhythm</option>
+                    <option value="rock1">Rock 1</option>
+                    <option value="disco1">Disco 1</option>
+                    <option value="16beat">16 Beat</option>
+                    <option value="bossanova">Bossa Nova</option>
+                    <option value="slowrock">Slow Rock</option>
+                    <option value="rock2">Rock 2</option>
+                    <option value="disco2">Disco 2</option>
+                    <option value="march">March</option>
+                    <option value="samba">Samba</option>
+                    <option value="waltz">Waltz</option>
+                </select>
+            </div>
+
+            <div class="tuning-container">
+                <label>SAMPLE TUNE</label>
+                <button id="tune-down-btn" class="small-btn">-</button>
+                <button id="tune-up-btn" class="small-btn">+</button>
+                <input type="range" id="fine-tune-slider" min="-100" max="100" value="0" step="1">
+            </div>
+
+            <div class="volume-container">
+                <label>MASTER VOLUME</label>
+                <input type="range" id="master-volume" min="0" max="1" value="0.7" step="0.01">
+            </div>
+        </div>
+    </div>
+
+    <!-- Music Keyboard: 32 Mini Keys -->
+    <div id="keyboard-bed" class="keyboard">
+        <!-- Generated Programmatically via JS -->
+    </div>
+</div>
