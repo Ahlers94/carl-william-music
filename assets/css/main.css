@@ -90,12 +90,9 @@ header {
 @keyframes slideIn {
   to { opacity: 1; transform: translateY(0); }
 }
-
 /* ── NAVIGATION ─────────────────────────────────────────────── */
-/* Update your main.css to target the specific ID */
 #site-nav {
   display: flex;
-  flex-direction: row;        /* Explicitly forces horizontal row */
   background: #10101e;
   border-bottom: 1px solid #ffffff15;
   position: sticky;
@@ -104,29 +101,30 @@ header {
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
   scrollbar-width: none;
-  /* Add this to ensure it doesn't try to wrap */
   flex-wrap: nowrap; 
 }
 
-/* Ensure the scrollbar override targets the ID as well */
 #site-nav::-webkit-scrollbar { display: none; }
 
-/* If you have that pseudo-element, make sure it targets the ID too */
-#site-nav::after {
-  content: '';
-  position: absolute; /* Changed from sticky to absolute for stability */
-  right: 0;
-  top: 0;
-  min-width: 48px;
-  height: 100%;
-  background: linear-gradient(to right, transparent, #10101e);
-  pointer-events: none;
+/* 1. Force the list to act as a horizontal flex row */
+#site-nav ul {
+  display: flex;
+  flex-direction: row;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+/* 2. Force the list items to behave as flex containers */
+#site-nav li {
+  display: flex;
   flex-shrink: 0;
 }
 
-nav a {
-  display: flex;         /* Change from 'block' to 'flex' */
-  align-items: center;   /* Keeps text perfectly centered vertically */
+/* 3. Style the anchors within the list */
+#site-nav li a {
+  display: flex;
+  align-items: center;
   padding: 12px 24px;
   font-size: 11px;
   letter-spacing: 2px;
@@ -136,9 +134,22 @@ nav a {
   border-right: 1px solid #ffffff0d;
   transition: color 0.2s, border-bottom-color 0.2s;
   white-space: nowrap;
-  flex-shrink: 0;
 }
 
+/* Pseudo-element for fade effect */
+#site-nav::after {
+  content: '';
+  position: sticky;
+  right: 0;
+  top: 0;
+  min-width: 48px;
+  height: 100%;
+  background: linear-gradient(to right, transparent, #10101e);
+  pointer-events: none;
+  flex-shrink: 0;
+  margin-left: -48px; /* Pulls the gradient over the last items correctly */
+}
+/* ... (Ensure all other #nav- IDs remain in your CSS below this) */
 /* Per-tab colors — Super Famicom button palette */
 #nav-originals        { color: #b3001a; text-shadow: 0 0 8px #b3001a66; }
 #nav-originals:hover,
