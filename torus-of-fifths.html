@@ -1,0 +1,324 @@
+---
+layout: default
+title: Torus of Fifths Geometric Matrix
+description: Multi-dimensional chord vectors and voice-leading lattices mapped in higher intervals.
+nav: theory
+permalink: /theory/torus-of-fifths/
+---
+
+<style>
+.cs-page {
+  padding: 32px 32px 64px 40px;
+}
+@media (max-width: 720px) { .cs-page { padding: 20px 14px 48px; } }
+
+.cs-page-header { margin-bottom: 22px; }
+
+.cs-page-header h1 {
+  font-family: 'VT323', monospace;
+  font-size: clamp(30px, 5vw, 48px);
+  color: #c084fc;
+  text-shadow: 2px 2px 0 #3b0764, 0 0 28px #a855f799;
+  letter-spacing: 3px;
+  line-height: 1;
+  margin-bottom: 6px;
+}
+.cs-sub {
+  font-size: 10px;
+  color: var(--cyan, #00f5ff);
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  opacity: 0.75;
+  margin-bottom: 16px;
+}
+.cs-download-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: 'Space Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  text-decoration: none;
+  color: #c084fc;
+  border: 1px solid #a855f766;
+  padding: 7px 16px;
+  text-shadow: 0 0 8px #a855f777;
+  transition: background 0.2s, border-color 0.2s, text-shadow 0.2s;
+}
+.cs-download-btn:hover {
+  background: #a855f718;
+  border-color: #c084fcaa;
+  text-shadow: 0 0 14px #c084fccc;
+}
+.cs-download-btn svg { flex-shrink: 0; stroke: currentColor; }
+
+.cs-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px 18px;
+  margin-bottom: 14px;
+  font-family: 'Space Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+.cs-legend-item { display: flex; align-items: center; gap: 7px; }
+.cs-legend-dot { width: 8px; height: 8px; flex-shrink: 0; }
+
+table.cs-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: 'Space Mono', monospace;
+  font-size: 9.5px;
+  table-layout: fixed;
+  border: 1px solid #a855f733;
+  box-shadow: 0 0 20px #a855f710;
+  position: relative;
+}
+table.cs-table::before {
+  content: '';
+  display: block;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, #a855f7, #00f5ff, transparent);
+}
+
+/* MTT Page Structural Layout Distribution */
+table.cs-table col.c-stack    { width: 10%; }
+table.cs-table col.c-tech     { width: 14%; }
+table.cs-table col.c-sound    { width: 20%; }
+table.cs-table col.c-scale    { width: 22%; }
+table.cs-table col.c-spicy    { width: 8%;  }
+table.cs-table col.c-identity { width: 11%; }
+table.cs-table col.c-feeling  { width: 15%; }
+
+table.cs-table thead tr { background: #0a0a18; border-bottom: 1px solid #a855f744; }
+table.cs-table thead th {
+  padding: 9px 10px;
+  text-align: left;
+  font-size: 8.5px;
+  letter-spacing: 2.5px;
+  text-transform: uppercase;
+  color: #00f5ff;
+  white-space: nowrap;
+  border-right: 1px solid #ffffff08;
+  font-weight: 400;
+  overflow: hidden;
+}
+
+table.cs-table tbody tr { border-bottom: 1px solid #ffffff0d; transition: filter 0.15s; }
+table.cs-table tbody tr:hover { filter: brightness(1.18); }
+
+table.cs-table tbody td {
+  padding: 9px 10px;
+  vertical-align: top;
+  border-right: 1px solid #ffffff08;
+  line-height: 1.55;
+  overflow: hidden;
+}
+
+.row-major    td { background: #00ff4114; color: #b3ffcc; }
+.row-minor    td { background: #c084fc18; color: #ddb3ff; }
+.row-sus      td { background: #ffd70014; color: #fff0a0; }
+.row-unstable td { background: #ff2d7814; color: #ffb3cc; }
+
+td.cs-stack {
+  font-size: 9.5px;
+  font-weight: 700;
+  overflow: hidden;
+}
+.row-major    td.cs-stack { color: #00ff41; text-shadow: 0 0 8px #00ff4166; }
+.row-minor    td.cs-stack { color: #c084fc; text-shadow: 0 0 8px #c084fc66; }
+.row-sus      td.cs-stack { color: #ffd700; text-shadow: 0 0 8px #ffd70066; }
+.row-unstable td.cs-stack { color: #ff2d78; text-shadow: 0 0 8px #ff2d7866; }
+
+td.cs-tech { font-size: 8.5px; overflow: hidden; text-overflow: ellipsis; }
+.row-major    td.cs-tech { color: #00e87a; }
+.row-minor    td.cs-tech { color: #bf7fff; }
+.row-sus      td.cs-tech { color: #ffe066; }
+.row-unstable td.cs-tech { color: #ff6699; }
+
+td.cs-sound { font-size: 9px; line-height: 1.5; }
+td.cs-scale { font-size: 8.5px; line-height: 1.65; }
+
+td.cs-spicy { font-weight: 700; font-size: 10px; white-space: nowrap; }
+.row-major    td.cs-spicy { color: #00ff41; text-shadow: 0 0 6px #00ff4155; }
+.row-minor    td.cs-spicy { color: #c084fc; text-shadow: 0 0 6px #c084fc55; }
+.row-sus      td.cs-spicy { color: #ffd700; text-shadow: 0 0 6px #ffd70055; }
+.row-unstable td.cs-spicy { color: #ff2d78; text-shadow: 0 0 6px #ff2d7855; }
+
+td.cs-identity { font-size: 8.5px; white-space: nowrap; }
+td.cs-feeling { white-space: nowrap; }
+
+.feeling-badge {
+  display: inline-block;
+  font-size: 8px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  padding: 3px 7px;
+  border: 1px solid;
+  white-space: nowrap;
+}
+.badge-major    { color: #00ff41; border-color: #00ff4155; background: #00ff4110; text-shadow: 0 0 6px #00ff4155; }
+.badge-minor    { color: #c084fc; border-color: #c084fc55; background: #c084fc10; text-shadow: 0 0 6px #c084fc55; }
+.badge-sus      { color: #ffd700; border-color: #ffd70055; background: #ffd70010; text-shadow: 0 0 6px #ffd70055; }
+.badge-unstable { color: #ff2d78; border-color: #ff2d7855; background: #ff2d7810; text-shadow: 0 0 6px #ff2d7855; }
+
+.cs-cell-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+.cs-play-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-family: 'Space Mono', monospace;
+  font-size: 7.5px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  border: 1px solid;
+  padding: 2px 6px;
+  background: transparent;
+  cursor: pointer;
+  transition: background 0.15s, text-shadow 0.15s;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.cs-play-btn svg { flex-shrink: 0; }
+.cs-play-btn.playing { opacity: 0.5; cursor: default; }
+
+.row-major    .cs-play-btn { color: #00ff41; border-color: #00ff4133; }
+.row-major    .cs-play-btn:hover { background: #00ff4110; text-shadow: 0 0 6px #00ff4155; }
+.row-minor    .cs-play-btn { color: #c084fc; border-color: #c084fc33; }
+.row-minor    .cs-play-btn:hover { background: #c084fc10; text-shadow: 0 0 6px #c084fc55; }
+.row-sus      .cs-play-btn { color: #ffd700; border-color: #ffd70033; }
+.row-sus      .cs-play-btn:hover { background: #ffd70010; text-shadow: 0 0 6px #ffd70055; }
+.row-unstable .cs-play-btn { color: #ff2d78; border-color: #ff2d7833; }
+.row-unstable .cs-play-btn:hover { background: #ff2d7810; text-shadow: 0 0 6px #ff2d7855; }
+
+.cs-footnote {
+  margin-top: 16px;
+  font-size: 9px;
+  color: var(--dim, #666);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+@media (max-width: 900px) {
+  .cs-table-scroll { overflow-x: auto; }
+  table.cs-table { min-width: 820px; table-layout: auto; }
+}
+</style>
+
+<div class="cs-page tab-fade">
+
+  <div class="cs-page-header">
+    <div class="section-label">Theory</div>
+    <h1>Torus of Fifths Geometry</h1>
+    <p class="cs-sub">Multi-Dimensional Tonnetz Vectors &mdash; Hypersurfaces, Voice Leading, &amp; Geometric Structures</p>
+    <a class="cs-download-btn"
+       href="{{ '/assets/downloads/Torus_of_Fifths_Matrix.xlsx' | relative_url }}"
+       download>
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+        <polyline points="7 10 12 15 17 10"/>
+        <line x1="12" y1="15" x2="12" y2="3"/>
+      </svg>
+      Download .xlsx Map
+    </a>
+  </div>
+
+  <div class="cs-legend">
+    <span class="cs-legend-item">
+      <span class="cs-legend-dot" style="background:#00ff4133;border:1px solid #00ff4166"></span>
+      <span style="color:#00ff41">1D Linear / Circle</span>
+    </span>
+    <span class="cs-legend-item">
+      <span class="cs-legend-dot" style="background:#c084fc33;border:1px solid #c084fc66"></span>
+      <span style="color:#c084fc">2D Standard Torus</span>
+    </span>
+    <span class="cs-legend-item">
+      <span class="cs-legend-dot" style="background:#ffd70033;border:1px solid #ffd70066"></span>
+      <span style="color:#ffd700">3D Hypertorus</span>
+    </span>
+    <span class="cs-legend-item">
+      <span class="cs-legend-dot" style="background:#ff2d7833;border:1px solid #ff2d7866"></span>
+      <span style="color:#ff2d78">4D+ Non-Euclidean</span>
+    </span>
+  </div>
+
+  <div class="cs-table-scroll">
+    <table class="cs-table">
+      <colgroup>
+        <col class="c-stack">
+        <col class="c-tech">
+        <col class="c-sound">
+        <col class="c-scale">
+        <col class="c-spicy">
+        
+        <col class="c-feeling">
+      </colgroup>
+      <thead>
+        <tr>
+          <th>DIMENSION</th>
+          <th>GEOMETRIC SPACE</th>
+          <th>INTERVAL VECTOR AXES</th>
+          <th>TOPOLOGICAL WRAPPING PROPERTIES</th>
+          <th>SPICY NODE</th>
+          <th>CHORD TYPES</th>
+          <th>STRUCTURAL FEELING</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr class="row-major">
+          <td class="cs-stack">1D</td>
+          <td class="cs-tech">Circle Topology</td>
+          <td class="cs-sound">Perfect 5ths (7 semitones)</td>
+          <td class="cs-scale">Loops perfectly after 12 steps in equal temperament. Traces key signatures and basic root movement linearly.</td>
+          <td class="cs-spicy">F# / Gb</td>
+          Power Chords / Diatonic</td>
+          <td class="cs-feeling">
+            <span class="feeling-badge badge-major">Resolved / Flat</span>
+          </td>
+        </tr>
+        <tr class="row-minor">
+          <td class="cs-stack">2D</td>
+          <td class="cs-tech">Standard Torus (T²)</td>
+          <td class="cs-sound">Perfect 5ths + Major 3rds</td>
+          <td class="cs-scale">Classical Euler-Tonnetz grid. X-axis wraps by 5ths, Y-axis wraps by 3rds. Triads emerge as adjacent spatial triangles on a donut surface.</td>
+          <td class="cs-spicy">Major 7th</td>
+          Triads (Maj / Min)</td>
+          <td class="cs-feeling">
+            <span class="feeling-badge badge-minor">Consonant / Linked</span>
+          </td>
+        </tr>
+        <tr class="row-sus">
+          <td class="cs-stack">3D</td>
+          <td class="cs-tech">3-Torus Hypertorus (T³)</td>
+          <td class="cs-sound">5ths + Major 3rds + Minor 3rds</td>
+          <td class="cs-scale">Three-dimensional cubic lattice mapping. Allows complex chord modulations to glide natively across coordinates without cutting structural vectors.</td>
+          <td class="cs-spicy">Dominant 9th</td>
+          Tetrahedral 7th Chords</td>
+          <td class="cs-feeling">
+            <span class="feeling-badge badge-sus">Ambiguous / Floating</span>
+          </td>
+        </tr>
+        <tr class="row-unstable">
+          <td class="cs-stack">4D+</td>
+          <td class="cs-tech">Orbifold / Hypersurface</td>
+          <td class="cs-sound">Multiple Independent Voice-Lines</td>
+          <td class="cs-scale">Advanced Riemannian spaces mapping 4+ voices simultaneously (Soprano/Alto/Tenor/Bass). Folds or clips configuration space to filter out note octaves.</td>
+          <td class="cs-spicy">Sharp 11th</td>
+          Jazz Extensions / Polychords</td>
+          <td class="cs-feeling">
+            <span class="feeling-badge badge-unstable">Complex / Unstable</span>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p class="cs-footnote">* NOTE: Geometric shifts between non-adjacent cells correspond to voice-leading actions across higher topological boundary planes.</p>
+
+</div>
