@@ -5,12 +5,13 @@ var BrowserDAW = {
   // ── ENGINE STATES ─────────────────────────────────────────
   audioCtx: null,
   isPlaying: false,
+  isRecording: false,
   currentStep: 0,
   tempo: 120,
   nextNoteTime: 0.0,
-  lookahead: 25.0,      // How frequently to call scheduler (in milliseconds)
+  lookahead: 25.0,        // How frequently to call scheduler (in milliseconds)
   scheduleAheadTime: 0.1, // How far ahead to schedule audio (in seconds)
-  timerId: null,        // Standard setInterval fallback for legacy thread safety
+  timerId: null,         // Standard setInterval fallback for legacy thread safety
   
   // ── DATA TRACKING ─────────────────────────────────────────
   activeVoices: {},    // Tracks playing notes: { noteNumber: [{ source, gain }] }
@@ -23,6 +24,7 @@ var BrowserDAW = {
     this.initSequenceGrid();
     this.bindTransportControls();
     this.bindPhysicalPads();
+    this.setupWebMIDI();
 
     // Unlock AudioContext safely across modern & vintage WebKit variants
     document.body.addEventListener('click', function() {
@@ -180,14 +182,72 @@ var BrowserDAW = {
     }, delayMs);
   },
 
+  // ── NATIVE WEB MIDI BRIDGE ────────────────────────────────
+  setupWebMIDI: function() {
+    var self = this;
+    var midiStatusEl = document.getElementById('midi-status');
+    
+    if (!navigator.requestMIDIAccess) {
+      if (midiStatusEl) {
+        midiStatusEl.textContent = "MIDI: UNSUPPORTED";
+        midiStatusEl.classList.remove('blink');
+      }
+      return;
+    }
+
+    navigator.requestMIDIAccess().then(
+      function(midiAccess) {
+        if (midiStatusEl) {
+          midiStatusEl.textContent = "MIDI: READY";
+          midiStatusEl.classList.remove('blink');
+        }
+        
+        var inputs = midiAccess.inputs.values();
+        // Legacy-safe iterator step evaluation
+        for (var input = inputs.next(); input && !input.done; input = inputs.next()) {
+          input.value.onmidimessage = function(msg) {
+            self.handleMidiMessage(msg);
+          };
+        }
+      },
+      function(err) {
+        if (midiStatusEl) {
+          midiStatusEl.textContent = "MIDI: ERROR";
+          midiStatusEl.classList.remove('blink');
+        }
+        console.error("MIDI access denied: ", err);
+      }
+    );
+  },
+
+  handleMidiMessage: function(message) {
+    this.unlockAudioContext();
+    var status = message.data[0];
+    var note = message.data[1];
+    var velocity = message.data[2];
+    
+    // Note On status byte (144 = Channel 1 Note On)
+    if (status === 144 && velocity > 0) {
+      this.triggerPad(note, velocity);
+    }
+    // Note Off status byte (128 = Channel 1 Note Off)
+    if (status === 128 || (status === 144 && velocity === 0)) {
+      this.stopPad(note);
+    }
+  },
+
   // ── UI & HARDWARE BINDINGS ────────────────────────────────
   visualizePad: function(note, isActive) {
     var padElement = document.querySelector('.mpc-pad[data-note="' + note + '"]');
     if (!padElement) return;
+    
+    // Clean integration: handles both standard user CSS classes (.active and .pad-active)
     if (isActive) {
       padElement.classList.add('active');
+      padElement.classList.add('pad-active');
     } else {
       padElement.classList.remove('active');
+      padElement.classList.remove('pad-active');
     }
   },
 
@@ -211,6 +271,7 @@ var BrowserDAW = {
     var self = this;
     var playBtn = document.getElementById('btn-play');
     var stopBtn = document.getElementById('btn-stop');
+    var recBtn = document.getElementById('btn-rec');
 
     if (playBtn) {
       playBtn.addEventListener('click', function() {
@@ -220,6 +281,9 @@ var BrowserDAW = {
           self.currentStep = 0;
           self.nextNoteTime = self.audioCtx.currentTime + 0.05;
           
+          playBtn.classList.add('transport-active');
+          if (stopBtn) stopBtn.classList.remove('transport-active');
+
           // Legacy-safe interval loop execution
           self.timerId = setInterval(function() {
             self.scheduler();
@@ -234,12 +298,26 @@ var BrowserDAW = {
           self.isPlaying = false;
           clearInterval(self.timerId);
           
+          if (playBtn) playBtn.classList.remove('transport-active');
+          stopBtn.classList.add('transport-active');
+
           // Flush out any playing sounds immediately using unified array stack drainer
           for (var note in self.activeVoices) {
             if (self.activeVoices.hasOwnProperty(note)) {
               self.stopPad(parseInt(note, 10));
             }
           }
+        }
+      });
+    }
+
+    if (recBtn) {
+      recBtn.addEventListener('click', function() {
+        self.isRecording = !self.isRecording;
+        if (self.isRecording) {
+          recBtn.classList.add('recording-active');
+        } else {
+          recBtn.classList.remove('recording-active');
         }
       });
     }
