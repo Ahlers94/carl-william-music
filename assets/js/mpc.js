@@ -8,12 +8,12 @@ var BrowserDAW = {
   currentStep: 0,
   tempo: 120,
   nextNoteTime: 0.0,
-  lookahead: 25.0,     // How frequently to call scheduler (in milliseconds)
+  lookahead: 25.0,      // How frequently to call scheduler (in milliseconds)
   scheduleAheadTime: 0.1, // How far ahead to schedule audio (in seconds)
-  timerId: null,       // Standard setInterval fallback for legacy thread safety
+  timerId: null,        // Standard setInterval fallback for legacy thread safety
   
   // ── DATA TRACKING ─────────────────────────────────────────
-  activeVoices: {},    // Tracks playing notes: { noteNumber: { source, gain } }
+  activeVoices: {},    // Tracks playing notes: { noteNumber: [{ source, gain }] }
   sampleCache: {},     // AudioBuffer storage matching MIDI note keys
   sequenceGrid: null,  // 16-step grid tracking array data
 
@@ -51,7 +51,7 @@ var BrowserDAW = {
     for (var i = 0; i < 16; i++) {
       this.sequenceGrid.push([]);
     }
-    // Pre-load a iconic 4-on-the-floor test grid (Note 36 = Kick Drum)
+    // Pre-load an iconic 4-on-the-floor test grid (Note 36 = Kick Drum)
     this.sequenceGrid[0].push(36);
     this.sequenceGrid[4].push(36);
     this.sequenceGrid[8].push(36);
@@ -77,44 +77,65 @@ var BrowserDAW = {
     return buffer;
   },
 
-  // ── TRIGGER & VOICING PARADIGMS ───────────────────────────
-  triggerPad: function(note, velocity) {
-    this.unlockAudioContext();
-    if (!this.audioCtx) return;
-
-    this.handleChoke(note);
+  // ── UNIFIED VOICE GENERATION PIPELINE ─────────────────────
+  createVoiceNode: function(note, time, volume) {
+    this.handleChoke(note); // Clear out existing voices on this pad first
 
     var source = this.audioCtx.createBufferSource();
     var voiceGain = this.audioCtx.createGain();
     
     source.buffer = this.getBuffer(note);
-    voiceGain.gain.setValueAtTime(velocity / 127, this.audioCtx.currentTime);
+    voiceGain.gain.setValueAtTime(volume, time);
     
     source.connect(voiceGain);
     voiceGain.connect(this.audioCtx.destination);
-    source.start(this.audioCtx.currentTime);
+    source.start(time);
 
-    this.activeVoices[note] = { source: source, gain: voiceGain };
+    // Track active voices via an array stack to allow polyphonic overlapping
+    if (!this.activeVoices[note]) {
+      this.activeVoices[note] = [];
+    }
+    this.activeVoices[note].push({ source: source, gain: voiceGain });
+  },
+
+  handleChoke: function(note) {
+    // Basic exclusive group emulation: Stop previous voice tail instantly 
+    // to keep rapid rolls or sequence step triggers from bleeding out
+    if (this.activeVoices[note] && this.activeVoices[note].length > 0) {
+      while (this.activeVoices[note].length > 0) {
+        var voice = this.activeVoices[note].shift();
+        try {
+          voice.source.stop(this.audioCtx.currentTime);
+        } catch (e) {}
+      }
+    }
+  },
+
+  // ── TRIGGER & VOICING PARADIGMS ───────────────────────────
+  triggerPad: function(note, velocity) {
+    this.unlockAudioContext();
+    if (!this.audioCtx) return;
+
+    var targetVolume = velocity / 127;
+    this.createVoiceNode(note, this.audioCtx.currentTime, targetVolume);
     this.visualizePad(note, true);
   },
 
   stopPad: function(note) {
-    if (this.activeVoices[note]) {
-      try {
-        this.activeVoices[note].source.stop(this.audioCtx.currentTime);
-      } catch(e) {
-        // Safe catch for nodes already completed naturally
+    if (this.activeVoices[note] && this.activeVoices[note].length > 0) {
+      while (this.activeVoices[note].length > 0) {
+        var voice = this.activeVoices[note].shift();
+        try {
+          // Smoothly ramp down the gain envelope to handle clean tail fades without popping
+          voice.gain.gain.setValueAtTime(voice.gain.gain.value, this.audioCtx.currentTime);
+          voice.gain.gain.linearRampToValueAtTime(0.0, this.audioCtx.currentTime + 0.005);
+          
+          // Hard kill the source oscillator right after the fade clears
+          voice.source.stop(this.audioCtx.currentTime + 0.006);
+        } catch (e) {}
       }
-      delete this.activeVoices[note];
     }
     this.visualizePad(note, false);
-  },
-
-  handleChoke: function(note) {
-    // Basic MPC choke group logic: Re-striking a pad truncates its trailing ring tail
-    if (this.activeVoices[note]) {
-      this.stopPad(note);
-    }
   },
 
   // ── HIGH-PRECISION SCHEDULER LOOP ─────────────────────────
@@ -142,18 +163,8 @@ var BrowserDAW = {
     
     for (var i = 0; i < notes.length; i++) {
       var note = notes[i];
-      var source = this.audioCtx.createBufferSource();
-      var voiceGain = this.audioCtx.createGain();
-      
-      source.buffer = this.getBuffer(note);
-      voiceGain.gain.setValueAtTime(1.0, time);
-      
-      source.connect(voiceGain);
-      voiceGain.connect(this.audioCtx.destination);
-      source.start(time);
-      
-      // Keep state registry synced
-      this.activeVoices[note] = { source: source, gain: voiceGain };
+      // Fire through the exact same unified creation pipeline as raw manual taps
+      this.createVoiceNode(note, time, 1.0);
     }
 
     // Defer visual interface updates gracefully away from the audio thread
@@ -223,10 +234,10 @@ var BrowserDAW = {
           self.isPlaying = false;
           clearInterval(self.timerId);
           
-          // Flush out any playing sounds immediately
+          // Flush out any playing sounds immediately using unified array stack drainer
           for (var note in self.activeVoices) {
             if (self.activeVoices.hasOwnProperty(note)) {
-              self.stopPad(note);
+              self.stopPad(parseInt(note, 10));
             }
           }
         }
