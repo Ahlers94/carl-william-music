@@ -16,26 +16,26 @@ nav: sampler
 
     :root {
       --bg:          #0b0b0b;
-      --chassis:     #181818;
-      --panel:       #1f1f1f;
-      --panel-deep:  #141414;
-      --border:      #2c2c2c;
-      --border-hi:   #383838;
-      --amber:       #ffaa00;
-      --amber-lo:    rgba(255,170,0,0.35);
-      --amber-dim:   #3a2200;
-      --amber-mid:   #7a4400;
-      --green:       #22dd66;
-      --green-lo:    rgba(34,221,102,0.3);
-      --red:         #ff2200;
-      --red-lo:      rgba(255,34,0,0.4);
-      --text:        #cc8800;
-      --text-hi:     #ffcc55;
-      --text-lo:     #4a3000;
-      --text-dim:    #5a3800;
-      --white-key:   #e2d8c4;
-      --white-key-border: #999;
-      --black-key:   #161616;
+      --chassis:     #141414;
+      --panel:       #1a1a1a;
+      --panel-deep:  #0f0f0f;
+      --border:      #262626;
+      --border-hi:   #333333;
+      --amber:       #ffb700;
+      --amber-lo:    rgba(255,183,0,0.3);
+      --amber-dim:   #402a00;
+      --amber-mid:   #8a5c00;
+      --green:       #26e66b;
+      --green-lo:    rgba(38,230,107,0.25);
+      --red:         #ff3300;
+      --red-lo:      rgba(255,51,0,0.35);
+      --text:        #d49200;
+      --text-hi:     #ffcb47;
+      --text-lo:     #523400;
+      --text-dim:    #664200;
+      --white-key:   #e8e2d5;
+      --white-key-border: #a39b8c;
+      --black-key:   #121212;
     }
 
     html, body {
@@ -52,19 +52,18 @@ nav: sampler
     /* ── CHASSIS ───────────────────────────────────────────── */
     .sampler {
       position: relative;
-      background:
-        linear-gradient(160deg, #1e1e1e 0%, #161616 40%, #141414 100%);
+      background: linear-gradient(160deg, #1a1a1a 0%, #121212 50%, #0d0d0d 100%);
       border: 1px solid var(--border-hi);
-      border-radius: 14px;
+      border-radius: 12px;
       padding: 26px 22px 22px;
       width: 100%;
       max-width: 596px;
       box-shadow:
-        0 0 0 1px #0a0a0a,
-        0 28px 80px rgba(0,0,0,0.85),
-        0 8px 24px rgba(0,0,0,0.6),
-        inset 0 1px 0 rgba(255,255,255,0.06),
-        inset 0 -1px 0 rgba(0,0,0,0.6);
+        0 0 0 1px #050505,
+        0 30px 90px rgba(0,0,0,0.9),
+        0 10px 30px rgba(0,0,0,0.75),
+        inset 0 1px 0 rgba(255,255,255,0.05),
+        inset 0 -1px 0 rgba(0,0,0,0.7);
     }
 
     /* Noise texture overlay */
@@ -72,10 +71,10 @@ nav: sampler
       content: '';
       position: absolute;
       inset: 0;
-      border-radius: 14px;
-      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+      border-radius: 12px;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.025'/%3E%3C/svg%3E");
       pointer-events: none;
-      opacity: 0.6;
+      opacity: 0.55;
       z-index: 0;
     }
 
@@ -86,17 +85,17 @@ nav: sampler
       position: absolute;
       width: 11px; height: 11px;
       border-radius: 50%;
-      background: radial-gradient(circle at 38% 32%, #4a4a4a 0%, #1c1c1c 55%, #111 100%);
-      box-shadow: inset 0 1px 2px rgba(0,0,0,0.9), 0 1px 0 rgba(255,255,255,0.04);
+      background: radial-gradient(circle at 38% 32%, #404040 0%, #181818 60%, #0d0d0d 100%);
+      box-shadow: inset 0 1px 2px rgba(0,0,0,0.95), 0 1px 0 rgba(255,255,255,0.03);
       z-index: 10;
     }
     .screw::after {
       content: '';
       position: absolute;
       width: 7px; height: 1.5px;
-      background: rgba(0,0,0,0.7);
+      background: rgba(0,0,0,0.75);
       top: 50%; left: 50%;
-      transform: translate(-50%,-50%) rotate(38deg);
+      transform: translate(-50%,-50%) rotate(42deg);
       border-radius: 1px;
     }
     .screw.tl { top: 9px; left: 9px; }
@@ -124,14 +123,14 @@ nav: sampler
       font-family: 'Orbitron', sans-serif;
       font-weight: 900;
       font-size: 17px;
-      letter-spacing: 0.18em;
+      letter-spacing: 0.2em;
       color: var(--text-hi);
-      text-shadow: 0 0 24px rgba(255,170,0,0.45), 0 0 8px rgba(255,170,0,0.2);
+      text-shadow: 0 0 20px rgba(255,183,0,0.4), 0 0 8px rgba(255,183,0,0.15);
     }
 
     .brand-tag {
       font-size: 8.5px;
-      letter-spacing: 0.22em;
+      letter-spacing: 0.24em;
       color: var(--text-dim);
       text-transform: uppercase;
     }
@@ -149,14 +148,14 @@ nav: sampler
       background: var(--text-lo);
       transition: background 60ms, box-shadow 60ms;
     }
-    .vu-seg.lit-green { background: var(--green); box-shadow: 0 0 7px var(--green); }
-    .vu-seg.lit-amber { background: var(--amber); box-shadow: 0 0 7px var(--amber); }
-    .vu-seg.lit-red   { background: var(--red);   box-shadow: 0 0 7px var(--red); }
+    .vu-seg.lit-green { background: var(--green); box-shadow: 0 0 8px var(--green); }
+    .vu-seg.lit-amber { background: var(--amber); box-shadow: 0 0 8px var(--amber); }
+    .vu-seg.lit-red   { background: var(--red);   box-shadow: 0 0 8px var(--red); }
 
     /* ── SECTION LABEL ─────────────────────────────────────── */
     .section-label {
       font-size: 8.5px;
-      letter-spacing: 0.28em;
+      letter-spacing: 0.3em;
       color: var(--text-dim);
       text-transform: uppercase;
       margin-bottom: 9px;
@@ -172,11 +171,9 @@ nav: sampler
 
     .pad {
       aspect-ratio: 1 / 1;
-      border-radius: 7px;
-      background:
-        radial-gradient(ellipse at 42% 30%, rgba(255,255,255,0.04) 0%, transparent 60%),
-        #0e0e0e;
-      border: 1px solid #272727;
+      border-radius: 6px;
+      background: radial-gradient(ellipse at 42% 30%, rgba(255,255,255,0.03) 0%, transparent 65%), #0a0a0a;
+      border: 1px solid #222222;
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -187,9 +184,9 @@ nav: sampler
       position: relative;
       overflow: hidden;
       box-shadow:
-        inset 0 2px 6px rgba(0,0,0,0.8),
-        inset 0 -1px 0 rgba(255,255,255,0.03),
-        0 2px 4px rgba(0,0,0,0.5);
+        inset 0 2px 6px rgba(0,0,0,0.85),
+        inset 0 -1px 0 rgba(255,255,255,0.02),
+        0 2px 4px rgba(0,0,0,0.55);
     }
 
     .pad-num {
@@ -197,15 +194,15 @@ nav: sampler
       font-weight: 700;
       font-size: 26px;
       line-height: 1;
-      color: #2a2a2a;
+      color: #242424;
       transition: color 0.15s;
       pointer-events: none;
     }
 
     .pad-status {
       font-size: 7.5px;
-      letter-spacing: 0.22em;
-      color: #2a2a2a;
+      letter-spacing: 0.24em;
+      color: #242424;
       margin-top: 5px;
       transition: color 0.15s;
       pointer-events: none;
@@ -213,23 +210,19 @@ nav: sampler
 
     /* loaded — dim amber glow */
     .pad.state-loaded {
-      background:
-        radial-gradient(ellipse at 42% 30%, rgba(255,170,0,0.06) 0%, transparent 60%),
-        #100900;
+      background: radial-gradient(ellipse at 42% 30%, rgba(255,183,0,0.05) 0%, transparent 60%), #0f0a00;
       border-color: var(--amber-dim);
       box-shadow:
-        inset 0 2px 6px rgba(0,0,0,0.7),
-        0 0 10px rgba(255,170,0,0.1),
-        0 2px 4px rgba(0,0,0,0.5);
+        inset 0 2px 6px rgba(0,0,0,0.75),
+        0 0 10px rgba(255,183,0,0.08),
+        0 2px 4px rgba(0,0,0,0.55);
     }
     .pad.state-loaded .pad-num   { color: var(--amber-mid); }
     .pad.state-loaded .pad-status { color: var(--amber-dim); }
 
     /* armed — bright blinking amber */
     .pad.state-armed {
-      background:
-        radial-gradient(ellipse at 42% 30%, rgba(255,170,0,0.12) 0%, transparent 60%),
-        #120b00;
+      background: radial-gradient(ellipse at 42% 30%, rgba(255,183,0,0.1) 0%, transparent 60%), #140d00;
       border-color: var(--amber);
       animation: pad-blink 0.75s ease-in-out infinite;
     }
@@ -239,18 +232,18 @@ nav: sampler
     @keyframes pad-blink {
       0%, 100% {
         box-shadow:
-          inset 0 2px 6px rgba(0,0,0,0.7),
-          0 0 22px rgba(255,170,0,0.4),
-          0 0 8px rgba(255,170,0,0.25);
+          inset 0 2px 6px rgba(0,0,0,0.75),
+          0 0 20px rgba(255,183,0,0.35),
+          0 0 8px rgba(255,183,0,0.2);
       }
       50% {
         box-shadow:
-          inset 0 2px 6px rgba(0,0,0,0.7),
-          0 0 4px rgba(255,170,0,0.08);
+          inset 0 2px 6px rgba(0,0,0,0.75),
+          0 0 4px rgba(255,183,0,0.05);
       }
     }
 
-    .pad:active { transform: scale(0.93); }
+    .pad:active { transform: scale(0.94); }
 
     /* ── CONTROLS ROW ──────────────────────────────────────── */
     .controls-row {
@@ -264,9 +257,9 @@ nav: sampler
     .rec-btn {
       flex: 0 0 auto;
       min-width: 100px;
-      background: #100500;
-      border: 1px solid #2a0a00;
-      border-radius: 7px;
+      background: #0f0300;
+      border: 1px solid #240500;
+      border-radius: 6px;
       padding: 0 16px;
       display: flex;
       flex-direction: column;
@@ -282,9 +275,9 @@ nav: sampler
     .rec-circle {
       width: 22px; height: 22px;
       border-radius: 50%;
-      background: radial-gradient(circle at 40% 35%, #4a1500, #1a0500);
-      border: 1.5px solid #3a0e00;
-      box-shadow: 0 0 6px rgba(255,34,0,0.2), inset 0 1px 3px rgba(0,0,0,0.8);
+      background: radial-gradient(circle at 40% 35%, #400e00, #140200);
+      border: 1.5px solid #330800;
+      box-shadow: 0 0 5px rgba(255,51,0,0.15), inset 0 1px 3px rgba(0,0,0,0.85);
       transition: all 0.12s;
     }
 
@@ -292,27 +285,27 @@ nav: sampler
       font-family: 'Orbitron', sans-serif;
       font-size: 8.5px;
       font-weight: 700;
-      letter-spacing: 0.18em;
-      color: #441400;
+      letter-spacing: 0.2em;
+      color: #3b0a00;
       transition: color 0.12s;
     }
 
     .rec-btn.recording {
-      background: #1a0400;
+      background: #170200;
       border-color: var(--red);
-      box-shadow: 0 0 18px rgba(255,34,0,0.25);
+      box-shadow: 0 0 16px rgba(255,51,0,0.2);
     }
     .rec-btn.recording .rec-circle {
-      background: radial-gradient(circle at 40% 35%, #ff5500, #cc1100);
+      background: radial-gradient(circle at 40% 35%, #ff4400, #b80d00);
       border-color: var(--red);
-      box-shadow: 0 0 14px rgba(255,34,0,0.7), 0 0 6px rgba(255,34,0,0.4);
+      box-shadow: 0 0 12px rgba(255,51,0,0.65), 0 0 5px rgba(255,51,0,0.35);
       animation: rec-pulse 0.5s ease-in-out infinite;
     }
     .rec-btn.recording .rec-label { color: var(--red); }
 
     @keyframes rec-pulse {
       0%, 100% { transform: scale(1);    opacity: 1;   }
-      50%       { transform: scale(0.88); opacity: 0.6; }
+      50%       { transform: scale(0.88); opacity: 0.55; }
     }
 
     .rec-btn:active { transform: scale(0.96); }
@@ -334,7 +327,7 @@ nav: sampler
       flex: 1;
       background: var(--panel-deep);
       border: 1px solid var(--border);
-      border-radius: 6px;
+      border-radius: 5px;
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -351,9 +344,9 @@ nav: sampler
     .fx-led {
       width: 8px; height: 8px;
       border-radius: 50%;
-      background: #1a1a1a;
-      border: 1px solid #2a2a2a;
-      box-shadow: inset 0 1px 2px rgba(0,0,0,0.6);
+      background: #141414;
+      border: 1px solid #242424;
+      box-shadow: inset 0 1px 2px rgba(0,0,0,0.65);
       transition: all 0.1s;
     }
 
@@ -361,20 +354,20 @@ nav: sampler
       font-family: 'Orbitron', sans-serif;
       font-size: 7.5px;
       font-weight: 600;
-      letter-spacing: 0.14em;
+      letter-spacing: 0.16em;
       color: var(--text-dim);
       transition: color 0.1s;
     }
 
     .fx-toggle.on {
-      background: #061209;
-      border-color: #1a5530;
-      box-shadow: 0 0 12px rgba(34,221,102,0.12);
+      background: #040f06;
+      border-color: #134224;
+      box-shadow: 0 0 10px rgba(38,230,107,0.1);
     }
     .fx-toggle.on .fx-led {
       background: var(--green);
       border-color: var(--green);
-      box-shadow: 0 0 8px rgba(34,221,102,0.8), 0 0 3px rgba(34,221,102,0.5);
+      box-shadow: 0 0 8px rgba(38,230,107,0.75), 0 0 3px rgba(38,230,107,0.4);
     }
     .fx-toggle.on .fx-name { color: var(--green); }
 
@@ -382,7 +375,7 @@ nav: sampler
     .vol-section {
       background: var(--panel-deep);
       border: 1px solid var(--border);
-      border-radius: 6px;
+      border-radius: 5px;
       display: flex;
       align-items: center;
       gap: 12px;
@@ -392,7 +385,7 @@ nav: sampler
 
     .vol-label {
       font-size: 8.5px;
-      letter-spacing: 0.22em;
+      letter-spacing: 0.24em;
       color: var(--text-dim);
       white-space: nowrap;
       flex-shrink: 0;
@@ -402,7 +395,7 @@ nav: sampler
       flex: 1;
       position: relative;
       height: 3px;
-      background: #222;
+      background: #181818;
       border-radius: 2px;
     }
 
@@ -423,7 +416,6 @@ nav: sampler
       opacity: 0;
       cursor: pointer;
       margin: 0;
-      /* expand hit area */
       padding: 8px 0;
       box-sizing: content-box;
       top: -8px;
@@ -439,16 +431,16 @@ nav: sampler
 
     /* ── KEYBOARD ──────────────────────────────────────────── */
     .keyboard-section {
-      background: #0a0a0a;
+      background: #050505;
       border: 1px solid var(--border);
-      border-radius: 7px;
+      border-radius: 6px;
       padding: 14px 14px 0;
       margin-bottom: 14px;
     }
 
     .keyboard-hint {
       font-size: 8px;
-      letter-spacing: 0.18em;
+      letter-spacing: 0.2em;
       color: var(--text-lo);
       margin-bottom: 8px;
       display: flex;
@@ -462,14 +454,12 @@ nav: sampler
       overflow-x: auto;
       overflow-y: hidden;
       padding-bottom: 14px;
-      /* hide scrollbar but allow scroll */
       scrollbar-width: none;
     }
     .keyboard-scroll::-webkit-scrollbar { display: none; }
 
     #keyboard-bed {
       position: relative;
-      /* width set by JS */
       height: 82px;
       flex-shrink: 0;
       margin: 0 auto;
@@ -478,28 +468,28 @@ nav: sampler
     /* White keys */
     .key.white {
       position: absolute;
-      background: linear-gradient(to bottom, #cfc9b8 0%, #ddd6c2 50%, #e0d8c4 100%);
-      border: 1px solid #9a9080;
+      background: linear-gradient(to bottom, #c4beaf 0%, #d4ceba 50%, #d6ceba 100%);
+      border: 1px solid #8f8677;
       border-top: none;
-      border-radius: 0 0 4px 4px;
+      border-radius: 0 0 3px 3px;
       cursor: pointer;
       user-select: none;
       bottom: 0;
       box-shadow:
-        inset 0 -4px 8px rgba(0,0,0,0.25),
-        2px 0 4px rgba(0,0,0,0.3),
-        0 4px 8px rgba(0,0,0,0.5);
+        inset 0 -4px 8px rgba(0,0,0,0.28),
+        2px 0 4px rgba(0,0,0,0.35),
+        0 4px 8px rgba(0,0,0,0.55);
       transition: background 50ms;
     }
 
     .key.white:hover {
-      background: linear-gradient(to bottom, #d8d1bd 0%, #e8e0cc 100%);
+      background: linear-gradient(to bottom, #cdc6b5 0%, #ded7c2 100%);
     }
 
     .key.white.active,
     .key.white:active {
-      background: linear-gradient(to bottom, var(--amber) 0%, #cc8800 100%);
-      box-shadow: inset 0 2px 4px rgba(0,0,0,0.3);
+      background: linear-gradient(to bottom, var(--amber) 0%, #b88300 100%);
+      box-shadow: inset 0 2px 4px rgba(0,0,0,0.35);
     }
 
     /* Root note A4 marker */
@@ -523,46 +513,46 @@ nav: sampler
       text-align: center;
       font-family: 'Share Tech Mono', monospace;
       font-size: 7.5px;
-      color: #888;
+      color: #7a7365;
       pointer-events: none;
       user-select: none;
     }
 
     .key.white.root-note .key-lbl {
       bottom: 16px;
-      color: var(--amber);
+      color: #996e00;
     }
 
     /* Black keys */
     .key.black {
       position: absolute;
       top: 0;
-      background: linear-gradient(to bottom, #1e1e1e 0%, #111 60%, #181818 100%);
-      border: 1px solid #3a3a3a;
+      background: linear-gradient(to bottom, #1a1a1a 0%, #0d0d0d 60%, #121212 100%);
+      border: 1px solid #333333;
       border-top: none;
-      border-radius: 0 0 3px 3px;
+      border-radius: 0 0 2px 2px;
       cursor: pointer;
       user-select: none;
       z-index: 2;
       box-shadow:
-        inset 0 -3px 6px rgba(255,255,255,0.04),
-        2px 4px 10px rgba(0,0,0,0.7),
-        -1px 0 2px rgba(0,0,0,0.4);
+        inset 0 -3px 6px rgba(255,255,255,0.03),
+        2px 4px 10px rgba(0,0,0,0.75),
+        -1px 0 2px rgba(0,0,0,0.45);
       transition: background 50ms;
     }
 
     .key.black:hover {
-      background: linear-gradient(to bottom, #282828 0%, #161616 100%);
+      background: linear-gradient(to bottom, #242424 0%, #121212 100%);
     }
 
     .key.black.active,
     .key.black:active {
-      background: linear-gradient(to bottom, #cc8800 0%, #aa6600 100%);
+      background: linear-gradient(to bottom, #b88300 0%, #946900 100%);
     }
 
     .key.black .key-lbl {
       font-size: 6.5px;
-      color: #555;
+      color: #4f4b42;
       bottom: 4px;
     }
 
@@ -577,19 +567,19 @@ nav: sampler
 
     .status-msg {
       font-size: 8.5px;
-      letter-spacing: 0.18em;
+      letter-spacing: 0.2em;
       color: var(--text-dim);
       min-height: 12px;
       transition: color 0.2s;
     }
     .status-msg.active { color: var(--amber); }
     .status-msg.rec    { color: var(--red); animation: msg-blink 0.6s ease-in-out infinite; }
-    @keyframes msg-blink { 50% { opacity: 0.4; } }
+    @keyframes msg-blink { 50% { opacity: 0.35; } }
 
     .poly-count {
       font-size: 8px;
       color: var(--text-lo);
-      letter-spacing: 0.1em;
+      letter-spacing: 0.12em;
     }
 
     /* ── RESPONSIVE ────────────────────────────────────────── */
@@ -816,7 +806,6 @@ class MicroSampler {
         lastWhiteX = whiteX;
         whiteX += WW + GAP;
       } else {
-        // Place black key centred on boundary between previous and next white
         keyData.push({ midi: m, black: true, x: lastWhiteX + WW - BW / 2, w: BW, h: BH });
       }
     }
@@ -856,7 +845,6 @@ class MicroSampler {
 
   // ── EVENTS ────────────────────────────────────────────
   bindEvents() {
-    // FX toggles
     ['reverse','loop','lofi'].forEach(name => {
       const cb   = document.getElementById(`fx-${name}`);
       const wrap = document.getElementById(`fx-${name}-wrap`);
@@ -865,7 +853,6 @@ class MicroSampler {
         wrap.classList.toggle('on', cb.checked);
       });
       wrap.addEventListener('click', () => {
-        // toggle manually since label contains input
         cb.checked = !cb.checked;
         this.fx[name] = cb.checked;
         wrap.classList.toggle('on', cb.checked);
@@ -912,13 +899,11 @@ class MicroSampler {
 
   // ── PAD SELECTION ─────────────────────────────────────
   selectPad(i) {
-    // Dearm whatever was armed
     if (this.activePad !== -1 && this.padStates[this.activePad] === 'armed') {
       this.padStates[this.activePad] = this.slots[this.activePad] ? 'loaded' : 'empty';
     }
 
     if (this.activePad === i) {
-      // Clicking the active pad again → deselect
       this.activePad = -1;
       this.setStatus('SELECT A PAD TO BEGIN');
     } else {
@@ -929,7 +914,12 @@ class MicroSampler {
         ? `PAD ${i+1} ARMED — HOLD REC TO RE-SAMPLE OR PLAY KEYS`
         : `PAD ${i+1} ARMED — HOLD REC TO RECORD`);
     }
-    this.renderPads();
+    this.activePad = i;
+    this.padStates[i] = 'armed';
+    const hasData = !!this.slots[i];
+    this.setStatus(hasData
+      ? `PAD ${i+1} ARMED — HOLD REC TO RE-SAMPLE OR PLAY KEYS`
+      : `PAD ${i+1} ARMED — HOLD REC TO RECORD`);
   }
 
   renderPads() {
@@ -967,7 +957,6 @@ class MicroSampler {
       this.vuTargetLv = 0.7;
 
       this.mediaRecorder.start();
-      // Max 4 seconds
       this.recTimeout = setTimeout(() => this.stopRec(), 4000);
 
     } catch (err) {
@@ -1018,7 +1007,6 @@ class MicroSampler {
       return;
     }
 
-    // Polyphony: evict oldest
     if (this.activeNotes.size >= this.POLY_LIMIT) {
       const oldest = this.activeNotes.keys().next().value;
       this.killNote(oldest, true);
@@ -1030,7 +1018,6 @@ class MicroSampler {
     const source   = this.audioCtx.createBufferSource();
     source.buffer  = buf;
 
-    // Pitch relative to A4 root
     const cents              = (midi - this.ROOT_MIDI) * 100;
     source.playbackRate.value = Math.pow(2, cents / 1200);
 
@@ -1043,7 +1030,6 @@ class MicroSampler {
 
     source.start();
 
-    // Cleanup when sample ends naturally (non-loop)
     source.onended = () => {
       if (this.activeNotes.get(midi)?.source === source) {
         this.activeNotes.delete(midi);
@@ -1066,7 +1052,6 @@ class MicroSampler {
     const now = this.audioCtx.currentTime;
 
     if (this.fx.loop) {
-      // Fade out and stop when looping
       gainNode.gain.setValueAtTime(gainNode.gain.value, now);
       gainNode.gain.exponentialRampToValueAtTime(0.001, now + 0.08);
       try { source.stop(now + 0.1); } catch(e) {}
@@ -1074,7 +1059,6 @@ class MicroSampler {
       this.highlightKey(midi, false);
       this.updatePolyCount();
     }
-    // Non-loop: sample plays through naturally, onended will clean up
   }
 
   killNote(midi, immediate = false) {
