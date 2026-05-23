@@ -1,0 +1,1225 @@
+---
+layout: none
+permalink: /sampler/
+---
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MicroSampler</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:          #0b0b0b;
+      --chassis:     #181818;
+      --panel:       #1f1f1f;
+      --panel-deep:  #141414;
+      --border:      #2c2c2c;
+      --border-hi:   #383838;
+      --amber:       #ffaa00;
+      --amber-lo:    rgba(255,170,0,0.35);
+      --amber-dim:   #3a2200;
+      --amber-mid:   #7a4400;
+      --green:       #22dd66;
+      --green-lo:    rgba(34,221,102,0.3);
+      --red:         #ff2200;
+      --red-lo:      rgba(255,34,0,0.4);
+      --text:        #cc8800;
+      --text-hi:     #ffcc55;
+      --text-lo:     #4a3000;
+      --text-dim:    #5a3800;
+      --white-key:   #e2d8c4;
+      --white-key-border: #999;
+      --black-key:   #161616;
+    }
+
+    html, body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Share Tech Mono', monospace;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 32px 16px 48px;
+    }
+
+    /* ── CHASSIS ───────────────────────────────────────────── */
+    .sampler {
+      position: relative;
+      background:
+        linear-gradient(160deg, #1e1e1e 0%, #161616 40%, #141414 100%);
+      border: 1px solid var(--border-hi);
+      border-radius: 14px;
+      padding: 26px 22px 22px;
+      width: 100%;
+      max-width: 596px;
+      box-shadow:
+        0 0 0 1px #0a0a0a,
+        0 28px 80px rgba(0,0,0,0.85),
+        0 8px 24px rgba(0,0,0,0.6),
+        inset 0 1px 0 rgba(255,255,255,0.06),
+        inset 0 -1px 0 rgba(0,0,0,0.6);
+    }
+
+    /* Noise texture overlay */
+    .sampler::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: 14px;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+      pointer-events: none;
+      opacity: 0.6;
+      z-index: 0;
+    }
+
+    .sampler > * { position: relative; z-index: 1; }
+
+    /* Screws */
+    .screw {
+      position: absolute;
+      width: 11px; height: 11px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 38% 32%, #4a4a4a 0%, #1c1c1c 55%, #111 100%);
+      box-shadow: inset 0 1px 2px rgba(0,0,0,0.9), 0 1px 0 rgba(255,255,255,0.04);
+      z-index: 10;
+    }
+    .screw::after {
+      content: '';
+      position: absolute;
+      width: 7px; height: 1.5px;
+      background: rgba(0,0,0,0.7);
+      top: 50%; left: 50%;
+      transform: translate(-50%,-50%) rotate(38deg);
+      border-radius: 1px;
+    }
+    .screw.tl { top: 9px; left: 9px; }
+    .screw.tr { top: 9px; right: 9px; }
+    .screw.bl { bottom: 9px; left: 9px; }
+    .screw.br { bottom: 9px; right: 9px; }
+
+    /* ── HEADER ────────────────────────────────────────────── */
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 22px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .brand {
+      display: flex;
+      align-items: baseline;
+      gap: 10px;
+    }
+
+    .brand-name {
+      font-family: 'Orbitron', sans-serif;
+      font-weight: 900;
+      font-size: 17px;
+      letter-spacing: 0.18em;
+      color: var(--text-hi);
+      text-shadow: 0 0 24px rgba(255,170,0,0.45), 0 0 8px rgba(255,170,0,0.2);
+    }
+
+    .brand-tag {
+      font-size: 8.5px;
+      letter-spacing: 0.22em;
+      color: var(--text-dim);
+      text-transform: uppercase;
+    }
+
+    /* VU meter dots */
+    .vu {
+      display: flex;
+      align-items: center;
+      gap: 3px;
+    }
+
+    .vu-seg {
+      width: 7px; height: 7px;
+      border-radius: 1px;
+      background: var(--text-lo);
+      transition: background 60ms, box-shadow 60ms;
+    }
+    .vu-seg.lit-green { background: var(--green); box-shadow: 0 0 7px var(--green); }
+    .vu-seg.lit-amber { background: var(--amber); box-shadow: 0 0 7px var(--amber); }
+    .vu-seg.lit-red   { background: var(--red);   box-shadow: 0 0 7px var(--red); }
+
+    /* ── SECTION LABEL ─────────────────────────────────────── */
+    .section-label {
+      font-size: 8.5px;
+      letter-spacing: 0.28em;
+      color: var(--text-dim);
+      text-transform: uppercase;
+      margin-bottom: 9px;
+    }
+
+    /* ── PADS ──────────────────────────────────────────────── */
+    .pads-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      margin-bottom: 18px;
+    }
+
+    .pad {
+      aspect-ratio: 1 / 1;
+      border-radius: 7px;
+      background:
+        radial-gradient(ellipse at 42% 30%, rgba(255,255,255,0.04) 0%, transparent 60%),
+        #0e0e0e;
+      border: 1px solid #272727;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      user-select: none;
+      transition: transform 80ms, box-shadow 80ms;
+      position: relative;
+      overflow: hidden;
+      box-shadow:
+        inset 0 2px 6px rgba(0,0,0,0.8),
+        inset 0 -1px 0 rgba(255,255,255,0.03),
+        0 2px 4px rgba(0,0,0,0.5);
+    }
+
+    .pad-num {
+      font-family: 'Orbitron', sans-serif;
+      font-weight: 700;
+      font-size: 26px;
+      line-height: 1;
+      color: #2a2a2a;
+      transition: color 0.15s;
+      pointer-events: none;
+    }
+
+    .pad-status {
+      font-size: 7.5px;
+      letter-spacing: 0.22em;
+      color: #2a2a2a;
+      margin-top: 5px;
+      transition: color 0.15s;
+      pointer-events: none;
+    }
+
+    /* loaded — dim amber glow */
+    .pad.state-loaded {
+      background:
+        radial-gradient(ellipse at 42% 30%, rgba(255,170,0,0.06) 0%, transparent 60%),
+        #100900;
+      border-color: var(--amber-dim);
+      box-shadow:
+        inset 0 2px 6px rgba(0,0,0,0.7),
+        0 0 10px rgba(255,170,0,0.1),
+        0 2px 4px rgba(0,0,0,0.5);
+    }
+    .pad.state-loaded .pad-num   { color: var(--amber-mid); }
+    .pad.state-loaded .pad-status { color: var(--amber-dim); }
+
+    /* armed — bright blinking amber */
+    .pad.state-armed {
+      background:
+        radial-gradient(ellipse at 42% 30%, rgba(255,170,0,0.12) 0%, transparent 60%),
+        #120b00;
+      border-color: var(--amber);
+      animation: pad-blink 0.75s ease-in-out infinite;
+    }
+    .pad.state-armed .pad-num   { color: var(--amber); text-shadow: 0 0 12px var(--amber); }
+    .pad.state-armed .pad-status { color: var(--amber); }
+
+    @keyframes pad-blink {
+      0%, 100% {
+        box-shadow:
+          inset 0 2px 6px rgba(0,0,0,0.7),
+          0 0 22px rgba(255,170,0,0.4),
+          0 0 8px rgba(255,170,0,0.25);
+      }
+      50% {
+        box-shadow:
+          inset 0 2px 6px rgba(0,0,0,0.7),
+          0 0 4px rgba(255,170,0,0.08);
+      }
+    }
+
+    .pad:active { transform: scale(0.93); }
+
+    /* ── CONTROLS ROW ──────────────────────────────────────── */
+    .controls-row {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 18px;
+      align-items: stretch;
+    }
+
+    /* REC button */
+    .rec-btn {
+      flex: 0 0 auto;
+      min-width: 100px;
+      background: #100500;
+      border: 1px solid #2a0a00;
+      border-radius: 7px;
+      padding: 0 16px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      cursor: pointer;
+      user-select: none;
+      transition: all 80ms;
+      touch-action: none;
+    }
+
+    .rec-circle {
+      width: 22px; height: 22px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 40% 35%, #4a1500, #1a0500);
+      border: 1.5px solid #3a0e00;
+      box-shadow: 0 0 6px rgba(255,34,0,0.2), inset 0 1px 3px rgba(0,0,0,0.8);
+      transition: all 0.12s;
+    }
+
+    .rec-label {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 8.5px;
+      font-weight: 700;
+      letter-spacing: 0.18em;
+      color: #441400;
+      transition: color 0.12s;
+    }
+
+    .rec-btn.recording {
+      background: #1a0400;
+      border-color: var(--red);
+      box-shadow: 0 0 18px rgba(255,34,0,0.25);
+    }
+    .rec-btn.recording .rec-circle {
+      background: radial-gradient(circle at 40% 35%, #ff5500, #cc1100);
+      border-color: var(--red);
+      box-shadow: 0 0 14px rgba(255,34,0,0.7), 0 0 6px rgba(255,34,0,0.4);
+      animation: rec-pulse 0.5s ease-in-out infinite;
+    }
+    .rec-btn.recording .rec-label { color: var(--red); }
+
+    @keyframes rec-pulse {
+      0%, 100% { transform: scale(1);    opacity: 1;   }
+      50%       { transform: scale(0.88); opacity: 0.6; }
+    }
+
+    .rec-btn:active { transform: scale(0.96); }
+
+    /* FX section */
+    .fx-section {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .fx-row {
+      display: flex;
+      gap: 8px;
+      flex: 1;
+    }
+
+    .fx-toggle {
+      flex: 1;
+      background: var(--panel-deep);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      cursor: pointer;
+      user-select: none;
+      padding: 10px 6px;
+      transition: all 0.1s;
+    }
+
+    .fx-toggle input { display: none; }
+
+    .fx-led {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: #1a1a1a;
+      border: 1px solid #2a2a2a;
+      box-shadow: inset 0 1px 2px rgba(0,0,0,0.6);
+      transition: all 0.1s;
+    }
+
+    .fx-name {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 7.5px;
+      font-weight: 600;
+      letter-spacing: 0.14em;
+      color: var(--text-dim);
+      transition: color 0.1s;
+    }
+
+    .fx-toggle.on {
+      background: #061209;
+      border-color: #1a5530;
+      box-shadow: 0 0 12px rgba(34,221,102,0.12);
+    }
+    .fx-toggle.on .fx-led {
+      background: var(--green);
+      border-color: var(--green);
+      box-shadow: 0 0 8px rgba(34,221,102,0.8), 0 0 3px rgba(34,221,102,0.5);
+    }
+    .fx-toggle.on .fx-name { color: var(--green); }
+
+    /* ── VOLUME ────────────────────────────────────────────── */
+    .vol-section {
+      background: var(--panel-deep);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 14px;
+      margin-bottom: 18px;
+    }
+
+    .vol-label {
+      font-size: 8.5px;
+      letter-spacing: 0.22em;
+      color: var(--text-dim);
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    .vol-track {
+      flex: 1;
+      position: relative;
+      height: 3px;
+      background: #222;
+      border-radius: 2px;
+    }
+
+    .vol-fill {
+      position: absolute;
+      left: 0; top: 0; bottom: 0;
+      background: linear-gradient(to right, var(--amber-dim), var(--amber));
+      border-radius: 2px;
+      pointer-events: none;
+      transition: width 0s;
+    }
+
+    input[type="range"]#master-vol {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      opacity: 0;
+      cursor: pointer;
+      margin: 0;
+      /* expand hit area */
+      padding: 8px 0;
+      box-sizing: content-box;
+      top: -8px;
+    }
+
+    .vol-value {
+      font-size: 9px;
+      color: var(--text-dim);
+      flex-shrink: 0;
+      min-width: 28px;
+      text-align: right;
+    }
+
+    /* ── KEYBOARD ──────────────────────────────────────────── */
+    .keyboard-section {
+      background: #0a0a0a;
+      border: 1px solid var(--border);
+      border-radius: 7px;
+      padding: 14px 14px 0;
+      margin-bottom: 14px;
+    }
+
+    .keyboard-hint {
+      font-size: 8px;
+      letter-spacing: 0.18em;
+      color: var(--text-lo);
+      margin-bottom: 8px;
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .keyboard-hint span { color: var(--text-dim); }
+
+    .keyboard-scroll {
+      overflow-x: auto;
+      overflow-y: hidden;
+      padding-bottom: 14px;
+      /* hide scrollbar but allow scroll */
+      scrollbar-width: none;
+    }
+    .keyboard-scroll::-webkit-scrollbar { display: none; }
+
+    #keyboard-bed {
+      position: relative;
+      /* width set by JS */
+      height: 82px;
+      flex-shrink: 0;
+      margin: 0 auto;
+    }
+
+    /* White keys */
+    .key.white {
+      position: absolute;
+      background: linear-gradient(to bottom, #cfc9b8 0%, #ddd6c2 50%, #e0d8c4 100%);
+      border: 1px solid #9a9080;
+      border-top: none;
+      border-radius: 0 0 4px 4px;
+      cursor: pointer;
+      user-select: none;
+      bottom: 0;
+      box-shadow:
+        inset 0 -4px 8px rgba(0,0,0,0.25),
+        2px 0 4px rgba(0,0,0,0.3),
+        0 4px 8px rgba(0,0,0,0.5);
+      transition: background 50ms;
+    }
+
+    .key.white:hover {
+      background: linear-gradient(to bottom, #d8d1bd 0%, #e8e0cc 100%);
+    }
+
+    .key.white.active,
+    .key.white:active {
+      background: linear-gradient(to bottom, var(--amber) 0%, #cc8800 100%);
+      box-shadow: inset 0 2px 4px rgba(0,0,0,0.3);
+    }
+
+    /* Root note A4 marker */
+    .key.white.root-note::after {
+      content: '';
+      position: absolute;
+      bottom: 6px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 5px; height: 5px;
+      border-radius: 50%;
+      background: var(--amber);
+      box-shadow: 0 0 6px var(--amber);
+    }
+
+    /* Key label */
+    .key-lbl {
+      position: absolute;
+      bottom: 5px;
+      left: 0; right: 0;
+      text-align: center;
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 7.5px;
+      color: #888;
+      pointer-events: none;
+      user-select: none;
+    }
+
+    .key.white.root-note .key-lbl {
+      bottom: 16px;
+      color: var(--amber);
+    }
+
+    /* Black keys */
+    .key.black {
+      position: absolute;
+      top: 0;
+      background: linear-gradient(to bottom, #1e1e1e 0%, #111 60%, #181818 100%);
+      border: 1px solid #3a3a3a;
+      border-top: none;
+      border-radius: 0 0 3px 3px;
+      cursor: pointer;
+      user-select: none;
+      z-index: 2;
+      box-shadow:
+        inset 0 -3px 6px rgba(255,255,255,0.04),
+        2px 4px 10px rgba(0,0,0,0.7),
+        -1px 0 2px rgba(0,0,0,0.4);
+      transition: background 50ms;
+    }
+
+    .key.black:hover {
+      background: linear-gradient(to bottom, #282828 0%, #161616 100%);
+    }
+
+    .key.black.active,
+    .key.black:active {
+      background: linear-gradient(to bottom, #cc8800 0%, #aa6600 100%);
+    }
+
+    .key.black .key-lbl {
+      font-size: 6.5px;
+      color: #555;
+      bottom: 4px;
+    }
+
+    /* ── STATUS BAR ────────────────────────────────────────── */
+    .status-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-top: 12px;
+      border-top: 1px solid var(--border);
+    }
+
+    .status-msg {
+      font-size: 8.5px;
+      letter-spacing: 0.18em;
+      color: var(--text-dim);
+      min-height: 12px;
+      transition: color 0.2s;
+    }
+    .status-msg.active { color: var(--amber); }
+    .status-msg.rec    { color: var(--red); animation: msg-blink 0.6s ease-in-out infinite; }
+    @keyframes msg-blink { 50% { opacity: 0.4; } }
+
+    .poly-count {
+      font-size: 8px;
+      color: var(--text-lo);
+      letter-spacing: 0.1em;
+    }
+
+    /* ── RESPONSIVE ────────────────────────────────────────── */
+    @media (max-width: 480px) {
+      html, body { padding: 12px 10px 32px; }
+      .sampler { padding: 20px 14px 16px; }
+      .brand-name { font-size: 14px; }
+      .controls-row { flex-wrap: wrap; }
+      .rec-btn { min-width: 100%; flex-direction: row; padding: 10px 16px; gap: 10px; }
+      .fx-section { width: 100%; }
+    }
+  </style>
+</head>
+<body>
+  <div class="sampler">
+    <div class="screw tl"></div>
+    <div class="screw tr"></div>
+    <div class="screw bl"></div>
+    <div class="screw br"></div>
+
+    <!-- Header -->
+    <div class="header">
+      <div class="brand">
+        <span class="brand-name">MICROSAMPLER</span>
+        <span class="brand-tag">SMPL-4 / WEB AUDIO</span>
+      </div>
+      <div class="vu" id="vu-meter">
+        <div class="vu-seg" data-i="0"></div>
+        <div class="vu-seg" data-i="1"></div>
+        <div class="vu-seg" data-i="2"></div>
+        <div class="vu-seg" data-i="3"></div>
+        <div class="vu-seg" data-i="4"></div>
+        <div class="vu-seg" data-i="5"></div>
+        <div class="vu-seg" data-i="6"></div>
+        <div class="vu-seg" data-i="7"></div>
+      </div>
+    </div>
+
+    <!-- Pads -->
+    <div class="section-label">SAMPLE PADS — CLICK TO ARM, HOLD REC TO RECORD</div>
+    <div class="pads-grid" id="pads-grid">
+      <!-- built by JS -->
+    </div>
+
+    <!-- Controls: REC + FX -->
+    <div class="controls-row">
+      <button class="rec-btn" id="rec-btn" aria-label="Hold to record">
+        <div class="rec-circle"></div>
+        <div class="rec-label">HOLD REC</div>
+      </button>
+
+      <div class="fx-section">
+        <div class="section-label">EFFECTS</div>
+        <div class="fx-row">
+          <label class="fx-toggle" id="fx-reverse-wrap">
+            <input type="checkbox" id="fx-reverse">
+            <div class="fx-led"></div>
+            <span class="fx-name">REVERSE</span>
+          </label>
+          <label class="fx-toggle" id="fx-loop-wrap">
+            <input type="checkbox" id="fx-loop">
+            <div class="fx-led"></div>
+            <span class="fx-name">LOOP</span>
+          </label>
+          <label class="fx-toggle" id="fx-lofi-wrap">
+            <input type="checkbox" id="fx-lofi">
+            <div class="fx-led"></div>
+            <span class="fx-name">LO-FI</span>
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <!-- Master volume -->
+    <div class="vol-section">
+      <span class="vol-label">MASTER VOL</span>
+      <div class="vol-track">
+        <div class="vol-fill" id="vol-fill" style="width:70%"></div>
+        <input type="range" id="master-vol" min="0" max="1" step="0.01" value="0.7">
+      </div>
+      <span class="vol-value" id="vol-value">70%</span>
+    </div>
+
+    <!-- Keyboard -->
+    <div class="section-label">KEYBOARD — ROOT: A4 (●)</div>
+    <div class="keyboard-section">
+      <div class="keyboard-hint">
+        <span>WHITE:</span> Z X C V B N M / Q W E R T Y U I
+        <span>BLACK:</span> S D G H J / 2 3 5 6 7
+      </div>
+      <div class="keyboard-scroll">
+        <div id="keyboard-bed"></div>
+      </div>
+    </div>
+
+    <!-- Status -->
+    <div class="status-bar">
+      <div class="status-msg" id="status-msg">SELECT A PAD TO BEGIN</div>
+      <div class="poly-count" id="poly-count">VOICES: 0/6</div>
+    </div>
+  </div>
+
+<script>
+/* ════════════════════════════════════════════════════════════
+   MicroSampler — Web Audio sampler for Jekyll
+   Root pitch: A4 (MIDI 69)
+   Keyboard range: C3 (48) → C5 (72)
+════════════════════════════════════════════════════════════ */
+class MicroSampler {
+  constructor() {
+    this.audioCtx    = null;
+    this.masterGain  = null;
+
+    // 4 sample slots: AudioBuffer | null
+    this.slots       = [null, null, null, null];
+    this.activePad   = -1;  // -1 = none selected
+    // states: 'empty' | 'armed' | 'loaded'
+    this.padStates   = ['empty','empty','empty','empty'];
+
+    // Effects
+    this.fx = { reverse: false, loop: false, lofi: false };
+
+    // Active playback: Map<midiNote, {source, gainNode}>
+    this.activeNotes = new Map();
+    this.POLY_LIMIT  = 6;
+    this.pressedKeys = new Set();
+
+    // Recording
+    this.isRecording   = false;
+    this.mediaRecorder = null;
+    this.audioChunks   = [];
+    this.stream        = null;
+    this.recTimeout    = null;
+
+    // Root pitch
+    this.ROOT_MIDI = 69; // A4
+
+    // PC key → MIDI
+    this.pcKeyMap = {
+      // White keys C3→C5
+      'z':48,'x':50,'c':52,'v':53,'b':55,'n':57,'m':59,
+      'q':60,'w':62,'e':64,'r':65,'t':67,'y':69,'u':71,'i':72,
+      // Black keys
+      's':49,'d':51,'g':54,'h':56,'j':58,
+      '2':61,'3':63,'5':66,'6':68,'7':70
+    };
+
+    // PC key labels for display on keys
+    this.midiToKey = {};
+    Object.entries(this.pcKeyMap).forEach(([k,m]) => { this.midiToKey[m] = k; });
+
+    // VU animation
+    this.vuLevel    = 0;
+    this.vuTargetLv = 0;
+
+    this.initDOM();
+  }
+
+  // ── AUDIO CONTEXT ─────────────────────────────────────
+  initAudio() {
+    if (this.audioCtx) {
+      if (this.audioCtx.state === 'suspended') this.audioCtx.resume();
+      return;
+    }
+    this.audioCtx  = new (window.AudioContext || window.webkitAudioContext)();
+    this.masterGain = this.audioCtx.createGain();
+    this.masterGain.gain.value = parseFloat(document.getElementById('master-vol').value);
+    this.masterGain.connect(this.audioCtx.destination);
+    this.loadFromStorage();
+    this.startVuLoop();
+  }
+
+  // ── DOM BUILD ─────────────────────────────────────────
+  initDOM() {
+    this.buildPads();
+    this.buildKeyboard();
+    this.bindEvents();
+    this.renderPads();
+  }
+
+  buildPads() {
+    const grid = document.getElementById('pads-grid');
+    for (let i = 0; i < 4; i++) {
+      const pad = document.createElement('div');
+      pad.className = 'pad state-empty';
+      pad.dataset.pad = i;
+
+      const num = document.createElement('div');
+      num.className = 'pad-num';
+      num.textContent = i + 1;
+
+      const status = document.createElement('div');
+      status.className = 'pad-status';
+      status.textContent = 'EMPTY';
+
+      pad.appendChild(num);
+      pad.appendChild(status);
+      grid.appendChild(pad);
+
+      pad.addEventListener('click', () => { this.initAudio(); this.selectPad(i); });
+    }
+  }
+
+  buildKeyboard() {
+    const bed = document.getElementById('keyboard-bed');
+    const MIDI_START = 48; // C3
+    const MIDI_END   = 72; // C5
+    const WW = 30;   // white key width px
+    const WH = 82;   // white key height px
+    const BW = 19;   // black key width px
+    const BH = 50;   // black key height px
+    const GAP = 2;   // gap between white keys
+
+    const isBlack = m => [1,3,6,8,10].includes(m % 12);
+
+    // First pass: assign x positions
+    let whiteX = 0;
+    let lastWhiteX = 0;
+    const keyData = [];
+
+    for (let m = MIDI_START; m <= MIDI_END; m++) {
+      if (!isBlack(m)) {
+        keyData.push({ midi: m, black: false, x: whiteX, w: WW, h: WH });
+        lastWhiteX = whiteX;
+        whiteX += WW + GAP;
+      } else {
+        // Place black key centred on boundary between previous and next white
+        keyData.push({ midi: m, black: true, x: lastWhiteX + WW - BW / 2, w: BW, h: BH });
+      }
+    }
+
+    const totalW = whiteX - GAP;
+    bed.style.width  = totalW + 'px';
+    bed.style.height = WH + 'px';
+
+    // Render white keys first, then black on top
+    const whites = keyData.filter(k => !k.black);
+    const blacks  = keyData.filter(k =>  k.black);
+
+    [...whites, ...blacks].forEach(k => {
+      const el = document.createElement('div');
+      el.className  = k.black ? 'key black' : 'key white';
+      el.dataset.midi = k.midi;
+      if (k.midi === this.ROOT_MIDI) el.classList.add('root-note');
+      el.style.left   = k.x + 'px';
+      el.style.width  = k.w + 'px';
+      el.style.height = k.h + 'px';
+
+      // Key label (PC key)
+      const lbl = document.createElement('span');
+      lbl.className   = 'key-lbl';
+      lbl.textContent = (this.midiToKey[k.midi] || '').toUpperCase();
+      el.appendChild(lbl);
+
+      el.addEventListener('mousedown',  (e) => { e.preventDefault(); this.initAudio(); this.noteOn(k.midi); });
+      el.addEventListener('mouseup',    ()  => this.noteOff(k.midi));
+      el.addEventListener('mouseleave', ()  => this.noteOff(k.midi));
+      el.addEventListener('touchstart', (e) => { e.preventDefault(); this.initAudio(); this.noteOn(k.midi); }, { passive: false });
+      el.addEventListener('touchend',   (e) => { e.preventDefault(); this.noteOff(k.midi); }, { passive: false });
+
+      bed.appendChild(el);
+    });
+  }
+
+  // ── EVENTS ────────────────────────────────────────────
+  bindEvents() {
+    // FX toggles
+    ['reverse','loop','lofi'].forEach(name => {
+      const cb   = document.getElementById(`fx-${name}`);
+      const wrap = document.getElementById(`fx-${name}-wrap`);
+      cb.addEventListener('change', () => {
+        this.fx[name] = cb.checked;
+        wrap.classList.toggle('on', cb.checked);
+      });
+      wrap.addEventListener('click', () => {
+        // toggle manually since label contains input
+        cb.checked = !cb.checked;
+        this.fx[name] = cb.checked;
+        wrap.classList.toggle('on', cb.checked);
+      });
+    });
+
+    // Volume
+    const volInput = document.getElementById('master-vol');
+    const volFill  = document.getElementById('vol-fill');
+    const volVal   = document.getElementById('vol-value');
+
+    volInput.addEventListener('input', () => {
+      const v = parseFloat(volInput.value);
+      if (this.masterGain) {
+        this.masterGain.gain.setValueAtTime(v, this.audioCtx.currentTime);
+      }
+      volFill.style.width = (v * 100).toFixed(0) + '%';
+      volVal.textContent  = (v * 100).toFixed(0) + '%';
+    });
+
+    // REC button
+    const recBtn = document.getElementById('rec-btn');
+    recBtn.addEventListener('mousedown',  () => { this.initAudio(); this.startRec(); });
+    recBtn.addEventListener('mouseup',    () => this.stopRec());
+    recBtn.addEventListener('mouseleave', () => this.stopRec());
+    recBtn.addEventListener('touchstart', (e) => { e.preventDefault(); this.initAudio(); this.startRec(); }, { passive: false });
+    recBtn.addEventListener('touchend',   (e) => { e.preventDefault(); this.stopRec(); }, { passive: false });
+
+    // PC keyboard
+    window.addEventListener('keydown', (e) => {
+      if (e.repeat || e.ctrlKey || e.metaKey || e.altKey) return;
+      const midi = this.pcKeyMap[e.key];
+      if (midi !== undefined) {
+        e.preventDefault();
+        this.initAudio();
+        this.noteOn(midi);
+      }
+    });
+    window.addEventListener('keyup', (e) => {
+      const midi = this.pcKeyMap[e.key];
+      if (midi !== undefined) this.noteOff(midi);
+    });
+  }
+
+  // ── PAD SELECTION ─────────────────────────────────────
+  selectPad(i) {
+    // Dearm whatever was armed
+    if (this.activePad !== -1 && this.padStates[this.activePad] === 'armed') {
+      this.padStates[this.activePad] = this.slots[this.activePad] ? 'loaded' : 'empty';
+    }
+
+    if (this.activePad === i) {
+      // Clicking the active pad again → deselect
+      this.activePad = -1;
+      this.setStatus('SELECT A PAD TO BEGIN');
+    } else {
+      this.activePad = i;
+      this.padStates[i] = 'armed';
+      const hasData = !!this.slots[i];
+      this.setStatus(hasData
+        ? `PAD ${i+1} ARMED — HOLD REC TO RE-SAMPLE OR PLAY KEYS`
+        : `PAD ${i+1} ARMED — HOLD REC TO RECORD`);
+    }
+    this.renderPads();
+  }
+
+  renderPads() {
+    document.querySelectorAll('.pad').forEach((el, i) => {
+      const state = this.padStates[i];
+      el.className = `pad state-${state}`;
+      el.querySelector('.pad-num').textContent   = i + 1;
+      el.querySelector('.pad-status').textContent =
+        state === 'loaded' ? 'LOADED' :
+        state === 'armed'  ? 'ARMED'  : 'EMPTY';
+    });
+  }
+
+  // ── RECORDING ─────────────────────────────────────────
+  async startRec() {
+    if (this.isRecording) return;
+    if (this.activePad === -1) {
+      this.setStatus('SELECT A PAD FIRST', false);
+      return;
+    }
+
+    try {
+      this.stream      = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
+      this.audioChunks = [];
+      this.mediaRecorder = new MediaRecorder(this.stream);
+
+      this.mediaRecorder.ondataavailable = (e) => {
+        if (e.data.size > 0) this.audioChunks.push(e.data);
+      };
+      this.mediaRecorder.onstop = () => this.processRecording();
+
+      this.isRecording = true;
+      document.getElementById('rec-btn').classList.add('recording');
+      this.setStatus('● RECORDING…', true, 'rec');
+      this.vuTargetLv = 0.7;
+
+      this.mediaRecorder.start();
+      // Max 4 seconds
+      this.recTimeout = setTimeout(() => this.stopRec(), 4000);
+
+    } catch (err) {
+      console.error('Mic access denied:', err);
+      this.setStatus('MICROPHONE ACCESS DENIED');
+    }
+  }
+
+  stopRec() {
+    if (!this.isRecording) return;
+    clearTimeout(this.recTimeout);
+    this.isRecording = false;
+    document.getElementById('rec-btn').classList.remove('recording');
+    this.vuTargetLv = 0;
+
+    if (this.mediaRecorder?.state !== 'inactive') this.mediaRecorder.stop();
+    this.stream?.getTracks().forEach(t => t.stop());
+    this.stream = null;
+  }
+
+  async processRecording() {
+    this.setStatus('PROCESSING…');
+    const blob        = new Blob(this.audioChunks, { type: 'audio/webm' });
+    const arrayBuffer = await blob.arrayBuffer();
+
+    this.audioCtx.decodeAudioData(arrayBuffer, (raw) => {
+      this.slots[this.activePad]      = raw;
+      this.padStates[this.activePad]  = 'loaded';
+      this.renderPads();
+      this.persistSlot(this.activePad, raw);
+      this.setStatus(`PAD ${this.activePad + 1} RECORDED — PLAY KEYS TO PITCH`, false, 'active');
+      this.flashVu();
+    }, (err) => {
+      console.error('Decode error:', err);
+      this.setStatus('DECODE ERROR — TRY AGAIN');
+    });
+  }
+
+  // ── PLAYBACK ──────────────────────────────────────────
+  noteOn(midi) {
+    if (!this.audioCtx) return;
+    if (this.pressedKeys.has(midi)) return;
+    this.pressedKeys.add(midi);
+
+    const slot = this.activePad !== -1 ? this.activePad : this.findLoadedSlot();
+    if (slot === -1 || !this.slots[slot]) {
+      this.setStatus('NO SAMPLE LOADED — ARM A PAD AND RECORD');
+      return;
+    }
+
+    // Polyphony: evict oldest
+    if (this.activeNotes.size >= this.POLY_LIMIT) {
+      const oldest = this.activeNotes.keys().next().value;
+      this.killNote(oldest, true);
+    }
+
+    const buf = this.prepareBuffer(this.slots[slot]);
+    if (!buf) return;
+
+    const source   = this.audioCtx.createBufferSource();
+    source.buffer  = buf;
+
+    // Pitch relative to A4 root
+    const cents              = (midi - this.ROOT_MIDI) * 100;
+    source.playbackRate.value = Math.pow(2, cents / 1200);
+
+    if (this.fx.loop) source.loop = true;
+
+    const gainNode = this.audioCtx.createGain();
+    gainNode.gain.value = 0.8;
+    source.connect(gainNode);
+    gainNode.connect(this.masterGain);
+
+    source.start();
+
+    // Cleanup when sample ends naturally (non-loop)
+    source.onended = () => {
+      if (this.activeNotes.get(midi)?.source === source) {
+        this.activeNotes.delete(midi);
+        this.highlightKey(midi, false);
+        this.updatePolyCount();
+      }
+    };
+
+    this.activeNotes.set(midi, { source, gainNode });
+    this.highlightKey(midi, true);
+    this.updatePolyCount();
+    this.vuTargetLv = Math.min(1, this.vuTargetLv + 0.25);
+  }
+
+  noteOff(midi) {
+    this.pressedKeys.delete(midi);
+
+    if (!this.activeNotes.has(midi)) return;
+    const { source, gainNode } = this.activeNotes.get(midi);
+    const now = this.audioCtx.currentTime;
+
+    if (this.fx.loop) {
+      // Fade out and stop when looping
+      gainNode.gain.setValueAtTime(gainNode.gain.value, now);
+      gainNode.gain.exponentialRampToValueAtTime(0.001, now + 0.08);
+      try { source.stop(now + 0.1); } catch(e) {}
+      this.activeNotes.delete(midi);
+      this.highlightKey(midi, false);
+      this.updatePolyCount();
+    }
+    // Non-loop: sample plays through naturally, onended will clean up
+  }
+
+  killNote(midi, immediate = false) {
+    if (!this.activeNotes.has(midi)) return;
+    const { source, gainNode } = this.activeNotes.get(midi);
+    try {
+      if (immediate) {
+        const now = this.audioCtx.currentTime;
+        gainNode.gain.setValueAtTime(gainNode.gain.value, now);
+        gainNode.gain.exponentialRampToValueAtTime(0.001, now + 0.02);
+        source.stop(now + 0.025);
+      } else {
+        gainNode.disconnect();
+        source.stop();
+      }
+    } catch(e) {}
+    this.activeNotes.delete(midi);
+    this.highlightKey(midi, false);
+    this.updatePolyCount();
+  }
+
+  findLoadedSlot() {
+    return this.slots.findIndex(s => s !== null);
+  }
+
+  // ── BUFFER PROCESSING ─────────────────────────────────
+  prepareBuffer(buffer) {
+    if (!buffer) return null;
+    let buf = buffer;
+    if (this.fx.lofi)    buf = this.applyLofi(buf);
+    if (this.fx.reverse) buf = this.applyReverse(buf);
+    return buf;
+  }
+
+  applyReverse(buffer) {
+    const out = this.audioCtx.createBuffer(
+      buffer.numberOfChannels, buffer.length, buffer.sampleRate
+    );
+    for (let c = 0; c < buffer.numberOfChannels; c++) {
+      const src = buffer.getChannelData(c);
+      const dst = out.getChannelData(c);
+      for (let i = 0; i < buffer.length; i++) {
+        dst[i] = src[buffer.length - 1 - i];
+      }
+    }
+    return out;
+  }
+
+  applyLofi(buffer) {
+    // Downsample by 4× and quantize to ~5-bit
+    const factor     = 4;
+    const targetLen  = Math.floor(buffer.length / factor);
+    const targetRate = Math.floor(buffer.sampleRate / factor);
+    const out = this.audioCtx.createBuffer(1, targetLen, targetRate);
+    const src = buffer.getChannelData(0);
+    const dst = out.getChannelData(0);
+    const steps = 31; // 5-bit (2^5 - 1)
+    for (let i = 0; i < targetLen; i++) {
+      dst[i] = Math.round(src[i * factor] * steps) / steps;
+    }
+    return out;
+  }
+
+  // ── PERSISTENCE ───────────────────────────────────────
+  persistSlot(i, buffer) {
+    try {
+      const data = Array.from(buffer.getChannelData(0));
+      localStorage.setItem(`ms4_slot_${i}`, JSON.stringify({
+        sampleRate: buffer.sampleRate,
+        data
+      }));
+    } catch(e) {
+      console.warn('Storage quota exceeded — sample not persisted.', e);
+    }
+  }
+
+  loadFromStorage() {
+    for (let i = 0; i < 4; i++) {
+      try {
+        const raw = localStorage.getItem(`ms4_slot_${i}`);
+        if (!raw) continue;
+        const { sampleRate, data } = JSON.parse(raw);
+        const arr = new Float32Array(data);
+        const buf = this.audioCtx.createBuffer(1, arr.length, sampleRate);
+        buf.copyToChannel(arr, 0);
+        this.slots[i]      = buf;
+        this.padStates[i]  = 'loaded';
+      } catch(e) { /* corrupted or missing — skip */ }
+    }
+    this.renderPads();
+    const hasAny = this.slots.some(s => s);
+    if (hasAny) this.setStatus('SAMPLES RESTORED — ARM A PAD TO PLAY');
+  }
+
+  // ── UI HELPERS ────────────────────────────────────────
+  highlightKey(midi, on) {
+    const el = document.querySelector(`[data-midi="${midi}"]`);
+    if (el) el.classList.toggle('active', on);
+  }
+
+  setStatus(msg, blink = false, cls = '') {
+    const el = document.getElementById('status-msg');
+    el.textContent = msg;
+    el.className   = 'status-msg' + (cls ? ` ${cls}` : '');
+    if (blink) el.classList.add('rec');
+    if (!blink && !cls) setTimeout(() => {}, 0); // allow transition
+  }
+
+  updatePolyCount() {
+    document.getElementById('poly-count').textContent =
+      `VOICES: ${this.activeNotes.size}/${this.POLY_LIMIT}`;
+  }
+
+  // ── VU METER ──────────────────────────────────────────
+  startVuLoop() {
+    const segs = document.querySelectorAll('.vu-seg');
+    const tick = () => {
+      // Smooth decay
+      this.vuLevel += (this.vuTargetLv - this.vuLevel) * 0.18;
+      if (this.vuTargetLv > 0) this.vuTargetLv *= 0.88;
+
+      const lit = Math.round(this.vuLevel * 8);
+      segs.forEach((s, i) => {
+        const idx = i; // 0=leftmost
+        if (idx < lit) {
+          s.classList.add(idx >= 7 ? 'lit-red' : idx >= 5 ? 'lit-amber' : 'lit-green');
+          s.classList.remove(idx >= 7 ? 'lit-green' : 'lit-red');
+        } else {
+          s.classList.remove('lit-green','lit-amber','lit-red');
+        }
+      });
+      requestAnimationFrame(tick);
+    };
+    requestAnimationFrame(tick);
+  }
+
+  flashVu() {
+    this.vuTargetLv = 1.0;
+    setTimeout(() => { this.vuTargetLv = 0; }, 200);
+  }
+}
+
+// ── BOOT ────────────────────────────────────────────────
+window.addEventListener('DOMContentLoaded', () => {
+  window.sampler = new MicroSampler();
+});
+</script>
+</body>
+</html>
