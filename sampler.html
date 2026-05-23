@@ -66,6 +66,57 @@ nav: sampler
         inset 0 -1px 0 rgba(0,0,0,0.7);
     }
 
+    .keyboard-top-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      margin-bottom: 8px;
+    }
+    
+    .keyboard-hint {
+      margin-bottom: 0; /* overrides previous margin */
+    }
+
+    .octave-ctrl {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      background: var(--chassis);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 3px;
+    }
+
+    .oct-btn {
+      background: var(--panel);
+      border: 1px solid var(--border-hi);
+      color: var(--text-dim);
+      border-radius: 2px;
+      width: 18px;
+      height: 18px;
+      font-size: 8px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.1s;
+    }
+
+    .oct-btn:active {
+      background: var(--amber-dim);
+      color: var(--amber);
+      border-color: var(--amber-mid);
+    }
+
+    #oct-val {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 7.5px;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      color: var(--text);
+      min-width: 36px;
+      text-align: center;
+    }
     /* Noise texture overlay */
     .sampler::before {
       content: '';
@@ -429,41 +480,24 @@ nav: sampler
       text-align: right;
     }
 
-    /* ── KEYBOARD ──────────────────────────────────────────── */
-    .keyboard-section {
-      background: #050505;
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      padding: 14px 14px 0;
-      margin-bottom: 14px;
-    }
-
-    .keyboard-hint {
-      font-size: 8px;
-      letter-spacing: 0.2em;
-      color: var(--text-lo);
-      margin-bottom: 8px;
-      display: flex;
-      gap: 12px;
-      flex-wrap: wrap;
-    }
-
-    .keyboard-hint span { color: var(--text-dim); }
-
-    .keyboard-scroll {
-      overflow-x: auto;
-      overflow-y: hidden;
-      padding-bottom: 14px;
-      scrollbar-width: none;
-    }
-    .keyboard-scroll::-webkit-scrollbar { display: none; }
-
-    #keyboard-bed {
-      position: relative;
-      height: 82px;
-      flex-shrink: 0;
-      margin: 0 auto;
-    }
+  <!-- Keyboard -->
+    <div class="section-label">KEYBOARD — ROOT: A4 (●)</div>
+    <div class="keyboard-section">
+      <div class="keyboard-top-row">
+        <div class="keyboard-hint">
+          <span>WHITE:</span> Z X C V B N M / Q W E R T Y U I<br>
+          <span>BLACK:</span> S D G H J / 2 3 5 6 7
+        </div>
+        <div class="octave-ctrl">
+          <button id="oct-dn" class="oct-btn" title="Octave Down (-)">▼</button>
+          <span id="oct-val">OCT: 0</span>
+          <button id="oct-up" class="oct-btn" title="Octave Up (+)">▲</button>
+        </div>
+      </div>
+      <div class="keyboard-scroll">
+        <div id="keyboard-bed"></div>
+      </div>
+    </div>
 
     /* White keys */
     .key.white {
@@ -717,6 +751,10 @@ class MicroSampler {
     // Root pitch
     this.ROOT_MIDI = 69; // A4
 
+    // Octave settings
+    this.octaveOffset = 0;
+    this.MAX_OCTAVE = 3;
+    
     // PC key → MIDI
     this.pcKeyMap = {
       // White keys C3→C5
@@ -881,15 +919,25 @@ class MicroSampler {
     recBtn.addEventListener('touchstart', (e) => { e.preventDefault(); this.initAudio(); this.startRec(); }, { passive: false });
     recBtn.addEventListener('touchend',   (e) => { e.preventDefault(); this.stopRec(); }, { passive: false });
 
+    // Octave Buttons
+    document.getElementById('oct-dn').addEventListener('click', () => this.shiftOctave(-1));
+    document.getElementById('oct-up').addEventListener('click', () => this.shiftOctave(1));
+
     // PC keyboard
     window.addEventListener('keydown', (e) => {
       if (e.repeat || e.ctrlKey || e.metaKey || e.altKey) return;
+      
+      // Octave hotkeys
+      if (e.key === '-' || e.key === '_') { this.shiftOctave(-1); return; }
+      if (e.key === '=' || e.key === '+') { this.shiftOctave(1); return; }
+
       const midi = this.pcKeyMap[e.key];
       if (midi !== undefined) {
         e.preventDefault();
         this.initAudio();
         this.noteOn(midi);
       }
+    });
     });
     window.addEventListener('keyup', (e) => {
       const midi = this.pcKeyMap[e.key];
@@ -1017,8 +1065,10 @@ class MicroSampler {
 
     const source   = this.audioCtx.createBufferSource();
     source.buffer  = buf;
-
-    const cents              = (midi - this.ROOT_MIDI) * 100;
+    
+    const actualMidi = midi + (this.octaveOffset * 12);
+    const cents      = (actualMidi - this.ROOT_MIDI) * 100;
+    
     source.playbackRate.value = Math.pow(2, cents / 1200);
 
     if (this.fx.loop) source.loop = true;
@@ -1082,6 +1132,19 @@ class MicroSampler {
 
   findLoadedSlot() {
     return this.slots.findIndex(s => s !== null);
+  }
+
+  shiftOctave(delta) {
+    this.octaveOffset += delta;
+    
+    // Clamp to min/max octaves
+    if (this.octaveOffset > this.MAX_OCTAVE) this.octaveOffset = this.MAX_OCTAVE;
+    if (this.octaveOffset < -this.MAX_OCTAVE) this.octaveOffset = -this.MAX_OCTAVE;
+
+    // Update UI
+    const valEl = document.getElementById('oct-val');
+    valEl.textContent = `OCT: ${this.octaveOffset > 0 ? '+' : ''}${this.octaveOffset}`;
+    this.setStatus(`OCTAVE SHIFTED TO ${this.octaveOffset > 0 ? '+' : ''}${this.octaveOffset}`);
   }
 
   // ── BUFFER PROCESSING ─────────────────────────────────
