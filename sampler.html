@@ -429,6 +429,125 @@ nav: sampler
       text-align: right;
     }
 
+    /* ── KEYBOARD SECTION HEADER ───────────────────────────── */
+    .keyboard-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 9px;
+    }
+
+    /* ── OCTAVE CONTROLS ───────────────────────────────────── */
+    .octave-controls {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .oct-btn {
+      width: 22px;
+      height: 22px;
+      border-radius: 4px;
+      background: var(--panel-deep);
+      border: 1px solid var(--border);
+      color: var(--text-dim);
+      font-family: 'Orbitron', sans-serif;
+      font-size: 13px;
+      font-weight: 700;
+      line-height: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      user-select: none;
+      transition: all 80ms;
+    }
+
+    .oct-btn:hover {
+      border-color: var(--amber-mid);
+      color: var(--amber);
+      box-shadow: 0 0 8px rgba(255,183,0,0.15);
+    }
+
+    .oct-btn:active {
+      transform: scale(0.9);
+      background: #0f0a00;
+    }
+
+    .oct-display {
+      background: var(--panel-deep);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 3px 8px;
+      min-width: 52px;
+      text-align: center;
+    }
+
+    .oct-display-label {
+      font-size: 7px;
+      letter-spacing: 0.2em;
+      color: var(--text-lo);
+      display: block;
+      margin-bottom: 1px;
+    }
+
+    .oct-display-value {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--amber);
+      text-shadow: 0 0 8px rgba(255,183,0,0.4);
+      display: block;
+      line-height: 1;
+    }
+
+    .oct-display-value.shifted-up   { color: var(--green); text-shadow: 0 0 8px rgba(38,230,107,0.4); }
+    .oct-display-value.shifted-down { color: var(--red);   text-shadow: 0 0 8px rgba(255,51,0,0.4); }
+
+    /* ── MIDI STATUS ───────────────────────────────────────── */
+    .midi-indicator {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .midi-led {
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      background: #141414;
+      border: 1px solid #242424;
+      box-shadow: inset 0 1px 2px rgba(0,0,0,0.65);
+      flex-shrink: 0;
+      transition: all 0.1s;
+    }
+
+    .midi-led.connected {
+      background: var(--green);
+      border-color: var(--green);
+      box-shadow: 0 0 8px rgba(38,230,107,0.75);
+    }
+
+    .midi-led.active {
+      background: var(--amber);
+      border-color: var(--amber);
+      box-shadow: 0 0 10px rgba(255,183,0,0.9);
+      animation: midi-flash 0.1s ease-out;
+    }
+
+    @keyframes midi-flash {
+      0%   { transform: scale(1.4); }
+      100% { transform: scale(1); }
+    }
+
+    .midi-text {
+      font-size: 8px;
+      letter-spacing: 0.18em;
+      color: var(--text-lo);
+      transition: color 0.15s;
+    }
+
+    .midi-text.connected { color: var(--green); }
+
     /* ── KEYBOARD ──────────────────────────────────────────── */
     .keyboard-section {
       background: #050505;
@@ -492,7 +611,7 @@ nav: sampler
       box-shadow: inset 0 2px 4px rgba(0,0,0,0.35);
     }
 
-    /* Root note A4 marker */
+    /* Root note marker */
     .key.white.root-note::after {
       content: '';
       position: absolute;
@@ -606,15 +725,22 @@ nav: sampler
         <span class="brand-name">MICROSAMPLER</span>
         <span class="brand-tag">SMPL-4 / WEB AUDIO</span>
       </div>
-      <div class="vu" id="vu-meter">
-        <div class="vu-seg" data-i="0"></div>
-        <div class="vu-seg" data-i="1"></div>
-        <div class="vu-seg" data-i="2"></div>
-        <div class="vu-seg" data-i="3"></div>
-        <div class="vu-seg" data-i="4"></div>
-        <div class="vu-seg" data-i="5"></div>
-        <div class="vu-seg" data-i="6"></div>
-        <div class="vu-seg" data-i="7"></div>
+      <div style="display:flex;align-items:center;gap:12px;">
+        <!-- MIDI indicator -->
+        <div class="midi-indicator">
+          <div class="midi-led" id="midi-led"></div>
+          <span class="midi-text" id="midi-text">NO MIDI</span>
+        </div>
+        <div class="vu" id="vu-meter">
+          <div class="vu-seg" data-i="0"></div>
+          <div class="vu-seg" data-i="1"></div>
+          <div class="vu-seg" data-i="2"></div>
+          <div class="vu-seg" data-i="3"></div>
+          <div class="vu-seg" data-i="4"></div>
+          <div class="vu-seg" data-i="5"></div>
+          <div class="vu-seg" data-i="6"></div>
+          <div class="vu-seg" data-i="7"></div>
+        </div>
       </div>
     </div>
 
@@ -663,8 +789,20 @@ nav: sampler
       <span class="vol-value" id="vol-value">70%</span>
     </div>
 
+    <!-- Keyboard header with octave controls -->
+    <div class="keyboard-header">
+      <div class="section-label" style="margin-bottom:0;">KEYBOARD — ROOT: A4 (●)</div>
+      <div class="octave-controls">
+        <button class="oct-btn" id="oct-down" aria-label="Octave down">−</button>
+        <div class="oct-display">
+          <span class="oct-display-label">OCTAVE</span>
+          <span class="oct-display-value" id="oct-value">0</span>
+        </div>
+        <button class="oct-btn" id="oct-up" aria-label="Octave up">+</button>
+      </div>
+    </div>
+
     <!-- Keyboard -->
-    <div class="section-label">KEYBOARD — ROOT: A4 (●)</div>
     <div class="keyboard-section">
       <div class="keyboard-hint">
         <span>WHITE:</span> Z X C V B N M / Q W E R T Y U I
@@ -684,9 +822,10 @@ nav: sampler
 
 <script>
 /* ════════════════════════════════════════════════════════════
-   MicroSampler — Web Audio sampler for Jekyll
+   MicroSampler — Web Audio sampler
    Root pitch: A4 (MIDI 69)
    Keyboard range: C3 (48) → C5 (72)
+   Added: Octave transpose, Web MIDI API
 ════════════════════════════════════════════════════════════ */
 class MicroSampler {
   constructor() {
@@ -695,17 +834,18 @@ class MicroSampler {
 
     // 4 sample slots: AudioBuffer | null
     this.slots       = [null, null, null, null];
-    this.activePad   = -1;  // -1 = none selected
+    this.activePad   = -1;
     // states: 'empty' | 'armed' | 'loaded'
     this.padStates   = ['empty','empty','empty','empty'];
 
     // Effects
     this.fx = { reverse: false, loop: false, lofi: false };
 
-    // Active playback: Map<midiNote, {source, gainNode}>
+    // Active playback: Map<noteKey, {source, gainNode}>
+    // noteKey = midi note number (number)
     this.activeNotes = new Map();
     this.POLY_LIMIT  = 6;
-    this.pressedKeys = new Set();
+    this.pressedKeys = new Set();  // currently held PC keys (midi numbers)
 
     // Recording
     this.isRecording   = false;
@@ -714,28 +854,38 @@ class MicroSampler {
     this.stream        = null;
     this.recTimeout    = null;
 
-    // Root pitch
-    this.ROOT_MIDI = 69; // A4
+    // Root pitch (A4)
+    this.ROOT_MIDI = 69;
 
-    // PC key → MIDI
+    // ── OCTAVE TRANSPOSE ──────────────────────────────────
+    // Shifts the root note and playback rate. Range: -4 to +4 octaves.
+    this.octaveOffset = 0;
+    this.OCT_MIN = -4;
+    this.OCT_MAX = 4;
+
+    // PC key → base MIDI (C3=48 to C5=72 range, octave 0)
     this.pcKeyMap = {
-      // White keys C3→C5
       'z':48,'x':50,'c':52,'v':53,'b':55,'n':57,'m':59,
       'q':60,'w':62,'e':64,'r':65,'t':67,'y':69,'u':71,'i':72,
-      // Black keys
       's':49,'d':51,'g':54,'h':56,'j':58,
       '2':61,'3':63,'5':66,'6':68,'7':70
     };
 
-    // PC key labels for display on keys
     this.midiToKey = {};
     Object.entries(this.pcKeyMap).forEach(([k,m]) => { this.midiToKey[m] = k; });
+
+    // MIDI state
+    this.midiAccess   = null;
+    this.midiInputs   = new Map();  // id → MIDIInput
+    this.midiConnected = false;
+    this.midiFlashTimer = null;
 
     // VU animation
     this.vuLevel    = 0;
     this.vuTargetLv = 0;
 
     this.initDOM();
+    this.initMidi();
   }
 
   // ── AUDIO CONTEXT ─────────────────────────────────────
@@ -758,6 +908,7 @@ class MicroSampler {
     this.buildKeyboard();
     this.bindEvents();
     this.renderPads();
+    this.renderOctave();
   }
 
   buildPads() {
@@ -787,15 +938,14 @@ class MicroSampler {
     const bed = document.getElementById('keyboard-bed');
     const MIDI_START = 48; // C3
     const MIDI_END   = 72; // C5
-    const WW = 30;   // white key width px
-    const WH = 82;   // white key height px
-    const BW = 19;   // black key width px
-    const BH = 50;   // black key height px
-    const GAP = 2;   // gap between white keys
+    const WW = 30;
+    const WH = 82;
+    const BW = 19;
+    const BH = 50;
+    const GAP = 2;
 
     const isBlack = m => [1,3,6,8,10].includes(m % 12);
 
-    // First pass: assign x positions
     let whiteX = 0;
     let lastWhiteX = 0;
     const keyData = [];
@@ -814,7 +964,6 @@ class MicroSampler {
     bed.style.width  = totalW + 'px';
     bed.style.height = WH + 'px';
 
-    // Render white keys first, then black on top
     const whites = keyData.filter(k => !k.black);
     const blacks  = keyData.filter(k =>  k.black);
 
@@ -822,12 +971,12 @@ class MicroSampler {
       const el = document.createElement('div');
       el.className  = k.black ? 'key black' : 'key white';
       el.dataset.midi = k.midi;
+      // Root note dot: base MIDI 69 = A4; on keyboard (0-offset) it's position 69
       if (k.midi === this.ROOT_MIDI) el.classList.add('root-note');
       el.style.left   = k.x + 'px';
       el.style.width  = k.w + 'px';
       el.style.height = k.h + 'px';
 
-      // Key label (PC key)
       const lbl = document.createElement('span');
       lbl.className   = 'key-lbl';
       lbl.textContent = (this.midiToKey[k.midi] || '').toUpperCase();
@@ -863,7 +1012,6 @@ class MicroSampler {
     const volInput = document.getElementById('master-vol');
     const volFill  = document.getElementById('vol-fill');
     const volVal   = document.getElementById('vol-value');
-
     volInput.addEventListener('input', () => {
       const v = parseFloat(volInput.value);
       if (this.masterGain) {
@@ -881,20 +1029,130 @@ class MicroSampler {
     recBtn.addEventListener('touchstart', (e) => { e.preventDefault(); this.initAudio(); this.startRec(); }, { passive: false });
     recBtn.addEventListener('touchend',   (e) => { e.preventDefault(); this.stopRec(); }, { passive: false });
 
+    // Octave buttons
+    document.getElementById('oct-down').addEventListener('click', () => this.shiftOctave(-1));
+    document.getElementById('oct-up').addEventListener('click',   () => this.shiftOctave(+1));
+
     // PC keyboard
     window.addEventListener('keydown', (e) => {
       if (e.repeat || e.ctrlKey || e.metaKey || e.altKey) return;
-      const midi = this.pcKeyMap[e.key];
-      if (midi !== undefined) {
+      const baseMidi = this.pcKeyMap[e.key];
+      if (baseMidi !== undefined) {
         e.preventDefault();
         this.initAudio();
-        this.noteOn(midi);
+        // Apply octave offset to get actual MIDI note
+        const midi = baseMidi + this.octaveOffset * 12;
+        this.noteOn(midi, baseMidi);
       }
     });
     window.addEventListener('keyup', (e) => {
-      const midi = this.pcKeyMap[e.key];
-      if (midi !== undefined) this.noteOff(midi);
+      const baseMidi = this.pcKeyMap[e.key];
+      if (baseMidi !== undefined) {
+        const midi = baseMidi + this.octaveOffset * 12;
+        this.noteOff(midi, baseMidi);
+      }
     });
+  }
+
+  // ── OCTAVE TRANSPOSE ──────────────────────────────────
+  shiftOctave(delta) {
+    const newVal = this.octaveOffset + delta;
+    if (newVal < this.OCT_MIN || newVal > this.OCT_MAX) return;
+    this.octaveOffset = newVal;
+    this.renderOctave();
+    const shifted = this.octaveOffset !== 0
+      ? `OCT ${this.octaveOffset > 0 ? '+' : ''}${this.octaveOffset} — ROOT: ${this.midiToName(this.ROOT_MIDI + this.octaveOffset * 12)}`
+      : 'OCTAVE RESET TO 0';
+    this.setStatus(shifted, false, this.octaveOffset !== 0 ? 'active' : '');
+  }
+
+  renderOctave() {
+    const el = document.getElementById('oct-value');
+    const v  = this.octaveOffset;
+    el.textContent = v === 0 ? '0' : (v > 0 ? `+${v}` : `${v}`);
+    el.className = 'oct-display-value' +
+      (v > 0 ? ' shifted-up' : v < 0 ? ' shifted-down' : '');
+
+    // Update which key carries the root-note dot
+    // Root MIDI at base = 69. On the keyboard visual the key element
+    // has data-midi = base MIDI (always 48–72).
+    // We keep the dot on the physical A4 key (midi=69) regardless of
+    // transpose — the visual keyboard stays fixed; only playback rate shifts.
+  }
+
+  midiToName(midi) {
+    const names = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
+    const octave = Math.floor(midi / 12) - 1;
+    return names[midi % 12] + octave;
+  }
+
+  // ── MIDI ──────────────────────────────────────────────
+  async initMidi() {
+    if (!navigator.requestMIDIAccess) {
+      // Browser doesn't support Web MIDI
+      this.updateMidiStatus(false, 'NO MIDI API');
+      return;
+    }
+    try {
+      this.midiAccess = await navigator.requestMIDIAccess({ sysex: false });
+      this.onMidiStateChange();  // initial scan
+      this.midiAccess.onstatechange = () => this.onMidiStateChange();
+    } catch(err) {
+      console.warn('MIDI access denied:', err);
+      this.updateMidiStatus(false, 'MIDI DENIED');
+    }
+  }
+
+  onMidiStateChange() {
+    this.midiInputs.clear();
+    let count = 0;
+    for (const [id, input] of this.midiAccess.inputs) {
+      if (input.state === 'connected') {
+        input.onmidimessage = (e) => this.onMidiMessage(e);
+        this.midiInputs.set(id, input);
+        count++;
+      }
+    }
+    this.midiConnected = count > 0;
+    this.updateMidiStatus(this.midiConnected,
+      this.midiConnected ? `MIDI: ${count} DEV` : 'NO MIDI');
+  }
+
+  onMidiMessage(event) {
+    const [status, note, velocity] = event.data;
+    const command = status & 0xF0;
+
+    if (command === 0x90 && velocity > 0) {
+      // Note On
+      this.initAudio();
+      this.flashMidiLed();
+      // MIDI note + octave offset
+      const shiftedNote = note + this.octaveOffset * 12;
+      this.noteOn(shiftedNote, null, velocity / 127);
+    } else if (command === 0x80 || (command === 0x90 && velocity === 0)) {
+      // Note Off
+      const shiftedNote = note + this.octaveOffset * 12;
+      this.noteOff(shiftedNote);
+    }
+    // Ignore other MIDI messages (CC, pitchbend, etc.)
+  }
+
+  updateMidiStatus(connected, text) {
+    const led  = document.getElementById('midi-led');
+    const label = document.getElementById('midi-text');
+    led.className  = 'midi-led' + (connected ? ' connected' : '');
+    label.className = 'midi-text' + (connected ? ' connected' : '');
+    label.textContent = text;
+  }
+
+  flashMidiLed() {
+    const led = document.getElementById('midi-led');
+    led.classList.add('active');
+    clearTimeout(this.midiFlashTimer);
+    this.midiFlashTimer = setTimeout(() => {
+      led.classList.remove('active');
+      if (this.midiConnected) led.classList.add('connected');
+    }, 120);
   }
 
   // ── PAD SELECTION ─────────────────────────────────────
@@ -920,6 +1178,7 @@ class MicroSampler {
     this.setStatus(hasData
       ? `PAD ${i+1} ARMED — HOLD REC TO RE-SAMPLE OR PLAY KEYS`
       : `PAD ${i+1} ARMED — HOLD REC TO RECORD`);
+    this.renderPads();
   }
 
   renderPads() {
@@ -940,7 +1199,6 @@ class MicroSampler {
       this.setStatus('SELECT A PAD FIRST', false);
       return;
     }
-
     try {
       this.stream      = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
       this.audioChunks = [];
@@ -996,10 +1254,13 @@ class MicroSampler {
   }
 
   // ── PLAYBACK ──────────────────────────────────────────
-  noteOn(midi) {
+  // baseMidi: the key's visual position (for highlighting on-screen keys).
+  //           If null (MIDI input), we skip visual highlight.
+  // velocity: 0–1, default 0.8
+  noteOn(midi, baseMidi = null, velocity = 0.8) {
     if (!this.audioCtx) return;
-    if (this.pressedKeys.has(midi)) return;
-    this.pressedKeys.add(midi);
+    // Prevent re-trigger of same note
+    if (this.activeNotes.has(midi)) return;
 
     const slot = this.activePad !== -1 ? this.activePad : this.findLoadedSlot();
     if (slot === -1 || !this.slots[slot]) {
@@ -1018,13 +1279,17 @@ class MicroSampler {
     const source   = this.audioCtx.createBufferSource();
     source.buffer  = buf;
 
+    // Pitch: relative to root MIDI (which is itself offset by octave).
+    // The "actual root" in MIDI terms = ROOT_MIDI (69), but octave offset
+    // is already baked into the played midi note, so we compare against
+    // the base ROOT_MIDI always.
     const cents              = (midi - this.ROOT_MIDI) * 100;
     source.playbackRate.value = Math.pow(2, cents / 1200);
 
     if (this.fx.loop) source.loop = true;
 
     const gainNode = this.audioCtx.createGain();
-    gainNode.gain.value = 0.8;
+    gainNode.gain.value = velocity;
     source.connect(gainNode);
     gainNode.connect(this.masterGain);
 
@@ -1033,22 +1298,22 @@ class MicroSampler {
     source.onended = () => {
       if (this.activeNotes.get(midi)?.source === source) {
         this.activeNotes.delete(midi);
-        this.highlightKey(midi, false);
+        if (baseMidi !== null) this.highlightKey(baseMidi, false);
         this.updatePolyCount();
       }
     };
 
-    this.activeNotes.set(midi, { source, gainNode });
-    this.highlightKey(midi, true);
+    this.activeNotes.set(midi, { source, gainNode, baseMidi });
+    if (baseMidi !== null) this.highlightKey(baseMidi, true);
     this.updatePolyCount();
     this.vuTargetLv = Math.min(1, this.vuTargetLv + 0.25);
   }
 
-  noteOff(midi) {
-    this.pressedKeys.delete(midi);
-
+  noteOff(midi, baseMidi = null) {
     if (!this.activeNotes.has(midi)) return;
-    const { source, gainNode } = this.activeNotes.get(midi);
+    const note = this.activeNotes.get(midi);
+    const { source, gainNode } = note;
+    const resolvedBase = baseMidi !== null ? baseMidi : note.baseMidi;
     const now = this.audioCtx.currentTime;
 
     if (this.fx.loop) {
@@ -1056,14 +1321,14 @@ class MicroSampler {
       gainNode.gain.exponentialRampToValueAtTime(0.001, now + 0.08);
       try { source.stop(now + 0.1); } catch(e) {}
       this.activeNotes.delete(midi);
-      this.highlightKey(midi, false);
+      if (resolvedBase !== null) this.highlightKey(resolvedBase, false);
       this.updatePolyCount();
     }
   }
 
   killNote(midi, immediate = false) {
     if (!this.activeNotes.has(midi)) return;
-    const { source, gainNode } = this.activeNotes.get(midi);
+    const { source, gainNode, baseMidi } = this.activeNotes.get(midi);
     try {
       if (immediate) {
         const now = this.audioCtx.currentTime;
@@ -1076,7 +1341,7 @@ class MicroSampler {
       }
     } catch(e) {}
     this.activeNotes.delete(midi);
-    this.highlightKey(midi, false);
+    if (baseMidi !== null) this.highlightKey(baseMidi, false);
     this.updatePolyCount();
   }
 
@@ -1108,14 +1373,13 @@ class MicroSampler {
   }
 
   applyLofi(buffer) {
-    // Downsample by 4× and quantize to ~5-bit
     const factor     = 4;
     const targetLen  = Math.floor(buffer.length / factor);
     const targetRate = Math.floor(buffer.sampleRate / factor);
     const out = this.audioCtx.createBuffer(1, targetLen, targetRate);
     const src = buffer.getChannelData(0);
     const dst = out.getChannelData(0);
-    const steps = 31; // 5-bit (2^5 - 1)
+    const steps = 31;
     for (let i = 0; i < targetLen; i++) {
       dst[i] = Math.round(src[i * factor] * steps) / steps;
     }
@@ -1146,7 +1410,7 @@ class MicroSampler {
         buf.copyToChannel(arr, 0);
         this.slots[i]      = buf;
         this.padStates[i]  = 'loaded';
-      } catch(e) { /* corrupted or missing — skip */ }
+      } catch(e) { /* corrupted — skip */ }
     }
     this.renderPads();
     const hasAny = this.slots.some(s => s);
@@ -1154,8 +1418,9 @@ class MicroSampler {
   }
 
   // ── UI HELPERS ────────────────────────────────────────
-  highlightKey(midi, on) {
-    const el = document.querySelector(`[data-midi="${midi}"]`);
+  highlightKey(baseMidi, on) {
+    // baseMidi is in the 48–72 range (keyboard's fixed visual range)
+    const el = document.querySelector(`[data-midi="${baseMidi}"]`);
     if (el) el.classList.toggle('active', on);
   }
 
@@ -1164,7 +1429,6 @@ class MicroSampler {
     el.textContent = msg;
     el.className   = 'status-msg' + (cls ? ` ${cls}` : '');
     if (blink) el.classList.add('rec');
-    if (!blink && !cls) setTimeout(() => {}, 0); // allow transition
   }
 
   updatePolyCount() {
@@ -1176,16 +1440,14 @@ class MicroSampler {
   startVuLoop() {
     const segs = document.querySelectorAll('.vu-seg');
     const tick = () => {
-      // Smooth decay
       this.vuLevel += (this.vuTargetLv - this.vuLevel) * 0.18;
       if (this.vuTargetLv > 0) this.vuTargetLv *= 0.88;
 
       const lit = Math.round(this.vuLevel * 8);
       segs.forEach((s, i) => {
-        const idx = i; // 0=leftmost
-        if (idx < lit) {
-          s.classList.add(idx >= 7 ? 'lit-red' : idx >= 5 ? 'lit-amber' : 'lit-green');
-          s.classList.remove(idx >= 7 ? 'lit-green' : 'lit-red');
+        if (i < lit) {
+          s.classList.add(i >= 7 ? 'lit-red' : i >= 5 ? 'lit-amber' : 'lit-green');
+          s.classList.remove(i >= 7 ? 'lit-green' : 'lit-red');
         } else {
           s.classList.remove('lit-green','lit-amber','lit-red');
         }
