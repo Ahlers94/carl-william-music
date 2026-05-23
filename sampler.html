@@ -49,7 +49,6 @@ nav: sampler
       padding: 32px 16px 48px;
     }
 
-    /* ── CHASSIS ───────────────────────────────────────────── */
     .sampler {
       position: relative;
       background: linear-gradient(160deg, #1a1a1a 0%, #121212 50%, #0d0d0d 100%);
@@ -66,7 +65,6 @@ nav: sampler
         inset 0 -1px 0 rgba(0,0,0,0.7);
     }
 
-    /* Noise texture overlay */
     .sampler::before {
       content: '';
       position: absolute;
@@ -80,7 +78,6 @@ nav: sampler
 
     .sampler > * { position: relative; z-index: 1; }
 
-    /* Screws */
     .screw {
       position: absolute;
       width: 11px; height: 11px;
@@ -103,7 +100,7 @@ nav: sampler
     .screw.bl { bottom: 9px; left: 9px; }
     .screw.br { bottom: 9px; right: 9px; }
 
-    /* ── HEADER ────────────────────────────────────────────── */
+    /* ── HEADER ── */
     .header {
       display: flex;
       justify-content: space-between;
@@ -113,11 +110,7 @@ nav: sampler
       border-bottom: 1px solid var(--border);
     }
 
-    .brand {
-      display: flex;
-      align-items: baseline;
-      gap: 10px;
-    }
+    .brand { display: flex; align-items: baseline; gap: 10px; }
 
     .brand-name {
       font-family: 'Orbitron', sans-serif;
@@ -135,12 +128,7 @@ nav: sampler
       text-transform: uppercase;
     }
 
-    /* VU meter dots */
-    .vu {
-      display: flex;
-      align-items: center;
-      gap: 3px;
-    }
+    .vu { display: flex; align-items: center; gap: 3px; }
 
     .vu-seg {
       width: 7px; height: 7px;
@@ -152,7 +140,6 @@ nav: sampler
     .vu-seg.lit-amber { background: var(--amber); box-shadow: 0 0 8px var(--amber); }
     .vu-seg.lit-red   { background: var(--red);   box-shadow: 0 0 8px var(--red); }
 
-    /* ── SECTION LABEL ─────────────────────────────────────── */
     .section-label {
       font-size: 8.5px;
       letter-spacing: 0.3em;
@@ -161,7 +148,7 @@ nav: sampler
       margin-bottom: 9px;
     }
 
-    /* ── PADS ──────────────────────────────────────────────── */
+    /* ── PADS ── */
     .pads-grid {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
@@ -208,7 +195,6 @@ nav: sampler
       pointer-events: none;
     }
 
-    /* loaded — dim amber glow */
     .pad.state-loaded {
       background: radial-gradient(ellipse at 42% 30%, rgba(255,183,0,0.05) 0%, transparent 60%), #0f0a00;
       border-color: var(--amber-dim);
@@ -217,35 +203,29 @@ nav: sampler
         0 0 10px rgba(255,183,0,0.08),
         0 2px 4px rgba(0,0,0,0.55);
     }
-    .pad.state-loaded .pad-num   { color: var(--amber-mid); }
+    .pad.state-loaded .pad-num    { color: var(--amber-mid); }
     .pad.state-loaded .pad-status { color: var(--amber-dim); }
 
-    /* armed — bright blinking amber */
     .pad.state-armed {
       background: radial-gradient(ellipse at 42% 30%, rgba(255,183,0,0.1) 0%, transparent 60%), #140d00;
       border-color: var(--amber);
       animation: pad-blink 0.75s ease-in-out infinite;
     }
-    .pad.state-armed .pad-num   { color: var(--amber); text-shadow: 0 0 12px var(--amber); }
+    .pad.state-armed .pad-num    { color: var(--amber); text-shadow: 0 0 12px var(--amber); }
     .pad.state-armed .pad-status { color: var(--amber); }
 
     @keyframes pad-blink {
       0%, 100% {
-        box-shadow:
-          inset 0 2px 6px rgba(0,0,0,0.75),
-          0 0 20px rgba(255,183,0,0.35),
-          0 0 8px rgba(255,183,0,0.2);
+        box-shadow: inset 0 2px 6px rgba(0,0,0,0.75), 0 0 20px rgba(255,183,0,0.35), 0 0 8px rgba(255,183,0,0.2);
       }
       50% {
-        box-shadow:
-          inset 0 2px 6px rgba(0,0,0,0.75),
-          0 0 4px rgba(255,183,0,0.05);
+        box-shadow: inset 0 2px 6px rgba(0,0,0,0.75), 0 0 4px rgba(255,183,0,0.05);
       }
     }
 
     .pad:active { transform: scale(0.94); }
 
-    /* ── CONTROLS ROW ──────────────────────────────────────── */
+    /* ── CONTROLS ROW ── */
     .controls-row {
       display: flex;
       gap: 10px;
@@ -253,7 +233,6 @@ nav: sampler
       align-items: stretch;
     }
 
-    /* REC button */
     .rec-btn {
       flex: 0 0 auto;
       min-width: 100px;
@@ -290,11 +269,7 @@ nav: sampler
       transition: color 0.12s;
     }
 
-    .rec-btn.recording {
-      background: #170200;
-      border-color: var(--red);
-      box-shadow: 0 0 16px rgba(255,51,0,0.2);
-    }
+    .rec-btn.recording { background: #170200; border-color: var(--red); box-shadow: 0 0 16px rgba(255,51,0,0.2); }
     .rec-btn.recording .rec-circle {
       background: radial-gradient(circle at 40% 35%, #ff4400, #b80d00);
       border-color: var(--red);
@@ -310,18 +285,8 @@ nav: sampler
 
     .rec-btn:active { transform: scale(0.96); }
 
-    /* FX section */
-    .fx-section {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-    }
-
-    .fx-row {
-      display: flex;
-      gap: 8px;
-      flex: 1;
-    }
+    .fx-section { flex: 1; display: flex; flex-direction: column; }
+    .fx-row { display: flex; gap: 8px; flex: 1; }
 
     .fx-toggle {
       flex: 1;
@@ -359,19 +324,11 @@ nav: sampler
       transition: color 0.1s;
     }
 
-    .fx-toggle.on {
-      background: #040f06;
-      border-color: #134224;
-      box-shadow: 0 0 10px rgba(38,230,107,0.1);
-    }
-    .fx-toggle.on .fx-led {
-      background: var(--green);
-      border-color: var(--green);
-      box-shadow: 0 0 8px rgba(38,230,107,0.75), 0 0 3px rgba(38,230,107,0.4);
-    }
+    .fx-toggle.on { background: #040f06; border-color: #134224; box-shadow: 0 0 10px rgba(38,230,107,0.1); }
+    .fx-toggle.on .fx-led { background: var(--green); border-color: var(--green); box-shadow: 0 0 8px rgba(38,230,107,0.75), 0 0 3px rgba(38,230,107,0.4); }
     .fx-toggle.on .fx-name { color: var(--green); }
 
-    /* ── VOLUME ────────────────────────────────────────────── */
+    /* ── VOLUME ── */
     .vol-section {
       background: var(--panel-deep);
       border: 1px solid var(--border);
@@ -383,53 +340,25 @@ nav: sampler
       margin-bottom: 18px;
     }
 
-    .vol-label {
-      font-size: 8.5px;
-      letter-spacing: 0.24em;
-      color: var(--text-dim);
-      white-space: nowrap;
-      flex-shrink: 0;
-    }
+    .vol-label { font-size: 8.5px; letter-spacing: 0.24em; color: var(--text-dim); white-space: nowrap; flex-shrink: 0; }
 
-    .vol-track {
-      flex: 1;
-      position: relative;
-      height: 3px;
-      background: #181818;
-      border-radius: 2px;
-    }
+    .vol-track { flex: 1; position: relative; height: 3px; background: #181818; border-radius: 2px; }
 
     .vol-fill {
-      position: absolute;
-      left: 0; top: 0; bottom: 0;
+      position: absolute; left: 0; top: 0; bottom: 0;
       background: linear-gradient(to right, var(--amber-dim), var(--amber));
-      border-radius: 2px;
-      pointer-events: none;
-      transition: width 0s;
+      border-radius: 2px; pointer-events: none;
     }
 
     input[type="range"]#master-vol {
-      position: absolute;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-      opacity: 0;
-      cursor: pointer;
-      margin: 0;
-      padding: 8px 0;
-      box-sizing: content-box;
-      top: -8px;
+      position: absolute; inset: 0; width: 100%; height: 100%;
+      opacity: 0; cursor: pointer; margin: 0;
+      padding: 8px 0; box-sizing: content-box; top: -8px;
     }
 
-    .vol-value {
-      font-size: 9px;
-      color: var(--text-dim);
-      flex-shrink: 0;
-      min-width: 28px;
-      text-align: right;
-    }
+    .vol-value { font-size: 9px; color: var(--text-dim); flex-shrink: 0; min-width: 28px; text-align: right; }
 
-    /* ── KEYBOARD SECTION HEADER ───────────────────────────── */
+    /* ── KEYBOARD HEADER with octave controls ── */
     .keyboard-header {
       display: flex;
       align-items: center;
@@ -437,27 +366,19 @@ nav: sampler
       margin-bottom: 9px;
     }
 
-    /* ── OCTAVE CONTROLS ───────────────────────────────────── */
-    .octave-controls {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
+    .octave-controls { display: flex; align-items: center; gap: 6px; }
 
     .oct-btn {
-      width: 22px;
-      height: 22px;
+      width: 26px; height: 26px;
       border-radius: 4px;
       background: var(--panel-deep);
       border: 1px solid var(--border);
       color: var(--text-dim);
       font-family: 'Orbitron', sans-serif;
-      font-size: 13px;
+      font-size: 15px;
       font-weight: 700;
       line-height: 1;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      display: flex; align-items: center; justify-content: center;
       cursor: pointer;
       user-select: none;
       transition: all 80ms;
@@ -469,17 +390,20 @@ nav: sampler
       box-shadow: 0 0 8px rgba(255,183,0,0.15);
     }
 
-    .oct-btn:active {
-      transform: scale(0.9);
-      background: #0f0a00;
+    .oct-btn:active { transform: scale(0.88); background: #0f0a00; }
+
+    .oct-btn:disabled {
+      opacity: 0.25;
+      cursor: not-allowed;
+      pointer-events: none;
     }
 
     .oct-display {
       background: var(--panel-deep);
       border: 1px solid var(--border);
       border-radius: 4px;
-      padding: 3px 8px;
-      min-width: 52px;
+      padding: 3px 10px;
+      min-width: 56px;
       text-align: center;
     }
 
@@ -493,23 +417,20 @@ nav: sampler
 
     .oct-display-value {
       font-family: 'Orbitron', sans-serif;
-      font-size: 11px;
+      font-size: 13px;
       font-weight: 700;
       color: var(--amber);
       text-shadow: 0 0 8px rgba(255,183,0,0.4);
       display: block;
       line-height: 1;
+      transition: color 0.15s, text-shadow 0.15s;
     }
 
-    .oct-display-value.shifted-up   { color: var(--green); text-shadow: 0 0 8px rgba(38,230,107,0.4); }
-    .oct-display-value.shifted-down { color: var(--red);   text-shadow: 0 0 8px rgba(255,51,0,0.4); }
+    .oct-display-value.up   { color: var(--green); text-shadow: 0 0 8px rgba(38,230,107,0.5); }
+    .oct-display-value.down { color: var(--red);   text-shadow: 0 0 8px rgba(255,51,0,0.5); }
 
-    /* ── MIDI STATUS ───────────────────────────────────────── */
-    .midi-indicator {
-      display: flex;
-      align-items: center;
-      gap: 5px;
-    }
+    /* ── MIDI INDICATOR ── */
+    .midi-indicator { display: flex; align-items: center; gap: 5px; }
 
     .midi-led {
       width: 7px; height: 7px;
@@ -518,7 +439,7 @@ nav: sampler
       border: 1px solid #242424;
       box-shadow: inset 0 1px 2px rgba(0,0,0,0.65);
       flex-shrink: 0;
-      transition: all 0.1s;
+      transition: background 0.1s, box-shadow 0.1s, border-color 0.1s;
     }
 
     .midi-led.connected {
@@ -528,27 +449,27 @@ nav: sampler
     }
 
     .midi-led.active {
-      background: var(--amber);
-      border-color: var(--amber);
-      box-shadow: 0 0 10px rgba(255,183,0,0.9);
-      animation: midi-flash 0.1s ease-out;
+      background: var(--amber) !important;
+      border-color: var(--amber) !important;
+      box-shadow: 0 0 12px rgba(255,183,0,0.9) !important;
     }
 
-    @keyframes midi-flash {
-      0%   { transform: scale(1.4); }
-      100% { transform: scale(1); }
+    .midi-led.unsupported {
+      background: #2a1500;
+      border-color: #3a1a00;
     }
 
     .midi-text {
       font-size: 8px;
-      letter-spacing: 0.18em;
+      letter-spacing: 0.15em;
       color: var(--text-lo);
       transition: color 0.15s;
+      white-space: nowrap;
     }
+    .midi-text.connected  { color: var(--green); }
+    .midi-text.error      { color: #5a2200; }
 
-    .midi-text.connected { color: var(--green); }
-
-    /* ── KEYBOARD ──────────────────────────────────────────── */
+    /* ── KEYBOARD SECTION ── */
     .keyboard-section {
       background: #050505;
       border: 1px solid var(--border);
@@ -566,7 +487,6 @@ nav: sampler
       gap: 12px;
       flex-wrap: wrap;
     }
-
     .keyboard-hint span { color: var(--text-dim); }
 
     .keyboard-scroll {
@@ -577,46 +497,27 @@ nav: sampler
     }
     .keyboard-scroll::-webkit-scrollbar { display: none; }
 
-    #keyboard-bed {
-      position: relative;
-      height: 82px;
-      flex-shrink: 0;
-      margin: 0 auto;
-    }
+    #keyboard-bed { position: relative; height: 82px; flex-shrink: 0; margin: 0 auto; }
 
-    /* White keys */
     .key.white {
       position: absolute;
       background: linear-gradient(to bottom, #c4beaf 0%, #d4ceba 50%, #d6ceba 100%);
       border: 1px solid #8f8677;
       border-top: none;
       border-radius: 0 0 3px 3px;
-      cursor: pointer;
-      user-select: none;
-      bottom: 0;
-      box-shadow:
-        inset 0 -4px 8px rgba(0,0,0,0.28),
-        2px 0 4px rgba(0,0,0,0.35),
-        0 4px 8px rgba(0,0,0,0.55);
+      cursor: pointer; user-select: none; bottom: 0;
+      box-shadow: inset 0 -4px 8px rgba(0,0,0,0.28), 2px 0 4px rgba(0,0,0,0.35), 0 4px 8px rgba(0,0,0,0.55);
       transition: background 50ms;
     }
-
-    .key.white:hover {
-      background: linear-gradient(to bottom, #cdc6b5 0%, #ded7c2 100%);
-    }
-
-    .key.white.active,
-    .key.white:active {
+    .key.white:hover { background: linear-gradient(to bottom, #cdc6b5 0%, #ded7c2 100%); }
+    .key.white.active, .key.white:active {
       background: linear-gradient(to bottom, var(--amber) 0%, #b88300 100%);
       box-shadow: inset 0 2px 4px rgba(0,0,0,0.35);
     }
 
-    /* Root note marker */
     .key.white.root-note::after {
       content: '';
-      position: absolute;
-      bottom: 6px;
-      left: 50%;
+      position: absolute; bottom: 6px; left: 50%;
       transform: translateX(-50%);
       width: 5px; height: 5px;
       border-radius: 50%;
@@ -624,84 +525,46 @@ nav: sampler
       box-shadow: 0 0 6px var(--amber);
     }
 
-    /* Key label */
     .key-lbl {
-      position: absolute;
-      bottom: 5px;
-      left: 0; right: 0;
+      position: absolute; bottom: 5px; left: 0; right: 0;
       text-align: center;
       font-family: 'Share Tech Mono', monospace;
-      font-size: 7.5px;
-      color: #7a7365;
-      pointer-events: none;
-      user-select: none;
+      font-size: 7.5px; color: #7a7365;
+      pointer-events: none; user-select: none;
     }
+    .key.white.root-note .key-lbl { bottom: 16px; color: #996e00; }
 
-    .key.white.root-note .key-lbl {
-      bottom: 16px;
-      color: #996e00;
-    }
-
-    /* Black keys */
     .key.black {
-      position: absolute;
-      top: 0;
+      position: absolute; top: 0;
       background: linear-gradient(to bottom, #1a1a1a 0%, #0d0d0d 60%, #121212 100%);
-      border: 1px solid #333333;
-      border-top: none;
+      border: 1px solid #333333; border-top: none;
       border-radius: 0 0 2px 2px;
-      cursor: pointer;
-      user-select: none;
-      z-index: 2;
-      box-shadow:
-        inset 0 -3px 6px rgba(255,255,255,0.03),
-        2px 4px 10px rgba(0,0,0,0.75),
-        -1px 0 2px rgba(0,0,0,0.45);
+      cursor: pointer; user-select: none; z-index: 2;
+      box-shadow: inset 0 -3px 6px rgba(255,255,255,0.03), 2px 4px 10px rgba(0,0,0,0.75), -1px 0 2px rgba(0,0,0,0.45);
       transition: background 50ms;
     }
-
-    .key.black:hover {
-      background: linear-gradient(to bottom, #242424 0%, #121212 100%);
-    }
-
-    .key.black.active,
-    .key.black:active {
+    .key.black:hover { background: linear-gradient(to bottom, #242424 0%, #121212 100%); }
+    .key.black.active, .key.black:active {
       background: linear-gradient(to bottom, #b88300 0%, #946900 100%);
     }
+    .key.black .key-lbl { font-size: 6.5px; color: #4f4b42; bottom: 4px; }
 
-    .key.black .key-lbl {
-      font-size: 6.5px;
-      color: #4f4b42;
-      bottom: 4px;
-    }
-
-    /* ── STATUS BAR ────────────────────────────────────────── */
+    /* ── STATUS BAR ── */
     .status-bar {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding-top: 12px;
-      border-top: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between;
+      padding-top: 12px; border-top: 1px solid var(--border);
     }
 
     .status-msg {
-      font-size: 8.5px;
-      letter-spacing: 0.2em;
-      color: var(--text-dim);
-      min-height: 12px;
-      transition: color 0.2s;
+      font-size: 8.5px; letter-spacing: 0.2em;
+      color: var(--text-dim); min-height: 12px; transition: color 0.2s;
     }
     .status-msg.active { color: var(--amber); }
     .status-msg.rec    { color: var(--red); animation: msg-blink 0.6s ease-in-out infinite; }
     @keyframes msg-blink { 50% { opacity: 0.35; } }
 
-    .poly-count {
-      font-size: 8px;
-      color: var(--text-lo);
-      letter-spacing: 0.12em;
-    }
+    .poly-count { font-size: 8px; color: var(--text-lo); letter-spacing: 0.12em; }
 
-    /* ── RESPONSIVE ────────────────────────────────────────── */
     @media (max-width: 480px) {
       html, body { padding: 12px 10px 32px; }
       .sampler { padding: 20px 14px 16px; }
@@ -719,44 +582,33 @@ nav: sampler
     <div class="screw bl"></div>
     <div class="screw br"></div>
 
-    <!-- Header -->
     <div class="header">
       <div class="brand">
         <span class="brand-name">MICROSAMPLER</span>
         <span class="brand-tag">SMPL-4 / WEB AUDIO</span>
       </div>
       <div style="display:flex;align-items:center;gap:12px;">
-        <!-- MIDI indicator -->
         <div class="midi-indicator">
           <div class="midi-led" id="midi-led"></div>
-          <span class="midi-text" id="midi-text">NO MIDI</span>
+          <span class="midi-text" id="midi-text">MIDI…</span>
         </div>
         <div class="vu" id="vu-meter">
-          <div class="vu-seg" data-i="0"></div>
-          <div class="vu-seg" data-i="1"></div>
-          <div class="vu-seg" data-i="2"></div>
-          <div class="vu-seg" data-i="3"></div>
-          <div class="vu-seg" data-i="4"></div>
-          <div class="vu-seg" data-i="5"></div>
-          <div class="vu-seg" data-i="6"></div>
-          <div class="vu-seg" data-i="7"></div>
+          <div class="vu-seg"></div><div class="vu-seg"></div>
+          <div class="vu-seg"></div><div class="vu-seg"></div>
+          <div class="vu-seg"></div><div class="vu-seg"></div>
+          <div class="vu-seg"></div><div class="vu-seg"></div>
         </div>
       </div>
     </div>
 
-    <!-- Pads -->
     <div class="section-label">SAMPLE PADS — CLICK TO ARM, HOLD REC TO RECORD</div>
-    <div class="pads-grid" id="pads-grid">
-      <!-- built by JS -->
-    </div>
+    <div class="pads-grid" id="pads-grid"></div>
 
-    <!-- Controls: REC + FX -->
     <div class="controls-row">
       <button class="rec-btn" id="rec-btn" aria-label="Hold to record">
         <div class="rec-circle"></div>
         <div class="rec-label">HOLD REC</div>
       </button>
-
       <div class="fx-section">
         <div class="section-label">EFFECTS</div>
         <div class="fx-row">
@@ -779,7 +631,6 @@ nav: sampler
       </div>
     </div>
 
-    <!-- Master volume -->
     <div class="vol-section">
       <span class="vol-label">MASTER VOL</span>
       <div class="vol-track">
@@ -789,7 +640,7 @@ nav: sampler
       <span class="vol-value" id="vol-value">70%</span>
     </div>
 
-    <!-- Keyboard header with octave controls -->
+    <!-- Keyboard header with octave controls inline -->
     <div class="keyboard-header">
       <div class="section-label" style="margin-bottom:0;">KEYBOARD — ROOT: A4 (●)</div>
       <div class="octave-controls">
@@ -802,7 +653,6 @@ nav: sampler
       </div>
     </div>
 
-    <!-- Keyboard -->
     <div class="keyboard-section">
       <div class="keyboard-hint">
         <span>WHITE:</span> Z X C V B N M / Q W E R T Y U I
@@ -813,7 +663,6 @@ nav: sampler
       </div>
     </div>
 
-    <!-- Status -->
     <div class="status-bar">
       <div class="status-msg" id="status-msg">SELECT A PAD TO BEGIN</div>
       <div class="poly-count" id="poly-count">VOICES: 0/6</div>
@@ -821,66 +670,63 @@ nav: sampler
   </div>
 
 <script>
-/* ════════════════════════════════════════════════════════════
-   MicroSampler — Web Audio sampler
-   Root pitch: A4 (MIDI 69)
-   Keyboard range: C3 (48) → C5 (72)
-   Added: Octave transpose, Web MIDI API
-════════════════════════════════════════════════════════════ */
+/* ════════════════════════════════════════════════════════
+   MicroSampler  —  root A4 (MIDI 69)
+   Keyboard visual range: C3 (48) → C5 (72)  [fixed on screen]
+   Octave offset shifts playback pitch only; visual stays put.
+════════════════════════════════════════════════════════ */
 class MicroSampler {
   constructor() {
-    this.audioCtx    = null;
-    this.masterGain  = null;
+    this.audioCtx   = null;
+    this.masterGain = null;
 
-    // 4 sample slots: AudioBuffer | null
-    this.slots       = [null, null, null, null];
-    this.activePad   = -1;
-    // states: 'empty' | 'armed' | 'loaded'
-    this.padStates   = ['empty','empty','empty','empty'];
+    this.slots      = [null, null, null, null];
+    this.activePad  = -1;
+    this.padStates  = ['empty','empty','empty','empty'];
 
-    // Effects
     this.fx = { reverse: false, loop: false, lofi: false };
 
-    // Active playback: Map<noteKey, {source, gainNode}>
-    // noteKey = midi note number (number)
+    // Map<playedMidi, {source, gainNode, visualMidi}>
+    // playedMidi  = the actual pitch MIDI number sent to the Web Audio node
+    // visualMidi  = the key element's data-midi (for highlighting, always 48-72)
     this.activeNotes = new Map();
     this.POLY_LIMIT  = 6;
-    this.pressedKeys = new Set();  // currently held PC keys (midi numbers)
 
-    // Recording
+    // Track which visual keys are "held" so we can handle
+    // the mouse / touch release correctly.
+    // Map<visualMidi, playedMidi>
+    this.heldVisualKeys = new Map();
+
     this.isRecording   = false;
     this.mediaRecorder = null;
     this.audioChunks   = [];
     this.stream        = null;
     this.recTimeout    = null;
 
-    // Root pitch (A4)
-    this.ROOT_MIDI = 69;
+    this.ROOT_MIDI = 69;   // A4 — the pitch that plays at rate 1.0
 
-    // ── OCTAVE TRANSPOSE ──────────────────────────────────
-    // Shifts the root note and playback rate. Range: -4 to +4 octaves.
+    // ── Octave transpose  ─────────────────────────────────
+    // Range ±4. Shifts every played note by N×12 semitones.
     this.octaveOffset = 0;
     this.OCT_MIN = -4;
-    this.OCT_MAX = 4;
+    this.OCT_MAX =  4;
 
-    // PC key → base MIDI (C3=48 to C5=72 range, octave 0)
+    // PC keyboard: key character → base MIDI (at octave 0)
     this.pcKeyMap = {
       'z':48,'x':50,'c':52,'v':53,'b':55,'n':57,'m':59,
       'q':60,'w':62,'e':64,'r':65,'t':67,'y':69,'u':71,'i':72,
       's':49,'d':51,'g':54,'h':56,'j':58,
       '2':61,'3':63,'5':66,'6':68,'7':70
     };
-
     this.midiToKey = {};
     Object.entries(this.pcKeyMap).forEach(([k,m]) => { this.midiToKey[m] = k; });
 
-    // MIDI state
-    this.midiAccess   = null;
-    this.midiInputs   = new Map();  // id → MIDIInput
-    this.midiConnected = false;
+    // MIDI
+    this.midiAccess     = null;
+    this.midiConnected  = false;
     this.midiFlashTimer = null;
 
-    // VU animation
+    // VU
     this.vuLevel    = 0;
     this.vuTargetLv = 0;
 
@@ -888,13 +734,13 @@ class MicroSampler {
     this.initMidi();
   }
 
-  // ── AUDIO CONTEXT ─────────────────────────────────────
+  /* ── Audio context ───────────────────────────────────── */
   initAudio() {
     if (this.audioCtx) {
       if (this.audioCtx.state === 'suspended') this.audioCtx.resume();
       return;
     }
-    this.audioCtx  = new (window.AudioContext || window.webkitAudioContext)();
+    this.audioCtx   = new (window.AudioContext || window.webkitAudioContext)();
     this.masterGain = this.audioCtx.createGain();
     this.masterGain.gain.value = parseFloat(document.getElementById('master-vol').value);
     this.masterGain.connect(this.audioCtx.destination);
@@ -902,7 +748,7 @@ class MicroSampler {
     this.startVuLoop();
   }
 
-  // ── DOM BUILD ─────────────────────────────────────────
+  /* ── DOM ─────────────────────────────────────────────── */
   initDOM() {
     this.buildPads();
     this.buildKeyboard();
@@ -917,51 +763,34 @@ class MicroSampler {
       const pad = document.createElement('div');
       pad.className = 'pad state-empty';
       pad.dataset.pad = i;
-
-      const num = document.createElement('div');
-      num.className = 'pad-num';
-      num.textContent = i + 1;
-
-      const status = document.createElement('div');
-      status.className = 'pad-status';
-      status.textContent = 'EMPTY';
-
-      pad.appendChild(num);
-      pad.appendChild(status);
+      const num    = document.createElement('div'); num.className = 'pad-num';    num.textContent = i + 1;
+      const status = document.createElement('div'); status.className = 'pad-status'; status.textContent = 'EMPTY';
+      pad.appendChild(num); pad.appendChild(status);
       grid.appendChild(pad);
-
       pad.addEventListener('click', () => { this.initAudio(); this.selectPad(i); });
     }
   }
 
   buildKeyboard() {
     const bed = document.getElementById('keyboard-bed');
-    const MIDI_START = 48; // C3
-    const MIDI_END   = 72; // C5
-    const WW = 30;
-    const WH = 82;
-    const BW = 19;
-    const BH = 50;
-    const GAP = 2;
-
+    const MIDI_START = 48, MIDI_END = 72;
+    const WW=30, WH=82, BW=19, BH=50, GAP=2;
     const isBlack = m => [1,3,6,8,10].includes(m % 12);
 
-    let whiteX = 0;
-    let lastWhiteX = 0;
+    let whiteX = 0, lastWhiteX = 0;
     const keyData = [];
 
     for (let m = MIDI_START; m <= MIDI_END; m++) {
       if (!isBlack(m)) {
-        keyData.push({ midi: m, black: false, x: whiteX, w: WW, h: WH });
+        keyData.push({ midi:m, black:false, x:whiteX, w:WW, h:WH });
         lastWhiteX = whiteX;
         whiteX += WW + GAP;
       } else {
-        keyData.push({ midi: m, black: true, x: lastWhiteX + WW - BW / 2, w: BW, h: BH });
+        keyData.push({ midi:m, black:true, x:lastWhiteX + WW - BW/2, w:BW, h:BH });
       }
     }
 
-    const totalW = whiteX - GAP;
-    bed.style.width  = totalW + 'px';
+    bed.style.width  = (whiteX - GAP) + 'px';
     bed.style.height = WH + 'px';
 
     const whites = keyData.filter(k => !k.black);
@@ -969,43 +798,54 @@ class MicroSampler {
 
     [...whites, ...blacks].forEach(k => {
       const el = document.createElement('div');
-      el.className  = k.black ? 'key black' : 'key white';
+      el.className    = k.black ? 'key black' : 'key white';
       el.dataset.midi = k.midi;
-      // Root note dot: base MIDI 69 = A4; on keyboard (0-offset) it's position 69
       if (k.midi === this.ROOT_MIDI) el.classList.add('root-note');
-      el.style.left   = k.x + 'px';
-      el.style.width  = k.w + 'px';
-      el.style.height = k.h + 'px';
+      el.style.cssText = `left:${k.x}px;width:${k.w}px;height:${k.h}px`;
 
       const lbl = document.createElement('span');
       lbl.className   = 'key-lbl';
       lbl.textContent = (this.midiToKey[k.midi] || '').toUpperCase();
       el.appendChild(lbl);
 
-      el.addEventListener('mousedown',  (e) => { e.preventDefault(); this.initAudio(); this.noteOn(k.midi); });
-      el.addEventListener('mouseup',    ()  => this.noteOff(k.midi));
-      el.addEventListener('mouseleave', ()  => this.noteOff(k.midi));
-      el.addEventListener('touchstart', (e) => { e.preventDefault(); this.initAudio(); this.noteOn(k.midi); }, { passive: false });
-      el.addEventListener('touchend',   (e) => { e.preventDefault(); this.noteOff(k.midi); }, { passive: false });
+      // ── On-screen key events ──────────────────────────
+      // We capture the octave offset AT THE MOMENT the key is pressed,
+      // store it on the element, and use the same value on release.
+      // This prevents stuck notes if the user shifts octaves while holding.
+
+      const onPress = () => {
+        this.initAudio();
+        const playMidi = k.midi + this.octaveOffset * 12;
+        this.heldVisualKeys.set(k.midi, playMidi);
+        this.noteOn(playMidi, k.midi);
+      };
+
+      const onRelease = () => {
+        const playMidi = this.heldVisualKeys.get(k.midi);
+        if (playMidi !== undefined) {
+          this.noteOff(playMidi, k.midi);
+          this.heldVisualKeys.delete(k.midi);
+        }
+      };
+
+      el.addEventListener('mousedown',  (e) => { e.preventDefault(); onPress(); });
+      el.addEventListener('mouseup',    onRelease);
+      el.addEventListener('mouseleave', onRelease);
+      el.addEventListener('touchstart', (e) => { e.preventDefault(); onPress(); }, { passive: false });
+      el.addEventListener('touchend',   (e) => { e.preventDefault(); onRelease(); }, { passive: false });
 
       bed.appendChild(el);
     });
   }
 
-  // ── EVENTS ────────────────────────────────────────────
+  /* ── Events ──────────────────────────────────────────── */
   bindEvents() {
+    // FX toggles
     ['reverse','loop','lofi'].forEach(name => {
       const cb   = document.getElementById(`fx-${name}`);
       const wrap = document.getElementById(`fx-${name}-wrap`);
-      cb.addEventListener('change', () => {
-        this.fx[name] = cb.checked;
-        wrap.classList.toggle('on', cb.checked);
-      });
-      wrap.addEventListener('click', () => {
-        cb.checked = !cb.checked;
-        this.fx[name] = cb.checked;
-        wrap.classList.toggle('on', cb.checked);
-      });
+      cb.addEventListener('change', () => { this.fx[name] = cb.checked; wrap.classList.toggle('on', cb.checked); });
+      wrap.addEventListener('click', () => { cb.checked = !cb.checked; this.fx[name] = cb.checked; wrap.classList.toggle('on', cb.checked); });
     });
 
     // Volume
@@ -1014,14 +854,12 @@ class MicroSampler {
     const volVal   = document.getElementById('vol-value');
     volInput.addEventListener('input', () => {
       const v = parseFloat(volInput.value);
-      if (this.masterGain) {
-        this.masterGain.gain.setValueAtTime(v, this.audioCtx.currentTime);
-      }
+      if (this.masterGain) this.masterGain.gain.setValueAtTime(v, this.audioCtx.currentTime);
       volFill.style.width = (v * 100).toFixed(0) + '%';
       volVal.textContent  = (v * 100).toFixed(0) + '%';
     });
 
-    // REC button
+    // REC
     const recBtn = document.getElementById('rec-btn');
     recBtn.addEventListener('mousedown',  () => { this.initAudio(); this.startRec(); });
     recBtn.addEventListener('mouseup',    () => this.stopRec());
@@ -1031,117 +869,133 @@ class MicroSampler {
 
     // Octave buttons
     document.getElementById('oct-down').addEventListener('click', () => this.shiftOctave(-1));
-    document.getElementById('oct-up').addEventListener('click',   () => this.shiftOctave(+1));
+    document.getElementById('oct-up')  .addEventListener('click', () => this.shiftOctave(+1));
 
     // PC keyboard
+    // We track which *played* midi note a key char fired, so release matches.
+    this.pcHeld = {};   // key → playedMidi
+
     window.addEventListener('keydown', (e) => {
       if (e.repeat || e.ctrlKey || e.metaKey || e.altKey) return;
       const baseMidi = this.pcKeyMap[e.key];
-      if (baseMidi !== undefined) {
-        e.preventDefault();
-        this.initAudio();
-        // Apply octave offset to get actual MIDI note
-        const midi = baseMidi + this.octaveOffset * 12;
-        this.noteOn(midi, baseMidi);
-      }
+      if (baseMidi === undefined) return;
+      e.preventDefault();
+      if (this.pcHeld[e.key] !== undefined) return;   // already held
+      this.initAudio();
+      const playMidi = baseMidi + this.octaveOffset * 12;
+      this.pcHeld[e.key] = playMidi;
+      this.noteOn(playMidi, baseMidi);
     });
+
     window.addEventListener('keyup', (e) => {
       const baseMidi = this.pcKeyMap[e.key];
-      if (baseMidi !== undefined) {
-        const midi = baseMidi + this.octaveOffset * 12;
-        this.noteOff(midi, baseMidi);
+      if (baseMidi === undefined) return;
+      const playMidi = this.pcHeld[e.key];
+      if (playMidi !== undefined) {
+        this.noteOff(playMidi, baseMidi);
+        delete this.pcHeld[e.key];
       }
     });
   }
 
-  // ── OCTAVE TRANSPOSE ──────────────────────────────────
+  /* ── Octave transpose ────────────────────────────────── */
   shiftOctave(delta) {
-    const newVal = this.octaveOffset + delta;
-    if (newVal < this.OCT_MIN || newVal > this.OCT_MAX) return;
-    this.octaveOffset = newVal;
+    const next = this.octaveOffset + delta;
+    if (next < this.OCT_MIN || next > this.OCT_MAX) return;
+    this.octaveOffset = next;
     this.renderOctave();
-    const shifted = this.octaveOffset !== 0
-      ? `OCT ${this.octaveOffset > 0 ? '+' : ''}${this.octaveOffset} — ROOT: ${this.midiToName(this.ROOT_MIDI + this.octaveOffset * 12)}`
-      : 'OCTAVE RESET TO 0';
-    this.setStatus(shifted, false, this.octaveOffset !== 0 ? 'active' : '');
+    const rootName = this.midiToNoteName(this.ROOT_MIDI + this.octaveOffset * 12);
+    const msg = this.octaveOffset === 0
+      ? 'OCTAVE RESET — ROOT: A4'
+      : `OCT ${this.octaveOffset > 0 ? '+' : ''}${this.octaveOffset} — ROOT: ${rootName}`;
+    this.setStatus(msg, false, this.octaveOffset !== 0 ? 'active' : '');
   }
 
   renderOctave() {
-    const el = document.getElementById('oct-value');
     const v  = this.octaveOffset;
+    const el = document.getElementById('oct-value');
     el.textContent = v === 0 ? '0' : (v > 0 ? `+${v}` : `${v}`);
-    el.className = 'oct-display-value' +
-      (v > 0 ? ' shifted-up' : v < 0 ? ' shifted-down' : '');
-
-    // Update which key carries the root-note dot
-    // Root MIDI at base = 69. On the keyboard visual the key element
-    // has data-midi = base MIDI (always 48–72).
-    // We keep the dot on the physical A4 key (midi=69) regardless of
-    // transpose — the visual keyboard stays fixed; only playback rate shifts.
+    el.className = 'oct-display-value' + (v > 0 ? ' up' : v < 0 ? ' down' : '');
+    document.getElementById('oct-down').disabled = (v <= this.OCT_MIN);
+    document.getElementById('oct-up')  .disabled = (v >= this.OCT_MAX);
   }
 
-  midiToName(midi) {
+  midiToNoteName(midi) {
     const names = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
-    const octave = Math.floor(midi / 12) - 1;
-    return names[midi % 12] + octave;
+    return names[((midi % 12) + 12) % 12] + (Math.floor(midi / 12) - 1);
   }
 
-  // ── MIDI ──────────────────────────────────────────────
+  /* ── MIDI ─────────────────────────────────────────────── */
   async initMidi() {
-    if (!navigator.requestMIDIAccess) {
-      // Browser doesn't support Web MIDI
-      this.updateMidiStatus(false, 'NO MIDI API');
+    // Web MIDI API is not supported on iOS Safari at all.
+    // It works on Chrome / Edge (desktop + Android) only.
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+
+    if (isIOS) {
+      this.updateMidiStatus('unsupported', 'MIDI: iOS N/A');
       return;
     }
+
+    if (!navigator.requestMIDIAccess) {
+      this.updateMidiStatus('unsupported', 'MIDI: NO API');
+      return;
+    }
+
     try {
       this.midiAccess = await navigator.requestMIDIAccess({ sysex: false });
-      this.onMidiStateChange();  // initial scan
-      this.midiAccess.onstatechange = () => this.onMidiStateChange();
-    } catch(err) {
+      this.refreshMidiInputs();
+      this.midiAccess.onstatechange = () => this.refreshMidiInputs();
+    } catch (err) {
       console.warn('MIDI access denied:', err);
-      this.updateMidiStatus(false, 'MIDI DENIED');
+      this.updateMidiStatus('error', 'MIDI: DENIED');
     }
   }
 
-  onMidiStateChange() {
-    this.midiInputs.clear();
+  refreshMidiInputs() {
+    // Disconnect old handlers
+    for (const [, input] of this.midiAccess.inputs) {
+      input.onmidimessage = null;
+    }
     let count = 0;
-    for (const [id, input] of this.midiAccess.inputs) {
+    for (const [, input] of this.midiAccess.inputs) {
       if (input.state === 'connected') {
         input.onmidimessage = (e) => this.onMidiMessage(e);
-        this.midiInputs.set(id, input);
         count++;
       }
     }
     this.midiConnected = count > 0;
-    this.updateMidiStatus(this.midiConnected,
-      this.midiConnected ? `MIDI: ${count} DEV` : 'NO MIDI');
+    if (this.midiConnected) {
+      const name = this.midiAccess.inputs.values().next().value?.name || `${count} DEV`;
+      this.updateMidiStatus('connected', `MIDI: ${count > 1 ? count + ' DEV' : name.slice(0,10)}`);
+    } else {
+      this.updateMidiStatus('idle', 'MIDI: READY');
+    }
   }
 
   onMidiMessage(event) {
-    const [status, note, velocity] = event.data;
+    if (!event.data || event.data.length < 2) return;
+    const [status, note, velocity = 0] = event.data;
     const command = status & 0xF0;
 
     if (command === 0x90 && velocity > 0) {
       // Note On
       this.initAudio();
       this.flashMidiLed();
-      // MIDI note + octave offset
-      const shiftedNote = note + this.octaveOffset * 12;
-      this.noteOn(shiftedNote, null, velocity / 127);
+      // Apply octave offset to the incoming MIDI note
+      const playMidi = note + this.octaveOffset * 12;
+      this.noteOn(playMidi, null, velocity / 127);
     } else if (command === 0x80 || (command === 0x90 && velocity === 0)) {
       // Note Off
-      const shiftedNote = note + this.octaveOffset * 12;
-      this.noteOff(shiftedNote);
+      const playMidi = note + this.octaveOffset * 12;
+      this.noteOff(playMidi, null);
     }
-    // Ignore other MIDI messages (CC, pitchbend, etc.)
   }
 
-  updateMidiStatus(connected, text) {
-    const led  = document.getElementById('midi-led');
+  updateMidiStatus(state, text) {
+    const led   = document.getElementById('midi-led');
     const label = document.getElementById('midi-text');
-    led.className  = 'midi-led' + (connected ? ' connected' : '');
-    label.className = 'midi-text' + (connected ? ' connected' : '');
+    led.className   = 'midi-led' + (state === 'connected' ? ' connected' : state === 'unsupported' ? ' unsupported' : '');
+    label.className = 'midi-text' + (state === 'connected' ? ' connected' : state === 'error' || state === 'unsupported' ? ' error' : '');
     label.textContent = text;
   }
 
@@ -1152,30 +1006,27 @@ class MicroSampler {
     this.midiFlashTimer = setTimeout(() => {
       led.classList.remove('active');
       if (this.midiConnected) led.classList.add('connected');
-    }, 120);
+    }, 130);
   }
 
-  // ── PAD SELECTION ─────────────────────────────────────
+  /* ── Pad selection ───────────────────────────────────── */
   selectPad(i) {
+    // Unarm previously armed pad
     if (this.activePad !== -1 && this.padStates[this.activePad] === 'armed') {
       this.padStates[this.activePad] = this.slots[this.activePad] ? 'loaded' : 'empty';
     }
 
+    // Toggle off if tapping the same pad again
     if (this.activePad === i) {
       this.activePad = -1;
       this.setStatus('SELECT A PAD TO BEGIN');
-    } else {
-      this.activePad = i;
-      this.padStates[i] = 'armed';
-      const hasData = !!this.slots[i];
-      this.setStatus(hasData
-        ? `PAD ${i+1} ARMED — HOLD REC TO RE-SAMPLE OR PLAY KEYS`
-        : `PAD ${i+1} ARMED — HOLD REC TO RECORD`);
+      this.renderPads();
+      return;
     }
+
     this.activePad = i;
     this.padStates[i] = 'armed';
-    const hasData = !!this.slots[i];
-    this.setStatus(hasData
+    this.setStatus(this.slots[i]
       ? `PAD ${i+1} ARMED — HOLD REC TO RE-SAMPLE OR PLAY KEYS`
       : `PAD ${i+1} ARMED — HOLD REC TO RECORD`);
     this.renderPads();
@@ -1183,42 +1034,31 @@ class MicroSampler {
 
   renderPads() {
     document.querySelectorAll('.pad').forEach((el, i) => {
-      const state = this.padStates[i];
-      el.className = `pad state-${state}`;
-      el.querySelector('.pad-num').textContent   = i + 1;
-      el.querySelector('.pad-status').textContent =
-        state === 'loaded' ? 'LOADED' :
-        state === 'armed'  ? 'ARMED'  : 'EMPTY';
+      const s = this.padStates[i];
+      el.className = `pad state-${s}`;
+      el.querySelector('.pad-num').textContent    = i + 1;
+      el.querySelector('.pad-status').textContent = s === 'loaded' ? 'LOADED' : s === 'armed' ? 'ARMED' : 'EMPTY';
     });
   }
 
-  // ── RECORDING ─────────────────────────────────────────
+  /* ── Recording ───────────────────────────────────────── */
   async startRec() {
     if (this.isRecording) return;
-    if (this.activePad === -1) {
-      this.setStatus('SELECT A PAD FIRST', false);
-      return;
-    }
+    if (this.activePad === -1) { this.setStatus('SELECT A PAD FIRST'); return; }
     try {
-      this.stream      = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
-      this.audioChunks = [];
+      this.stream        = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
+      this.audioChunks   = [];
       this.mediaRecorder = new MediaRecorder(this.stream);
-
-      this.mediaRecorder.ondataavailable = (e) => {
-        if (e.data.size > 0) this.audioChunks.push(e.data);
-      };
+      this.mediaRecorder.ondataavailable = (e) => { if (e.data.size > 0) this.audioChunks.push(e.data); };
       this.mediaRecorder.onstop = () => this.processRecording();
-
       this.isRecording = true;
       document.getElementById('rec-btn').classList.add('recording');
       this.setStatus('● RECORDING…', true, 'rec');
       this.vuTargetLv = 0.7;
-
       this.mediaRecorder.start();
       this.recTimeout = setTimeout(() => this.stopRec(), 4000);
-
     } catch (err) {
-      console.error('Mic access denied:', err);
+      console.error('Mic error:', err);
       this.setStatus('MICROPHONE ACCESS DENIED');
     }
   }
@@ -1229,7 +1069,6 @@ class MicroSampler {
     this.isRecording = false;
     document.getElementById('rec-btn').classList.remove('recording');
     this.vuTargetLv = 0;
-
     if (this.mediaRecorder?.state !== 'inactive') this.mediaRecorder.stop();
     this.stream?.getTracks().forEach(t => t.stop());
     this.stream = null;
@@ -1237,12 +1076,10 @@ class MicroSampler {
 
   async processRecording() {
     this.setStatus('PROCESSING…');
-    const blob        = new Blob(this.audioChunks, { type: 'audio/webm' });
-    const arrayBuffer = await blob.arrayBuffer();
-
-    this.audioCtx.decodeAudioData(arrayBuffer, (raw) => {
-      this.slots[this.activePad]      = raw;
-      this.padStates[this.activePad]  = 'loaded';
+    const blob = new Blob(this.audioChunks, { type: 'audio/webm' });
+    this.audioCtx.decodeAudioData(await blob.arrayBuffer(), (raw) => {
+      this.slots[this.activePad]     = raw;
+      this.padStates[this.activePad] = 'loaded';
       this.renderPads();
       this.persistSlot(this.activePad, raw);
       this.setStatus(`PAD ${this.activePad + 1} RECORDED — PLAY KEYS TO PITCH`, false, 'active');
@@ -1253,21 +1090,21 @@ class MicroSampler {
     });
   }
 
-  // ── PLAYBACK ──────────────────────────────────────────
-  // baseMidi: the key's visual position (for highlighting on-screen keys).
-  //           If null (MIDI input), we skip visual highlight.
-  // velocity: 0–1, default 0.8
-  noteOn(midi, baseMidi = null, velocity = 0.8) {
+  /* ── Playback ────────────────────────────────────────── */
+  // playMidi   — actual MIDI note number used for pitch calculation
+  // visualMidi — the on-screen key to light up (48-72), or null for MIDI input
+  // velocity   — 0.0–1.0
+  noteOn(playMidi, visualMidi = null, velocity = 0.8) {
     if (!this.audioCtx) return;
-    // Prevent re-trigger of same note
-    if (this.activeNotes.has(midi)) return;
+    if (this.activeNotes.has(playMidi)) return;   // already playing this pitch
 
     const slot = this.activePad !== -1 ? this.activePad : this.findLoadedSlot();
     if (slot === -1 || !this.slots[slot]) {
-      this.setStatus('NO SAMPLE LOADED — ARM A PAD AND RECORD');
+      this.setStatus('NO SAMPLE — ARM A PAD AND RECORD');
       return;
     }
 
+    // Voice steal
     if (this.activeNotes.size >= this.POLY_LIMIT) {
       const oldest = this.activeNotes.keys().next().value;
       this.killNote(oldest, true);
@@ -1276,59 +1113,59 @@ class MicroSampler {
     const buf = this.prepareBuffer(this.slots[slot]);
     if (!buf) return;
 
-    const source   = this.audioCtx.createBufferSource();
-    source.buffer  = buf;
+    const source  = this.audioCtx.createBufferSource();
+    source.buffer = buf;
 
-    // Pitch: relative to root MIDI (which is itself offset by octave).
-    // The "actual root" in MIDI terms = ROOT_MIDI (69), but octave offset
-    // is already baked into the played midi note, so we compare against
-    // the base ROOT_MIDI always.
-    const cents              = (midi - this.ROOT_MIDI) * 100;
-    source.playbackRate.value = Math.pow(2, cents / 1200);
+    // Pitch ratio: semitones relative to root A4 (69)
+    const semitones = playMidi - this.ROOT_MIDI;
+    source.playbackRate.value = Math.pow(2, semitones / 12);
 
     if (this.fx.loop) source.loop = true;
 
     const gainNode = this.audioCtx.createGain();
-    gainNode.gain.value = velocity;
+    gainNode.gain.value = Math.max(0.001, velocity);
     source.connect(gainNode);
     gainNode.connect(this.masterGain);
-
     source.start();
 
     source.onended = () => {
-      if (this.activeNotes.get(midi)?.source === source) {
-        this.activeNotes.delete(midi);
-        if (baseMidi !== null) this.highlightKey(baseMidi, false);
+      if (this.activeNotes.get(playMidi)?.source === source) {
+        this.activeNotes.delete(playMidi);
+        if (visualMidi !== null) this.highlightKey(visualMidi, false);
         this.updatePolyCount();
       }
     };
 
-    this.activeNotes.set(midi, { source, gainNode, baseMidi });
-    if (baseMidi !== null) this.highlightKey(baseMidi, true);
+    this.activeNotes.set(playMidi, { source, gainNode, visualMidi });
+    if (visualMidi !== null) this.highlightKey(visualMidi, true);
     this.updatePolyCount();
     this.vuTargetLv = Math.min(1, this.vuTargetLv + 0.25);
   }
 
-  noteOff(midi, baseMidi = null) {
-    if (!this.activeNotes.has(midi)) return;
-    const note = this.activeNotes.get(midi);
+  noteOff(playMidi, visualMidi = null) {
+    if (!this.activeNotes.has(playMidi)) return;
+    const note = this.activeNotes.get(playMidi);
     const { source, gainNode } = note;
-    const resolvedBase = baseMidi !== null ? baseMidi : note.baseMidi;
+    const vis = visualMidi !== null ? visualMidi : note.visualMidi;
     const now = this.audioCtx.currentTime;
 
     if (this.fx.loop) {
       gainNode.gain.setValueAtTime(gainNode.gain.value, now);
       gainNode.gain.exponentialRampToValueAtTime(0.001, now + 0.08);
       try { source.stop(now + 0.1); } catch(e) {}
-      this.activeNotes.delete(midi);
-      if (resolvedBase !== null) this.highlightKey(resolvedBase, false);
+    }
+    // For non-looping samples we let the buffer play to its natural end;
+    // the onended handler cleans up the entry.
+    if (this.fx.loop) {
+      this.activeNotes.delete(playMidi);
+      if (vis !== null) this.highlightKey(vis, false);
       this.updatePolyCount();
     }
   }
 
-  killNote(midi, immediate = false) {
-    if (!this.activeNotes.has(midi)) return;
-    const { source, gainNode, baseMidi } = this.activeNotes.get(midi);
+  killNote(playMidi, immediate = false) {
+    if (!this.activeNotes.has(playMidi)) return;
+    const { source, gainNode, visualMidi } = this.activeNotes.get(playMidi);
     try {
       if (immediate) {
         const now = this.audioCtx.currentTime;
@@ -1336,67 +1173,50 @@ class MicroSampler {
         gainNode.gain.exponentialRampToValueAtTime(0.001, now + 0.02);
         source.stop(now + 0.025);
       } else {
-        gainNode.disconnect();
-        source.stop();
+        gainNode.disconnect(); source.stop();
       }
     } catch(e) {}
-    this.activeNotes.delete(midi);
-    if (baseMidi !== null) this.highlightKey(baseMidi, false);
+    this.activeNotes.delete(playMidi);
+    if (visualMidi !== null) this.highlightKey(visualMidi, false);
     this.updatePolyCount();
   }
 
-  findLoadedSlot() {
-    return this.slots.findIndex(s => s !== null);
-  }
+  findLoadedSlot() { return this.slots.findIndex(s => s !== null); }
 
-  // ── BUFFER PROCESSING ─────────────────────────────────
-  prepareBuffer(buffer) {
-    if (!buffer) return null;
-    let buf = buffer;
+  /* ── Buffer processing ───────────────────────────────── */
+  prepareBuffer(buf) {
+    if (!buf) return null;
     if (this.fx.lofi)    buf = this.applyLofi(buf);
     if (this.fx.reverse) buf = this.applyReverse(buf);
     return buf;
   }
 
   applyReverse(buffer) {
-    const out = this.audioCtx.createBuffer(
-      buffer.numberOfChannels, buffer.length, buffer.sampleRate
-    );
+    const out = this.audioCtx.createBuffer(buffer.numberOfChannels, buffer.length, buffer.sampleRate);
     for (let c = 0; c < buffer.numberOfChannels; c++) {
-      const src = buffer.getChannelData(c);
-      const dst = out.getChannelData(c);
-      for (let i = 0; i < buffer.length; i++) {
-        dst[i] = src[buffer.length - 1 - i];
-      }
+      const src = buffer.getChannelData(c), dst = out.getChannelData(c);
+      for (let i = 0; i < buffer.length; i++) dst[i] = src[buffer.length - 1 - i];
     }
     return out;
   }
 
   applyLofi(buffer) {
-    const factor     = 4;
-    const targetLen  = Math.floor(buffer.length / factor);
-    const targetRate = Math.floor(buffer.sampleRate / factor);
-    const out = this.audioCtx.createBuffer(1, targetLen, targetRate);
-    const src = buffer.getChannelData(0);
-    const dst = out.getChannelData(0);
+    const factor = 4, targetLen = Math.floor(buffer.length / factor);
+    const out = this.audioCtx.createBuffer(1, targetLen, Math.floor(buffer.sampleRate / factor));
+    const src = buffer.getChannelData(0), dst = out.getChannelData(0);
     const steps = 31;
-    for (let i = 0; i < targetLen; i++) {
-      dst[i] = Math.round(src[i * factor] * steps) / steps;
-    }
+    for (let i = 0; i < targetLen; i++) dst[i] = Math.round(src[i * factor] * steps) / steps;
     return out;
   }
 
-  // ── PERSISTENCE ───────────────────────────────────────
+  /* ── Persistence ─────────────────────────────────────── */
   persistSlot(i, buffer) {
     try {
-      const data = Array.from(buffer.getChannelData(0));
       localStorage.setItem(`ms4_slot_${i}`, JSON.stringify({
         sampleRate: buffer.sampleRate,
-        data
+        data: Array.from(buffer.getChannelData(0))
       }));
-    } catch(e) {
-      console.warn('Storage quota exceeded — sample not persisted.', e);
-    }
+    } catch(e) { console.warn('Storage quota exceeded.', e); }
   }
 
   loadFromStorage() {
@@ -1408,19 +1228,17 @@ class MicroSampler {
         const arr = new Float32Array(data);
         const buf = this.audioCtx.createBuffer(1, arr.length, sampleRate);
         buf.copyToChannel(arr, 0);
-        this.slots[i]      = buf;
-        this.padStates[i]  = 'loaded';
-      } catch(e) { /* corrupted — skip */ }
+        this.slots[i]     = buf;
+        this.padStates[i] = 'loaded';
+      } catch(e) {}
     }
     this.renderPads();
-    const hasAny = this.slots.some(s => s);
-    if (hasAny) this.setStatus('SAMPLES RESTORED — ARM A PAD TO PLAY');
+    if (this.slots.some(s => s)) this.setStatus('SAMPLES RESTORED — ARM A PAD TO PLAY');
   }
 
-  // ── UI HELPERS ────────────────────────────────────────
-  highlightKey(baseMidi, on) {
-    // baseMidi is in the 48–72 range (keyboard's fixed visual range)
-    const el = document.querySelector(`[data-midi="${baseMidi}"]`);
+  /* ── UI helpers ──────────────────────────────────────── */
+  highlightKey(visualMidi, on) {
+    const el = document.querySelector(`[data-midi="${visualMidi}"]`);
     if (el) el.classList.toggle('active', on);
   }
 
@@ -1436,13 +1254,12 @@ class MicroSampler {
       `VOICES: ${this.activeNotes.size}/${this.POLY_LIMIT}`;
   }
 
-  // ── VU METER ──────────────────────────────────────────
+  /* ── VU meter ────────────────────────────────────────── */
   startVuLoop() {
     const segs = document.querySelectorAll('.vu-seg');
     const tick = () => {
       this.vuLevel += (this.vuTargetLv - this.vuLevel) * 0.18;
       if (this.vuTargetLv > 0) this.vuTargetLv *= 0.88;
-
       const lit = Math.round(this.vuLevel * 8);
       segs.forEach((s, i) => {
         if (i < lit) {
@@ -1463,10 +1280,7 @@ class MicroSampler {
   }
 }
 
-// ── BOOT ────────────────────────────────────────────────
-window.addEventListener('DOMContentLoaded', () => {
-  window.sampler = new MicroSampler();
-});
+window.addEventListener('DOMContentLoaded', () => { window.sampler = new MicroSampler(); });
 </script>
 </body>
 </html>
