@@ -25,6 +25,7 @@ nav: sampler
       --amber-lo:    rgba(255,183,0,0.3);
       --amber-dim:   #402a00;
       --amber-mid:   #8a5c00;
+      --amber-bright:#ffb700;
       --green:       #26e66b;
       --green-lo:    rgba(38,230,107,0.25);
       --red:         #ff3300;
@@ -176,6 +177,25 @@ nav: sampler
         0 2px 4px rgba(0,0,0,0.55);
     }
 
+    .pad-canvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    .pad-content {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
     .pad-num {
       font-family: 'Orbitron', sans-serif;
       font-weight: 700;
@@ -224,6 +244,160 @@ nav: sampler
     }
 
     .pad:active { transform: scale(0.94); }
+
+    /* ── TRIM EDITOR PANEL ── */
+    .trim-panel {
+      background: var(--panel-deep);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      margin-bottom: 18px;
+      overflow: hidden;
+      max-height: 0;
+      opacity: 0;
+      transition: max-height 0.35s ease-out, opacity 0.25s ease-out, padding 0.35s ease-out;
+      padding: 0 14px;
+    }
+
+    .trim-panel.open {
+      max-height: 340px;
+      opacity: 1;
+      padding: 14px;
+    }
+
+    .trim-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .trim-title {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.15em;
+      color: var(--amber);
+    }
+
+    .trim-pad-label {
+      font-size: 9px;
+      color: var(--text-dim);
+      letter-spacing: 0.1em;
+    }
+
+    .trim-close-btn {
+      width: 24px;
+      height: 24px;
+      border-radius: 4px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      color: var(--text-dim);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      transition: all 0.15s;
+    }
+
+    .trim-close-btn:hover {
+      border-color: var(--amber);
+      color: var(--amber);
+    }
+
+    .trim-waveform-container {
+      position: relative;
+      background: #050505;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      height: 140px;
+      margin-bottom: 12px;
+      overflow: hidden;
+    }
+
+    .trim-waveform-canvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+    }
+
+    .trim-region-overlay {
+      position: absolute;
+      top: 0;
+      height: 100%;
+      background: rgba(255, 183, 0, 0.08);
+      border-left: 2px solid var(--amber);
+      border-right: 2px solid var(--amber);
+      pointer-events: none;
+    }
+
+    .trim-handle {
+      position: absolute;
+      top: 0;
+      width: 14px;
+      height: 100%;
+      cursor: ew-resize;
+      z-index: 10;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .trim-handle::before {
+      content: '';
+      width: 4px;
+      height: 60%;
+      background: var(--amber);
+      border-radius: 2px;
+      box-shadow: 0 0 8px rgba(255, 183, 0, 0.5);
+    }
+
+    .trim-handle:hover::before,
+    .trim-handle.dragging::before {
+      background: var(--amber-bright);
+      box-shadow: 0 0 12px rgba(255, 183, 0, 0.8);
+    }
+
+    .trim-handle-start { left: -7px; }
+    .trim-handle-end { right: -7px; }
+
+    .trim-info {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      font-size: 9px;
+      color: var(--text-dim);
+      letter-spacing: 0.08em;
+    }
+
+    .trim-point {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .trim-point-label {
+      color: var(--text-lo);
+    }
+
+    .trim-point-value {
+      color: var(--amber);
+      font-family: 'Share Tech Mono', monospace;
+      min-width: 50px;
+    }
+
+    .trim-duration {
+      text-align: center;
+    }
+
+    .trim-duration-value {
+      color: var(--text);
+      margin-left: 4px;
+    }
 
     /* ── CONTROLS ROW ── */
     .controls-row {
@@ -604,6 +778,37 @@ nav: sampler
     <div class="section-label">SAMPLE PADS — CLICK TO ARM, HOLD REC TO RECORD</div>
     <div class="pads-grid" id="pads-grid"></div>
 
+    <!-- TRIM EDITOR PANEL -->
+    <div class="trim-panel" id="trim-panel">
+      <div class="trim-header">
+        <div>
+          <span class="trim-title">TRIM EDITOR</span>
+          <span class="trim-pad-label" id="trim-pad-label">PAD 1</span>
+        </div>
+        <button class="trim-close-btn" id="trim-close-btn" aria-label="Close trim editor">×</button>
+      </div>
+      <div class="trim-waveform-container" id="trim-waveform-container">
+        <canvas class="trim-waveform-canvas" id="trim-waveform-canvas"></canvas>
+        <div class="trim-region-overlay" id="trim-region-overlay"></div>
+        <div class="trim-handle trim-handle-start" id="trim-handle-start"></div>
+        <div class="trim-handle trim-handle-end" id="trim-handle-end"></div>
+      </div>
+      <div class="trim-info">
+        <div class="trim-point">
+          <span class="trim-point-label">START:</span>
+          <span class="trim-point-value" id="trim-start-value">0.000s</span>
+        </div>
+        <div class="trim-duration">
+          <span>LENGTH:</span>
+          <span class="trim-duration-value" id="trim-duration-value">0.000s</span>
+        </div>
+        <div class="trim-point">
+          <span class="trim-point-label">END:</span>
+          <span class="trim-point-value" id="trim-end-value">0.000s</span>
+        </div>
+      </div>
+    </div>
+
     <div class="controls-row">
       <button class="rec-btn" id="rec-btn" aria-label="Hold to record">
         <div class="rec-circle"></div>
@@ -684,17 +889,25 @@ class MicroSampler {
     this.activePad  = -1;
     this.padStates  = ['empty','empty','empty','empty'];
 
+    // Trim points for each pad (0.0 to 1.0 normalized)
+    this.trimPoints = [
+      { start: 0.0, end: 1.0 },
+      { start: 0.0, end: 1.0 },
+      { start: 0.0, end: 1.0 },
+      { start: 0.0, end: 1.0 }
+    ];
+
+    // Track playback position for scanline animation
+    this.playbackPositions = [0, 0, 0, 0];
+    this.scanlineAnimFrame = null;
+    this.activeSources = new Map(); // track which pads are playing
+
     this.fx = { reverse: false, loop: false, lofi: false };
 
-    // Map<playedMidi, {source, gainNode, visualMidi}>
-    // playedMidi  = the actual pitch MIDI number sent to the Web Audio node
-    // visualMidi  = the key element's data-midi (for highlighting, always 48-72)
+    // Map<playedMidi, {source, gainNode, visualMidi, padIndex}>
     this.activeNotes = new Map();
     this.POLY_LIMIT  = 6;
 
-    // Track which visual keys are "held" so we can handle
-    // the mouse / touch release correctly.
-    // Map<visualMidi, playedMidi>
     this.heldVisualKeys = new Map();
 
     this.isRecording   = false;
@@ -703,15 +916,12 @@ class MicroSampler {
     this.stream        = null;
     this.recTimeout    = null;
 
-    this.ROOT_MIDI = 69;   // A4 — the pitch that plays at rate 1.0
+    this.ROOT_MIDI = 69;   // A4
 
-    // ── Octave transpose  ─────────────────────────────────
-    // Range ±4. Shifts every played note by N×12 semitones.
     this.octaveOffset = 0;
     this.OCT_MIN = -4;
     this.OCT_MAX =  4;
 
-    // PC keyboard: key character → base MIDI (at octave 0)
     this.pcKeyMap = {
       'z':48,'x':50,'c':52,'v':53,'b':55,'n':57,'m':59,
       'q':60,'w':62,'e':64,'r':65,'t':67,'y':69,'u':71,'i':72,
@@ -721,17 +931,21 @@ class MicroSampler {
     this.midiToKey = {};
     Object.entries(this.pcKeyMap).forEach(([k,m]) => { this.midiToKey[m] = k; });
 
-    // MIDI
     this.midiAccess     = null;
     this.midiConnected  = false;
     this.midiFlashTimer = null;
 
-    // VU
     this.vuLevel    = 0;
     this.vuTargetLv = 0;
 
+    // Trim editor state
+    this.trimPadIndex = -1;
+    this.trimDragging = null;
+    this.trimWaveformCache = new Map();
+
     this.initDOM();
     this.initMidi();
+    this.loadTrimPoints();
   }
 
   /* ── Audio context ───────────────────────────────────── */
@@ -746,6 +960,7 @@ class MicroSampler {
     this.masterGain.connect(this.audioCtx.destination);
     this.loadFromStorage();
     this.startVuLoop();
+    this.startScanlineLoop();
   }
 
   /* ── DOM ─────────────────────────────────────────────── */
@@ -753,6 +968,7 @@ class MicroSampler {
     this.buildPads();
     this.buildKeyboard();
     this.bindEvents();
+    this.bindTrimEvents();
     this.renderPads();
     this.renderOctave();
   }
@@ -763,11 +979,42 @@ class MicroSampler {
       const pad = document.createElement('div');
       pad.className = 'pad state-empty';
       pad.dataset.pad = i;
-      const num    = document.createElement('div'); num.className = 'pad-num';    num.textContent = i + 1;
-      const status = document.createElement('div'); status.className = 'pad-status'; status.textContent = 'EMPTY';
-      pad.appendChild(num); pad.appendChild(status);
+
+      const canvas = document.createElement('canvas');
+      canvas.className = 'pad-canvas';
+      canvas.id = `pad-canvas-${i}`;
+      pad.appendChild(canvas);
+
+      const content = document.createElement('div');
+      content.className = 'pad-content';
+
+      const num    = document.createElement('div');
+      num.className = 'pad-num';
+      num.textContent = i + 1;
+
+      const status = document.createElement('div');
+      status.className = 'pad-status';
+      status.textContent = 'EMPTY';
+
+      content.appendChild(num);
+      content.appendChild(status);
+      pad.appendChild(content);
+
       grid.appendChild(pad);
-      pad.addEventListener('click', () => { this.initAudio(); this.selectPad(i); });
+
+      pad.addEventListener('click', () => {
+        this.initAudio();
+        this.selectPad(i);
+      });
+
+      pad.addEventListener('dblclick', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        this.initAudio();
+        if (this.slots[i]) {
+          this.openTrimEditor(i);
+        }
+      });
     }
   }
 
@@ -808,11 +1055,6 @@ class MicroSampler {
       lbl.textContent = (this.midiToKey[k.midi] || '').toUpperCase();
       el.appendChild(lbl);
 
-      // ── On-screen key events ──────────────────────────
-      // We capture the octave offset AT THE MOMENT the key is pressed,
-      // store it on the element, and use the same value on release.
-      // This prevents stuck notes if the user shifts octaves while holding.
-
       const onPress = () => {
         this.initAudio();
         const playMidi = k.midi + this.octaveOffset * 12;
@@ -840,7 +1082,6 @@ class MicroSampler {
 
   /* ── Events ──────────────────────────────────────────── */
   bindEvents() {
-    // FX toggles
     ['reverse','loop','lofi'].forEach(name => {
       const cb   = document.getElementById(`fx-${name}`);
       const wrap = document.getElementById(`fx-${name}-wrap`);
@@ -848,7 +1089,6 @@ class MicroSampler {
       wrap.addEventListener('click', () => { cb.checked = !cb.checked; this.fx[name] = cb.checked; wrap.classList.toggle('on', cb.checked); });
     });
 
-    // Volume
     const volInput = document.getElementById('master-vol');
     const volFill  = document.getElementById('vol-fill');
     const volVal   = document.getElementById('vol-value');
@@ -859,7 +1099,6 @@ class MicroSampler {
       volVal.textContent  = (v * 100).toFixed(0) + '%';
     });
 
-    // REC
     const recBtn = document.getElementById('rec-btn');
     recBtn.addEventListener('mousedown',  () => { this.initAudio(); this.startRec(); });
     recBtn.addEventListener('mouseup',    () => this.stopRec());
@@ -867,20 +1106,17 @@ class MicroSampler {
     recBtn.addEventListener('touchstart', (e) => { e.preventDefault(); this.initAudio(); this.startRec(); }, { passive: false });
     recBtn.addEventListener('touchend',   (e) => { e.preventDefault(); this.stopRec(); }, { passive: false });
 
-    // Octave buttons
     document.getElementById('oct-down').addEventListener('click', () => this.shiftOctave(-1));
     document.getElementById('oct-up')  .addEventListener('click', () => this.shiftOctave(+1));
 
-    // PC keyboard
-    // We track which *played* midi note a key char fired, so release matches.
-    this.pcHeld = {};   // key → playedMidi
+    this.pcHeld = {};
 
     window.addEventListener('keydown', (e) => {
       if (e.repeat || e.ctrlKey || e.metaKey || e.altKey) return;
       const baseMidi = this.pcKeyMap[e.key];
       if (baseMidi === undefined) return;
       e.preventDefault();
-      if (this.pcHeld[e.key] !== undefined) return;   // already held
+      if (this.pcHeld[e.key] !== undefined) return;
       this.initAudio();
       const playMidi = baseMidi + this.octaveOffset * 12;
       this.pcHeld[e.key] = playMidi;
@@ -896,6 +1132,60 @@ class MicroSampler {
         delete this.pcHeld[e.key];
       }
     });
+  }
+
+  bindTrimEvents() {
+    const container = document.getElementById('trim-waveform-container');
+    const handleStart = document.getElementById('trim-handle-start');
+    const handleEnd = document.getElementById('trim-handle-end');
+    const closeBtn = document.getElementById('trim-close-btn');
+
+    closeBtn.addEventListener('click', () => this.closeTrimEditor());
+
+    const startDrag = (e, handle) => {
+      if (this.trimPadIndex === -1 || !this.slots[this.trimPadIndex]) return;
+      e.preventDefault();
+      this.trimDragging = handle;
+      handle.classList.add('dragging');
+    };
+
+    handleStart.addEventListener('mousedown', (e) => startDrag(e, 'start'));
+    handleEnd.addEventListener('mousedown', (e) => startDrag(e, 'end'));
+
+    handleStart.addEventListener('touchstart', (e) => startDrag(e, 'start'), { passive: false });
+    handleEnd.addEventListener('touchstart', (e) => startDrag(e, 'end'), { passive: false });
+
+    const moveDrag = (e) => {
+      if (!this.trimDragging) return;
+      const rect = container.getBoundingClientRect();
+      const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+      let x = (clientX - rect.left) / rect.width;
+      x = Math.max(0, Math.min(1, x));
+
+      const trim = this.trimPoints[this.trimPadIndex];
+      if (this.trimDragging === 'start') {
+        trim.start = Math.min(x, trim.end - 0.01);
+      } else {
+        trim.end = Math.max(x, trim.start + 0.01);
+      }
+
+      this.renderTrimEditor();
+      this.saveTrimPoints();
+    };
+
+    window.addEventListener('mousemove', moveDrag);
+    window.addEventListener('touchmove', moveDrag, { passive: false });
+
+    const endDrag = () => {
+      if (this.trimDragging) {
+        const handle = document.getElementById(`trim-handle-${this.trimDragging}`);
+        if (handle) handle.classList.remove('dragging');
+        this.trimDragging = null;
+      }
+    };
+
+    window.addEventListener('mouseup', endDrag);
+    window.addEventListener('touchend', endDrag);
   }
 
   /* ── Octave transpose ────────────────────────────────── */
@@ -927,8 +1217,6 @@ class MicroSampler {
 
   /* ── MIDI ─────────────────────────────────────────────── */
   async initMidi() {
-    // Web MIDI API is not supported on iOS Safari at all.
-    // It works on Chrome / Edge (desktop + Android) only.
     const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
 
     if (isIOS) {
@@ -952,7 +1240,6 @@ class MicroSampler {
   }
 
   refreshMidiInputs() {
-    // Disconnect old handlers
     for (const [, input] of this.midiAccess.inputs) {
       input.onmidimessage = null;
     }
@@ -978,14 +1265,11 @@ class MicroSampler {
     const command = status & 0xF0;
 
     if (command === 0x90 && velocity > 0) {
-      // Note On
       this.initAudio();
       this.flashMidiLed();
-      // Apply octave offset to the incoming MIDI note
       const playMidi = note + this.octaveOffset * 12;
       this.noteOn(playMidi, null, velocity / 127);
     } else if (command === 0x80 || (command === 0x90 && velocity === 0)) {
-      // Note Off
       const playMidi = note + this.octaveOffset * 12;
       this.noteOff(playMidi, null);
     }
@@ -1011,12 +1295,10 @@ class MicroSampler {
 
   /* ── Pad selection ───────────────────────────────────── */
   selectPad(i) {
-    // Unarm previously armed pad
     if (this.activePad !== -1 && this.padStates[this.activePad] === 'armed') {
       this.padStates[this.activePad] = this.slots[this.activePad] ? 'loaded' : 'empty';
     }
 
-    // Toggle off if tapping the same pad again
     if (this.activePad === i) {
       this.activePad = -1;
       this.setStatus('SELECT A PAD TO BEGIN');
@@ -1036,9 +1318,182 @@ class MicroSampler {
     document.querySelectorAll('.pad').forEach((el, i) => {
       const s = this.padStates[i];
       el.className = `pad state-${s}`;
-      el.querySelector('.pad-num').textContent    = i + 1;
-      el.querySelector('.pad-status').textContent = s === 'loaded' ? 'LOADED' : s === 'armed' ? 'ARMED' : 'EMPTY';
+      const num = el.querySelector('.pad-num');
+      const status = el.querySelector('.pad-status');
+      if (num) num.textContent = i + 1;
+      if (status) status.textContent = s === 'loaded' ? 'LOADED' : s === 'armed' ? 'ARMED' : 'EMPTY';
+      this.renderPadWaveform(i);
     });
+  }
+
+  /* ── Waveform Rendering ───────────────────────────────── */
+  renderPadWaveform(padIndex) {
+    const canvas = document.getElementById(`pad-canvas-${padIndex}`);
+    if (!canvas) return;
+
+    const pad = document.querySelector(`[data-pad="${padIndex}"]`);
+    if (!pad) return;
+
+    const rect = pad.getBoundingClientRect();
+    canvas.width = rect.width || 100;
+    canvas.height = rect.height || 100;
+
+    const ctx = canvas.getContext('2d');
+    const width = canvas.width;
+    const height = canvas.height;
+
+    ctx.fillStyle = 'transparent';
+    ctx.clearRect(0, 0, width, height);
+
+    const buffer = this.slots[padIndex];
+    if (!buffer) return;
+
+    const data = buffer.getChannelData(0);
+    const step = Math.ceil(data.length / width);
+    const amp = height / 2;
+
+    ctx.fillStyle = '#402a00';
+
+    for (let i = 0; i < width; i++) {
+      let min = 1.0, max = -1.0;
+      for (let j = 0; j < step; j++) {
+        const idx = i * step + j;
+        if (idx < data.length) {
+          const val = data[idx];
+          if (val < min) min = val;
+          if (val > max) max = val;
+        }
+      }
+      const y1 = (1 + min) * amp;
+      const y2 = (1 + max) * amp;
+      ctx.fillRect(i, y1, 1, y2 - y1);
+    }
+
+    const trim = this.trimPoints[padIndex];
+
+    ctx.fillStyle = 'rgba(255, 183, 0, 0.15)';
+    ctx.fillRect(trim.start * width, 0, (trim.end - trim.start) * width, height);
+
+    const playbackPos = this.playbackPositions[padIndex];
+    if (playbackPos > 0) {
+      const scanX = trim.start * width + playbackPos * (trim.end - trim.start) * width;
+      ctx.strokeStyle = '#ffb700';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(scanX, 0);
+      ctx.lineTo(scanX, height);
+      ctx.stroke();
+    }
+  }
+
+  /* ── Trim Editor ──────────────────────────────────────── */
+  openTrimEditor(padIndex) {
+    this.trimPadIndex = padIndex;
+    const panel = document.getElementById('trim-panel');
+    panel.classList.add('open');
+    document.getElementById('trim-pad-label').textContent = `PAD ${padIndex + 1}`;
+    this.renderTrimEditor();
+  }
+
+  closeTrimEditor() {
+    const panel = document.getElementById('trim-panel');
+    panel.classList.remove('open');
+    this.trimPadIndex = -1;
+  }
+
+  renderTrimEditor() {
+    if (this.trimPadIndex === -1) return;
+
+    const buffer = this.slots[this.trimPadIndex];
+    if (!buffer) return;
+
+    const canvas = document.getElementById('trim-waveform-canvas');
+    const container = document.getElementById('trim-waveform-container');
+
+    canvas.width = container.offsetWidth;
+    canvas.height = container.offsetHeight;
+
+    const ctx = canvas.getContext('2d');
+    const width = canvas.width;
+    const height = canvas.height;
+    const data = buffer.getChannelData(0);
+    const sampleRate = buffer.sampleRate;
+    const duration = buffer.duration;
+
+    ctx.fillStyle = '#050505';
+    ctx.fillRect(0, 0, width, height);
+
+    const step = Math.ceil(data.length / width);
+    const amp = height / 2;
+
+    ctx.fillStyle = '#402a00';
+
+    for (let i = 0; i < width; i++) {
+      let min = 1.0, max = -1.0;
+      for (let j = 0; j < step; j++) {
+        const idx = i * step + j;
+        if (idx < data.length) {
+          const val = data[idx];
+          if (val < min) min = val;
+          if (val > max) max = val;
+        }
+      }
+      const y1 = (1 + min) * amp;
+      const y2 = (1 + max) * amp;
+      ctx.fillRect(i, y1, 1, y2 - y1);
+    }
+
+    const trim = this.trimPoints[this.trimPadIndex];
+
+    const overlay = document.getElementById('trim-region-overlay');
+    overlay.style.left = `${trim.start * width}px`;
+    overlay.style.width = `${(trim.end - trim.start) * width}px`;
+
+    const handleStart = document.getElementById('trim-handle-start');
+    const handleEnd = document.getElementById('trim-handle-end');
+    handleStart.style.left = `${trim.start * width}px`;
+    handleEnd.style.left = `${trim.end * width - 7}px`;
+
+    const startSec = (trim.start * duration).toFixed(3);
+    const endSec = (trim.end * duration).toFixed(3);
+    const lengthSec = ((trim.end - trim.start) * duration).toFixed(3);
+
+    document.getElementById('trim-start-value').textContent = `${startSec}s`;
+    document.getElementById('trim-end-value').textContent = `${endSec}s`;
+    document.getElementById('trim-duration-value').textContent = `${lengthSec}s`;
+  }
+
+  saveTrimPoints() {
+    try {
+      localStorage.setItem('ms4_trim_points', JSON.stringify(this.trimPoints));
+    } catch (e) {
+      console.warn('Failed to save trim points:', e);
+    }
+  }
+
+  loadTrimPoints() {
+    try {
+      const raw = localStorage.getItem('ms4_trim_points');
+      if (raw) {
+        const loaded = JSON.parse(raw);
+        if (Array.isArray(loaded) && loaded.length === 4) {
+          loaded.forEach((tp, i) => {
+            if (tp && typeof tp.start === 'number' && typeof tp.end === 'number') {
+              this.trimPoints[i] = {
+                start: Math.max(0, Math.min(1, tp.start)),
+                end: Math.max(0, Math.min(1, tp.end))
+              };
+              if (this.trimPoints[i].start > this.trimPoints[i].end) {
+                this.trimPoints[i].start = 0;
+                this.trimPoints[i].end = 1;
+              }
+            }
+          });
+        }
+      }
+    } catch (e) {
+      console.warn('Failed to load trim points:', e);
+    }
   }
 
   /* ── Recording ───────────────────────────────────────── */
@@ -1080,6 +1535,8 @@ class MicroSampler {
     this.audioCtx.decodeAudioData(await blob.arrayBuffer(), (raw) => {
       this.slots[this.activePad]     = raw;
       this.padStates[this.activePad] = 'loaded';
+      this.trimPoints[this.activePad] = { start: 0.0, end: 1.0 };
+      this.saveTrimPoints();
       this.renderPads();
       this.persistSlot(this.activePad, raw);
       this.setStatus(`PAD ${this.activePad + 1} RECORDED — PLAY KEYS TO PITCH`, false, 'active');
@@ -1091,12 +1548,9 @@ class MicroSampler {
   }
 
   /* ── Playback ────────────────────────────────────────── */
-  // playMidi   — actual MIDI note number used for pitch calculation
-  // visualMidi — the on-screen key to light up (48-72), or null for MIDI input
-  // velocity   — 0.0–1.0
   noteOn(playMidi, visualMidi = null, velocity = 0.8) {
     if (!this.audioCtx) return;
-    if (this.activeNotes.has(playMidi)) return;   // already playing this pitch
+    if (this.activeNotes.has(playMidi)) return;
 
     const slot = this.activePad !== -1 ? this.activePad : this.findLoadedSlot();
     if (slot === -1 || !this.slots[slot]) {
@@ -1104,7 +1558,6 @@ class MicroSampler {
       return;
     }
 
-    // Voice steal
     if (this.activeNotes.size >= this.POLY_LIMIT) {
       const oldest = this.activeNotes.keys().next().value;
       this.killNote(oldest, true);
@@ -1116,27 +1569,42 @@ class MicroSampler {
     const source  = this.audioCtx.createBufferSource();
     source.buffer = buf;
 
-    // Pitch ratio: semitones relative to root A4 (69)
     const semitones = playMidi - this.ROOT_MIDI;
     source.playbackRate.value = Math.pow(2, semitones / 12);
 
-    if (this.fx.loop) source.loop = true;
+    const trim = this.trimPoints[slot];
+    const startTime = trim.start * buf.duration;
+    const endTime = trim.end * buf.duration;
+    const playDuration = endTime - startTime;
+
+    if (this.fx.loop) {
+      source.loop = true;
+      source.loopStart = startTime;
+      source.loopEnd = endTime;
+    }
 
     const gainNode = this.audioCtx.createGain();
     gainNode.gain.value = Math.max(0.001, velocity);
     source.connect(gainNode);
     gainNode.connect(this.masterGain);
-    source.start();
+
+    source.start(0, this.fx.loop ? startTime : startTime, this.fx.loop ? undefined : playDuration);
+
+    const padIndex = slot;
+    this.activeSources.set(playMidi, { source, padIndex, startTime: this.audioCtx.currentTime });
+    this.playbackPositions[padIndex] = 0;
 
     source.onended = () => {
       if (this.activeNotes.get(playMidi)?.source === source) {
         this.activeNotes.delete(playMidi);
+        this.activeSources.delete(playMidi);
         if (visualMidi !== null) this.highlightKey(visualMidi, false);
         this.updatePolyCount();
       }
     };
 
-    this.activeNotes.set(playMidi, { source, gainNode, visualMidi });
+    this.activeNotes.set(playMidi, { source, gainNode, visualMidi, padIndex: slot });
+
     if (visualMidi !== null) this.highlightKey(visualMidi, true);
     this.updatePolyCount();
     this.vuTargetLv = Math.min(1, this.vuTargetLv + 0.25);
@@ -1145,7 +1613,7 @@ class MicroSampler {
   noteOff(playMidi, visualMidi = null) {
     if (!this.activeNotes.has(playMidi)) return;
     const note = this.activeNotes.get(playMidi);
-    const { source, gainNode } = note;
+    const { source, gainNode, padIndex } = note;
     const vis = visualMidi !== null ? visualMidi : note.visualMidi;
     const now = this.audioCtx.currentTime;
 
@@ -1153,9 +1621,10 @@ class MicroSampler {
       gainNode.gain.setValueAtTime(gainNode.gain.value, now);
       gainNode.gain.exponentialRampToValueAtTime(0.001, now + 0.08);
       try { source.stop(now + 0.1); } catch(e) {}
+      this.activeSources.delete(playMidi);
+      this.playbackPositions[padIndex] = 0;
     }
-    // For non-looping samples we let the buffer play to its natural end;
-    // the onended handler cleans up the entry.
+
     if (this.fx.loop) {
       this.activeNotes.delete(playMidi);
       if (vis !== null) this.highlightKey(vis, false);
@@ -1165,7 +1634,7 @@ class MicroSampler {
 
   killNote(playMidi, immediate = false) {
     if (!this.activeNotes.has(playMidi)) return;
-    const { source, gainNode, visualMidi } = this.activeNotes.get(playMidi);
+    const { source, gainNode, visualMidi, padIndex } = this.activeNotes.get(playMidi);
     try {
       if (immediate) {
         const now = this.audioCtx.currentTime;
@@ -1177,11 +1646,53 @@ class MicroSampler {
       }
     } catch(e) {}
     this.activeNotes.delete(playMidi);
+    this.activeSources.delete(playMidi);
+    this.playbackPositions[padIndex] = 0;
     if (visualMidi !== null) this.highlightKey(visualMidi, false);
     this.updatePolyCount();
   }
 
   findLoadedSlot() { return this.slots.findIndex(s => s !== null); }
+
+  /* ── Scanline Animation Loop ─────────────────────────── */
+  startScanlineLoop() {
+    const tick = () => {
+      for (let i = 0; i < 4; i++) {
+        let hasActive = false;
+        for (const [playMidi, note] of this.activeSources) {
+          if (note.padIndex === i) {
+            hasActive = true;
+            const src = note.source;
+            if (!this.audioCtx) continue;
+
+            const buffer = this.slots[i];
+            if (!buffer) continue;
+
+            const trim = this.trimPoints[i];
+            const startSample = trim.start * buffer.duration;
+            const endSample = trim.end * buffer.duration;
+            const loopLength = endSample - startSample;
+
+            const elapsed = this.audioCtx.currentTime - note.startTime;
+            let pos = (elapsed % loopLength) / loopLength;
+
+            if (this.fx.loop) {
+              this.playbackPositions[i] = pos;
+            } else {
+              this.playbackPositions[i] = Math.min(pos, 1);
+            }
+            break;
+          }
+        }
+        if (!hasActive) {
+          this.playbackPositions[i] = 0;
+        }
+        this.renderPadWaveform(i);
+      }
+      this.scanlineAnimFrame = requestAnimationFrame(tick);
+    };
+    this.scanlineAnimFrame = requestAnimationFrame(tick);
+  }
 
   /* ── Buffer processing ───────────────────────────────── */
   prepareBuffer(buf) {
