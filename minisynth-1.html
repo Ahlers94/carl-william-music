@@ -1,0 +1,1591 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MINISYNTH-1 // CARL WILLIAM</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=VT323&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+/* ── SITE PALETTE (matches main.css) ─────────────────────── */
+:root {
+  --bg:      #0a0a12;
+  --surface: #0d0d1a;
+  --pink:    #ff2d78;
+  --cyan:    #00f5ff;
+  --gold:    #ffd700;
+  --purple:  #b06aff;
+  --green:   #99cc77;
+  --text:    #e0d8f0;
+  --muted:   #9988aa;
+  --dim:     #443355;
+  /* Synth-specific */
+  --chassis: #0b0b18;
+  --panel:   #09091500;
+  --knob-bg: #0e0e1e;
+  --knob-rim: #1e1e3a;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Space Mono', monospace;
+  min-height: 100vh;
+}
+
+/* CRT scanline overlay — matches site */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent, transparent 3px,
+    rgba(0,245,255,0.015) 3px, rgba(0,245,255,0.015) 4px
+  );
+  pointer-events: none;
+  z-index: 999;
+}
+
+/* ── HEADER — matches site header ───────────────────────── */
+header {
+  border-bottom: 2px solid var(--cyan);
+  padding: 24px 48px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.site-brand {
+  font-family: 'VT323', monospace;
+  font-size: 40px;
+  color: #00ff41;
+  letter-spacing: 5px;
+  line-height: 1;
+  text-shadow: 2px 2px 0 #003d10, 0 0 30px #00ff4155;
+}
+
+.header-right { text-align: right; }
+
+.page-subtitle {
+  font-size: 9px;
+  color: var(--cyan);
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  opacity: 0.7;
+  margin-top: 4px;
+}
+
+.build-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 6px;
+  font-size: 8px;
+  color: var(--dim);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  border: 1px solid var(--dim);
+  padding: 3px 8px;
+}
+
+.build-badge::before {
+  content: '';
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--gold);
+  box-shadow: 0 0 6px var(--gold);
+}
+
+/* ── MAIN PAGE WRAPPER ──────────────────────────────────── */
+.synth-page {
+  padding: 28px 48px 48px;
+}
+
+.section-label {
+  font-size: 10px;
+  color: var(--cyan);
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.section-label::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: #00f5ff33;
+}
+
+/* ── OSCILLOSCOPE ─────────────────────────────────────── */
+.scope-section { margin-bottom: 24px; }
+
+.scope-wrapper {
+  position: relative;
+  height: 140px;
+  background: #030308;
+  border: 1px solid #00f5ff2a;
+  overflow: hidden;
+}
+
+.scope-wrapper::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(rgba(0,245,255,0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,245,255,0.035) 1px, transparent 1px);
+  background-size: 50px 35px;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.scope-wrapper::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(rgba(0,245,255,0.07) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,245,255,0.07) 1px, transparent 1px);
+  background-size: 200px 70px;
+  pointer-events: none;
+  z-index: 1;
+}
+
+#scope-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 2;
+}
+
+.scope-corner {
+  position: absolute;
+  font-family: 'VT323', monospace;
+  font-size: 14px;
+  letter-spacing: 2px;
+  z-index: 3;
+  pointer-events: none;
+}
+
+.scope-corner--tl { top: 8px; left: 12px; color: #00f5ff55; }
+.scope-corner--tr { top: 8px; right: 12px; color: #00f5ff44; text-align: right; }
+.scope-corner--bl { bottom: 8px; left: 12px; color: #ff2d7833; font-size: 11px; }
+
+/* ── SYNTH FACEPLATE ─────────────────────────────────── */
+.faceplate {
+  background: var(--chassis);
+  border: 1px solid #ffffff0a;
+  border-bottom: none;
+  padding: 12px 20px 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.model-name {
+  font-family: 'VT323', monospace;
+  font-size: 26px;
+  color: #443355;
+  letter-spacing: 5px;
+  text-transform: uppercase;
+}
+
+.power-cluster {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.power-led {
+  width: 10px; height: 10px;
+  border-radius: 50%;
+  background: #1a0505;
+  box-shadow: inset 0 1px 1px rgba(0,0,0,0.8);
+  transition: all 0.2s;
+}
+
+.power-led.on {
+  background: #ff3b30;
+  box-shadow: 0 0 8px #ff3b30, 0 0 16px #ff3b3066, inset 0 1px 0 rgba(255,255,255,0.3);
+}
+
+.power-btn {
+  font-family: 'Space Mono', monospace;
+  font-size: 8px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--dim);
+  background: #0e0e1e;
+  border: 1px solid #222244;
+  padding: 4px 12px;
+  cursor: pointer;
+  transition: all 0.15s;
+  outline: none;
+}
+.power-btn:hover { border-color: var(--purple); color: var(--purple); }
+
+/* ── CONTROL PANEL CHASSIS ───────────────────────────── */
+.control-panel {
+  display: grid;
+  grid-template-columns: 88px 1fr 172px 172px;
+  border: 1px solid #ffffff0a;
+  border-top: none;
+  background: var(--chassis);
+  min-height: 280px;
+}
+
+/* ── PERFORMANCE SECTION ─────────────────────────────── */
+.perf-section {
+  padding: 16px 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  border-right: 1px solid #b06aff1a;
+  background: #08080e;
+}
+
+.perf-header {
+  font-size: 7px;
+  color: #b06aff55;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+}
+
+.wheel-group {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  flex: 1;
+}
+
+.wheel-label {
+  font-size: 7px;
+  color: var(--purple);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  opacity: 0.8;
+}
+
+.wheel-slot {
+  width: 32px;
+  height: 100px;
+  background: #05050b;
+  border: 1px solid #b06aff2a;
+  border-radius: 16px;
+  position: relative;
+  overflow: visible;
+  box-shadow: inset 0 3px 10px rgba(0,0,0,0.7);
+}
+
+/* center line */
+.wheel-slot::after {
+  content: '';
+  position: absolute;
+  left: 0; right: 0;
+  top: 50%;
+  height: 1px;
+  background: #b06aff33;
+  pointer-events: none;
+}
+
+.wheel-thumb {
+  position: absolute;
+  left: 3px; right: 3px;
+  height: 26px;
+  background: linear-gradient(180deg, #281a40 0%, #160e28 100%);
+  border: 1px solid #b06aff55;
+  border-radius: 3px;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.06);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+}
+
+.wheel-thumb-line {
+  width: 60%;
+  height: 1px;
+  background: #b06aff66;
+}
+
+/* invisible range over the slot */
+.wheel-input {
+  position: absolute;
+  top: -8px; bottom: -8px;
+  left: -24px; right: -24px;
+  width: 80px;
+  height: calc(100% + 16px);
+  opacity: 0;
+  cursor: ns-resize;
+  writing-mode: vertical-lr;
+  direction: rtl;
+  z-index: 4;
+}
+
+.wheel-readout {
+  font-family: 'VT323', monospace;
+  font-size: 15px;
+  color: var(--dim);
+  letter-spacing: 1px;
+  min-width: 36px;
+  text-align: center;
+}
+
+/* ── OSC SECTION ────────────────────────────────────── */
+.osc-section {
+  padding: 16px 20px 16px 24px;
+  border-right: 1px solid #ff2d7818;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.panel-section-header {
+  font-size: 8px;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.panel-section-header::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+}
+
+.osc-section .panel-section-header { color: var(--pink); }
+.osc-section .panel-section-header::after { background: #ff2d7822; }
+
+.osc-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 10px 0;
+  border-bottom: 1px solid #ffffff05;
+}
+.osc-row:last-child { border-bottom: none; padding-bottom: 0; }
+.osc-row:first-of-type { padding-top: 0; }
+
+.osc-number {
+  font-family: 'VT323', monospace;
+  font-size: 30px;
+  color: var(--pink);
+  text-shadow: 0 0 12px #ff2d7844;
+  line-height: 1;
+  min-width: 22px;
+}
+
+/* ── WAVE SHAPE SELECTOR ────────────────────────────── */
+.wave-selector {
+  display: flex;
+  gap: 2px;
+  flex-shrink: 0;
+}
+
+.wave-selector input[type="radio"] { display: none; }
+
+.wave-selector label {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 26px;
+  background: #060610;
+  border: 1px solid #ff2d781a;
+  cursor: pointer;
+  font-size: 14px;
+  color: #2a1a30;
+  transition: all 0.12s;
+  user-select: none;
+  line-height: 1;
+}
+
+.wave-selector input[type="radio"]:checked + label {
+  background: #ff2d780c;
+  border-color: var(--pink);
+  color: var(--pink);
+  text-shadow: 0 0 8px #ff2d7888;
+}
+
+.wave-selector label:hover {
+  border-color: #ff2d7840;
+  color: #6a3050;
+}
+
+/* ── KNOB SYSTEM ─────────────────────────────────────── */
+.knob-group {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.knob-label {
+  font-size: 7px;
+  color: var(--muted);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  text-align: center;
+}
+
+.knob-wrap {
+  position: relative;
+  width: 46px;
+  height: 46px;
+  flex-shrink: 0;
+}
+
+.knob-face {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: radial-gradient(circle at 36% 36%, #221a38 0%, #100c20 55%, #080610 100%);
+  border: 1px solid var(--knob-rim);
+  box-shadow:
+    0 4px 10px rgba(0,0,0,0.7),
+    inset 0 1px 2px rgba(255,255,255,0.07),
+    inset 0 -1px 2px rgba(0,0,0,0.5);
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* outer arc decoration */
+.knob-arc-outer {
+  position: absolute;
+  inset: -5px;
+  border-radius: 50%;
+  border: 1px solid transparent;
+  border-top-color: #ff2d7820;
+  border-right-color: #ff2d7820;
+  transform: rotate(-45deg);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* tick = full-size container rotated around center */
+.knob-tick-container {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 2;
+  transform-origin: center center;
+}
+
+.knob-tick-container::before {
+  content: '';
+  position: absolute;
+  top: 5px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 2px;
+  height: 9px;
+  background: var(--pink);
+  border-radius: 1px;
+  box-shadow: 0 0 5px #ff2d7899;
+}
+
+/* cyan override for filter knobs */
+.filter-section .knob-tick-container::before {
+  background: var(--cyan);
+  box-shadow: 0 0 5px #00f5ff99;
+}
+
+.filter-section .knob-arc-outer {
+  border-top-color: #00f5ff20;
+  border-right-color: #00f5ff20;
+}
+
+.filter-section .knob-face {
+  background: radial-gradient(circle at 36% 36%, #0e2428 0%, #06141a 55%, #030c10 100%);
+}
+
+.knob-input-range {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  cursor: pointer;
+  z-index: 5;
+  border-radius: 50%;
+  -webkit-appearance: none;
+}
+
+.knob-value {
+  font-family: 'VT323', monospace;
+  font-size: 13px;
+  color: var(--dim);
+  letter-spacing: 1px;
+  text-align: center;
+  min-width: 30px;
+}
+
+/* ── DETUNE SLIDER ───────────────────────────────────── */
+.detune-group {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 4px;
+  min-width: 0;
+}
+
+.detune-range-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 7px;
+  color: #2a1a30;
+  letter-spacing: 1px;
+}
+
+.detune-center-label {
+  font-size: 7px;
+  color: var(--muted);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  text-align: center;
+  flex: 1;
+}
+
+input.detune-input {
+  width: 100%;
+  -webkit-appearance: none;
+  appearance: none;
+  height: 3px;
+  background: #0a0a16;
+  border: 1px solid #ff2d7818;
+  outline: none;
+  cursor: ew-resize;
+}
+
+input.detune-input::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 10px;
+  height: 22px;
+  background: linear-gradient(180deg, #2e1844 0%, #180e28 100%);
+  border: 1px solid #ff2d7866;
+  border-radius: 2px;
+  cursor: ew-resize;
+  box-shadow: 0 0 8px #ff2d7844;
+  transition: box-shadow 0.1s;
+}
+
+input.detune-input::-webkit-slider-thumb:hover {
+  box-shadow: 0 0 12px #ff2d78aa;
+}
+
+input.detune-input::-moz-range-thumb {
+  width: 10px; height: 22px;
+  background: linear-gradient(180deg, #2e1844 0%, #180e28 100%);
+  border: 1px solid #ff2d7866;
+  border-radius: 2px;
+  cursor: ew-resize;
+}
+
+.detune-readout {
+  font-family: 'VT323', monospace;
+  font-size: 14px;
+  color: var(--dim);
+  letter-spacing: 1px;
+  text-align: center;
+}
+
+/* ── FILTER SECTION ─────────────────────────────────── */
+.filter-section {
+  padding: 16px 16px;
+  border-right: 1px solid #00f5ff18;
+  display: flex;
+  flex-direction: column;
+}
+
+.filter-section .panel-section-header { color: var(--cyan); }
+.filter-section .panel-section-header::after { background: #00f5ff22; }
+
+.filter-knobs-grid {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Large filter knobs */
+.filter-knob-wrap {
+  width: 64px;
+  height: 64px;
+}
+
+.filter-knob-face {
+  background: radial-gradient(circle at 36% 36%, #0e2428 0%, #06141a 55%, #030c10 100%) !important;
+}
+
+.filter-value {
+  font-family: 'VT323', monospace;
+  font-size: 14px;
+  color: var(--cyan);
+  text-shadow: 0 0 6px #00f5ff44;
+  letter-spacing: 1px;
+  text-align: center;
+  min-width: 54px;
+}
+
+/* ── ENV SECTION ─────────────────────────────────────── */
+.env-section {
+  padding: 16px 16px;
+  display: flex;
+  flex-direction: column;
+}
+
+.env-section .panel-section-header { color: var(--gold); }
+.env-section .panel-section-header::after { background: #ffd70022; }
+
+.env-faders-row {
+  flex: 1;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 28px;
+}
+
+.env-fader-group {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.env-fader-label {
+  font-size: 7px;
+  color: var(--muted);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+.fader-track {
+  width: 14px;
+  height: 110px;
+  background: #05050b;
+  border: 1px solid #ffd70018;
+  border-radius: 7px;
+  position: relative;
+  box-shadow: inset 0 3px 8px rgba(0,0,0,0.6);
+}
+
+/* tick marks on fader track */
+.fader-track::before {
+  content: '';
+  position: absolute;
+  left: 50%; top: 10%;
+  width: 6px; height: 1px;
+  background: #ffd70018;
+  transform: translateX(-50%);
+  box-shadow:
+    0 calc(0.3 * 90px) 0 #ffd70018,
+    0 calc(0.6 * 90px) 0 #ffd70018,
+    0 calc(0.9 * 90px) 0 #ffd70018;
+}
+
+.fader-thumb {
+  position: absolute;
+  left: 2px; right: 2px;
+  height: 22px;
+  background: linear-gradient(180deg, #2a2008 0%, #151004 100%);
+  border: 1px solid #ffd70055;
+  border-radius: 3px;
+  pointer-events: none;
+  bottom: 8%;
+  box-shadow: 0 0 8px #ffd70022, 0 2px 4px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.06);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.fader-thumb::after {
+  content: '';
+  display: block;
+  width: 60%;
+  height: 1px;
+  background: #ffd70055;
+}
+
+/* invisible range over the fader track */
+.fader-input {
+  position: absolute;
+  top: -8px; bottom: -8px;
+  left: -16px; right: -16px;
+  width: calc(100% + 32px);
+  height: calc(100% + 16px);
+  opacity: 0;
+  cursor: ns-resize;
+  writing-mode: vertical-lr;
+  direction: rtl;
+  z-index: 4;
+}
+
+.env-fader-value {
+  font-family: 'VT323', monospace;
+  font-size: 16px;
+  color: var(--gold);
+  text-shadow: 0 0 6px #ffd70044;
+  letter-spacing: 1px;
+  text-align: center;
+  min-width: 46px;
+}
+
+/* ── PIANO KEYBOARD ──────────────────────────────────── */
+.keyboard-section {
+  border: 1px solid #99cc7718;
+  border-top: none;
+  background: #06060f;
+}
+
+.keyboard-header {
+  padding: 10px 20px 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.keyboard-header-label {
+  font-size: 8px;
+  color: #99cc7755;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+}
+
+.keyboard-octave-badge {
+  font-family: 'VT323', monospace;
+  font-size: 18px;
+  color: #99cc7733;
+  letter-spacing: 2px;
+}
+
+.piano-outer {
+  padding: 14px 20px 0;
+  position: relative;
+  height: 128px;
+  user-select: none;
+}
+
+.piano {
+  position: relative;
+  height: 112px;
+  display: flex;
+}
+
+/* ── WHITE KEYS ─────────────────────────────────────── */
+.white-key {
+  flex: 1;
+  height: 100%;
+  background: linear-gradient(180deg, #e8e8e8 0%, #f2f2f2 30%, #ffffff 100%);
+  border-left: 1px solid #c0c0c0;
+  border-right: 1px solid #c8c8c8;
+  border-bottom: 4px solid #aaaaaa;
+  border-radius: 0 0 4px 4px;
+  position: relative;
+  cursor: pointer;
+  transition: background 0.04s, border-bottom-width 0.04s, transform 0.04s;
+  z-index: 1;
+  box-shadow: 2px 3px 6px rgba(0,0,0,0.4), inset 0 -3px 4px rgba(0,0,0,0.08);
+}
+
+.white-key:first-child { border-left: 1px solid #b8b8b8; }
+
+.white-key:active, .white-key.key-active {
+  background: linear-gradient(180deg, #ccf0cc 0%, #d8f5d8 30%, #e4ffe4 100%);
+  border-bottom-width: 1px;
+  transform: translateY(3px);
+  box-shadow: 1px 1px 3px rgba(0,0,0,0.4), 0 0 12px #99cc7744;
+}
+
+.white-key .key-note-label {
+  position: absolute;
+  bottom: 5px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-family: 'Space Mono', monospace;
+  font-size: 7px;
+  color: #bbb;
+  pointer-events: none;
+  white-space: nowrap;
+  letter-spacing: 0;
+}
+
+.white-key.key-active .key-note-label { color: var(--green); }
+
+.white-key .key-shortcut {
+  position: absolute;
+  top: 6px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 8px;
+  color: #ddd;
+  pointer-events: none;
+  letter-spacing: 0;
+}
+
+/* ── BLACK KEYS ─────────────────────────────────────── */
+.black-keys-layer {
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 68px;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.black-key {
+  position: absolute;
+  /* width is ~58% of white key, centered over the gap */
+  width: 7%;
+  height: 100%;
+  background: linear-gradient(180deg, #303030 0%, #181818 70%, #0a0a0a 100%);
+  border-left: 1px solid #050505;
+  border-right: 1px solid #050505;
+  border-bottom: 3px solid #000;
+  border-radius: 0 0 3px 3px;
+  cursor: pointer;
+  pointer-events: all;
+  box-shadow: 2px 4px 8px rgba(0,0,0,0.8), inset 0 1px 0 rgba(255,255,255,0.08);
+  transition: background 0.04s, border-bottom-width 0.04s, transform 0.04s;
+}
+
+.black-key:active, .black-key.key-active {
+  background: linear-gradient(180deg, #1a3020 0%, #0c1c10 70%, #061008 100%);
+  border-bottom-width: 1px;
+  transform: translateY(2px);
+  box-shadow: 1px 2px 4px rgba(0,0,0,0.8), 0 0 10px #99cc7755;
+}
+
+/* Black key positions for 8 white keys (12.5% each) */
+/* C# between C(0) and D(1):  after 1st key  */
+/* D# between D(1) and E(2):  after 2nd key  */
+/* F# between F(3) and G(4):  after 4th key  */
+/* G# between G(4) and A(5):  after 5th key  */
+/* A# between A(5) and B(6):  after 6th key  */
+.black-key[data-note="Cs3"] { left: calc(1 * 12.5% - 3.5%); }
+.black-key[data-note="Ds3"] { left: calc(2 * 12.5% - 3.5%); }
+.black-key[data-note="Fs3"] { left: calc(4 * 12.5% - 3.5%); }
+.black-key[data-note="Gs3"] { left: calc(5 * 12.5% - 3.5%); }
+.black-key[data-note="As3"] { left: calc(6 * 12.5% - 3.5%); }
+
+/* keyboard shortcut hint bar */
+.keyboard-hints {
+  padding: 8px 20px 14px;
+  display: flex;
+  gap: 4px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.hint-key {
+  font-size: 7px;
+  color: var(--dim);
+  letter-spacing: 1px;
+  border: 1px solid #ffffff0d;
+  padding: 2px 5px;
+  font-family: 'Space Mono', monospace;
+}
+
+.hint-sep {
+  font-size: 8px;
+  color: #222233;
+  margin: 0 2px;
+}
+
+.hint-label {
+  font-size: 7px;
+  color: #222233;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin-right: 8px;
+}
+
+/* ── FOOTER — matches site ───────────────────────────── */
+footer {
+  border-top: 1px solid #00f5ff22;
+  padding: 14px 48px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #07070f;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+footer span {
+  font-size: 10px;
+  color: var(--dim);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+.blink { animation: blink 1.2s step-end infinite; }
+@keyframes blink { 50% { opacity: 0; } }
+
+/* ── RESPONSIVE ─────────────────────────────────────── */
+@media (max-width: 960px) {
+  .synth-page { padding: 20px; }
+  header { padding: 20px 24px; }
+  footer { padding: 14px 24px; }
+  .control-panel {
+    grid-template-columns: 72px 1fr;
+    grid-template-rows: auto auto;
+  }
+  .filter-section {
+    grid-column: 1;
+    grid-row: 2;
+    border-right: none;
+    border-top: 1px solid #00f5ff18;
+    flex-direction: row;
+    align-items: flex-start;
+    gap: 20px;
+  }
+  .filter-knobs-grid { flex-direction: row; gap: 24px; }
+  .env-section {
+    grid-column: 2;
+    grid-row: 2;
+    border-top: 1px solid #ffd70018;
+  }
+}
+
+@media (max-width: 640px) {
+  .control-panel { grid-template-columns: 1fr; }
+  .perf-section {
+    flex-direction: row;
+    justify-content: center;
+    border-right: none;
+    border-bottom: 1px solid #b06aff18;
+    padding: 12px 20px;
+    gap: 24px;
+  }
+  .wheel-group { flex-direction: row; align-items: center; gap: 10px; }
+  .wheel-slot { width: 80px; height: 28px; border-radius: 14px; }
+  .wheel-slot::after { top: 50%; left: 0; right: 0; width: auto; height: 1px; }
+  .wheel-input { writing-mode: horizontal-tb; direction: ltr; top: 0; bottom: 0; left: -8px; right: -8px; width: auto; height: 100%; cursor: ew-resize; }
+  .osc-section { border-right: none; }
+  .filter-section { grid-row: auto; grid-column: auto; }
+  .env-section { grid-row: auto; grid-column: auto; }
+  .osc-row { flex-wrap: wrap; }
+}
+</style>
+</head>
+<body>
+
+<!-- ── HEADER ──────────────────────────────────────────── -->
+<header>
+  <div>
+    <div class="site-brand">CARL WILLIAM</div>
+    <div class="page-subtitle">MINISYNTH-1 &nbsp;·&nbsp; MONOPHONIC SUBTRACTIVE SYNTHESIZER</div>
+  </div>
+  <div class="header-right">
+    <div class="build-badge">PHASE 1 &nbsp;/&nbsp; LAYOUT</div>
+  </div>
+</header>
+
+<!-- ── PAGE CONTENT ─────────────────────────────────────── -->
+<main class="synth-page">
+
+  <!-- OSCILLOSCOPE ──────────────────────────────────────── -->
+  <section class="scope-section">
+    <div class="section-label">OSCILLOSCOPE</div>
+    <div class="scope-wrapper" id="scope-wrapper">
+      <canvas id="scope-canvas"></canvas>
+      <div class="scope-corner scope-corner--tl">OSC ▸</div>
+      <div class="scope-corner scope-corner--tr" id="scope-readout">440 Hz &nbsp;·&nbsp; C4<span class="blink"> _</span></div>
+      <div class="scope-corner scope-corner--bl">TIME/DIV: 1ms</div>
+    </div>
+  </section>
+
+  <!-- FACEPLATE ─────────────────────────────────────────── -->
+  <div class="faceplate">
+    <div class="model-name">MINISYNTH&ndash;1 &nbsp;&nbsp; MONOPHONIC</div>
+    <div class="power-cluster">
+      <div class="power-led" id="power-led"></div>
+      <button class="power-btn" id="power-btn" aria-label="Power on/off">POWER</button>
+    </div>
+  </div>
+
+  <!-- CONTROL PANEL ─────────────────────────────────────── -->
+  <div class="control-panel" id="control-panel">
+
+    <!-- PERFORMANCE CONTROLLERS ─────────────────────────── -->
+    <section class="perf-section" id="perf-section" aria-label="Performance controllers">
+      <div class="perf-header">PERF</div>
+
+      <div class="wheel-group" id="pitch-wheel-group">
+        <div class="wheel-label">PITCH</div>
+        <div class="wheel-slot" id="pitch-wheel-slot">
+          <div class="wheel-thumb" id="pitch-wheel-thumb">
+            <div class="wheel-thumb-line"></div>
+          </div>
+          <input
+            type="range"
+            class="wheel-input"
+            id="pitch-wheel"
+            min="-100" max="100" value="0" step="1"
+            aria-label="Pitch Bend wheel"
+          >
+        </div>
+        <div class="wheel-readout" id="pitch-wheel-val">±0</div>
+      </div>
+
+      <div class="wheel-group" id="mod-wheel-group">
+        <div class="wheel-label">MOD</div>
+        <div class="wheel-slot" id="mod-wheel-slot">
+          <div class="wheel-thumb" id="mod-wheel-thumb">
+            <div class="wheel-thumb-line"></div>
+          </div>
+          <input
+            type="range"
+            class="wheel-input"
+            id="mod-wheel"
+            min="0" max="100" value="0" step="1"
+            aria-label="Modulation wheel"
+          >
+        </div>
+        <div class="wheel-readout" id="mod-wheel-val">0</div>
+      </div>
+    </section>
+
+    <!-- OSCILLATORS ─────────────────────────────────────── -->
+    <section class="osc-section" id="osc-section" aria-label="Oscillator mixer">
+      <div class="panel-section-header">OSCILLATORS</div>
+
+      <!-- OSC 1 -->
+      <div class="osc-row" id="osc1-row">
+        <div class="osc-number">1</div>
+
+        <div class="wave-selector" id="osc1-wave-selector" role="radiogroup" aria-label="OSC 1 waveform">
+          <input type="radio" name="osc1-wave" id="osc1-wave-sine"     value="sine"     checked>
+          <label for="osc1-wave-sine"     title="Sine">∿</label>
+          <input type="radio" name="osc1-wave" id="osc1-wave-square"   value="square">
+          <label for="osc1-wave-square"   title="Square">⊓</label>
+          <input type="radio" name="osc1-wave" id="osc1-wave-sawtooth" value="sawtooth">
+          <label for="osc1-wave-sawtooth" title="Sawtooth">⊿</label>
+          <input type="radio" name="osc1-wave" id="osc1-wave-triangle" value="triangle">
+          <label for="osc1-wave-triangle" title="Triangle">△</label>
+        </div>
+
+        <div class="knob-group">
+          <div class="knob-label">VOL</div>
+          <div class="knob-wrap" id="osc1-vol-knob-wrap">
+            <div class="knob-arc-outer"></div>
+            <div class="knob-face"></div>
+            <div class="knob-tick-container" id="osc1-vol-tick"></div>
+            <input type="range" class="knob-input-range" id="osc1-volume"
+              min="0" max="100" value="80" step="1" aria-label="OSC 1 Volume">
+          </div>
+          <div class="knob-value" id="osc1-vol-val">80</div>
+        </div>
+
+        <div class="detune-group">
+          <div class="detune-range-labels">
+            <span>-50¢</span>
+            <span class="detune-center-label">DETUNE</span>
+            <span>+50¢</span>
+          </div>
+          <input type="range" class="detune-input" id="osc1-detune"
+            min="-50" max="50" value="0" step="1" aria-label="OSC 1 Detune">
+          <div class="detune-readout" id="osc1-detune-val">±0¢</div>
+        </div>
+      </div>
+
+      <!-- OSC 2 -->
+      <div class="osc-row" id="osc2-row">
+        <div class="osc-number">2</div>
+
+        <div class="wave-selector" id="osc2-wave-selector" role="radiogroup" aria-label="OSC 2 waveform">
+          <input type="radio" name="osc2-wave" id="osc2-wave-sine"     value="sine">
+          <label for="osc2-wave-sine"     title="Sine">∿</label>
+          <input type="radio" name="osc2-wave" id="osc2-wave-square"   value="square" checked>
+          <label for="osc2-wave-square"   title="Square">⊓</label>
+          <input type="radio" name="osc2-wave" id="osc2-wave-sawtooth" value="sawtooth">
+          <label for="osc2-wave-sawtooth" title="Sawtooth">⊿</label>
+          <input type="radio" name="osc2-wave" id="osc2-wave-triangle" value="triangle">
+          <label for="osc2-wave-triangle" title="Triangle">△</label>
+        </div>
+
+        <div class="knob-group">
+          <div class="knob-label">VOL</div>
+          <div class="knob-wrap" id="osc2-vol-knob-wrap">
+            <div class="knob-arc-outer"></div>
+            <div class="knob-face"></div>
+            <div class="knob-tick-container" id="osc2-vol-tick"></div>
+            <input type="range" class="knob-input-range" id="osc2-volume"
+              min="0" max="100" value="60" step="1" aria-label="OSC 2 Volume">
+          </div>
+          <div class="knob-value" id="osc2-vol-val">60</div>
+        </div>
+
+        <div class="detune-group">
+          <div class="detune-range-labels">
+            <span>-50¢</span>
+            <span class="detune-center-label">DETUNE</span>
+            <span>+50¢</span>
+          </div>
+          <input type="range" class="detune-input" id="osc2-detune"
+            min="-50" max="50" value="-7" step="1" aria-label="OSC 2 Detune">
+          <div class="detune-readout" id="osc2-detune-val">-7¢</div>
+        </div>
+      </div>
+
+      <!-- OSC 3 -->
+      <div class="osc-row" id="osc3-row">
+        <div class="osc-number">3</div>
+
+        <div class="wave-selector" id="osc3-wave-selector" role="radiogroup" aria-label="OSC 3 waveform">
+          <input type="radio" name="osc3-wave" id="osc3-wave-sine"     value="sine">
+          <label for="osc3-wave-sine"     title="Sine">∿</label>
+          <input type="radio" name="osc3-wave" id="osc3-wave-square"   value="square">
+          <label for="osc3-wave-square"   title="Square">⊓</label>
+          <input type="radio" name="osc3-wave" id="osc3-wave-sawtooth" value="sawtooth" checked>
+          <label for="osc3-wave-sawtooth" title="Sawtooth">⊿</label>
+          <input type="radio" name="osc3-wave" id="osc3-wave-triangle" value="triangle">
+          <label for="osc3-wave-triangle" title="Triangle">△</label>
+        </div>
+
+        <div class="knob-group">
+          <div class="knob-label">VOL</div>
+          <div class="knob-wrap" id="osc3-vol-knob-wrap">
+            <div class="knob-arc-outer"></div>
+            <div class="knob-face"></div>
+            <div class="knob-tick-container" id="osc3-vol-tick"></div>
+            <input type="range" class="knob-input-range" id="osc3-volume"
+              min="0" max="100" value="40" step="1" aria-label="OSC 3 Volume">
+          </div>
+          <div class="knob-value" id="osc3-vol-val">40</div>
+        </div>
+
+        <div class="detune-group">
+          <div class="detune-range-labels">
+            <span>-50¢</span>
+            <span class="detune-center-label">DETUNE</span>
+            <span>+50¢</span>
+          </div>
+          <input type="range" class="detune-input" id="osc3-detune"
+            min="-50" max="50" value="12" step="1" aria-label="OSC 3 Detune">
+          <div class="detune-readout" id="osc3-detune-val">+12¢</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- FILTER ──────────────────────────────────────────── -->
+    <section class="filter-section" id="filter-section" aria-label="Filter controls">
+      <div class="panel-section-header">FILTER</div>
+
+      <div class="filter-knobs-grid">
+
+        <!-- Cutoff -->
+        <div class="knob-group">
+          <div class="knob-label" style="color:var(--cyan);letter-spacing:2px">CUTOFF</div>
+          <div class="knob-wrap filter-knob-wrap" id="filter-cutoff-knob-wrap">
+            <div class="knob-arc-outer" style="border-top-color:#00f5ff20;border-right-color:#00f5ff20"></div>
+            <div class="knob-face filter-knob-face" style="width:64px;height:64px;inset:0"></div>
+            <div class="knob-tick-container" id="filter-cutoff-tick"></div>
+            <input type="range" class="knob-input-range" id="filter-cutoff"
+              min="20" max="20000" value="8000" step="10" aria-label="Filter Cutoff Frequency">
+          </div>
+          <div class="filter-value" id="filter-cutoff-val">8.0kHz</div>
+        </div>
+
+        <!-- Resonance -->
+        <div class="knob-group">
+          <div class="knob-label" style="color:var(--cyan);letter-spacing:2px">RESONANCE</div>
+          <div class="knob-wrap filter-knob-wrap" id="filter-res-knob-wrap">
+            <div class="knob-arc-outer" style="border-top-color:#00f5ff20;border-right-color:#00f5ff20"></div>
+            <div class="knob-face filter-knob-face" style="width:64px;height:64px;inset:0"></div>
+            <div class="knob-tick-container" id="filter-res-tick"></div>
+            <input type="range" class="knob-input-range" id="filter-resonance"
+              min="0" max="100" value="20" step="1" aria-label="Filter Resonance">
+          </div>
+          <div class="filter-value" id="filter-res-val">20</div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ENVELOPE ────────────────────────────────────────── -->
+    <section class="env-section" id="env-section" aria-label="Envelope controls">
+      <div class="panel-section-header">ENVELOPE</div>
+
+      <div class="env-faders-row">
+
+        <!-- Attack -->
+        <div class="env-fader-group" id="attack-fader-group">
+          <div class="env-fader-label">ATTACK</div>
+          <div class="fader-track" id="attack-track">
+            <div class="fader-thumb" id="attack-thumb"></div>
+            <input type="range" class="fader-input" id="env-attack"
+              min="0" max="100" value="5" step="1" aria-label="Envelope Attack">
+          </div>
+          <div class="env-fader-value" id="env-attack-val">5ms</div>
+        </div>
+
+        <!-- Release -->
+        <div class="env-fader-group" id="release-fader-group">
+          <div class="env-fader-label">RELEASE</div>
+          <div class="fader-track" id="release-track">
+            <div class="fader-thumb" id="release-thumb"></div>
+            <input type="range" class="fader-input" id="env-release"
+              min="0" max="100" value="20" step="1" aria-label="Envelope Release">
+          </div>
+          <div class="env-fader-value" id="env-release-val">200ms</div>
+        </div>
+
+      </div>
+    </section>
+
+  </div><!-- /control-panel -->
+
+  <!-- PIANO KEYBOARD ───────────────────────────────────── -->
+  <section class="keyboard-section" id="keyboard-section" aria-label="Piano keyboard, one octave C3 to C4">
+    <div class="keyboard-header">
+      <span class="keyboard-header-label">KEYBOARD &nbsp;·&nbsp; C3 — C4 &nbsp;·&nbsp; ONE OCTAVE</span>
+      <span class="keyboard-octave-badge">OCT 3 <span class="blink">▮</span></span>
+    </div>
+
+    <div class="piano-outer">
+      <div class="piano" id="piano">
+
+        <!-- White keys C3 through C4 -->
+        <div class="white-key" id="key-C3" data-note="C3" data-freq="130.81" role="button" tabindex="0" aria-label="C3">
+          <span class="key-shortcut">A</span>
+          <span class="key-note-label">C3</span>
+        </div>
+        <div class="white-key" id="key-D3" data-note="D3" data-freq="146.83" role="button" tabindex="0" aria-label="D3">
+          <span class="key-shortcut">S</span>
+          <span class="key-note-label">D</span>
+        </div>
+        <div class="white-key" id="key-E3" data-note="E3" data-freq="164.81" role="button" tabindex="0" aria-label="E3">
+          <span class="key-shortcut">D</span>
+          <span class="key-note-label">E</span>
+        </div>
+        <div class="white-key" id="key-F3" data-note="F3" data-freq="174.61" role="button" tabindex="0" aria-label="F3">
+          <span class="key-shortcut">F</span>
+          <span class="key-note-label">F</span>
+        </div>
+        <div class="white-key" id="key-G3" data-note="G3" data-freq="196.00" role="button" tabindex="0" aria-label="G3">
+          <span class="key-shortcut">G</span>
+          <span class="key-note-label">G</span>
+        </div>
+        <div class="white-key" id="key-A3" data-note="A3" data-freq="220.00" role="button" tabindex="0" aria-label="A3">
+          <span class="key-shortcut">H</span>
+          <span class="key-note-label">A</span>
+        </div>
+        <div class="white-key" id="key-B3" data-note="B3" data-freq="246.94" role="button" tabindex="0" aria-label="B3">
+          <span class="key-shortcut">J</span>
+          <span class="key-note-label">B</span>
+        </div>
+        <div class="white-key" id="key-C4" data-note="C4" data-freq="261.63" role="button" tabindex="0" aria-label="C4">
+          <span class="key-shortcut">K</span>
+          <span class="key-note-label">C4</span>
+        </div>
+
+        <!-- Black keys overlay layer -->
+        <div class="black-keys-layer" id="black-keys-layer">
+          <div class="black-key" id="key-Cs3" data-note="Cs3" data-freq="138.59" role="button" tabindex="0" aria-label="C sharp 3"></div>
+          <div class="black-key" id="key-Ds3" data-note="Ds3" data-freq="155.56" role="button" tabindex="0" aria-label="D sharp 3"></div>
+          <div class="black-key" id="key-Fs3" data-note="Fs3" data-freq="185.00" role="button" tabindex="0" aria-label="F sharp 3"></div>
+          <div class="black-key" id="key-Gs3" data-note="Gs3" data-freq="207.65" role="button" tabindex="0" aria-label="G sharp 3"></div>
+          <div class="black-key" id="key-As3" data-note="As3" data-freq="233.08" role="button" tabindex="0" aria-label="A sharp 3"></div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Keyboard shortcut legend -->
+    <div class="keyboard-hints" aria-hidden="true">
+      <span class="hint-label">PC KEYS</span>
+      <span class="hint-key">A</span><span class="hint-sep">·</span>
+      <span class="hint-key">W</span><span class="hint-sep">·</span>
+      <span class="hint-key">S</span><span class="hint-sep">·</span>
+      <span class="hint-key">E</span><span class="hint-sep">·</span>
+      <span class="hint-key">D</span><span class="hint-sep">·</span>
+      <span class="hint-key">F</span><span class="hint-sep">·</span>
+      <span class="hint-key">T</span><span class="hint-sep">·</span>
+      <span class="hint-key">G</span><span class="hint-sep">·</span>
+      <span class="hint-key">Y</span><span class="hint-sep">·</span>
+      <span class="hint-key">H</span><span class="hint-sep">·</span>
+      <span class="hint-key">U</span><span class="hint-sep">·</span>
+      <span class="hint-key">J</span><span class="hint-sep">·</span>
+      <span class="hint-key">K</span>
+    </div>
+  </section>
+
+</main>
+
+<!-- ── FOOTER ───────────────────────────────────────────── -->
+<footer>
+  <span>&copy; CARL WILLIAM</span>
+  <span>MINISYNTH-1 // PHASE 1 COMPLETE<span class="blink"> ▮</span></span>
+  <span>AUDIO ENGINE PENDING</span>
+</footer>
+
+<!-- ── UI INTERACTION SCRIPT (NO WEB AUDIO) ─────────────── -->
+<script>
+/* =========================================================
+   MINISYNTH-1 — Phase 1: UI interactions only.
+   No Web Audio API. All IDs are ready for Phase 2.
+   ========================================================= */
+
+/* ── POWER BUTTON ──────────────────────────────────────── */
+const powerBtn = document.getElementById('power-btn');
+const powerLed = document.getElementById('power-led');
+let powered = false;
+
+powerBtn.addEventListener('click', () => {
+  powered = !powered;
+  powerLed.classList.toggle('on', powered);
+  powerBtn.textContent = powered ? 'ON' : 'POWER';
+});
+
+/* ── KNOB ROTATION UTILITY ─────────────────────────────── */
+function initKnob(rangeId, tickId, valId, formatter) {
+  const range = document.getElementById(rangeId);
+  const tick  = document.getElementById(tickId);
+  const val   = document.getElementById(valId);
+  if (!range || !tick) return;
+
+  function update() {
+    const pct = (range.value - range.min) / (range.max - range.min);
+    // Knob sweep: -135deg (min) to +135deg (max), center = 0
+    const deg = -135 + pct * 270;
+    tick.style.transform = `rotate(${deg}deg)`;
+    if (val && formatter) val.textContent = formatter(range.value);
+    else if (val) val.textContent = range.value;
+  }
+
+  range.addEventListener('input', update);
+  update(); // initialise on load
+}
+
+/* ── OSC VOLUME KNOBS ──────────────────────────────────── */
+initKnob('osc1-volume', 'osc1-vol-tick', 'osc1-vol-val');
+initKnob('osc2-volume', 'osc2-vol-tick', 'osc2-vol-val');
+initKnob('osc3-volume', 'osc3-vol-tick', 'osc3-vol-val');
+
+/* ── FILTER KNOBS ──────────────────────────────────────── */
+initKnob('filter-cutoff', 'filter-cutoff-tick', 'filter-cutoff-val', v => {
+  const hz = parseInt(v);
+  if (hz >= 1000) return (hz / 1000).toFixed(hz >= 10000 ? 0 : 1) + 'kHz';
+  return hz + 'Hz';
+});
+
+initKnob('filter-resonance', 'filter-res-tick', 'filter-res-val');
+
+/* ── DETUNE SLIDERS ────────────────────────────────────── */
+['osc1','osc2','osc3'].forEach(prefix => {
+  const input = document.getElementById(prefix + '-detune');
+  const readout = document.getElementById(prefix + '-detune-val');
+  if (!input || !readout) return;
+  function updateDetune() {
+    const v = parseInt(input.value);
+    readout.textContent = v > 0 ? '+' + v + '¢' : v === 0 ? '±0¢' : v + '¢';
+  }
+  input.addEventListener('input', updateDetune);
+  updateDetune();
+});
+
+/* ── ENVELOPE FADERS ───────────────────────────────────── */
+function initFader(rangeId, thumbId, valId, msScale) {
+  const range = document.getElementById(rangeId);
+  const thumb = document.getElementById(thumbId);
+  const val   = document.getElementById(valId);
+  if (!range) return;
+  const TRACK_H = 110, THUMB_H = 22, MARGIN = 4;
+  const travel = TRACK_H - THUMB_H - MARGIN * 2;
+
+  function update() {
+    const pct = (range.value - range.min) / (range.max - range.min);
+    const bottomPx = MARGIN + pct * travel;
+    if (thumb) thumb.style.bottom = bottomPx + 'px';
+    if (val) {
+      const ms = Math.round(parseInt(range.value) * msScale);
+      val.textContent = ms >= 1000 ? (ms / 1000).toFixed(1) + 's' : ms + 'ms';
+    }
+  }
+  range.addEventListener('input', update);
+  update();
+}
+
+initFader('env-attack',  'attack-thumb',  'env-attack-val',  10);
+initFader('env-release', 'release-thumb', 'env-release-val', 50);
+
+/* ── PERFORMANCE WHEELS ────────────────────────────────── */
+function initWheel(id, snapToCenter) {
+  const range  = document.getElementById(id + '-wheel');
+  const thumb  = document.getElementById(id + '-wheel-thumb');
+  const readout = document.getElementById(id + '-wheel-val');
+  if (!range) return;
+  const SLOT_H = 100, THUMB_H = 26;
+  const travel = SLOT_H - THUMB_H;
+
+  function update() {
+    const pct = (range.value - range.min) / (range.max - range.min);
+    // top=0 when max, top=travel when min
+    const topPx = (1 - pct) * travel;
+    if (thumb) thumb.style.top = topPx + 'px';
+    if (readout) {
+      const v = parseInt(range.value);
+      readout.textContent = (v > 0 && snapToCenter) ? '+' + v : (v === 0 && snapToCenter) ? '±0' : v.toString();
+    }
+  }
+
+  range.addEventListener('input', update);
+
+  if (snapToCenter) {
+    // Pitch wheel springs back to 0 on release
+    range.addEventListener('pointerup', () => {
+      range.value = 0;
+      update();
+    });
+    range.addEventListener('keyup', () => {
+      range.value = 0;
+      update();
+    });
+  }
+  update();
+}
+
+initWheel('pitch', true);
+initWheel('mod', false);
+
+/* ── PIANO KEYS ────────────────────────────────────────── */
+const activeKeys = new Set();
+
+function pressKey(el) {
+  if (!el || activeKeys.has(el.id)) return;
+  activeKeys.add(el.id);
+  el.classList.add('key-active');
+  // Phase 2: trigger note on here
+}
+
+function releaseKey(el) {
+  if (!el) return;
+  activeKeys.delete(el.id);
+  el.classList.remove('key-active');
+  // Phase 2: trigger note off here
+}
+
+// Pointer events for mouse / touch
+document.querySelectorAll('.white-key, .black-key').forEach(key => {
+  key.addEventListener('pointerdown', e => {
+    e.preventDefault();
+    key.setPointerCapture(e.pointerId);
+    pressKey(key);
+  });
+  key.addEventListener('pointerup',    () => releaseKey(key));
+  key.addEventListener('pointercancel',() => releaseKey(key));
+});
+
+// Computer keyboard mapping
+const KB_MAP = {
+  a: 'C3',  w: 'Cs3', s: 'D3',  e: 'Ds3',
+  d: 'E3',  f: 'F3',  t: 'Fs3', g: 'G3',
+  y: 'Gs3', h: 'A3',  u: 'As3', j: 'B3',
+  k: 'C4'
+};
+
+document.addEventListener('keydown', e => {
+  if (e.repeat || e.metaKey || e.ctrlKey) return;
+  const note = KB_MAP[e.key.toLowerCase()];
+  if (note) pressKey(document.getElementById('key-' + note));
+});
+
+document.addEventListener('keyup', e => {
+  const note = KB_MAP[e.key.toLowerCase()];
+  if (note) releaseKey(document.getElementById('key-' + note));
+});
+
+// Keyboard accessibility (Enter/Space activate)
+document.querySelectorAll('.white-key, .black-key').forEach(key => {
+  key.addEventListener('keydown', e => {
+    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); pressKey(key); }
+  });
+  key.addEventListener('keyup', e => {
+    if (e.key === 'Enter' || e.key === ' ') releaseKey(key);
+  });
+});
+
+/* ── OSCILLOSCOPE PLACEHOLDER ANIMATION ────────────────── */
+(function() {
+  const wrapper = document.getElementById('scope-wrapper');
+  const canvas  = document.getElementById('scope-canvas');
+  if (!canvas || !wrapper) return;
+
+  function resize() {
+    canvas.width  = wrapper.offsetWidth;
+    canvas.height = wrapper.offsetHeight;
+  }
+  resize();
+  window.addEventListener('resize', resize);
+
+  const ctx = canvas.getContext('2d');
+  let t = 0;
+
+  function drawScope() {
+    const W = canvas.width, H = canvas.height;
+    ctx.clearRect(0, 0, W, H);
+
+    // Primary waveform — cyan
+    ctx.save();
+    ctx.strokeStyle = '#00f5ff';
+    ctx.lineWidth   = 1.5;
+    ctx.shadowColor = '#00f5ff';
+    ctx.shadowBlur  = 8;
+    ctx.globalAlpha = 0.75;
+    ctx.beginPath();
+    for (let x = 0; x <= W; x++) {
+      const phase = (x / W) * Math.PI * 2;
+      const y = H / 2
+        + Math.sin(phase * 3 + t)          * H * 0.26
+        + Math.sin(phase * 5 + t * 1.2)    * H * 0.07
+        + Math.sin(phase * 7 + t * 0.8)    * H * 0.03;
+      x === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+    }
+    ctx.stroke();
+    ctx.restore();
+
+    // Secondary trace — pink, subtle
+    ctx.save();
+    ctx.strokeStyle = '#ff2d78';
+    ctx.lineWidth   = 1;
+    ctx.shadowColor = '#ff2d78';
+    ctx.shadowBlur  = 4;
+    ctx.globalAlpha = 0.18;
+    ctx.beginPath();
+    for (let x = 0; x <= W; x++) {
+      const phase = (x / W) * Math.PI * 2;
+      const y = H / 2
+        + Math.sin(phase * 4 + t * 1.7) * H * 0.14
+        + Math.sin(phase * 8 + t * 2.1) * H * 0.04;
+      x === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+    }
+    ctx.stroke();
+    ctx.restore();
+
+    t += 0.038;
+    requestAnimationFrame(drawScope);
+  }
+  drawScope();
+})();
+</script>
+</body>
+</html>
