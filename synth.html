@@ -874,11 +874,6 @@ input.detune-input::-moz-range-thumb {
 }
 
 /* Black key positions for 8 white keys (12.5% each) */
-/* C# between C(0) and D(1):  after 1st key  */
-/* D# between D(1) and E(2):  after 2nd key  */
-/* F# between F(3) and G(4):  after 4th key  */
-/* G# between G(4) and A(5):  after 5th key  */
-/* A# between A(5) and B(6):  after 6th key  */
 .black-key[data-note="Cs3"] { left: calc(1 * 12.5% - 3.5%); }
 .black-key[data-note="Ds3"] { left: calc(2 * 12.5% - 3.5%); }
 .black-key[data-note="Fs3"] { left: calc(4 * 12.5% - 3.5%); }
@@ -988,32 +983,28 @@ footer span {
 </head>
 <body>
 
-<!-- ── HEADER ──────────────────────────────────────────── -->
 <header>
   <div>
     <div class="site-brand">CARL WILLIAM</div>
     <div class="page-subtitle">MINISYNTH-1 &nbsp;·&nbsp; MONOPHONIC SUBTRACTIVE SYNTHESIZER</div>
   </div>
   <div class="header-right">
-    <div class="build-badge">PHASE 1 &nbsp;/&nbsp; LAYOUT</div>
+    <div class="build-badge">PHASE 2 &nbsp;/&nbsp; ENGINE ACTIVE</div>
   </div>
 </header>
 
-<!-- ── PAGE CONTENT ─────────────────────────────────────── -->
 <main class="synth-page">
 
-  <!-- OSCILLOSCOPE ──────────────────────────────────────── -->
   <section class="scope-section">
     <div class="section-label">OSCILLOSCOPE</div>
     <div class="scope-wrapper" id="scope-wrapper">
       <canvas id="scope-canvas"></canvas>
       <div class="scope-corner scope-corner--tl">OSC ▸</div>
-      <div class="scope-corner scope-corner--tr" id="scope-readout">440 Hz &nbsp;·&nbsp; C4<span class="blink"> _</span></div>
+      <div class="scope-corner scope-corner--tr" id="scope-readout">--- Hz &nbsp;·&nbsp; IDLE<span class="blink"> _</span></div>
       <div class="scope-corner scope-corner--bl">TIME/DIV: 1ms</div>
     </div>
   </section>
 
-  <!-- FACEPLATE ─────────────────────────────────────────── -->
   <div class="faceplate">
     <div class="model-name">MINISYNTH&ndash;1 &nbsp;&nbsp; MONOPHONIC</div>
     <div class="power-cluster">
@@ -1022,10 +1013,8 @@ footer span {
     </div>
   </div>
 
-  <!-- CONTROL PANEL ─────────────────────────────────────── -->
   <div class="control-panel" id="control-panel">
 
-    <!-- PERFORMANCE CONTROLLERS ─────────────────────────── -->
     <section class="perf-section" id="perf-section" aria-label="Performance controllers">
       <div class="perf-header">PERF</div>
 
@@ -1064,11 +1053,9 @@ footer span {
       </div>
     </section>
 
-    <!-- OSCILLATORS ─────────────────────────────────────── -->
     <section class="osc-section" id="osc-section" aria-label="Oscillator mixer">
       <div class="panel-section-header">OSCILLATORS</div>
 
-      <!-- OSC 1 -->
       <div class="osc-row" id="osc1-row">
         <div class="osc-number">1</div>
 
@@ -1107,7 +1094,6 @@ footer span {
         </div>
       </div>
 
-      <!-- OSC 2 -->
       <div class="osc-row" id="osc2-row">
         <div class="osc-number">2</div>
 
@@ -1146,7 +1132,6 @@ footer span {
         </div>
       </div>
 
-      <!-- OSC 3 -->
       <div class="osc-row" id="osc3-row">
         <div class="osc-number">3</div>
 
@@ -1186,13 +1171,11 @@ footer span {
       </div>
     </section>
 
-    <!-- FILTER ──────────────────────────────────────────── -->
     <section class="filter-section" id="filter-section" aria-label="Filter controls">
       <div class="panel-section-header">FILTER</div>
 
       <div class="filter-knobs-grid">
 
-        <!-- Cutoff -->
         <div class="knob-group">
           <div class="knob-label" style="color:var(--cyan);letter-spacing:2px">CUTOFF</div>
           <div class="knob-wrap filter-knob-wrap" id="filter-cutoff-knob-wrap">
@@ -1205,7 +1188,6 @@ footer span {
           <div class="filter-value" id="filter-cutoff-val">8.0kHz</div>
         </div>
 
-        <!-- Resonance -->
         <div class="knob-group">
           <div class="knob-label" style="color:var(--cyan);letter-spacing:2px">RESONANCE</div>
           <div class="knob-wrap filter-knob-wrap" id="filter-res-knob-wrap">
@@ -1221,13 +1203,11 @@ footer span {
       </div>
     </section>
 
-    <!-- ENVELOPE ────────────────────────────────────────── -->
     <section class="env-section" id="env-section" aria-label="Envelope controls">
       <div class="panel-section-header">ENVELOPE</div>
 
       <div class="env-faders-row">
 
-        <!-- Attack -->
         <div class="env-fader-group" id="attack-fader-group">
           <div class="env-fader-label">ATTACK</div>
           <div class="fader-track" id="attack-track">
@@ -1238,7 +1218,6 @@ footer span {
           <div class="env-fader-value" id="env-attack-val">5ms</div>
         </div>
 
-        <!-- Release -->
         <div class="env-fader-group" id="release-fader-group">
           <div class="env-fader-label">RELEASE</div>
           <div class="fader-track" id="release-track">
@@ -1252,10 +1231,7 @@ footer span {
       </div>
     </section>
 
-  </div><!-- /control-panel -->
-
-  <!-- PIANO KEYBOARD ───────────────────────────────────── -->
-  <section class="keyboard-section" id="keyboard-section" aria-label="Piano keyboard, one octave C3 to C4">
+  </div><section class="keyboard-section" id="keyboard-section" aria-label="Piano keyboard, one octave C3 to C4">
     <div class="keyboard-header">
       <span class="keyboard-header-label">KEYBOARD &nbsp;·&nbsp; C3 — C4 &nbsp;·&nbsp; ONE OCTAVE</span>
       <span class="keyboard-octave-badge">OCT 3 <span class="blink">▮</span></span>
@@ -1264,7 +1240,6 @@ footer span {
     <div class="piano-outer">
       <div class="piano" id="piano">
 
-        <!-- White keys C3 through C4 -->
         <div class="white-key" id="key-C3" data-note="C3" data-freq="130.81" role="button" tabindex="0" aria-label="C3">
           <span class="key-shortcut">A</span>
           <span class="key-note-label">C3</span>
@@ -1298,7 +1273,6 @@ footer span {
           <span class="key-note-label">C4</span>
         </div>
 
-        <!-- Black keys overlay layer -->
         <div class="black-keys-layer" id="black-keys-layer">
           <div class="black-key" id="key-Cs3" data-note="Cs3" data-freq="138.59" role="button" tabindex="0" aria-label="C sharp 3"></div>
           <div class="black-key" id="key-Ds3" data-note="Ds3" data-freq="155.56" role="button" tabindex="0" aria-label="D sharp 3"></div>
@@ -1310,7 +1284,6 @@ footer span {
       </div>
     </div>
 
-    <!-- Keyboard shortcut legend -->
     <div class="keyboard-hints" aria-hidden="true">
       <span class="hint-label">PC KEYS</span>
       <span class="hint-key">A</span><span class="hint-sep">·</span>
@@ -1331,33 +1304,210 @@ footer span {
 
 </main>
 
-<!-- ── FOOTER ───────────────────────────────────────────── -->
 <footer>
   <span>&copy; CARL WILLIAM</span>
-  <span>MINISYNTH-1 // PHASE 1 COMPLETE<span class="blink"> ▮</span></span>
-  <span>AUDIO ENGINE PENDING</span>
+  <span>MINISYNTH-1 // PHASE 2 OPERATIONAL<span class="blink"> ▮</span></span>
+  <span>AUDIO ENGINE ACTIVE</span>
 </footer>
 
-<!-- ── UI INTERACTION SCRIPT (NO WEB AUDIO) ─────────────── -->
 <script>
 /* =========================================================
-   MINISYNTH-1 — Phase 1: UI interactions only.
-   No Web Audio API. All IDs are ready for Phase 2.
+   MINISYNTH-1 — Phase 2: Native Web Audio Engine Backend
    ========================================================= */
 
-/* ── POWER BUTTON ──────────────────────────────────────── */
+/* ── STATE ARCHITECTURE ────────────────────────────────── */
+let powered = false;
+let audioCtx = null;
+
+// Node Reference Graph
+let osc1, osc2, osc3;
+let osc1Gain, osc2Gain, osc3Gain;
+let envelopeGain, filterNode, analyserNode, compressorNode;
+let modLFO, modLFOGain;
+
+// Monophonic Priority Settings & Global State
+let noteStack = []; 
+let activeKeys = new Set();
+let oscDetunes = [0, -7, 12]; 
+let pitchBendCents = 0;
+let attackTime = 0.05; 
+let releaseTime = 0.2; 
+let isGateActive = false;
+
+/* ── AUDIO ENGINE GRAPH INITIALIZATION ─────────────────── */
+function initAudioEngine() {
+  if (audioCtx) return;
+  
+  const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+  audioCtx = new AudioContextClass();
+
+  // 1. 3-VCO Core Generation
+  osc1 = audioCtx.createOscillator();
+  osc2 = audioCtx.createOscillator();
+  osc3 = audioCtx.createOscillator();
+
+  osc1Gain = audioCtx.createGain();
+  osc2Gain = audioCtx.createGain();
+  osc3Gain = audioCtx.createGain();
+
+  // 2. Main Stage VCA & Legato Envelope Controller
+  envelopeGain = audioCtx.createGain();
+  envelopeGain.gain.setValueAtTime(0, audioCtx.currentTime);
+
+  // 3. 24dB Subtractive Biquad Low-Pass Filter
+  filterNode = audioCtx.createBiquadFilter();
+  filterNode.type = 'lowpass';
+
+  // 4. Matrix Performance Modulation Source (Mod LFO)
+  modLFO = audioCtx.createOscillator();
+  modLFO.type = 'sine';
+  modLFO.frequency.setValueAtTime(5.5, audioCtx.currentTime); // Standard 5.5Hz vibrato/wah rate
+
+  modLFOGain = audioCtx.createGain();
+  modLFOGain.gain.setValueAtTime(0, audioCtx.currentTime);
+
+  // 5. Analysis Block & Safety Limiter Network
+  analyserNode = audioCtx.createAnalyser();
+  analyserNode.fftSize = 2048;
+
+  compressorNode = audioCtx.createDynamicsCompressor();
+  compressorNode.threshold.setValueAtTime(-1, audioCtx.currentTime);
+  compressorNode.knee.setValueAtTime(4, audioCtx.currentTime);
+  compressorNode.ratio.setValueAtTime(12, audioCtx.currentTime);
+  compressorNode.attack.setValueAtTime(0.003, audioCtx.currentTime);
+  compressorNode.release.setValueAtTime(0.08, audioCtx.currentTime);
+
+  // 6. Audio Routing Interconnections
+  osc1.connect(osc1Gain);
+  osc2.connect(osc2Gain);
+  osc3.connect(osc3Gain);
+
+  osc1Gain.connect(envelopeGain);
+  osc2Gain.connect(envelopeGain);
+  osc3Gain.connect(envelopeGain);
+
+  envelopeGain.connect(filterNode);
+  modLFO.connect(modLFOGain);
+  modLFOGain.connect(filterNode.frequency); // Modulates filter cutoff directly for an immersive voice tint
+
+  filterNode.connect(analyserNode);
+  analyserNode.connect(compressorNode);
+  compressorNode.connect(audioCtx.destination);
+
+  // Start continuous running sound engine oscillators
+  osc1.start(0);
+  osc2.start(0);
+  osc3.start(0);
+  modLFO.start(0);
+
+  // Push existing DOM UI parameter settings dynamically into the core
+  syncAllParameters();
+}
+
+/* ── VOICING MIXER & PARAMETER SYNCHRONIZATION ─────────── */
+function syncAllParameters() {
+  if (!audioCtx) return;
+  const now = audioCtx.currentTime;
+
+  // Mixer Gain Mappings
+  osc1Gain.gain.setValueAtTime(parseFloat(document.getElementById('osc1-volume').value) / 100, now);
+  osc2Gain.gain.setValueAtTime(parseFloat(document.getElementById('osc2-volume').value) / 100, now);
+  osc3Gain.gain.setValueAtTime(parseFloat(document.getElementById('osc3-volume').value) / 100, now);
+
+  // Waveform Toggles Selection
+  ['osc1', 'osc2', 'osc3'].forEach((prefix, idx) => {
+    const oscs = [osc1, osc2, osc3];
+    const checkedWave = document.querySelector(`input[name="${prefix}-wave"]:checked`);
+    if (checkedWave && oscs[idx]) oscs[idx].type = checkedWave.value;
+  });
+
+  // Detuning & Tracking Calibration
+  oscDetunes[0] = parseInt(document.getElementById('osc1-detune').value);
+  oscDetunes[1] = parseInt(document.getElementById('osc2-detune').value);
+  oscDetunes[2] = parseInt(document.getElementById('osc3-detune').value);
+  pitchBendCents = parseInt(document.getElementById('pitch-wheel').value) * 2;
+  for (let i = 0; i < 3; i++) updateOscDetune(i);
+
+  // Filter Matrix Settings
+  filterNode.frequency.setValueAtTime(parseFloat(document.getElementById('filter-cutoff').value), now);
+  filterNode.Q.setValueAtTime(parseFloat(document.getElementById('filter-resonance').value) / 5, now); // Scale 0-100 down to 0-20 clean operational band
+
+  // Envelope Interpolation Intervals
+  attackTime = (parseInt(document.getElementById('env-attack').value) * 10) / 1000;
+  releaseTime = (parseInt(document.getElementById('env-release').value) * 50) / 1000;
+
+  // Performance Matrix Settings
+  modLFOGain.gain.setValueAtTime(parseFloat(document.getElementById('mod-wheel').value) * 30, now);
+}
+
+function updateOscDetune(index) {
+  const oscs = [osc1, osc2, osc3];
+  if (oscs[index] && audioCtx) {
+    oscs[index].detune.setValueAtTime(oscDetunes[index] + pitchBendCents, audioCtx.currentTime);
+  }
+}
+
+/* ── MONOPHONIC VOICE ENGINE & LOW-NOTE PRIORITY ──────── */
+function updateSynthVoice() {
+  if (!audioCtx) return;
+  const now = audioCtx.currentTime;
+
+  if (!powered || noteStack.length === 0) {
+    // Gate Off: Trigger Envelope Release Stage
+    if (isGateActive) {
+      envelopeGain.gain.cancelScheduledValues(now);
+      envelopeGain.gain.setValueAtTime(envelopeGain.gain.value, now);
+      envelopeGain.gain.linearRampToValueAtTime(0.0, now + releaseTime);
+      isGateActive = false;
+    }
+    document.getElementById('scope-readout').innerHTML = `--- Hz &nbsp;·&nbsp; IDLE<span class="blink"> _</span>`;
+  } else {
+    // Monophonic Sorting: Filter and acquire Lowest Active Pitch Node
+    noteStack.sort((a, b) => a.freq - b.freq);
+    const primaryNote = noteStack[0];
+
+    // On-the-fly Legato Frequency Modulation updates
+    osc1.frequency.setValueAtTime(primaryNote.freq, now);
+    osc2.frequency.setValueAtTime(primaryNote.freq, now);
+    osc3.frequency.setValueAtTime(primaryNote.freq, now);
+
+    // Gate On: Trigger Attack Stage (skip if running legato on a lower key target)
+    if (!isGateActive) {
+      envelopeGain.gain.cancelScheduledValues(now);
+      envelopeGain.gain.setValueAtTime(envelopeGain.gain.value, now);
+      envelopeGain.gain.linearRampToValueAtTime(1.0, now + attackTime);
+      isGateActive = true;
+    }
+
+    // Refresh Visual HUD Diagnostics
+    document.getElementById('scope-readout').innerHTML = `${Math.round(primaryNote.freq)} Hz &nbsp;·&nbsp; ${primaryNote.el.dataset.note}<span class="blink"> _</span>`;
+  }
+}
+
+/* ── POWER SYSTEM ──────────────────────────────────────── */
 const powerBtn = document.getElementById('power-btn');
 const powerLed = document.getElementById('power-led');
-let powered = false;
 
 powerBtn.addEventListener('click', () => {
   powered = !powered;
   powerLed.classList.toggle('on', powered);
   powerBtn.textContent = powered ? 'ON' : 'POWER';
+
+  if (powered) {
+    initAudioEngine();
+    if (audioCtx && audioCtx.state === 'suspended') {
+      audioCtx.resume();
+    }
+  } else {
+    // Structural Safety Purge: Instantly cut audio pipeline & flush trackers
+    noteStack = [];
+    document.querySelectorAll('.white-key, .black-key').forEach(k => k.classList.remove('key-active'));
+    updateSynthVoice();
+  }
 });
 
-/* ── KNOB ROTATION UTILITY ─────────────────────────────── */
-function initKnob(rangeId, tickId, valId, formatter) {
+/* ── UI KNOB CONTROL ASSIGNMENTS ───────────────────────── */
+function initKnob(rangeId, tickId, valId, formatter, audioCallback) {
   const range = document.getElementById(rangeId);
   const tick  = document.getElementById(tickId);
   const val   = document.getElementById(valId);
@@ -1365,46 +1515,66 @@ function initKnob(rangeId, tickId, valId, formatter) {
 
   function update() {
     const pct = (range.value - range.min) / (range.max - range.min);
-    // Knob sweep: -135deg (min) to +135deg (max), center = 0
     const deg = -135 + pct * 270;
     tick.style.transform = `rotate(${deg}deg)`;
     if (val && formatter) val.textContent = formatter(range.value);
     else if (val) val.textContent = range.value;
+    
+    if (audioCallback) audioCallback(parseFloat(range.value));
   }
 
   range.addEventListener('input', update);
-  update(); // initialise on load
+  update();
 }
 
-/* ── OSC VOLUME KNOBS ──────────────────────────────────── */
-initKnob('osc1-volume', 'osc1-vol-tick', 'osc1-vol-val');
-initKnob('osc2-volume', 'osc2-vol-tick', 'osc2-vol-val');
-initKnob('osc3-volume', 'osc3-vol-tick', 'osc3-vol-val');
+initKnob('osc1-volume', 'osc1-vol-tick', 'osc1-vol-val', null, v => {
+  if (osc1Gain && audioCtx) osc1Gain.gain.setValueAtTime(v / 100, audioCtx.currentTime);
+});
+initKnob('osc2-volume', 'osc2-vol-tick', 'osc2-vol-val', null, v => {
+  if (osc2Gain && audioCtx) osc2Gain.gain.setValueAtTime(v / 100, audioCtx.currentTime);
+});
+initKnob('osc3-volume', 'osc3-vol-tick', 'osc3-vol-val', null, v => {
+  if (osc3Gain && audioCtx) osc3Gain.gain.setValueAtTime(v / 100, audioCtx.currentTime);
+});
 
-/* ── FILTER KNOBS ──────────────────────────────────────── */
 initKnob('filter-cutoff', 'filter-cutoff-tick', 'filter-cutoff-val', v => {
   const hz = parseInt(v);
   if (hz >= 1000) return (hz / 1000).toFixed(hz >= 10000 ? 0 : 1) + 'kHz';
   return hz + 'Hz';
+}, v => {
+  if (filterNode && audioCtx) filterNode.frequency.setValueAtTime(v, audioCtx.currentTime);
 });
 
-initKnob('filter-resonance', 'filter-res-tick', 'filter-res-val');
+initKnob('filter-resonance', 'filter-res-tick', 'filter-res-val', null, v => {
+  if (filterNode && audioCtx) filterNode.Q.setValueAtTime(v / 5, audioCtx.currentTime);
+});
 
-/* ── DETUNE SLIDERS ────────────────────────────────────── */
-['osc1','osc2','osc3'].forEach(prefix => {
+/* ── OSC DETUNE SYSTEM INTERACTION ─────────────────────── */
+['osc1','osc2','osc3'].forEach((prefix, idx) => {
   const input = document.getElementById(prefix + '-detune');
   const readout = document.getElementById(prefix + '-detune-val');
   if (!input || !readout) return;
   function updateDetune() {
     const v = parseInt(input.value);
     readout.textContent = v > 0 ? '+' + v + '¢' : v === 0 ? '±0¢' : v + '¢';
+    oscDetunes[idx] = v;
+    updateOscDetune(idx);
   }
   input.addEventListener('input', updateDetune);
-  updateDetune();
 });
 
-/* ── ENVELOPE FADERS ───────────────────────────────────── */
-function initFader(rangeId, thumbId, valId, msScale) {
+/* ── WAVEFORM RADIO INTERACTIVE ROUTING ────────────────── */
+['osc1', 'osc2', 'osc3'].forEach((prefix, idx) => {
+  const oscs = [osc1, osc2, osc3];
+  document.querySelectorAll(`input[name="${prefix}-wave"]`).forEach(radio => {
+    radio.addEventListener('change', () => {
+      if (oscs[idx]) oscs[idx].type = radio.value;
+    });
+  });
+});
+
+/* ── ENVELOPE CONTROLLERS (FADERS) ─────────────────────── */
+function initFader(rangeId, thumbId, valId, msScale, audioCallback) {
   const range = document.getElementById(rangeId);
   const thumb = document.getElementById(thumbId);
   const val   = document.getElementById(valId);
@@ -1416,20 +1586,21 @@ function initFader(rangeId, thumbId, valId, msScale) {
     const pct = (range.value - range.min) / (range.max - range.min);
     const bottomPx = MARGIN + pct * travel;
     if (thumb) thumb.style.bottom = bottomPx + 'px';
+    const ms = Math.round(parseInt(range.value) * msScale);
     if (val) {
-      const ms = Math.round(parseInt(range.value) * msScale);
       val.textContent = ms >= 1000 ? (ms / 1000).toFixed(1) + 's' : ms + 'ms';
     }
+    if (audioCallback) audioCallback(ms / 1000);
   }
   range.addEventListener('input', update);
   update();
 }
 
-initFader('env-attack',  'attack-thumb',  'env-attack-val',  10);
-initFader('env-release', 'release-thumb', 'env-release-val', 50);
+initFader('env-attack',  'attack-thumb',  'env-attack-val',  10, v => { attackTime = v; });
+initFader('env-release', 'release-thumb', 'env-release-val', 50, v => { releaseTime = v; });
 
-/* ── PERFORMANCE WHEELS ────────────────────────────────── */
-function initWheel(id, snapToCenter) {
+/* ── PERFORMANCE CONTROLLERS (WHEELS) ──────────────────── */
+function initWheel(id, snapToCenter, audioCallback) {
   const range  = document.getElementById(id + '-wheel');
   const thumb  = document.getElementById(id + '-wheel-thumb');
   const readout = document.getElementById(id + '-wheel-val');
@@ -1439,52 +1610,67 @@ function initWheel(id, snapToCenter) {
 
   function update() {
     const pct = (range.value - range.min) / (range.max - range.min);
-    // top=0 when max, top=travel when min
     const topPx = (1 - pct) * travel;
     if (thumb) thumb.style.top = topPx + 'px';
+    const v = parseInt(range.value);
     if (readout) {
-      const v = parseInt(range.value);
       readout.textContent = (v > 0 && snapToCenter) ? '+' + v : (v === 0 && snapToCenter) ? '±0' : v.toString();
     }
+    if (audioCallback) audioCallback(v);
   }
 
   range.addEventListener('input', update);
 
   if (snapToCenter) {
-    // Pitch wheel springs back to 0 on release
-    range.addEventListener('pointerup', () => {
-      range.value = 0;
-      update();
-    });
-    range.addEventListener('keyup', () => {
-      range.value = 0;
-      update();
-    });
+    const reset = () => { range.value = 0; update(); };
+    range.addEventListener('pointerup', reset);
+    range.addEventListener('keyup', reset);
   }
   update();
 }
 
-initWheel('pitch', true);
-initWheel('mod', false);
+initWheel('pitch', true, v => {
+  pitchBendCents = v * 2; // Map mechanical sweep ±100 scale parameter cleanly onto a full ±200¢ layout boundary
+  for (let i = 0; i < 3; i++) updateOscDetune(i);
+});
 
-/* ── PIANO KEYS ────────────────────────────────────────── */
-const activeKeys = new Set();
+initWheel('mod', false, v => {
+  if (modLFOGain && audioCtx) {
+    modLFOGain.gain.setValueAtTime(v * 30, audioCtx.currentTime);
+  }
+});
 
+/* ── KEY CONTROL PIANO INTERFACES ──────────────────────── */
 function pressKey(el) {
   if (!el || activeKeys.has(el.id)) return;
+  
+  if (powered && !audioCtx) {
+    initAudioEngine();
+  }
+
   activeKeys.add(el.id);
   el.classList.add('key-active');
-  // Phase 2: trigger note on here
+
+  if (!noteStack.some(n => n.id === el.id)) {
+    noteStack.push({
+      id: el.id,
+      freq: parseFloat(el.getAttribute('data-freq')),
+      el: el
+    });
+  }
+  updateSynthVoice();
 }
 
 function releaseKey(el) {
   if (!el) return;
   activeKeys.delete(el.id);
   el.classList.remove('key-active');
-  // Phase 2: trigger note off here
+
+  noteStack = noteStack.filter(n => n.id !== el.id);
+  updateSynthVoice();
 }
 
-// Pointer events for mouse / touch
+// Visual layout trigger surface links
 document.querySelectorAll('.white-key, .black-key').forEach(key => {
   key.addEventListener('pointerdown', e => {
     e.preventDefault();
@@ -1495,7 +1681,7 @@ document.querySelectorAll('.white-key, .black-key').forEach(key => {
   key.addEventListener('pointercancel',() => releaseKey(key));
 });
 
-// Computer keyboard mapping
+// PC QWERTY keyboard map link routing
 const KB_MAP = {
   a: 'C3',  w: 'Cs3', s: 'D3',  e: 'Ds3',
   d: 'E3',  f: 'F3',  t: 'Fs3', g: 'G3',
@@ -1514,7 +1700,7 @@ document.addEventListener('keyup', e => {
   if (note) releaseKey(document.getElementById('key-' + note));
 });
 
-// Keyboard accessibility (Enter/Space activate)
+// A11y keyboard link parameters
 document.querySelectorAll('.white-key, .black-key').forEach(key => {
   key.addEventListener('keydown', e => {
     if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); pressKey(key); }
@@ -1524,7 +1710,7 @@ document.querySelectorAll('.white-key, .black-key').forEach(key => {
   });
 });
 
-/* ── OSCILLOSCOPE PLACEHOLDER ANIMATION ────────────────── */
+/* ── OSCILLOSCOPE REAL-TIME VISUALIZATION ENGINE ───────── */
 (function() {
   const wrapper = document.getElementById('scope-wrapper');
   const canvas  = document.getElementById('scope-canvas');
@@ -1544,44 +1730,104 @@ document.querySelectorAll('.white-key, .black-key').forEach(key => {
     const W = canvas.width, H = canvas.height;
     ctx.clearRect(0, 0, W, H);
 
-    // Primary waveform — cyan
-    ctx.save();
-    ctx.strokeStyle = '#00f5ff';
-    ctx.lineWidth   = 1.5;
-    ctx.shadowColor = '#00f5ff';
-    ctx.shadowBlur  = 8;
-    ctx.globalAlpha = 0.75;
-    ctx.beginPath();
-    for (let x = 0; x <= W; x++) {
-      const phase = (x / W) * Math.PI * 2;
-      const y = H / 2
-        + Math.sin(phase * 3 + t)          * H * 0.26
-        + Math.sin(phase * 5 + t * 1.2)    * H * 0.07
-        + Math.sin(phase * 7 + t * 0.8)    * H * 0.03;
-      x === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
-    }
-    ctx.stroke();
-    ctx.restore();
+    if (audioCtx && powered && analyserNode && noteStack.length > 0) {
+      // Live Vector Rendering from Native AnalyserNode Output
+      const bufferLength = analyserNode.frequencyBinCount;
+      const dataArray = new Uint8Array(bufferLength);
+      analyserNode.getByteTimeDomainData(dataArray);
 
-    // Secondary trace — pink, subtle
-    ctx.save();
-    ctx.strokeStyle = '#ff2d78';
-    ctx.lineWidth   = 1;
-    ctx.shadowColor = '#ff2d78';
-    ctx.shadowBlur  = 4;
-    ctx.globalAlpha = 0.18;
-    ctx.beginPath();
-    for (let x = 0; x <= W; x++) {
-      const phase = (x / W) * Math.PI * 2;
-      const y = H / 2
-        + Math.sin(phase * 4 + t * 1.7) * H * 0.14
-        + Math.sin(phase * 8 + t * 2.1) * H * 0.04;
-      x === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
-    }
-    ctx.stroke();
-    ctx.restore();
+      // Trigger tracking stabilizing threshold (aligning phase start boundary)
+      let offset = 0;
+      for (let i = 0; i < bufferLength / 2; i++) {
+        if (dataArray[i] < 128 && dataArray[i + 1] >= 128) {
+          offset = i;
+          break;
+        }
+      }
 
-    t += 0.038;
+      const sliceWidth = W / (bufferLength * 0.35); // Visual focal scaling zoom
+
+      // Primary trace graph — cyan
+      ctx.save();
+      ctx.strokeStyle = '#00f5ff';
+      ctx.lineWidth   = 1.5;
+      ctx.shadowColor = '#00f5ff';
+      ctx.shadowBlur  = 8;
+      ctx.globalAlpha = 0.85;
+      ctx.beginPath();
+
+      let x = 0;
+      for (let i = offset; i < bufferLength; i++) {
+        const v = dataArray[i] / 128.0;
+        const y = (v * H) / 2;
+        if (x === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+        x += sliceWidth;
+        if (x > W) break;
+      }
+      ctx.stroke();
+      ctx.restore();
+
+      // Ambient subtrace overlay graph — pink
+      ctx.save();
+      ctx.strokeStyle = '#ff2d78';
+      ctx.lineWidth   = 1;
+      ctx.shadowColor = '#ff2d78';
+      ctx.shadowBlur  = 4;
+      ctx.globalAlpha = 0.22;
+      ctx.beginPath();
+
+      x = 0;
+      for (let i = offset; i < bufferLength; i++) {
+        const v = dataArray[i] / 128.0;
+        const y = (v * H) / 2 + Math.sin(i * 0.04) * 1.5; // Micro-offset shimmer
+        if (x === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+        x += sliceWidth;
+        if (x > W) break;
+      }
+      ctx.stroke();
+      ctx.restore();
+
+    } else {
+      // Synchronized Idle Synthetic Wave Generator (Phase 1 Ambient Fallback)
+      ctx.save();
+      ctx.strokeStyle = '#00f5ff';
+      ctx.lineWidth   = 1.5;
+      ctx.shadowColor = '#00f5ff';
+      ctx.shadowBlur  = 8;
+      ctx.globalAlpha = 0.75;
+      ctx.beginPath();
+      for (let x = 0; x <= W; x++) {
+        const phase = (x / W) * Math.PI * 2;
+        const y = H / 2
+          + Math.sin(phase * 3 + t)          * H * 0.26
+          + Math.sin(phase * 5 + t * 1.2)    * H * 0.07
+          + Math.sin(phase * 7 + t * 0.8)    * H * 0.03;
+        x === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+      }
+      ctx.stroke();
+      ctx.restore();
+
+      ctx.save();
+      ctx.strokeStyle = '#ff2d78';
+      ctx.lineWidth   = 1;
+      ctx.shadowColor = '#ff2d78';
+      ctx.shadowBlur  = 4;
+      ctx.globalAlpha = 0.18;
+      ctx.beginPath();
+      for (let x = 0; x <= W; x++) {
+        const phase = (x / W) * Math.PI * 2;
+        const y = H / 2
+          + Math.sin(phase * 4 + t * 1.7) * H * 0.14
+          + Math.sin(phase * 8 + t * 2.1) * H * 0.04;
+        x === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+      }
+      ctx.stroke();
+      ctx.restore();
+
+      t += 0.038;
+    }
     requestAnimationFrame(drawScope);
   }
   drawScope();
