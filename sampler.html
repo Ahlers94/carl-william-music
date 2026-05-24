@@ -521,7 +521,7 @@ nav: sampler
 
     .delay-controls {
       display: flex;
-      gap: 16px;
+      gap: 12px;
     }
 
     .delay-control {
@@ -573,7 +573,7 @@ nav: sampler
     .delay-value {
       font-size: 8px;
       color: var(--amber);
-      min-width: 32px;
+      min-width: 36px;
       text-align: right;
       font-family: 'Share Tech Mono', monospace;
     }
@@ -925,7 +925,8 @@ nav: sampler
       .controls-row { flex-wrap: wrap; }
       .rec-btn { min-width: 100%; flex-direction: row; padding: 10px 16px; gap: 10px; }
       .fx-section { width: 100%; }
-      .delay-controls { flex-direction: column; gap: 8px; }
+      .delay-controls { flex-wrap: wrap; }
+      .delay-control { min-width: 45%; }
     }
   </style>
 </head>
@@ -997,17 +998,27 @@ nav: sampler
       </div>
       <div class="delay-controls">
         <div class="delay-control">
+          <span class="delay-control-label">TIME (MS)</span>
+          <div class="delay-control-row">
+            <div class="delay-slider-track">
+              <div class="delay-slider-fill" id="delay-time-fill" style="width:30%"></div>
+              <input type="range" class="delay-slider" id="delay-time" min="0" max="1000" step="1" value="300">
+            </div>
+            <span class="delay-value" id="delay-time-value">300 ms</span>
+          </div>
+        </div>
+        <div class="delay-control">
           <span class="delay-control-label">FEEDBACK</span>
           <div class="delay-control-row">
             <div class="delay-slider-track">
-              <div class="delay-slider-fill" id="delay-feedback-fill" style="width:40%"></div>
+              <div class="delay-slider-fill" id="delay-feedback-fill" style="width:44%"></div>
               <input type="range" class="delay-slider" id="delay-feedback" min="0" max="0.9" step="0.01" value="0.4">
             </div>
             <span class="delay-value" id="delay-feedback-value">40%</span>
           </div>
         </div>
         <div class="delay-control">
-          <span class="delay-control-label">MIX (DRY/WET)</span>
+          <span class="delay-control-label">MIX</span>
           <div class="delay-control-row">
             <div class="delay-slider-track">
               <div class="delay-slider-fill" id="delay-mix-fill" style="width:30%"></div>
@@ -1094,6 +1105,7 @@ class MicroSampler {
   constructor() {
     this.audioCtx   = null;
     this.masterGain = null;
+    this.limiter    = null;
 
     this.slots      = [null, null, null, null];
     this.activePad  = -1;
@@ -1127,7 +1139,7 @@ class MicroSampler {
     this.delayWetGain = null;
     this.delayFeedbackValue = 0.4;
     this.delayMixValue = 0.3;
-    this.delayTime = 0.3;
+    this.delayTimeValue = 300;
 
     // Map<playedMidi, {source, gainNode, visualMidi, padIndex, filterNode}>
     this.activeNotes = new Map();
@@ -1186,9 +1198,19 @@ class MicroSampler {
       return;
     }
     this.audioCtx   = new (window.AudioContext || window.webkitAudioContext)();
+
+    // Create brick-wall limiter at the end of the chain
+    this.limiter = this.audioCtx.createDynamicsCompressor();
+    this.limiter.threshold.value = -1;
+    this.limiter.knee.value = 0;
+    this.limiter.ratio.value = 20;
+    this.limiter.attack.value = 0.003;
+    this.limiter.release.value = 0.1;
+    this.limiter.connect(this.audioCtx.destination);
+
     this.masterGain = this.audioCtx.createGain();
     this.masterGain.gain.value = parseFloat(document.getElementById('master-vol').value);
-    this.masterGain.connect(this.audioCtx.destination);
+    this.masterGain.connect(this.limiter);
 
     this.initDelayEffect();
     this.loadFromStorage();
@@ -1200,7 +1222,7 @@ class MicroSampler {
   initDelayEffect() {
     // Create delay nodes
     this.delayNode = this.audioCtx.createDelay(2.0);
-    this.delayNode.delayTime.value = this.delayTime;
+    this.delayNode.delayTime.value = this.delayTimeValue / 1000;
 
     this.delayFeedback = this.audioCtx.createGain();
     this.delayFeedback.gain.value = this.delayFeedbackValue;
@@ -1211,16 +1233,24 @@ class MicroSampler {
     this.delayWetGain = this.audioCtx.createGain();
     this.delayWetGain.gain.value = this.delayEnabled ? this.delayMixValue : 0;
 
-    // Connect: masterGain -> dry path to destination
+    // Connect: masterGain -> dry path to limiter
     this.masterGain.connect(this.delayDryGain);
-    this.delayDryGain.connect(this.audioCtx.destination);
+    this.delayDryGain.connect(this.limiter);
 
     // Connect: masterGain -> delay -> feedback loop -> wet path
     this.masterGain.connect(this.delayNode);
     this.delayNode.connect(this.delayFeedback);
     this.delayFeedback.connect(this.delayNode);
     this.delayNode.connect(this.delayWetGain);
-    this.delayWetGain.connect(this.audioCtx.destination);
+    this.delayWetGain.connect(this.limiter);
+  }
+
+  updateDelayTime(valueMs) {
+    this.delayTimeValue = valueMs;
+    if (this.delayNode) {
+      this.delayNode.delayTime.setValueAtTime(valueMs / 1000, this.audioCtx.currentTime);
+    }
+    this.saveDelaySettings();
   }
 
   updateDelayFeedback(value) {
@@ -1251,6 +1281,7 @@ class MicroSampler {
     try {
       localStorage.setItem('ms4_delay', JSON.stringify({
         enabled: this.delayEnabled,
+        time: this.delayTimeValue,
         feedback: this.delayFeedbackValue,
         mix: this.delayMixValue
       }));
@@ -1263,6 +1294,7 @@ class MicroSampler {
       if (raw) {
         const data = JSON.parse(raw);
         if (typeof data.enabled === 'boolean') this.delayEnabled = data.enabled;
+        if (typeof data.time === 'number') this.delayTimeValue = Math.max(0, Math.min(1000, data.time));
         if (typeof data.feedback === 'number') this.delayFeedbackValue = Math.max(0, Math.min(0.9, data.feedback));
         if (typeof data.mix === 'number') this.delayMixValue = Math.max(0, Math.min(1, data.mix));
       }
@@ -1472,6 +1504,17 @@ class MicroSampler {
       this.renderDelayUI();
     });
 
+    const timeSlider = document.getElementById('delay-time');
+    const timeFill = document.getElementById('delay-time-fill');
+    const timeValue = document.getElementById('delay-time-value');
+
+    timeSlider.addEventListener('input', () => {
+      const v = parseInt(timeSlider.value);
+      this.updateDelayTime(v);
+      timeFill.style.width = (v / 1000 * 100).toFixed(0) + '%';
+      timeValue.textContent = v + ' ms';
+    });
+
     const feedbackSlider = document.getElementById('delay-feedback');
     const feedbackFill = document.getElementById('delay-feedback-fill');
     const feedbackValue = document.getElementById('delay-feedback-value');
@@ -1498,6 +1541,11 @@ class MicroSampler {
   renderDelayUI() {
     const toggle = document.getElementById('delay-toggle');
     toggle.classList.toggle('active', this.delayEnabled);
+
+    const timeSlider = document.getElementById('delay-time');
+    timeSlider.value = this.delayTimeValue;
+    document.getElementById('delay-time-fill').style.width = (this.delayTimeValue / 1000 * 100).toFixed(0) + '%';
+    document.getElementById('delay-time-value').textContent = this.delayTimeValue + ' ms';
 
     const feedbackSlider = document.getElementById('delay-feedback');
     feedbackSlider.value = this.delayFeedbackValue;
@@ -2061,7 +2109,15 @@ class MicroSampler {
       this.killNote(oldest, true);
     }
 
-    const buf = this.prepareBuffer(this.slots[slot]);
+    // Prepare buffer with lofi effect (applied before reverse)
+    let buf = this.slots[slot];
+    if (this.fx.lofi) buf = this.applyLofi(buf);
+
+    // Apply reverse effect ONLY to the trimmed region
+    if (this.fx.reverse) {
+      buf = this.applyReverseTrimmed(buf, this.trimPoints[slot]);
+    }
+
     if (!buf) return;
 
     const source  = this.audioCtx.createBufferSource();
@@ -2070,15 +2126,23 @@ class MicroSampler {
     const semitones = playMidi - this.ROOT_MIDI;
     source.playbackRate.value = Math.pow(2, semitones / 12);
 
+    // Calculate playback parameters based on trim points and reverse mode
     const trim = this.trimPoints[slot];
-    const startTime = trim.start * buf.duration;
-    const endTime = trim.end * buf.duration;
+    const originalBuffer = this.slots[slot];
+    const startTime = trim.start * originalBuffer.duration;
+    const endTime = trim.end * originalBuffer.duration;
     const playDuration = endTime - startTime;
 
     if (this.fx.loop) {
       source.loop = true;
-      source.loopStart = startTime;
-      source.loopEnd = endTime;
+      // For trimmed reversed buffer, loop boundaries are 0 to duration
+      if (this.fx.reverse) {
+        source.loopStart = 0;
+        source.loopEnd = playDuration;
+      } else {
+        source.loopStart = startTime;
+        source.loopEnd = endTime;
+      }
     }
 
     // Create per-voice filter
@@ -2095,7 +2159,13 @@ class MicroSampler {
     filterNode.connect(gainNode);
     gainNode.connect(this.masterGain);
 
-    source.start(0, this.fx.loop ? startTime : startTime, this.fx.loop ? undefined : playDuration);
+    // Determine playback start position
+    if (this.fx.reverse) {
+      // Reversed buffer plays from beginning (which is the trimmed region reversed)
+      source.start(0, 0, this.fx.loop ? undefined : playDuration);
+    } else {
+      source.start(0, startTime, this.fx.loop ? undefined : playDuration);
+    }
 
     const padIndex = slot;
     this.activeSources.set(playMidi, { source, padIndex, startTime: this.audioCtx.currentTime });
@@ -2204,9 +2274,31 @@ class MicroSampler {
   /* ── Buffer processing ───────────────────────────────── */
   prepareBuffer(buf) {
     if (!buf) return null;
-    if (this.fx.lofi)    buf = this.applyLofi(buf);
-    if (this.fx.reverse) buf = this.applyReverse(buf);
+    if (this.fx.lofi) buf = this.applyLofi(buf);
     return buf;
+  }
+
+  applyReverseTrimmed(buffer, trim) {
+    // Extract and reverse only the trimmed portion of the audio
+    const startSample = Math.floor(trim.start * buffer.length);
+    const endSample = Math.floor(trim.end * buffer.length);
+    const trimmedLength = endSample - startSample;
+
+    if (trimmedLength <= 0) return buffer;
+
+    const out = this.audioCtx.createBuffer(buffer.numberOfChannels, trimmedLength, buffer.sampleRate);
+
+    for (let c = 0; c < buffer.numberOfChannels; c++) {
+      const src = buffer.getChannelData(c);
+      const dst = out.getChannelData(c);
+
+      // Copy trimmed region in reverse order
+      for (let i = 0; i < trimmedLength; i++) {
+        dst[i] = src[endSample - 1 - i];
+      }
+    }
+
+    return out;
   }
 
   applyReverse(buffer) {
