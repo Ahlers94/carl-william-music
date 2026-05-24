@@ -1059,7 +1059,6 @@ footer span {
     <div class="model-name">MINISYNTH&ndash;1 &nbsp;&nbsp; MONOPHONIC</div>
     <div class="power-cluster">
       <div class="power-led" id="power-led"></div>
-      <button class="power-btn" id="power-btn" aria-label="Power on/off">POWER</button>
     </div>
   </div>
 
@@ -1068,36 +1067,32 @@ footer span {
       <div class="perf-header">PERF</div>
       <div class="wheel-group" id="pitch-wheel-group">
         <div class="wheel-label">PITCH</div>
-        <div class="wheel-slot" id="pitch-wheel-slot">
-          <div class="wheel-thumb" id="pitch-wheel-thumb">
-            <div class="wheel-thumb-line"></div>
-          </div>
+        <div class="wheel-slot">
+          <div class="wheel-thumb" id="pitch-wheel-thumb"><div class="wheel-thumb-line"></div></div>
           <input type="range" class="wheel-input" id="pitch-wheel" min="-100" max="100" value="0" step="1" aria-label="Pitch bend wheel">
         </div>
         <div class="wheel-readout" id="pitch-wheel-val">0</div>
       </div>
       <div class="wheel-group" id="mod-wheel-group">
         <div class="wheel-label">MOD</div>
-        <div class="wheel-slot" id="mod-wheel-slot">
-          <div class="wheel-thumb" id="mod-wheel-thumb">
-            <div class="wheel-thumb-line"></div>
-          </div>
+        <div class="wheel-slot">
+          <div class="wheel-thumb" id="mod-wheel-thumb"><div class="wheel-thumb-line"></div></div>
           <input type="range" class="wheel-input" id="mod-wheel" min="0" max="100" value="0" step="1" aria-label="Modulation wheel">
         </div>
         <div class="wheel-readout" id="mod-wheel-val">0</div>
       </div>
     </section>
 
-    <section class="osc-section" aria-label="Oscillators control panel">
-      <div class="panel-section-header">OSCILLATORS</div>
+    <section class="osc-section" aria-label="Oscillator matrix section">
+      <div class="panel-section-header">OSCILLATORS Matrix</div>
       <div class="osc-row" id="osc1-row">
         <div class="osc-number">1</div>
         <div class="wave-selector" id="osc1-wave-selector" role="radiogroup" aria-label="OSC 1 waveform">
-          <input type="radio" name="osc1-wave" id="osc1-wave-sine" value="sine" checked>
+          <input type="radio" name="osc1-wave" id="osc1-wave-sine" value="sine">
           <label for="osc1-wave-sine" title="Sine">∿</label>
           <input type="radio" name="osc1-wave" id="osc1-wave-square" value="square">
           <label for="osc1-wave-square" title="Square">⊓</label>
-          <input type="radio" name="osc1-wave" id="osc1-wave-sawtooth" value="sawtooth">
+          <input type="radio" name="osc1-wave" id="osc1-wave-sawtooth" value="sawtooth" checked>
           <label for="osc1-wave-sawtooth" title="Sawtooth">⊿</label>
           <input type="radio" name="osc1-wave" id="osc1-wave-triangle" value="triangle">
           <label for="osc1-wave-triangle" title="Triangle">△</label>
@@ -1122,7 +1117,6 @@ footer span {
           <div class="detune-readout" id="osc1-detune-val">±0¢</div>
         </div>
       </div>
-
       <div class="osc-row" id="osc2-row">
         <div class="osc-number">2</div>
         <div class="wave-selector" id="osc2-wave-selector" role="radiogroup" aria-label="OSC 2 waveform">
@@ -1155,7 +1149,6 @@ footer span {
           <div class="detune-readout" id="osc2-detune-val">-7¢</div>
         </div>
       </div>
-
       <div class="osc-row" id="osc3-row">
         <div class="osc-number">3</div>
         <div class="wave-selector" id="osc3-wave-selector" role="radiogroup" aria-label="OSC 3 waveform">
@@ -1163,9 +1156,9 @@ footer span {
           <label for="osc3-wave-sine" title="Sine">∿</label>
           <input type="radio" name="osc3-wave" id="osc3-wave-square" value="square">
           <label for="osc3-wave-square" title="Square">⊓</label>
-          <input type="radio" name="osc3-wave" id="osc3-wave-sawtooth" value="sawtooth" checked>
+          <input type="radio" name="osc3-wave" id="osc3-wave-sawtooth" value="sawtooth">
           <label for="osc3-wave-sawtooth" title="Sawtooth">⊿</label>
-          <input type="radio" name="osc3-wave" id="osc3-wave-triangle" value="triangle">
+          <input type="radio" name="osc3-wave" id="osc3-wave-triangle" value="triangle" checked>
           <label for="osc3-wave-triangle" title="Triangle">△</label>
         </div>
         <div class="knob-group">
@@ -1174,9 +1167,9 @@ footer span {
             <div class="knob-arc-outer"></div>
             <div class="knob-face"></div>
             <div class="knob-tick-container" id="osc3-vol-tick"></div>
-            <input type="range" class="knob-input-range" id="osc3-volume" min="0" max="100" value="45" step="1" aria-label="OSC 3 Volume">
+            <input type="range" class="knob-input-range" id="osc3-volume" min="0" max="100" value="50" step="1" aria-label="OSC 3 Volume">
           </div>
-          <div class="knob-value" id="osc3-vol-val">45</div>
+          <div class="knob-value" id="osc3-vol-val">50</div>
         </div>
         <div class="detune-group">
           <div class="detune-range-labels">
@@ -1190,34 +1183,34 @@ footer span {
       </div>
     </section>
 
-    <section class="filter-section" aria-label="Filter panel">
-      <div class="panel-section-header">VCF RESONANT</div>
+    <section class="filter-section" aria-label="Voltage controlled filter controls">
+      <div class="panel-section-header">FILTER VCF</div>
       <div class="filter-knobs-grid">
         <div class="knob-group">
           <div class="knob-label">CUTOFF</div>
-          <div class="knob-wrap filter-knob-wrap" id="filter-cut-knob-wrap">
+          <div class="knob-wrap filter-knob-wrap" id="filter-cut-wrap">
             <div class="knob-arc-outer"></div>
             <div class="knob-face filter-knob-face"></div>
             <div class="knob-tick-container" id="filter-cut-tick"></div>
-            <input type="range" class="knob-input-range" id="filter-cutoff" min="60" max="8500" value="1200" step="5" aria-label="Filter Cutoff Frequency">
+            <input type="range" class="knob-input-range" id="filter-cutoff" min="60" max="8000" value="1200" step="10" aria-label="Filter Cutoff Frequency">
           </div>
           <div class="filter-value" id="filter-cut-val">1200Hz</div>
         </div>
         <div class="knob-group">
-          <div class="knob-label">RESO</div>
-          <div class="knob-wrap filter-knob-wrap" id="filter-res-knob-wrap">
+          <div class="knob-label">RESONANCE</div>
+          <div class="knob-wrap filter-knob-wrap" id="filter-res-wrap">
             <div class="knob-arc-outer"></div>
             <div class="knob-face filter-knob-face"></div>
             <div class="knob-tick-container" id="filter-res-tick"></div>
-            <input type="range" class="knob-input-range" id="filter-reso" min="1" max="25" value="4" step="0.2" aria-label="Filter Resonance Quality">
+            <input type="range" class="knob-input-range" id="filter-reso" min="0" max="25" value="4.5" step="0.5" aria-label="Filter Resonance Amount">
           </div>
-          <div class="filter-value" id="filter-res-val">4.0</div>
+          <div class="filter-value" id="filter-res-val">4.5</div>
         </div>
       </div>
     </section>
 
-    <section class="env-section" aria-label="Envelope generator panel">
-      <div class="panel-section-header">CONTOUR GENERATOR</div>
+    <section class="env-section" aria-label="Envelope generator sliders">
+      <div class="panel-section-header">CONTOUR ENV</div>
       <div class="env-faders-row">
         <div class="env-fader-group">
           <div class="env-fader-label">ATTACK</div>
@@ -1248,7 +1241,6 @@ footer span {
         <button class="octave-btn" id="oct-up-btn" aria-label="Octave Up">+</button>
       </div>
     </div>
-
     <div class="piano-outer">
       <div class="piano" id="piano">
         <div class="white-key oct-lower" id="key-c3" data-note="C" data-base-oct="3" role="button" tabindex="0" aria-label="C3">
@@ -1272,8 +1264,7 @@ footer span {
         <div class="white-key oct-lower" id="key-b3" data-note="B" data-base-oct="3" role="button" tabindex="0" aria-label="B3">
           <span class="key-shortcut">M</span><span class="key-note-label">B</span>
         </div>
-        
-        <div class="white-key" id="key-c4" data-note="C" data-base-oct="4" role="button" tabindex="0" aria-label="C4">
+        <div class="white-key oct-upper" id="key-c4" data-note="C" data-base-oct="4" role="button" tabindex="0" aria-label="C4">
           <span class="key-shortcut">Q</span><span class="key-note-label">C4</span>
         </div>
         <div class="white-key oct-upper" id="key-d4" data-note="D" data-base-oct="4" role="button" tabindex="0" aria-label="D4">
@@ -1314,14 +1305,13 @@ footer span {
           <div class="black-key oct-lower" id="key-as3" data-note="As" data-base-oct="3" data-note-offset="6" role="button" tabindex="0" aria-label="A sharp 3">
             <span class="key-shortcut">J</span><span class="key-note-label">A#</span>
           </div>
-          
           <div class="black-key oct-upper" id="key-cs4" data-note="Cs" data-base-oct="4" data-note-offset="8" role="button" tabindex="0" aria-label="C sharp 4">
             <span class="key-shortcut">2</span><span class="key-note-label">C#4</span>
           </div>
           <div class="black-key oct-upper" id="key-ds4" data-note="Ds" data-base-oct="4" data-note-offset="9" role="button" tabindex="0" aria-label="D sharp 4">
             <span class="key-shortcut">3</span><span class="key-note-label">D#</span>
           </div>
-          <div class="black-key oct-upper" id="key-f4" data-note="Fs" data-base-oct="4" data-note-offset="11" role="button" tabindex="0" aria-label="F sharp 4">
+          <div class="black-key oct-upper" id="key-fs4" data-note="Fs" data-base-oct="4" data-note-offset="11" role="button" tabindex="0" aria-label="F sharp 4">
             <span class="key-shortcut">5</span><span class="key-note-label">F#</span>
           </div>
           <div class="black-key oct-upper" id="key-gs4" data-note="Gs" data-base-oct="4" data-note-offset="12" role="button" tabindex="0" aria-label="G sharp 4">
@@ -1343,7 +1333,7 @@ footer span {
 
 <script>
 let audioCtx = null;
-let powered = false;
+let powered = true;
 
 // Audio Node Routing References
 let osc1 = null, osc2 = null, osc3 = null;
@@ -1355,66 +1345,54 @@ let compressorNode = null;
 let modLFO = null, modLFOGain = null;
 
 // Core State Process Variables
-let currentOctaveShift = 0; 
-let activeVoices = {}; 
-let noteStack = []; 
-
+let currentOctaveShift = 0;
+let activeVoices = {};
+let noteStack = [];
 const oscDetunes = [0, -7, 12];
-let attackTime = 0.15; 
-let releaseTime = 1.2; 
+let attackTime = 0.15;
+let releaseTime = 1.2;
 
 // Base equal temperament mathematical map configuration references
 const NOTE_FREQS = {
-  "C": 16.35, "Cs": 17.32, "D": 18.35, "Ds": 19.45, "E": 20.60,
-  "F": 21.83, "Fs": 23.12, "G": 24.50, "Gs": 25.96, "A": 27.50,
-  "As": 29.14, "B": 30.87
+  "C": 16.35, "Cs": 17.32, "D": 18.35, "Ds": 19.45, "E": 20.60, "F": 21.83,
+  "Fs": 23.12, "G": 24.50, "Gs": 25.96, "A": 27.50, "As": 29.14, "B": 30.87
 };
 
 /* ── INTERACTIVE WEB AUDIO ENGINE CORE ───────────────── */
 function initAudioEngine() {
   if (audioCtx) return;
-  
   const AudioContextClass = window.AudioContext || window.webkitAudioContext;
   audioCtx = new AudioContextClass();
   
-  // 1. Oscillator Tone Generation Matrix Setup
+  // Set UI feedback state matching running criteria
+  const led = document.getElementById('power-led');
+  if (led) led.classList.add('on');
+  
+  // Instantiations of Processing Modules
   osc1 = audioCtx.createOscillator();
   osc2 = audioCtx.createOscillator();
   osc3 = audioCtx.createOscillator();
+  modLFO = audioCtx.createOscillator();
   
-  // 2. Linear Scaling Mixing Stage Architecture 
   osc1Gain = audioCtx.createGain();
   osc2Gain = audioCtx.createGain();
   osc3Gain = audioCtx.createGain();
-  
-  // 3. Dynamic Master Contour VCA Block
+  modLFOGain = audioCtx.createGain();
   envelopeGain = audioCtx.createGain();
+  
+  filterNode = audioCtx.createBiquadFilter();
+  analyserNode = audioCtx.createAnalyser();
+  compressorNode = audioCtx.createDynamicsCompressor();
+  
+  // Constant state settings config parameters
+  filterNode.type = 'lowpass';
+  analyserNode.fftSize = 2048;
   envelopeGain.gain.setValueAtTime(0, audioCtx.currentTime);
   
-  // 4. Multi-pole Low-Pass Filter filterNode Architecture
-  filterNode = audioCtx.createBiquadFilter();
-  filterNode.type = 'lowpass';
-  
-  // 4. Matrix Performance Modulation Source (Mod LFO)
-  modLFO = audioCtx.createOscillator();
   modLFO.type = 'sine';
-  modLFO.frequency.setValueAtTime(5.5, audioCtx.currentTime);
+  modLFO.frequency.setValueAtTime(6.0, audioCtx.currentTime);
   
-  modLFOGain = audioCtx.createGain();
-  modLFOGain.gain.setValueAtTime(0, audioCtx.currentTime);
-  
-  // 5. Analysis Block & Safety Limiter Network
-  analyserNode = audioCtx.createAnalyser();
-  analyserNode.fftSize = 2048;
-  
-  compressorNode = audioCtx.createDynamicsCompressor();
-  compressorNode.threshold.setValueAtTime(-1, audioCtx.currentTime);
-  compressorNode.knee.setValueAtTime(4, audioCtx.currentTime);
-  compressorNode.ratio.setValueAtTime(12, audioCtx.currentTime);
-  compressorNode.attack.setValueAtTime(0.003, audioCtx.currentTime);
-  compressorNode.release.setValueAtTime(0.08, audioCtx.currentTime);
-  
-  // 6. Audio Routing Interconnections
+  // Routing Interconnections
   osc1.connect(osc1Gain);
   osc2.connect(osc2Gain);
   osc3.connect(osc3Gain);
@@ -1424,6 +1402,7 @@ function initAudioEngine() {
   osc3Gain.connect(envelopeGain);
   
   envelopeGain.connect(filterNode);
+  
   modLFO.connect(modLFOGain);
   modLFOGain.connect(filterNode.frequency);
   
@@ -1484,57 +1463,48 @@ function updateSynthVoice() {
     envelopeGain.gain.cancelScheduledValues(now);
     envelopeGain.gain.setValueAtTime(envelopeGain.gain.value, now);
     envelopeGain.gain.linearRampToValueAtTime(0, now + Math.max(0.002, releaseTime));
-    
     document.getElementById('scope-readout').innerHTML = `--- Hz &nbsp;·&nbsp; IDLE<span class="blink"> _</span>`;
   } else {
     // Monophonic Priority Voicing Selection Block (Last Note Priority Core)
     const primaryNote = noteStack[noteStack.length - 1];
     
-    // Extract base performance wheel bend offset calibrations
-    const pitchWheelValue = parseFloat(document.getElementById('pitch-wheel').value); 
-    const semitoneBendOffset = (pitchWheelValue / 100) * 2; 
-    const pitchBendScalar = Math.pow(2, semitoneBendOffset / 12);
+    // Extract base performance variables
+    const pitchWheelVal = parseFloat(document.getElementById('pitch-wheel').value);
+    const semitoneBend = (pitchWheelVal / 100) * 2; 
+    const pitchBendFactor = Math.pow(2, semitoneBend / 12);
     
-    const f1 = primaryNote.freq * pitchBendScalar * Math.pow(2, oscDetunes[0]/1200);
-    const f2 = primaryNote.freq * pitchBendScalar * Math.pow(2, oscDetunes[1]/1200);
-    const f3 = primaryNote.freq * pitchBendScalar * Math.pow(2, oscDetunes[2]/1200);
+    const baseFreq = primaryNote.freq * pitchBendFactor;
     
-    osc1.frequency.setValueAtTime(f1, now);
-    osc2.frequency.setValueAtTime(f2, now);
-    osc3.frequency.setValueAtTime(f3, now);
+    // Assign frequencies to the 3 internal tracking oscillators
+    if (osc1) osc1.frequency.setValueAtTime(baseFreq * Math.pow(2, oscDetunes[0]/1200), now);
+    if (osc2) osc2.frequency.setValueAtTime(baseFreq * Math.pow(2, oscDetunes[1]/1200), now);
+    if (osc3) osc3.frequency.setValueAtTime(baseFreq * Math.pow(2, oscDetunes[2]/1200), now);
     
-    // Gate Opening Contour Attack Phase Trigger
-    if (envelopeGain.gain.value === 0 || activeVoices[primaryNote.id]) {
-      envelopeGain.gain.cancelScheduledValues(now);
-      envelopeGain.gain.setValueAtTime(envelopeGain.gain.value, now);
-      envelopeGain.gain.linearRampToValueAtTime(1.0, now + Math.max(0.002, attackTime));
-    }
+    // Monophonic Gate Open Contour Attack Phase Trigger
+    envelopeGain.gain.cancelScheduledValues(now);
+    envelopeGain.gain.setValueAtTime(envelopeGain.gain.value, now);
+    envelopeGain.gain.linearRampToValueAtTime(1.0, now + Math.max(0.002, attackTime));
     
-    // Refresh Visual HUD Diagnostics
-    document.getElementById('scope-readout').innerHTML = `${Math.round(primaryNote.freq)} Hz &nbsp;·&nbsp; ${primaryNote.noteName}${primaryNote.octave}<span class="blink"> _</span>`;
+    document.getElementById('scope-readout').innerHTML = `${baseFreq.toFixed(1)} Hz &nbsp;·&nbsp; ACTIVE<span class="blink"> _</span>`;
   }
 }
 
-/* ── POWER SYSTEM ──────────────────────────────────────── */
-const powerBtn = document.getElementById('power-btn');
-const powerLed = document.getElementById('power-led');
-
-powerBtn.addEventListener('click', () => {
-  powered = !powered;
-  powerLed.classList.toggle('on', powered);
-  powerBtn.textContent = powered ? 'ON' : 'POWER';
+/* ── INITIALIZATION SETUP ────────────────────────────── */
+window.addEventListener('DOMContentLoaded', () => {
+  // Turn on the dashboard hardware LED indicator light visually
+  const led = document.getElementById('power-led');
+  if (led) led.classList.add('on');
   
-  if (powered) {
+  // Setup standard fallback click handler inside viewport boundaries
+  const resumeContext = () => {
     initAudioEngine();
     if (audioCtx && audioCtx.state === 'suspended') {
       audioCtx.resume();
     }
-  } else {
-    // Structural Safety Purge: Instantly cut audio pipeline & flush trackers
-    noteStack = [];
-    document.querySelectorAll('.white-key, .black-key').forEach(k => k.classList.remove('key-active'));
-    updateSynthVoice();
-  }
+  };
+  
+  document.body.addEventListener('click', resumeContext, { once: true });
+  document.body.addEventListener('keydown', resumeContext, { once: true });
 });
 
 /* ── UI KNOB CONTROL ASSIGNMENTS ───────────────────────── */
@@ -1548,7 +1518,6 @@ function initKnob(rangeId, tickId, valId, formatter, audioCallback) {
     const pct = (range.value - range.min) / (range.max - range.min);
     const deg = -135 + pct * 270;
     tick.style.transform = `rotate(${deg}deg)`;
-    
     if (val && formatter) val.textContent = formatter(range.value);
     else if (val) val.textContent = range.value;
     
@@ -1579,42 +1548,48 @@ initKnob('filter-reso', 'filter-res-tick', 'filter-res-val', v => parseFloat(v).
 document.querySelectorAll('.wave-selector input').forEach(input => {
   input.addEventListener('change', () => {
     if (!audioCtx) return;
-    if (input.name === 'osc1-wave') osc1.type = input.value;
-    if (input.name === 'osc2-wave') osc2.type = input.value;
-    if (input.name === 'osc3-wave') osc3.type = input.value;
+    if (input.name === 'osc1-wave' && osc1) osc1.type = input.value;
+    if (input.name === 'osc2-wave' && osc2) osc2.type = input.value;
+    if (input.name === 'osc3-wave' && osc3) osc3.type = input.value;
   });
 });
 
-// Sync linear inline detune range elements
-['osc1-detune', 'osc2-detune', 'osc3-detune'].forEach((id, idx) => {
-  const el = document.getElementById(id);
-  const readout = document.getElementById(id + '-val');
-  el.addEventListener('input', () => {
-    const val = parseInt(el.value);
-    readout.textContent = (val >= 0 ? "+" : "") + val + "¢";
-    oscDetunes[idx] = val;
-    updateSynthVoice();
-  });
+// Detuning sliders input mapping synchronization assignments
+document.getElementById('osc1-detune').addEventListener('input', e => {
+  document.getElementById('osc1-detune-val').textContent = (parseInt(e.target.value) >= 0 ? "+" : "") + e.target.value + "¢";
+  oscDetunes[0] = parseInt(e.target.value);
+  updateSynthVoice();
+});
+document.getElementById('osc2-detune').addEventListener('input', e => {
+  document.getElementById('osc2-detune-val').textContent = e.target.value + "¢";
+  oscDetunes[1] = parseInt(e.target.value);
+  updateSynthVoice();
+});
+document.getElementById('osc3-detune').addEventListener('input', e => {
+  document.getElementById('osc3-detune-val').textContent = (parseInt(e.target.value) >= 0 ? "+" : "") + e.target.value + "¢";
+  oscDetunes[2] = parseInt(e.target.value);
+  updateSynthVoice();
 });
 
-/* ── CONTOUR SLIDER EXPONENTIAL TRANSLATOR SYSTEM ─────── */
-function initFader(rangeId, thumbId, valId, msScale, audioCallback) {
+/* ── FADER CONTROL SYSTEM ────────────────────────────── */
+function initFader(rangeId, thumbId, valId, multiplier, audioCallback) {
   const range = document.getElementById(rangeId);
   const thumb = document.getElementById(thumbId);
   const val = document.getElementById(valId);
-  if (!range) return;
+  if (!range || !thumb) return;
   
-  const SLOT_H = 110, THUMB_H = 22, MARGIN = 2;
-  const travel = SLOT_H - THUMB_H - MARGIN * 2;
+  const TRACK_H = 110, THUMB_H = 22;
+  const travel = TRACK_H - THUMB_H;
   
   function update() {
     const pct = (range.value - range.min) / (range.max - range.min);
-    const bottomPx = MARGIN + pct * travel;
-    if (thumb) thumb.style.bottom = bottomPx + 'px';
+    const bottomPx = pct * travel;
+    thumb.style.bottom = bottomPx + 'px';
     
-    const ms = Math.round(parseInt(range.value) * msScale);
+    const ms = parseFloat(range.value) * multiplier;
     if (val) {
-      val.textContent = ms >= 1000 ? (ms / 1000).toFixed(1) + 's' : ms + 'ms';
+      if (ms >= 1000) val.textContent = (ms / 1000).toFixed(1) + "s";
+      else val.textContent = Math.round(ms) + "ms";
     }
     if (audioCallback) audioCallback(ms / 1000);
   }
@@ -1640,7 +1615,6 @@ function initWheel(id, snapToCenter, audioCallback) {
     const pct = (range.value - range.min) / (range.max - range.min);
     const topPx = (1 - pct) * travel;
     if (thumb) thumb.style.top = topPx + 'px';
-    
     if (readout) {
       const val = parseInt(range.value);
       if (snapToCenter) readout.textContent = (val >= 0 ? "+" : "") + val;
@@ -1667,11 +1641,9 @@ initWheel('mod', false, v => {
 /* ── PIANO INTERACTION CONTROLLER ──────────────────────── */
 function pressKey(el) {
   if (!powered || !el) return;
-  
   const baseNote = el.getAttribute('data-note');
-  const baseOct  = parseInt(el.getAttribute('data-base-oct'));
+  const baseOct = parseInt(el.getAttribute('data-base-oct'));
   const finalOct = baseOct + currentOctaveShift;
-  
   const noteId = `${baseNote}-${finalOct}`;
   const computedFreq = NOTE_FREQS[baseNote] * Math.pow(2, finalOct);
   
@@ -1680,48 +1652,56 @@ function pressKey(el) {
   // Guard against duplicate values inside last-note polyphonic stack arrays
   noteStack = noteStack.filter(v => v.id !== noteId);
   noteStack.push({ id: noteId, freq: computedFreq, noteName: baseNote, octave: finalOct });
-  
   activeVoices[noteId] = true;
   updateSynthVoice();
 }
 
 function releaseKey(el) {
   if (!el) return;
-  
   const baseNote = el.getAttribute('data-note');
-  const baseOct  = parseInt(el.getAttribute('data-base-oct'));
+  const baseOct = parseInt(el.getAttribute('data-base-oct'));
   const finalOct = baseOct + currentOctaveShift;
   const noteId = `${baseNote}-${finalOct}`;
   
   el.classList.remove('key-active');
-  
   noteStack = noteStack.filter(v => v.id !== noteId);
   delete activeVoices[noteId];
-  
   updateSynthVoice();
 }
 
-// Attach Pointer Event Handlers for Piano Keys
+// Mouse and touch interaction hook setups on physical dashboard keys
 document.querySelectorAll('.white-key, .black-key').forEach(keyEl => {
-  keyEl.addEventListener('pointerdown', e => {
+  keyEl.addEventListener('mousedown', (e) => {
     e.preventDefault();
-    keyEl.setPointerCapture(e.pointerId);
     pressKey(keyEl);
   });
-  keyEl.addEventListener('pointerup', e => {
+  keyEl.addEventListener('mouseover', (e) => {
+    if (e.buttons === 1) pressKey(keyEl);
+  });
+  keyEl.addEventListener('mouseup', (e) => {
     e.preventDefault();
     releaseKey(keyEl);
   });
-  keyEl.addEventListener('pointercancel', e => {
+  keyEl.addEventListener('mouseleave', (e) => {
     e.preventDefault();
     releaseKey(keyEl);
   });
+  
+  // Responsive Touch Support Mappings
+  keyEl.addEventListener('touchstart', (e) => {
+    e.preventDefault();
+    pressKey(keyEl);
+  }, { passive: false });
+  keyEl.addEventListener('touchend', (e) => {
+    e.preventDefault();
+    releaseKey(keyEl);
+  }, { passive: false });
 });
 
-/* ── KEYBOARD SHORTCUT MAPPING ───────────────────────── */
+/* ── HARDWARE COMPUTER KEYBOARD MAP CONTROLLER ─────────── */
 const KB_MAP = {
   // Lower Octave Mapping Configuration
-  aria: 'c3', z: 'c3', s: 'cs3', x: 'd3', d: 'ds3', c: 'e3', v: 'f3', g: 'fs3', b: 'g3', h: 'gs3', n: 'a3', j: 'as3', m: 'b3',
+  z: 'c3', s: 'cs3', x: 'd3', d: 'ds3', c: 'e3', v: 'f3', g: 'fs3', b: 'g3', h: 'gs3', n: 'a3', j: 'as3', m: 'b3',
   // Upper Octave Mapping Configuration
   q: 'c4', '2': 'cs4', w: 'd4', '3': 'ds4', e: 'e4', r: 'f4', '5': 'fs4', t: 'g4', '6': 'gs4', y: 'a4', '7': 'as4', u: 'b4', i: 'c5'
 };
@@ -1750,18 +1730,16 @@ document.addEventListener('keyup', e => {
 function updateOctaveUI() {
   const badge = document.getElementById('octave-display');
   const label = document.getElementById('keyboard-bounds-label');
-  
   const startOct = 3 + currentOctaveShift;
   const endOct = 5 + currentOctaveShift;
-  
   const isMobile = window.innerWidth <= 768;
   
   if (isMobile) {
-    badge.innerHTML = `OCT ${startOct} <span class="blink">▮</span>`;
-    label.innerHTML = `KEYBOARD &nbsp;·&nbsp; C${startOct} — C${startOct + 1} &nbsp;·&nbsp; adaptive 1-oct`;
+    if (badge) badge.innerHTML = `OCT ${startOct}-${startOct+1} <span class="blink">▮</span>`;
+    if (label) label.innerHTML = `KEYBOARD &nbsp;·&nbsp; C${startOct} — C${startOct+1} &nbsp;·&nbsp; adaptive`;
   } else {
-    badge.innerHTML = `OCT ${startOct}-${endOct} <span class="blink">▮</span>`;
-    label.innerHTML = `KEYBOARD &nbsp;·&nbsp; C${startOct} — C${endOct} &nbsp;·&nbsp; adaptive 2-oct`;
+    if (badge) badge.innerHTML = `OCT ${startOct}-${endOct} <span class="blink">▮</span>`;
+    if (label) label.innerHTML = `KEYBOARD &nbsp;·&nbsp; C${startOct} — C${endOct} &nbsp;·&nbsp; adaptive`;
   }
 }
 
@@ -1769,7 +1747,9 @@ document.getElementById('oct-down-btn').addEventListener('click', () => {
   if (currentOctaveShift > -2) {
     currentOctaveShift--;
     updateOctaveUI();
+    // Flush key states safely during dynamic realignment shifts
     noteStack = [];
+    document.querySelectorAll('.white-key, .black-key').forEach(k => k.classList.remove('key-active'));
     updateSynthVoice();
   }
 });
@@ -1778,24 +1758,26 @@ document.getElementById('oct-up-btn').addEventListener('click', () => {
   if (currentOctaveShift < 2) {
     currentOctaveShift++;
     updateOctaveUI();
+    // Flush key states safely during dynamic realignment shifts
     noteStack = [];
+    document.querySelectorAll('.white-key, .black-key').forEach(k => k.classList.remove('key-active'));
     updateSynthVoice();
   }
 });
 
 window.addEventListener('resize', updateOctaveUI);
-updateOctaveUI();
 
-/* ── CRT CANVAS ANIMATION VECTOR MATRIX VISUALIZER ───── */
+/* ── REALTIME VISUALIZER ANIMATION LOOP CORE ───────────── */
 const canvas = document.getElementById('scope-canvas');
 const ctx = canvas.getContext('2d');
 let t = 0;
 
 function resizeCanvas() {
-  const rect = canvas.parentElement.getBoundingClientRect();
-  canvas.width = rect.width * window.devicePixelRatio;
-  canvas.height = rect.height * window.devicePixelRatio;
-  ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
+  const dpr = window.devicePixelRatio || 1;
+  const rect = canvas.getBoundingClientRect();
+  canvas.width = rect.width * dpr;
+  canvas.height = rect.height * dpr;
+  ctx.scale(dpr, dpr);
 }
 window.addEventListener('resize', resizeCanvas);
 resizeCanvas();
@@ -1839,18 +1821,19 @@ function draw() {
     ctx.save();
     ctx.strokeStyle = '#00f5ff';
     ctx.lineWidth   = 1.5;
-    ctx.shadowColor = '#00f5ff';
-    ctx.shadowBlur  = 8;
-    ctx.globalAlpha = 0.75;
+    ctx.opacity     = 0.25;
     ctx.beginPath();
-    for (let x = 0; x <= W; x++) {
-      const phase = (x / W) * Math.PI * 2;
-      const y = H / 2
-        + Math.sin(phase * 3 + t)          * H * 0.26
-        + Math.sin(phase * 5 + t * 1.2)    * H * 0.07
-        + Math.sin(phase * 7 + t * 0.8)    * H * 0.03;
+    
+    const points = 60;
+    const slice = W / points;
+    let x = 0;
+    
+    for (let i = 0; i <= points; i++) {
+      const noise = (Math.sin(i * 0.15 + t * 2) * 0.4) + (Math.cos(i * 0.3 - t) * 0.3);
+      const y = (H / 2) + (noteStack.length === 0 ? noise * 1.2 : 0);
       if (x === 0) ctx.moveTo(x, y);
       else ctx.lineTo(x, y);
+      x += slice;
     }
     ctx.stroke();
     ctx.restore();
