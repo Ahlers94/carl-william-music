@@ -222,6 +222,13 @@ header {
   font-size: 8px;
   letter-spacing: 2px;
   text-transform: uppercase;
+}
+
+.power-btn {
+  font-family: 'Space Mono', monospace;
+  font-size: 8px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
   color: var(--dim);
   background: #0e0e1e;
   border: 1px solid #222244;
@@ -832,6 +839,13 @@ input.detune-input::-moz-range-thumb {
   transition: background 0.04s, border-bottom-width 0.04s, transform 0.04s;
   z-index: 1;
   box-shadow: 2px 3px 6px rgba(0,0,0,0.4), inset 0 -3px 4px rgba(0,0,0,0.08);
+  
+  /* Flexbox container layouts inside key face */
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0 6px 0;
 }
 
 .white-key:first-child { border-left: 1px solid #b8b8b8; }
@@ -843,28 +857,21 @@ input.detune-input::-moz-range-thumb {
   box-shadow: 1px 1px 3px rgba(0,0,0,0.4), 0 0 12px #99cc7744;
 }
 
+/* High contrast label overrides - Black on White background */
 .white-key .key-note-label {
-  position: absolute;
-  bottom: 5px;
-  left: 50%;
-  transform: translateX(-50%);
   font-family: 'Space Mono', monospace;
-  font-size: 7px;
-  color: #bbb;
+  font-size: 8px;
+  font-weight: 700;
+  color: #000000;
   pointer-events: none;
   white-space: nowrap;
   letter-spacing: 0;
 }
 
-.white-key.key-active .key-note-label { color: var(--green); }
-
 .white-key .key-shortcut {
-  position: absolute;
-  top: 6px;
-  left: 50%;
-  transform: translateX(-50%);
-  font-size: 8px;
-  color: #bbb;
+  font-size: 9px;
+  font-weight: 700;
+  color: #000000;
   pointer-events: none;
   letter-spacing: 0;
 }
@@ -890,6 +897,13 @@ input.detune-input::-moz-range-thumb {
   pointer-events: all;
   box-shadow: 2px 4px 8px rgba(0,0,0,0.8), inset 0 1px 0 rgba(255,255,255,0.08);
   transition: background 0.04s, border-bottom-width 0.04s, transform 0.04s;
+  
+  /* Layout inside black keys */
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 0 5px 0;
 }
 
 .black-key:active, .black-key.key-active {
@@ -899,18 +913,27 @@ input.detune-input::-moz-range-thumb {
   box-shadow: 1px 2px 4px rgba(0,0,0,0.8), 0 0 10px #99cc7755;
 }
 
+/* High contrast label overrides - Yellow on Black background */
+.black-key .key-note-label {
+  font-family: 'Space Mono', monospace;
+  font-size: 7px;
+  font-weight: 700;
+  color: var(--gold);
+  pointer-events: none;
+  white-space: nowrap;
+  letter-spacing: 0;
+}
+
 .black-key .key-shortcut {
-  position: absolute;
-  top: 4px;
-  left: 50%;
-  transform: translateX(-50%);
   font-size: 8px;
-  color: #888;
+  font-weight: 700;
+  color: var(--gold);
   pointer-events: none;
   letter-spacing: 0;
 }
 
 /* Desktop absolute alignments for 15 white keys (Each white key column width = 100% / 15 = 6.6666%) */
+/* Perfect seams: calculation anchors directly over seams (1st seam = 6.6666%, 2nd = 13.3333%, etc.) minus half width */
 .black-key[data-note-offset="1"]  { left: calc(1 * 6.6666% - 2.2%); width: 4.4%; }
 .black-key[data-note-offset="2"]  { left: calc(2 * 6.6666% - 2.2%); width: 4.4%; }
 .black-key[data-note-offset="4"]  { left: calc(4 * 6.6666% - 2.2%); width: 4.4%; }
@@ -924,7 +947,7 @@ input.detune-input::-moz-range-thumb {
 
 /* Responsive Media Queries for adaptive 2-Octave to 1-Octave systems */
 @media (min-width: 769px) {
-  .oct-upper { display: block !important; }
+  .oct-upper { display: flex !important; }
 }
 
 @media (max-width: 768px) {
@@ -932,43 +955,12 @@ input.detune-input::-moz-range-thumb {
   .oct-upper { display: none !important; }
   
   /* Scale remaining 8 white keys to fill layout space broadly (Each white key column = 100% / 8 = 12.5%) */
-  .black-key[data-note-offset="1"] { left: calc(1 * 12.5% - 3.75%); width: 7.5%; }
-  .black-key[data-note-offset="2"] { left: calc(2 * 12.5% - 3.75%); width: 7.5%; }
-  .black-key[data-note-offset="4"] { left: calc(4 * 12.5% - 3.75%); width: 7.5%; }
-  .black-key[data-note-offset="5"] { left: calc(5 * 12.5% - 3.75%); width: 7.5%; }
-  .black-key[data-note-offset="6"] { left: calc(6 * 12.5% - 3.75%); width: 7.5%; }
-}
-
-/* keyboard shortcut hint bar */
-.keyboard-hints {
-  padding: 8px 20px 14px;
-  display: flex;
-  gap: 4px;
-  align-items: center;
-  flex-wrap: wrap;
-}
-
-.hint-key {
-  font-size: 7px;
-  color: var(--dim);
-  letter-spacing: 1px;
-  border: 1px solid #ffffff0d;
-  padding: 2px 5px;
-  font-family: 'Space Mono', monospace;
-}
-
-.hint-sep {
-  font-size: 8px;
-  color: #222233;
-  margin: 0 2px;
-}
-
-.hint-label {
-  font-size: 7px;
-  color: #222233;
-  letter-spacing: 2px;
-  text-transform: uppercase;
-  margin-right: 8px;
+  /* Perfect seam calculation for 8 keys width grid layout */
+  .black-key[data-note-offset="1"] { left: calc(1 * 12.5% - 4.125%); width: 8.25%; }
+  .black-key[data-note-offset="2"] { left: calc(2 * 12.5% - 4.125%); width: 8.25%; }
+  .black-key[data-note-offset="4"] { left: calc(4 * 12.5% - 4.125%); width: 8.25%; }
+  .black-key[data-note-offset="5"] { left: calc(5 * 12.5% - 4.125%); width: 8.25%; }
+  .black-key[data-note-offset="6"] { left: calc(6 * 12.5% - 4.125%); width: 8.25%; }
 }
 
 /* ── FOOTER — matches site ───────────────────────────── */
@@ -1053,7 +1045,6 @@ footer span {
 </header>
 
 <main class="synth-page">
-
   <section class="scope-section">
     <div class="section-label">OSCILLOSCOPE</div>
     <div class="scope-wrapper" id="scope-wrapper">
@@ -1081,9 +1072,9 @@ footer span {
           <div class="wheel-thumb" id="pitch-wheel-thumb">
             <div class="wheel-thumb-line"></div>
           </div>
-          <input type="range" class="wheel-input" id="pitch-wheel" min="-100" max="100" value="0" step="1" aria-label="Pitch Bend wheel">
+          <input type="range" class="wheel-input" id="pitch-wheel" min="-100" max="100" value="0" step="1" aria-label="Pitch bend wheel">
         </div>
-        <div class="wheel-readout" id="pitch-wheel-val">±0</div>
+        <div class="wheel-readout" id="pitch-wheel-val">0</div>
       </div>
       <div class="wheel-group" id="mod-wheel-group">
         <div class="wheel-label">MOD</div>
@@ -1091,15 +1082,14 @@ footer span {
           <div class="wheel-thumb" id="mod-wheel-thumb">
             <div class="wheel-thumb-line"></div>
           </div>
-          <input type="range" class="wheel-input" id="mod-wheel" min="0" max="100" value="0" step="1" aria-label="Modulation Wheel">
+          <input type="range" class="wheel-input" id="mod-wheel" min="0" max="100" value="0" step="1" aria-label="Modulation wheel">
         </div>
         <div class="wheel-readout" id="mod-wheel-val">0</div>
       </div>
     </section>
 
-    <section class="osc-section" aria-label="Oscillators configuration">
-      <div class="panel-section-header">VOLTAGE CONTROLLED OSCILLATORS</div>
-      
+    <section class="osc-section" aria-label="Oscillators control panel">
+      <div class="panel-section-header">OSCILLATORS</div>
       <div class="osc-row" id="osc1-row">
         <div class="osc-number">1</div>
         <div class="wave-selector" id="osc1-wave-selector" role="radiogroup" aria-label="OSC 1 waveform">
@@ -1184,9 +1174,9 @@ footer span {
             <div class="knob-arc-outer"></div>
             <div class="knob-face"></div>
             <div class="knob-tick-container" id="osc3-vol-tick"></div>
-            <input type="range" class="knob-input-range" id="osc3-volume" min="0" max="100" value="40" step="1" aria-label="OSC 3 Volume">
+            <input type="range" class="knob-input-range" id="osc3-volume" min="0" max="100" value="45" step="1" aria-label="OSC 3 Volume">
           </div>
-          <div class="knob-value" id="osc3-vol-val">40</div>
+          <div class="knob-value" id="osc3-vol-val">45</div>
         </div>
         <div class="detune-group">
           <div class="detune-range-labels">
@@ -1194,46 +1184,46 @@ footer span {
             <span class="detune-center-label">DETUNE</span>
             <span>+50¢</span>
           </div>
-          <input type="range" class="detune-input" id="osc3-detune" min="-50" max="50" value="5" step="1" aria-label="OSC 3 Detune">
-          <div class="detune-readout" id="osc3-detune-val">+5¢</div>
+          <input type="range" class="detune-input" id="osc3-detune" min="-50" max="50" value="12" step="1" aria-label="OSC 3 Detune">
+          <div class="detune-readout" id="osc3-detune-val">+12¢</div>
         </div>
       </div>
     </section>
 
     <section class="filter-section" aria-label="Filter panel">
-      <div class="panel-section-header">24dB FILTER</div>
+      <div class="panel-section-header">VCF RESONANT</div>
       <div class="filter-knobs-grid">
         <div class="knob-group">
           <div class="knob-label">CUTOFF</div>
-          <div class="knob-wrap filter-knob-wrap" id="filter-cutoff-wrap">
+          <div class="knob-wrap filter-knob-wrap" id="filter-cut-knob-wrap">
             <div class="knob-arc-outer"></div>
             <div class="knob-face filter-knob-face"></div>
-            <div class="knob-tick-container" id="filter-cutoff-tick"></div>
-            <input type="range" class="knob-input-range" id="filter-cutoff" min="60" max="120" value="88" step="0.5" aria-label="Filter Cutoff Frequency">
+            <div class="knob-tick-container" id="filter-cut-tick"></div>
+            <input type="range" class="knob-input-range" id="filter-cutoff" min="60" max="8500" value="1200" step="5" aria-label="Filter Cutoff Frequency">
           </div>
-          <div class="filter-value" id="filter-cutoff-val">1200 Hz</div>
+          <div class="filter-value" id="filter-cut-val">1200Hz</div>
         </div>
         <div class="knob-group">
           <div class="knob-label">RESO</div>
-          <div class="knob-wrap" id="filter-reso-wrap">
+          <div class="knob-wrap filter-knob-wrap" id="filter-res-knob-wrap">
             <div class="knob-arc-outer"></div>
-            <div class="knob-face"></div>
-            <div class="knob-tick-container" id="filter-reso-tick"></div>
-            <input type="range" class="knob-input-range" id="filter-reso" min="1" max="20" value="4" step="0.2" aria-label="Filter Resonance">
+            <div class="knob-face filter-knob-face"></div>
+            <div class="knob-tick-container" id="filter-res-tick"></div>
+            <input type="range" class="knob-input-range" id="filter-reso" min="1" max="25" value="4" step="0.2" aria-label="Filter Resonance Quality">
           </div>
-          <div class="knob-value" id="filter-reso-val">4.0</div>
+          <div class="filter-value" id="filter-res-val">4.0</div>
         </div>
       </div>
     </section>
 
-    <section class="env-section" aria-label="Envelope generator faders">
-      <div class="panel-section-header">GATE ENVELOPE</div>
+    <section class="env-section" aria-label="Envelope generator panel">
+      <div class="panel-section-header">CONTOUR GENERATOR</div>
       <div class="env-faders-row">
         <div class="env-fader-group">
           <div class="env-fader-label">ATTACK</div>
           <div class="fader-track">
             <div class="fader-thumb" id="attack-thumb"></div>
-            <input type="range" class="fader-input" id="env-attack" min="0" max="100" value="15" step="1" aria-label="Envelope Attack Time">
+            <input type="range" class="fader-input" id="env-attack" min="0" max="100" value="15" step="1" aria-label="Contour Attack Time">
           </div>
           <div class="env-fader-value" id="env-attack-val">150ms</div>
         </div>
@@ -1241,7 +1231,7 @@ footer span {
           <div class="env-fader-label">RELEASE</div>
           <div class="fader-track">
             <div class="fader-thumb" id="release-thumb"></div>
-            <input type="range" class="fader-input" id="env-release" min="1" max="100" value="24" step="1" aria-label="Envelope Release Time">
+            <input type="range" class="fader-input" id="env-release" min="0" max="100" value="40" step="1" aria-label="Contour Release Time">
           </div>
           <div class="env-fader-value" id="env-release-val">1.2s</div>
         </div>
@@ -1283,7 +1273,7 @@ footer span {
           <span class="key-shortcut">M</span><span class="key-note-label">B</span>
         </div>
         
-        <div class="white-key oct-upper" id="key-c4" data-note="C" data-base-oct="4" role="button" tabindex="0" aria-label="C4">
+        <div class="white-key" id="key-c4" data-note="C" data-base-oct="4" role="button" tabindex="0" aria-label="C4">
           <span class="key-shortcut">Q</span><span class="key-note-label">C4</span>
         </div>
         <div class="white-key oct-upper" id="key-d4" data-note="D" data-base-oct="4" role="button" tabindex="0" aria-label="D4">
@@ -1310,69 +1300,38 @@ footer span {
 
         <div class="black-keys-layer">
           <div class="black-key oct-lower" id="key-cs3" data-note="Cs" data-base-oct="3" data-note-offset="1" role="button" tabindex="0" aria-label="C sharp 3">
-            <span class="key-shortcut">S</span>
+            <span class="key-shortcut">S</span><span class="key-note-label">C#3</span>
           </div>
           <div class="black-key oct-lower" id="key-ds3" data-note="Ds" data-base-oct="3" data-note-offset="2" role="button" tabindex="0" aria-label="D sharp 3">
-            <span class="key-shortcut">D</span>
+            <span class="key-shortcut">D</span><span class="key-note-label">D#</span>
           </div>
           <div class="black-key oct-lower" id="key-fs3" data-note="Fs" data-base-oct="3" data-note-offset="4" role="button" tabindex="0" aria-label="F sharp 3">
-            <span class="key-shortcut">G</span>
+            <span class="key-shortcut">G</span><span class="key-note-label">F#</span>
           </div>
           <div class="black-key oct-lower" id="key-gs3" data-note="Gs" data-base-oct="3" data-note-offset="5" role="button" tabindex="0" aria-label="G sharp 3">
-            <span class="key-shortcut">H</span>
+            <span class="key-shortcut">H</span><span class="key-note-label">G#</span>
           </div>
           <div class="black-key oct-lower" id="key-as3" data-note="As" data-base-oct="3" data-note-offset="6" role="button" tabindex="0" aria-label="A sharp 3">
-            <span class="key-shortcut">J</span>
+            <span class="key-shortcut">J</span><span class="key-note-label">A#</span>
           </div>
-
+          
           <div class="black-key oct-upper" id="key-cs4" data-note="Cs" data-base-oct="4" data-note-offset="8" role="button" tabindex="0" aria-label="C sharp 4">
-            <span class="key-shortcut">2</span>
+            <span class="key-shortcut">2</span><span class="key-note-label">C#4</span>
           </div>
           <div class="black-key oct-upper" id="key-ds4" data-note="Ds" data-base-oct="4" data-note-offset="9" role="button" tabindex="0" aria-label="D sharp 4">
-            <span class="key-shortcut">3</span>
+            <span class="key-shortcut">3</span><span class="key-note-label">D#</span>
           </div>
-          <div class="black-key oct-upper" id="key-fs4" data-note="Fs" data-base-oct="4" data-note-offset="11" role="button" tabindex="0" aria-label="F sharp 4">
-            <span class="key-shortcut">5</span>
+          <div class="black-key oct-upper" id="key-f4" data-note="Fs" data-base-oct="4" data-note-offset="11" role="button" tabindex="0" aria-label="F sharp 4">
+            <span class="key-shortcut">5</span><span class="key-note-label">F#</span>
           </div>
           <div class="black-key oct-upper" id="key-gs4" data-note="Gs" data-base-oct="4" data-note-offset="12" role="button" tabindex="0" aria-label="G sharp 4">
-            <span class="key-shortcut">6</span>
+            <span class="key-shortcut">6</span><span class="key-note-label">G#</span>
           </div>
           <div class="black-key oct-upper" id="key-as4" data-note="As" data-base-oct="4" data-note-offset="13" role="button" tabindex="0" aria-label="A sharp 4">
-            <span class="key-shortcut">7</span>
+            <span class="key-shortcut">7</span><span class="key-note-label">A#</span>
           </div>
         </div>
       </div>
-    </div>
-
-    <div class="keyboard-hints" aria-hidden="true">
-      <span class="hint-label">PC OCT-1</span>
-      <span class="hint-key">Z</span><span class="hint-sep">·</span>
-      <span class="hint-key">S</span><span class="hint-sep">·</span>
-      <span class="hint-key">X</span><span class="hint-sep">·</span>
-      <span class="hint-key">D</span><span class="hint-sep">·</span>
-      <span class="hint-key">C</span><span class="hint-sep">·</span>
-      <span class="hint-key">V</span><span class="hint-sep">·</span>
-      <span class="hint-key">G</span><span class="hint-sep">·</span>
-      <span class="hint-key">B</span><span class="hint-sep">·</span>
-      <span class="hint-key">H</span><span class="hint-sep">·</span>
-      <span class="hint-key">N</span><span class="hint-sep">·</span>
-      <span class="hint-key">J</span><span class="hint-sep">·</span>
-      <span class="hint-key">M</span>
-      <span class="hint-sep" style="margin:0 10px;color:var(--cyan)">//</span>
-      <span class="hint-label">PC OCT-2</span>
-      <span class="hint-key">Q</span><span class="hint-sep">·</span>
-      <span class="hint-key">2</span><span class="hint-sep">·</span>
-      <span class="hint-key">W</span><span class="hint-sep">·</span>
-      <span class="hint-key">3</span><span class="hint-sep">·</span>
-      <span class="hint-key">E</span><span class="hint-sep">·</span>
-      <span class="hint-key">R</span><span class="hint-sep">·</span>
-      <span class="hint-key">5</span><span class="hint-sep">·</span>
-      <span class="hint-key">T</span><span class="hint-sep">·</span>
-      <span class="hint-key">6</span><span class="hint-sep">·</span>
-      <span class="hint-key">Y</span><span class="hint-sep">·</span>
-      <span class="hint-key">7</span><span class="hint-sep">·</span>
-      <span class="hint-key">U</span><span class="hint-sep">·</span>
-      <span class="hint-key">I</span>
     </div>
   </section>
 </main>
@@ -1391,54 +1350,48 @@ let osc1 = null, osc2 = null, osc3 = null;
 let osc1Gain = null, osc2Gain = null, osc3Gain = null;
 let envelopeGain = null;
 let filterNode = null;
-let modLFO = null, modLFOGain = null;
 let analyserNode = null;
 let compressorNode = null;
+let modLFO = null, modLFOGain = null;
 
-// Voice Tracking Arrays
-let activeKeys = new Set();
-let noteStack = []; 
+// Core State Process Variables
 let currentOctaveShift = 0; 
-let oscDetunes = [0, -7, 5]; 
+let activeVoices = {}; 
+let noteStack = []; 
 
-// Default Fader Scale Parameter Memory
-let attackTime = 0.15;
-let releaseTime = 1.2;
+const oscDetunes = [0, -7, 12];
+let attackTime = 0.15; 
+let releaseTime = 1.2; 
 
-/* ── STANDARD SCIENTIFIC EQUAL TEMPERAMENT MAP ────────── */
+// Base equal temperament mathematical map configuration references
 const NOTE_FREQS = {
-  'C': 16.35, 'Cs': 17.32, 'D': 18.35, 'Ds': 19.45, 'E': 20.60,
-  'F': 21.83, 'Fs': 23.12, 'G': 24.50, 'Gs': 25.96, 'A': 27.50,
-  'As': 29.14, 'B': 30.87
+  "C": 16.35, "Cs": 17.32, "D": 18.35, "Ds": 19.45, "E": 20.60,
+  "F": 21.83, "Fs": 23.12, "G": 24.50, "Gs": 25.96, "A": 27.50,
+  "As": 29.14, "B": 30.87
 };
 
-function getPitchHz(noteName, baseOctave) {
-  const targetOctave = baseOctave + currentOctaveShift;
-  const c0Freq = NOTE_FREQS[noteName];
-  return c0Freq * Math.pow(2, targetOctave);
-}
-
-/* ── AUDIO PIPELINE INITIALIZATION ────────────────────── */
+/* ── INTERACTIVE WEB AUDIO ENGINE CORE ───────────────── */
 function initAudioEngine() {
   if (audioCtx) return;
   
   const AudioContextClass = window.AudioContext || window.webkitAudioContext;
   audioCtx = new AudioContextClass();
   
-  // 1. Triple Oscillator Voice Core Network
+  // 1. Oscillator Tone Generation Matrix Setup
   osc1 = audioCtx.createOscillator();
   osc2 = audioCtx.createOscillator();
   osc3 = audioCtx.createOscillator();
   
+  // 2. Linear Scaling Mixing Stage Architecture 
   osc1Gain = audioCtx.createGain();
   osc2Gain = audioCtx.createGain();
   osc3Gain = audioCtx.createGain();
   
-  // 2. Monophonic VCA & Legato Envelope Controller
+  // 3. Dynamic Master Contour VCA Block
   envelopeGain = audioCtx.createGain();
   envelopeGain.gain.setValueAtTime(0, audioCtx.currentTime);
   
-  // 3. 24dB Subtractive Biquad Low-Pass Filter
+  // 4. Multi-pole Low-Pass Filter filterNode Architecture
   filterNode = audioCtx.createBiquadFilter();
   filterNode.type = 'lowpass';
   
@@ -1446,6 +1399,7 @@ function initAudioEngine() {
   modLFO = audioCtx.createOscillator();
   modLFO.type = 'sine';
   modLFO.frequency.setValueAtTime(5.5, audioCtx.currentTime);
+  
   modLFOGain = audioCtx.createGain();
   modLFOGain.gain.setValueAtTime(0, audioCtx.currentTime);
   
@@ -1470,7 +1424,6 @@ function initAudioEngine() {
   osc3Gain.connect(envelopeGain);
   
   envelopeGain.connect(filterNode);
-  
   modLFO.connect(modLFOGain);
   modLFOGain.connect(filterNode.frequency);
   
@@ -1513,55 +1466,48 @@ function syncAllParameters() {
   // Filter Matrix Settings
   updateFilterFrequencies();
   filterNode.Q.setValueAtTime(parseFloat(document.getElementById('filter-reso').value), now);
-  
-  // Modulation wheel logic updates
-  const modWheelAmt = parseFloat(document.getElementById('mod-wheel').value);
-  modLFOGain.gain.setValueAtTime(modWheelAmt * 3.5, now);
 }
 
 function updateFilterFrequencies() {
-  if (!filterNode || !audioCtx) return;
-  const knobVal = parseFloat(document.getElementById('filter-cutoff').value);
-  const targetHz = Math.pow(2, knobVal / 10);
-  filterNode.frequency.setValueAtTime(targetHz, audioCtx.currentTime);
+  if (!audioCtx || !filterNode) return;
+  const sliderVal = parseFloat(document.getElementById('filter-cutoff').value);
+  filterNode.frequency.setValueAtTime(sliderVal, audioCtx.currentTime);
 }
 
-/* ── GLOBAL SYNTH SYNCHRONIZATION CALIBRATION ──────────── */
+/* ── VOICE FREQUENCY TRACKER SYSTEM ─────────────────── */
 function updateSynthVoice() {
   if (!audioCtx) return;
   const now = audioCtx.currentTime;
   
   if (noteStack.length === 0) {
-    // Gate closed: trigger release curve smoothly
+    // Monophonic Gate Closure Contour Release Phase Trigger
     envelopeGain.gain.cancelScheduledValues(now);
     envelopeGain.gain.setValueAtTime(envelopeGain.gain.value, now);
-    envelopeGain.gain.linearRampToValueAtTime(0, now + releaseTime);
+    envelopeGain.gain.linearRampToValueAtTime(0, now + Math.max(0.002, releaseTime));
     
     document.getElementById('scope-readout').innerHTML = `--- Hz &nbsp;·&nbsp; IDLE<span class="blink"> _</span>`;
   } else {
-    // Monophonic High Note Priority Voicing Rule selection
+    // Monophonic Priority Voicing Selection Block (Last Note Priority Core)
     const primaryNote = noteStack[noteStack.length - 1];
-    const pitchBendValue = parseFloat(document.getElementById('pitch-wheel').value) / 100; // ±1 semitone max range
     
-    const baseFreq = primaryNote.freq;
-    const isGateActive = (envelopeGain.gain.value > 0.002 && noteStack.length > 1);
+    // Extract base performance wheel bend offset calibrations
+    const pitchWheelValue = parseFloat(document.getElementById('pitch-wheel').value); 
+    const semitoneBendOffset = (pitchWheelValue / 100) * 2; 
+    const pitchBendScalar = Math.pow(2, semitoneBendOffset / 12);
     
-    // Smooth legato gliding frequency transitions
-    const transitionTime = isGateActive ? 0.04 : 0.002;
+    const f1 = primaryNote.freq * pitchBendScalar * Math.pow(2, oscDetunes[0]/1200);
+    const f2 = primaryNote.freq * pitchBendScalar * Math.pow(2, oscDetunes[1]/1200);
+    const f3 = primaryNote.freq * pitchBendScalar * Math.pow(2, oscDetunes[2]/1200);
     
-    [osc1, osc2, osc3].forEach((osc, idx) => {
-      if (osc) {
-        const totalCentsDetune = oscDetunes[idx] + (pitchBendValue * 100);
-        const targetFreq = baseFreq * Math.pow(2, totalCentsDetune / 1200);
-        osc.frequency.cancelScheduledValues(now);
-        osc.frequency.setTargetAtTime(targetFreq, now, transitionTime);
-      }
-    });
+    osc1.frequency.setValueAtTime(f1, now);
+    osc2.frequency.setValueAtTime(f2, now);
+    osc3.frequency.setValueAtTime(f3, now);
     
-    if (!isGateActive) {
+    // Gate Opening Contour Attack Phase Trigger
+    if (envelopeGain.gain.value === 0 || activeVoices[primaryNote.id]) {
       envelopeGain.gain.cancelScheduledValues(now);
       envelopeGain.gain.setValueAtTime(envelopeGain.gain.value, now);
-      envelopeGain.gain.linearRampToValueAtTime(1.0, now + attackTime);
+      envelopeGain.gain.linearRampToValueAtTime(1.0, now + Math.max(0.002, attackTime));
     }
     
     // Refresh Visual HUD Diagnostics
@@ -1622,47 +1568,44 @@ initKnob('osc2-volume', 'osc2-vol-tick', 'osc2-vol-val', null, v => {
 initKnob('osc3-volume', 'osc3-vol-tick', 'osc3-vol-val', null, v => {
   if (osc3Gain && audioCtx) osc3Gain.gain.setValueAtTime(v / 100, audioCtx.currentTime);
 });
-
-initKnob('filter-cutoff', 'filter-cutoff-tick', 'filter-cutoff-val', v => {
-  return Math.round(Math.pow(2, parseFloat(v) / 10)) + " Hz";
-}, () => {
+initKnob('filter-cutoff', 'filter-cut-tick', 'filter-cut-val', v => v + 'Hz', () => {
   updateFilterFrequencies();
 });
-
-initKnob('filter-reso', 'filter-reso-tick', 'filter-reso-val', v => parseFloat(v).toFixed(1), v => {
+initKnob('filter-reso', 'filter-res-tick', 'filter-res-val', v => parseFloat(v).toFixed(1), v => {
   if (filterNode && audioCtx) filterNode.Q.setValueAtTime(v, audioCtx.currentTime);
 });
 
-// Structural Change Listeners for continuous slider updates
-['osc1', 'osc2', 'osc3'].forEach((prefix, idx) => {
-  const detuneInput = document.getElementById(`${prefix}-detune`);
-  const readout = document.getElementById(`${prefix}-detune-val`);
-  if (detuneInput) {
-    detuneInput.addEventListener('input', () => {
-      const val = parseInt(detuneInput.value);
-      oscDetunes[idx] = val;
-      readout.textContent = (val >= 0 ? "+" : "") + val + "¢";
-      updateSynthVoice();
-    });
-  }
-  
-  const oscs = [osc1, osc2, osc3];
-  document.querySelectorAll(`input[name="${prefix}-wave"]`).forEach(radio => {
-    radio.addEventListener('change', () => {
-      if (oscs[idx]) oscs[idx].type = radio.value;
-    });
+// Sync radio selectors on wave forms changes directly
+document.querySelectorAll('.wave-selector input').forEach(input => {
+  input.addEventListener('change', () => {
+    if (!audioCtx) return;
+    if (input.name === 'osc1-wave') osc1.type = input.value;
+    if (input.name === 'osc2-wave') osc2.type = input.value;
+    if (input.name === 'osc3-wave') osc3.type = input.value;
   });
 });
 
-/* ── ENVELOPE CONTROLLERS (FADERS) ─────────────────────── */
+// Sync linear inline detune range elements
+['osc1-detune', 'osc2-detune', 'osc3-detune'].forEach((id, idx) => {
+  const el = document.getElementById(id);
+  const readout = document.getElementById(id + '-val');
+  el.addEventListener('input', () => {
+    const val = parseInt(el.value);
+    readout.textContent = (val >= 0 ? "+" : "") + val + "¢";
+    oscDetunes[idx] = val;
+    updateSynthVoice();
+  });
+});
+
+/* ── CONTOUR SLIDER EXPONENTIAL TRANSLATOR SYSTEM ─────── */
 function initFader(rangeId, thumbId, valId, msScale, audioCallback) {
   const range = document.getElementById(rangeId);
   const thumb = document.getElementById(thumbId);
   const val = document.getElementById(valId);
   if (!range) return;
   
-  const TRACK_H = 110, THUMB_H = 22, MARGIN = 4;
-  const travel = TRACK_H - THUMB_H - MARGIN * 2;
+  const SLOT_H = 110, THUMB_H = 22, MARGIN = 2;
+  const travel = SLOT_H - THUMB_H - MARGIN * 2;
   
   function update() {
     const pct = (range.value - range.min) / (range.max - range.min);
@@ -1707,7 +1650,6 @@ function initWheel(id, snapToCenter, audioCallback) {
   }
   
   range.addEventListener('input', update);
-  
   if (snapToCenter) {
     range.addEventListener('change', () => {
       range.value = 0;
@@ -1725,46 +1667,61 @@ initWheel('mod', false, v => {
 /* ── PIANO INTERACTION CONTROLLER ──────────────────────── */
 function pressKey(el) {
   if (!powered || !el) return;
+  
   const baseNote = el.getAttribute('data-note');
-  const baseOctave = parseInt(el.getAttribute('data-base-oct'));
+  const baseOct  = parseInt(el.getAttribute('data-base-oct'));
+  const finalOct = baseOct + currentOctaveShift;
   
-  const finalOctave = baseOctave + currentOctaveShift;
-  const frequency = getPitchHz(baseNote, baseOctave);
+  const noteId = `${baseNote}-${finalOct}`;
+  const computedFreq = NOTE_FREQS[baseNote] * Math.pow(2, finalOct);
   
-  if (!activeKeys.has(el.id)) {
-    activeKeys.add(el.id);
-    el.classList.add('key-active');
-    
-    // Mono Monophonic stacking injection tracking logic
-    noteStack = noteStack.filter(n => n.id !== el.id);
-    noteStack.push({ id: el.id, freq: frequency, noteName: baseNote, octave: finalOctave, el: el });
-    updateSynthVoice();
-  }
+  el.classList.add('key-active');
+  
+  // Guard against duplicate values inside last-note polyphonic stack arrays
+  noteStack = noteStack.filter(v => v.id !== noteId);
+  noteStack.push({ id: noteId, freq: computedFreq, noteName: baseNote, octave: finalOct });
+  
+  activeVoices[noteId] = true;
+  updateSynthVoice();
 }
 
 function releaseKey(el) {
   if (!el) return;
-  activeKeys.delete(el.id);
+  
+  const baseNote = el.getAttribute('data-note');
+  const baseOct  = parseInt(el.getAttribute('data-base-oct'));
+  const finalOct = baseOct + currentOctaveShift;
+  const noteId = `${baseNote}-${finalOct}`;
+  
   el.classList.remove('key-active');
-  noteStack = noteStack.filter(n => n.id !== el.id);
+  
+  noteStack = noteStack.filter(v => v.id !== noteId);
+  delete activeVoices[noteId];
+  
   updateSynthVoice();
 }
 
-// Visual layout trigger surface links
-document.querySelectorAll('.white-key, .black-key').forEach(key => {
-  key.addEventListener('pointerdown', e => {
+// Attach Pointer Event Handlers for Piano Keys
+document.querySelectorAll('.white-key, .black-key').forEach(keyEl => {
+  keyEl.addEventListener('pointerdown', e => {
     e.preventDefault();
-    key.setPointerCapture(e.pointerId);
-    pressKey(key);
+    keyEl.setPointerCapture(e.pointerId);
+    pressKey(keyEl);
   });
-  key.addEventListener('pointerup', () => releaseKey(key));
-  key.addEventListener('pointercancel',() => releaseKey(key));
+  keyEl.addEventListener('pointerup', e => {
+    e.preventDefault();
+    releaseKey(keyEl);
+  });
+  keyEl.addEventListener('pointercancel', e => {
+    e.preventDefault();
+    releaseKey(keyEl);
+  });
 });
 
-// PC QWERTY 2-Octave Keyboard Layout Mapping Configuration
+/* ── KEYBOARD SHORTCUT MAPPING ───────────────────────── */
 const KB_MAP = {
   // Lower Octave Mapping Configuration
-  z: 'c3', s: 'cs3', x: 'd3', d: 'ds3', c: 'e3', v: 'f3', g: 'fs3', b: 'g3', h: 'gs3', n: 'a3', j: 'as3', m: 'b3',
+  aria: 'c3', z: 'c3', s: 'cs3', x: 'd3', d: 'ds3', c: 'e3', v: 'f3', g: 'fs3', b: 'g3', h: 'gs3', n: 'a3', j: 'as3', m: 'b3',
   // Upper Octave Mapping Configuration
   q: 'c4', '2': 'cs4', w: 'd4', '3': 'ds4', e: 'e4', r: 'f4', '5': 'fs4', t: 'g4', '6': 'gs4', y: 'a4', '7': 'as4', u: 'b4', i: 'c5'
 };
@@ -1801,136 +1758,105 @@ function updateOctaveUI() {
   
   if (isMobile) {
     badge.innerHTML = `OCT ${startOct} <span class="blink">▮</span>`;
-    label.innerHTML = `KEYBOARD &nbsp;·&nbsp; C${startOct} — C${startOct+1} &nbsp;·&nbsp; mobile octave compressed`;
+    label.innerHTML = `KEYBOARD &nbsp;·&nbsp; C${startOct} — C${startOct + 1} &nbsp;·&nbsp; adaptive 1-oct`;
   } else {
     badge.innerHTML = `OCT ${startOct}-${endOct} <span class="blink">▮</span>`;
-    label.innerHTML = `KEYBOARD &nbsp;·&nbsp; C${startOct} — C${endOct} &nbsp;·&nbsp; adaptive dual octave`;
-  }
-  
-  // Real-time re-label logic loop dynamically tracking active octaves updates
-  document.querySelectorAll('.white-key, .black-key').forEach(key => {
-    const note = key.getAttribute('data-note');
-    const baseOct = parseInt(key.getAttribute('data-base-oct'));
-    const targetOct = baseOct + currentOctaveShift;
-    const labelSpan = key.querySelector('.key-note-label');
-    if (labelSpan) {
-      labelSpan.textContent = (note === 'C') ? `${note}${targetOct}` : note;
-    }
-  });
-  
-  // Flush notes upon shift to safely isolate oscillator frequencies
-  if (powered) {
-    noteStack = [];
-    document.querySelectorAll('.white-key, .black-key').forEach(k => k.classList.remove('key-active'));
-    activeKeys.clear();
-    updateSynthVoice();
+    label.innerHTML = `KEYBOARD &nbsp;·&nbsp; C${startOct} — C${endOct} &nbsp;·&nbsp; adaptive 2-oct`;
   }
 }
 
-const octDownBtn = document.getElementById('oct-down-btn');
-const octUpBtn = document.getElementById('oct-up-btn');
-
-octDownBtn.addEventListener('click', () => {
-  if (currentOctaveShift > -3) {
+document.getElementById('oct-down-btn').addEventListener('click', () => {
+  if (currentOctaveShift > -2) {
     currentOctaveShift--;
     updateOctaveUI();
+    noteStack = [];
+    updateSynthVoice();
   }
 });
 
-octUpBtn.addEventListener('click', () => {
-  if (currentOctaveShift < 3) {
+document.getElementById('oct-up-btn').addEventListener('click', () => {
+  if (currentOctaveShift < 2) {
     currentOctaveShift++;
     updateOctaveUI();
+    noteStack = [];
+    updateSynthVoice();
   }
 });
 
 window.addEventListener('resize', updateOctaveUI);
 updateOctaveUI();
 
-/* ── OSCILLOSCOPE REAL-TIME VISUALIZATION ENGINE ───────── */
-(function() {
-  const wrapper = document.getElementById('scope-wrapper');
-  const canvas = document.getElementById('scope-canvas');
-  if (!canvas || !wrapper) return;
+/* ── CRT CANVAS ANIMATION VECTOR MATRIX VISUALIZER ───── */
+const canvas = document.getElementById('scope-canvas');
+const ctx = canvas.getContext('2d');
+let t = 0;
+
+function resizeCanvas() {
+  const rect = canvas.parentElement.getBoundingClientRect();
+  canvas.width = rect.width * window.devicePixelRatio;
+  canvas.height = rect.height * window.devicePixelRatio;
+  ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
+}
+window.addEventListener('resize', resizeCanvas);
+resizeCanvas();
+
+const dataArray = new Uint8Array(1024);
+
+function draw() {
+  requestAnimationFrame(draw);
+  t += 0.03;
   
-  function resize() {
-    canvas.width = wrapper.offsetWidth;
-    canvas.height = wrapper.offsetHeight;
-  }
-  resize();
-  window.addEventListener('resize', resize);
+  const W = canvas.width / window.devicePixelRatio;
+  const H = canvas.height / window.devicePixelRatio;
   
-  const ctx = canvas.getContext('2d');
-  const dataArray = new Uint8Array(1024);
-  let t = 0;
+  ctx.clearRect(0, 0, W, H);
   
-  function draw() {
-    requestAnimationFrame(draw);
-    t += 0.03;
+  if (powered && analyserNode && noteStack.length > 0) {
+    analyserNode.getByteTimeDomainData(dataArray);
     
-    const W = canvas.width;
-    const H = canvas.height;
-    ctx.clearRect(0, 0, W, H);
+    ctx.save();
+    ctx.strokeStyle = '#00f5ff';
+    ctx.lineWidth   = 2.0;
+    ctx.shadowColor = '#00f5ff';
+    ctx.shadowBlur  = 6;
+    ctx.beginPath();
     
-    if (powered && analyserNode) {
-      analyserNode.getByteTimeDomainData(dataArray);
-      
-      ctx.save();
-      ctx.strokeStyle = '#00f5ff';
-      ctx.lineWidth   = 2.0;
-      ctx.shadowColor = '#00f5ff';
-      ctx.shadowBlur  = 6;
-      ctx.beginPath();
-      
-      const sliceWidth = W / 1024;
-      let x = 0;
-      
-      for (let i = 0; i < 1024; i++) {
-        const v = dataArray[i] / 128.0;
-        const y = (v * H) / 2 + Math.sin(i * 0.04) * 1.5; 
-        if (x === 0) ctx.moveTo(x, y);
-        else ctx.lineTo(x, y);
-        x += sliceWidth;
-        if (x > W) break;
-      }
-      ctx.stroke();
-      ctx.restore();
-      
-    } else {
-      ctx.save();
-      ctx.strokeStyle = '#00f5ff';
-      ctx.lineWidth   = 1.5;
-      ctx.shadowColor = '#00f5ff';
-      ctx.shadowBlur  = 8;
-      ctx.globalAlpha = 0.75;
-      ctx.beginPath();
-      for (let x = 0; x <= W; x++) {
-        const phase = (x / W) * Math.PI * 2;
-        const y = H / 2
-          + Math.sin(phase * 3 + t)          * H * 0.26
-          + Math.sin(phase * 5 + t * 1.2)    * H * 0.07
-          + Math.sin(phase * 7 + t * 0.8)    * H * 0.03;
-        x === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
-      }
-      ctx.stroke();
-      ctx.restore();
-      
-      ctx.save();
-      ctx.strokeStyle = '#ff2d78';
-      ctx.lineWidth   = 1.0;
-      ctx.globalAlpha = 0.25;
-      ctx.beginPath();
-      for (let x = 0; x <= W; x++) {
-        const phase = (x / W) * Math.PI * 2;
-        const y = H / 2 + Math.sin(phase * 2 - t * 0.5) * H * 0.12;
-        x === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
-      }
-      ctx.stroke();
-      ctx.restore();
+    const sliceWidth = W / 1024;
+    let x = 0;
+    
+    for (let i = 0; i < 1024; i++) {
+      const v = dataArray[i] / 128.0;
+      const y = (v * H) / 2 + Math.sin(i * 0.04) * 1.5; 
+      if (x === 0) ctx.moveTo(x, y);
+      else ctx.lineTo(x, y);
+      x += sliceWidth;
+      if (x > W) break;
     }
+    ctx.stroke();
+    ctx.restore();
+    
+  } else {
+    ctx.save();
+    ctx.strokeStyle = '#00f5ff';
+    ctx.lineWidth   = 1.5;
+    ctx.shadowColor = '#00f5ff';
+    ctx.shadowBlur  = 8;
+    ctx.globalAlpha = 0.75;
+    ctx.beginPath();
+    for (let x = 0; x <= W; x++) {
+      const phase = (x / W) * Math.PI * 2;
+      const y = H / 2
+        + Math.sin(phase * 3 + t)          * H * 0.26
+        + Math.sin(phase * 5 + t * 1.2)    * H * 0.07
+        + Math.sin(phase * 7 + t * 0.8)    * H * 0.03;
+      if (x === 0) ctx.moveTo(x, y);
+      else ctx.lineTo(x, y);
+    }
+    ctx.stroke();
+    ctx.restore();
   }
-  draw();
-})();
+}
+draw();
 </script>
 </body>
 </html>
