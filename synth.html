@@ -770,11 +770,39 @@ input.detune-input::-moz-range-thumb {
   text-transform: uppercase;
 }
 
+.keyboard-octave-container {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.octave-btn {
+  background: #0e0e1e;
+  border: 1px solid #222244;
+  color: var(--green);
+  font-family: 'Space Mono', monospace;
+  font-size: 11px;
+  font-weight: bold;
+  padding: 1px 8px;
+  cursor: pointer;
+  transition: all 0.1s;
+  user-select: none;
+}
+.octave-btn:hover {
+  border-color: var(--green);
+  box-shadow: 0 0 6px #99cc7733;
+}
+.octave-btn:active {
+  background: #151530;
+}
+
 .keyboard-octave-badge {
   font-family: 'VT323', monospace;
   font-size: 18px;
   color: #99cc7733;
   letter-spacing: 2px;
+  min-width: 100px;
+  text-align: center;
 }
 
 .piano-outer {
@@ -790,7 +818,7 @@ input.detune-input::-moz-range-thumb {
   display: flex;
 }
 
-/* ── WHITE KEYS ─────────────────────────────────────── */
+/* ── WHITE KEYS (2-Octave Compressed Layout) ────────── */
 .white-key {
   flex: 1;
   height: 100%;
@@ -817,11 +845,11 @@ input.detune-input::-moz-range-thumb {
 
 .white-key .key-note-label {
   position: absolute;
-  bottom: 5px;
+  bottom: 4px;
   left: 50%;
   transform: translateX(-50%);
   font-family: 'Space Mono', monospace;
-  font-size: 7px;
+  font-size: 6px;
   color: #bbb;
   pointer-events: none;
   white-space: nowrap;
@@ -835,13 +863,14 @@ input.detune-input::-moz-range-thumb {
   top: 6px;
   left: 50%;
   transform: translateX(-50%);
-  font-size: 8px;
-  color: #ddd;
+  font-size: 7px;
+  color: #c4c4c4;
+  font-weight: bold;
   pointer-events: none;
   letter-spacing: 0;
 }
 
-/* ── BLACK KEYS ─────────────────────────────────────── */
+/* ── BLACK KEYS (2-Octave Precision Layout) ────────── */
 .black-keys-layer {
   position: absolute;
   top: 0; left: 0; right: 0;
@@ -852,8 +881,8 @@ input.detune-input::-moz-range-thumb {
 
 .black-key {
   position: absolute;
-  /* width is ~58% of white key, centered over the gap */
-  width: 7%;
+  /* Width corresponds to roughly 56% of a single white key width (1/15th total) */
+  width: calc((100% / 15) * 0.56);
   height: 100%;
   background: linear-gradient(180deg, #303030 0%, #181818 70%, #0a0a0a 100%);
   border-left: 1px solid #050505;
@@ -873,12 +902,17 @@ input.detune-input::-moz-range-thumb {
   box-shadow: 1px 2px 4px rgba(0,0,0,0.8), 0 0 10px #99cc7755;
 }
 
-/* Black key positions for 8 white keys (12.5% each) */
-.black-key[data-note="Cs3"] { left: calc(1 * 12.5% - 3.5%); }
-.black-key[data-note="Ds3"] { left: calc(2 * 12.5% - 3.5%); }
-.black-key[data-note="Fs3"] { left: calc(4 * 12.5% - 3.5%); }
-.black-key[data-note="Gs3"] { left: calc(5 * 12.5% - 3.5%); }
-.black-key[data-note="As3"] { left: calc(6 * 12.5% - 3.5%); }
+/* 15 total white keys = 6.6667% grid step per white key. Center offsets align black keys between them. */
+.black-key[data-note-offset="1"]  { left: calc(1 * (100% / 15) - (calc((100% / 15) * 0.56) / 2)); }
+.black-key[data-note-offset="3"]  { left: calc(2 * (100% / 15) - (calc((100% / 15) * 0.56) / 2)); }
+.black-key[data-note-offset="6"]  { left: calc(4 * (100% / 15) - (calc((100% / 15) * 0.56) / 2)); }
+.black-key[data-note-offset="8"]  { left: calc(5 * (100% / 15) - (calc((100% / 15) * 0.56) / 2)); }
+.black-key[data-note-offset="10"] { left: calc(6 * (100% / 15) - (calc((100% / 15) * 0.56) / 2)); }
+.black-key[data-note-offset="13"] { left: calc(8 * (100% / 15) - (calc((100% / 15) * 0.56) / 2)); }
+.black-key[data-note-offset="15"] { left: calc(9 * (100% / 15) - (calc((100% / 15) * 0.56) / 2)); }
+.black-key[data-note-offset="18"] { left: calc(11 * (100% / 15) - (calc((100% / 15) * 0.56) / 2)); }
+.black-key[data-note-offset="20"] { left: calc(12 * (100% / 15) - (calc((100% / 15) * 0.56) / 2)); }
+.black-key[data-note-offset="22"] { left: calc(13 * (100% / 15) - (calc((100% / 15) * 0.56) / 2)); }
 
 /* keyboard shortcut hint bar */
 .keyboard-hints {
@@ -887,6 +921,20 @@ input.detune-input::-moz-range-thumb {
   gap: 4px;
   align-items: center;
   flex-wrap: wrap;
+}
+
+.hint-row-container {
+  display: flex;
+  align-items: center;
+  margin-right: 16px;
+}
+
+.hint-label {
+  font-size: 7px;
+  color: #444466;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin-right: 6px;
 }
 
 .hint-key {
@@ -902,14 +950,6 @@ input.detune-input::-moz-range-thumb {
   font-size: 8px;
   color: #222233;
   margin: 0 2px;
-}
-
-.hint-label {
-  font-size: 7px;
-  color: #222233;
-  letter-spacing: 2px;
-  text-transform: uppercase;
-  margin-right: 8px;
 }
 
 /* ── FOOTER — matches site ───────────────────────────── */
@@ -986,10 +1026,10 @@ footer span {
 <header>
   <div>
     <div class="site-brand">CARL WILLIAM</div>
-    <div class="page-subtitle">MINISYNTH-1 &nbsp;·&nbsp; MONOPHONIC SUBTRACTIVE SYNTHESIZER</div>
+    <div class="page-subtitle">MINISYNTH-1 &nbsp;·&nbsp; POLYPHONIC ENGINE EMULATION</div>
   </div>
   <div class="header-right">
-    <div class="build-badge">PHASE 2 &nbsp;/&nbsp; ENGINE ACTIVE</div>
+    <div class="build-badge">PHASE 1.5 &nbsp;/&nbsp; CONTROLS EXPANSION</div>
   </div>
 </header>
 
@@ -1000,7 +1040,7 @@ footer span {
     <div class="scope-wrapper" id="scope-wrapper">
       <canvas id="scope-canvas"></canvas>
       <div class="scope-corner scope-corner--tl">OSC ▸</div>
-      <div class="scope-corner scope-corner--tr" id="scope-readout">--- Hz &nbsp;·&nbsp; IDLE<span class="blink"> _</span></div>
+      <div class="scope-corner scope-corner--tr" id="scope-readout">READY<span class="blink"> _</span></div>
       <div class="scope-corner scope-corner--bl">TIME/DIV: 1ms</div>
     </div>
   </section>
@@ -1231,74 +1271,115 @@ footer span {
       </div>
     </section>
 
-  </div><section class="keyboard-section" id="keyboard-section" aria-label="Piano keyboard, one octave C3 to C4">
+  </div><section class="keyboard-section" id="keyboard-section" aria-label="Piano keyboard, two octaves starting with C3">
     <div class="keyboard-header">
-      <span class="keyboard-header-label">KEYBOARD &nbsp;·&nbsp; C3 — C4 &nbsp;·&nbsp; ONE OCTAVE</span>
-      <span class="keyboard-octave-badge">OCT 3 <span class="blink">▮</span></span>
+      <span class="keyboard-header-label">KEYBOARD &nbsp;·&nbsp; TWO OCATVES &nbsp;·&nbsp; REAL-TIME TRACKING</span>
+      <div class="keyboard-octave-container">
+        <button class="octave-btn" id="octave-down" aria-label="Lower base octave">-</button>
+        <span class="keyboard-octave-badge" id="octave-display">OCT 3 <span class="blink">▮</span></span>
+        <button class="octave-btn" id="octave-up" aria-label="Raise base octave">+</button>
+      </div>
     </div>
 
     <div class="piano-outer">
       <div class="piano" id="piano">
 
-        <div class="white-key" id="key-C3" data-note="C3" data-freq="130.81" role="button" tabindex="0" aria-label="C3">
-          <span class="key-shortcut">A</span>
-          <span class="key-note-label">C3</span>
+        <div class="white-key" id="key-n0" data-note-offset="0" role="button" tabindex="0" aria-label="C base">
+          <span class="key-shortcut">Z</span><span class="key-note-label" id="lbl-n0">C3</span>
         </div>
-        <div class="white-key" id="key-D3" data-note="D3" data-freq="146.83" role="button" tabindex="0" aria-label="D3">
-          <span class="key-shortcut">S</span>
-          <span class="key-note-label">D</span>
+        <div class="white-key" id="key-n2" data-note-offset="2" role="button" tabindex="0" aria-label="D base">
+          <span class="key-shortcut">X</span><span class="key-note-label" id="lbl-n2">D</span>
         </div>
-        <div class="white-key" id="key-E3" data-note="E3" data-freq="164.81" role="button" tabindex="0" aria-label="E3">
-          <span class="key-shortcut">D</span>
-          <span class="key-note-label">E</span>
+        <div class="white-key" id="key-n4" data-note-offset="4" role="button" tabindex="0" aria-label="E base">
+          <span class="key-shortcut">C</span><span class="key-note-label" id="lbl-n4">E</span>
         </div>
-        <div class="white-key" id="key-F3" data-note="F3" data-freq="174.61" role="button" tabindex="0" aria-label="F3">
-          <span class="key-shortcut">F</span>
-          <span class="key-note-label">F</span>
+        <div class="white-key" id="key-n5" data-note-offset="5" role="button" tabindex="0" aria-label="F base">
+          <span class="key-shortcut">V</span><span class="key-note-label" id="lbl-n5">F</span>
         </div>
-        <div class="white-key" id="key-G3" data-note="G3" data-freq="196.00" role="button" tabindex="0" aria-label="G3">
-          <span class="key-shortcut">G</span>
-          <span class="key-note-label">G</span>
+        <div class="white-key" id="key-n7" data-note-offset="7" role="button" tabindex="0" aria-label="G base">
+          <span class="key-shortcut">B</span><span class="key-note-label" id="lbl-n7">G</span>
         </div>
-        <div class="white-key" id="key-A3" data-note="A3" data-freq="220.00" role="button" tabindex="0" aria-label="A3">
-          <span class="key-shortcut">H</span>
-          <span class="key-note-label">A</span>
+        <div class="white-key" id="key-n9" data-note-offset="9" role="button" tabindex="0" aria-label="A base">
+          <span class="key-shortcut">N</span><span class="key-note-label" id="lbl-n9">A</span>
         </div>
-        <div class="white-key" id="key-B3" data-note="B3" data-freq="246.94" role="button" tabindex="0" aria-label="B3">
-          <span class="key-shortcut">J</span>
-          <span class="key-note-label">B</span>
+        <div class="white-key" id="key-n11" data-note-offset="11" role="button" tabindex="0" aria-label="B base">
+          <span class="key-shortcut">M</span><span class="key-note-label" id="lbl-n11">B</span>
         </div>
-        <div class="white-key" id="key-C4" data-note="C4" data-freq="261.63" role="button" tabindex="0" aria-label="C4">
-          <span class="key-shortcut">K</span>
-          <span class="key-note-label">C4</span>
+        
+        <div class="white-key" id="key-n12" data-note-offset="12" role="button" tabindex="0" aria-label="C mid">
+          <span class="key-shortcut">Q</span><span class="key-note-label" id="lbl-n12">C4</span>
+        </div>
+        <div class="white-key" id="key-n14" data-note-offset="14" role="button" tabindex="0" aria-label="D mid">
+          <span class="key-shortcut">W</span><span class="key-note-label" id="lbl-n14">D</span>
+        </div>
+        <div class="white-key" id="key-n16" data-note-offset="16" role="button" tabindex="0" aria-label="E mid">
+          <span class="key-shortcut">E</span><span class="key-note-label" id="lbl-n16">E</span>
+        </div>
+        <div class="white-key" id="key-n17" data-note-offset="17" role="button" tabindex="0" aria-label="F mid">
+          <span class="key-shortcut">R</span><span class="key-note-label" id="lbl-n17">F</span>
+        </div>
+        <div class="white-key" id="key-n19" data-note-offset="19" role="button" tabindex="0" aria-label="G mid">
+          <span class="key-shortcut">T</span><span class="key-note-label" id="lbl-n19">G</span>
+        </div>
+        <div class="white-key" id="key-n21" data-note-offset="21" role="button" tabindex="0" aria-label="A mid">
+          <span class="key-shortcut">Y</span><span class="key-note-label" id="lbl-n21">A</span>
+        </div>
+        <div class="white-key" id="key-n23" data-note-offset="23" role="button" tabindex="0" aria-label="B mid">
+          <span class="key-shortcut">U</span><span class="key-note-label" id="lbl-n23">B</span>
+        </div>
+        <div class="white-key" id="key-n24" data-note-offset="24" role="button" tabindex="0" aria-label="C high">
+          <span class="key-shortcut">I</span><span class="key-note-label" id="lbl-n24">C5</span>
         </div>
 
         <div class="black-keys-layer" id="black-keys-layer">
-          <div class="black-key" id="key-Cs3" data-note="Cs3" data-freq="138.59" role="button" tabindex="0" aria-label="C sharp 3"></div>
-          <div class="black-key" id="key-Ds3" data-note="Ds3" data-freq="155.56" role="button" tabindex="0" aria-label="D sharp 3"></div>
-          <div class="black-key" id="key-Fs3" data-note="Fs3" data-freq="185.00" role="button" tabindex="0" aria-label="F sharp 3"></div>
-          <div class="black-key" id="key-Gs3" data-note="Gs3" data-freq="207.65" role="button" tabindex="0" aria-label="G sharp 3"></div>
-          <div class="black-key" id="key-As3" data-note="As3" data-freq="233.08" role="button" tabindex="0" aria-label="A sharp 3"></div>
+          <div class="black-key" id="key-n1" data-note-offset="1" role="button" tabindex="0" aria-label="C sharp base"></div>
+          <div class="black-key" id="key-n3" data-note-offset="3" role="button" tabindex="0" aria-label="D sharp base"></div>
+          <div class="black-key" id="key-n6" data-note-offset="6" role="button" tabindex="0" aria-label="F sharp base"></div>
+          <div class="black-key" id="key-n8" data-note-offset="8" role="button" tabindex="0" aria-label="G sharp base"></div>
+          <div class="black-key" id="key-n10" data-note-offset="10" role="button" tabindex="0" aria-label="A sharp base"></div>
+          
+          <div class="black-key" id="key-n13" data-note-offset="13" role="button" tabindex="0" aria-label="C sharp mid"></div>
+          <div class="black-key" id="key-n15" data-note-offset="15" role="button" tabindex="0" aria-label="D sharp mid"></div>
+          <div class="black-key" id="key-n18" data-note-offset="18" role="button" tabindex="0" aria-label="F sharp mid"></div>
+          <div class="black-key" id="key-n20" data-note-offset="20" role="button" tabindex="0" aria-label="G sharp mid"></div>
+          <div class="black-key" id="key-n22" data-note-offset="22" role="button" tabindex="0" aria-label="A sharp mid"></div>
         </div>
 
       </div>
     </div>
 
     <div class="keyboard-hints" aria-hidden="true">
-      <span class="hint-label">PC KEYS</span>
-      <span class="hint-key">A</span><span class="hint-sep">·</span>
-      <span class="hint-key">W</span><span class="hint-sep">·</span>
-      <span class="hint-key">S</span><span class="hint-sep">·</span>
-      <span class="hint-key">E</span><span class="hint-sep">·</span>
-      <span class="hint-key">D</span><span class="hint-sep">·</span>
-      <span class="hint-key">F</span><span class="hint-sep">·</span>
-      <span class="hint-key">T</span><span class="hint-sep">·</span>
-      <span class="hint-key">G</span><span class="hint-sep">·</span>
-      <span class="hint-key">Y</span><span class="hint-sep">·</span>
-      <span class="hint-key">H</span><span class="hint-sep">·</span>
-      <span class="hint-key">U</span><span class="hint-sep">·</span>
-      <span class="hint-key">J</span><span class="hint-sep">·</span>
-      <span class="hint-key">K</span>
+      <div class="hint-row-container">
+        <span class="hint-label">OCT 1 LOW ROW:</span>
+        <span class="hint-key">Z</span><span class="hint-sep">·</span>
+        <span class="hint-key">S</span><span class="hint-sep">·</span>
+        <span class="hint-key">X</span><span class="hint-sep">·</span>
+        <span class="hint-key">D</span><span class="hint-sep">·</span>
+        <span class="hint-key">C</span><span class="hint-sep">·</span>
+        <span class="hint-key">V</span><span class="hint-sep">·</span>
+        <span class="hint-key">G</span><span class="hint-sep">·</span>
+        <span class="hint-key">B</span><span class="hint-sep">·</span>
+        <span class="hint-key">H</span><span class="hint-sep">·</span>
+        <span class="hint-key">N</span><span class="hint-sep">·</span>
+        <span class="hint-key">J</span><span class="hint-sep">·</span>
+        <span class="hint-key">M</span>
+      </div>
+      <div class="hint-row-container">
+        <span class="hint-label">OCT 2 HIGH ROW:</span>
+        <span class="hint-key">Q</span><span class="hint-sep">·</span>
+        <span class="hint-key">2</span><span class="hint-sep">·</span>
+        <span class="hint-key">W</span><span class="hint-sep">·</span>
+        <span class="hint-key">3</span><span class="hint-sep">·</span>
+        <span class="hint-key">E</span><span class="hint-sep">·</span>
+        <span class="hint-key">R</span><span class="hint-sep">·</span>
+        <span class="hint-key">5</span><span class="hint-sep">·</span>
+        <span class="hint-key">T</span><span class="hint-sep">·</span>
+        <span class="hint-key">6</span><span class="hint-sep">·</span>
+        <span class="hint-key">Y</span><span class="hint-sep">·</span>
+        <span class="hint-key">7</span><span class="hint-sep">·</span>
+        <span class="hint-key">U</span><span class="hint-sep">·</span>
+        <span class="hint-key">I</span>
+      </div>
     </div>
   </section>
 
@@ -1306,208 +1387,29 @@ footer span {
 
 <footer>
   <span>&copy; CARL WILLIAM</span>
-  <span>MINISYNTH-1 // PHASE 2 OPERATIONAL<span class="blink"> ▮</span></span>
-  <span>AUDIO ENGINE ACTIVE</span>
+  <span>MINISYNTH-1 // PHASE 1.5 UPGRADES</span>
+  <span>AUDIO ENGINE PENDING</span>
 </footer>
 
 <script>
 /* =========================================================
-   MINISYNTH-1 — Phase 2: Native Web Audio Engine Backend
+   MINISYNTH-1 — UI interactions & Mapping Extensions.
+   All data hooks ready for implementation.
    ========================================================= */
 
-/* ── STATE ARCHITECTURE ────────────────────────────────── */
-let powered = false;
-let audioCtx = null;
-
-// Node Reference Graph
-let osc1, osc2, osc3;
-let osc1Gain, osc2Gain, osc3Gain;
-let envelopeGain, filterNode, analyserNode, compressorNode;
-let modLFO, modLFOGain;
-
-// Monophonic Priority Settings & Global State
-let noteStack = []; 
-let activeKeys = new Set();
-let oscDetunes = [0, -7, 12]; 
-let pitchBendCents = 0;
-let attackTime = 0.05; 
-let releaseTime = 0.2; 
-let isGateActive = false;
-
-/* ── AUDIO ENGINE GRAPH INITIALIZATION ─────────────────── */
-function initAudioEngine() {
-  if (audioCtx) return;
-  
-  const AudioContextClass = window.AudioContext || window.webkitAudioContext;
-  audioCtx = new AudioContextClass();
-
-  // 1. 3-VCO Core Generation
-  osc1 = audioCtx.createOscillator();
-  osc2 = audioCtx.createOscillator();
-  osc3 = audioCtx.createOscillator();
-
-  osc1Gain = audioCtx.createGain();
-  osc2Gain = audioCtx.createGain();
-  osc3Gain = audioCtx.createGain();
-
-  // 2. Main Stage VCA & Legato Envelope Controller
-  envelopeGain = audioCtx.createGain();
-  envelopeGain.gain.setValueAtTime(0, audioCtx.currentTime);
-
-  // 3. 24dB Subtractive Biquad Low-Pass Filter
-  filterNode = audioCtx.createBiquadFilter();
-  filterNode.type = 'lowpass';
-
-  // 4. Matrix Performance Modulation Source (Mod LFO)
-  modLFO = audioCtx.createOscillator();
-  modLFO.type = 'sine';
-  modLFO.frequency.setValueAtTime(5.5, audioCtx.currentTime); // Standard 5.5Hz vibrato/wah rate
-
-  modLFOGain = audioCtx.createGain();
-  modLFOGain.gain.setValueAtTime(0, audioCtx.currentTime);
-
-  // 5. Analysis Block & Safety Limiter Network
-  analyserNode = audioCtx.createAnalyser();
-  analyserNode.fftSize = 2048;
-
-  compressorNode = audioCtx.createDynamicsCompressor();
-  compressorNode.threshold.setValueAtTime(-1, audioCtx.currentTime);
-  compressorNode.knee.setValueAtTime(4, audioCtx.currentTime);
-  compressorNode.ratio.setValueAtTime(12, audioCtx.currentTime);
-  compressorNode.attack.setValueAtTime(0.003, audioCtx.currentTime);
-  compressorNode.release.setValueAtTime(0.08, audioCtx.currentTime);
-
-  // 6. Audio Routing Interconnections
-  osc1.connect(osc1Gain);
-  osc2.connect(osc2Gain);
-  osc3.connect(osc3Gain);
-
-  osc1Gain.connect(envelopeGain);
-  osc2Gain.connect(envelopeGain);
-  osc3Gain.connect(envelopeGain);
-
-  envelopeGain.connect(filterNode);
-  modLFO.connect(modLFOGain);
-  modLFOGain.connect(filterNode.frequency); // Modulates filter cutoff directly for an immersive voice tint
-
-  filterNode.connect(analyserNode);
-  analyserNode.connect(compressorNode);
-  compressorNode.connect(audioCtx.destination);
-
-  // Start continuous running sound engine oscillators
-  osc1.start(0);
-  osc2.start(0);
-  osc3.start(0);
-  modLFO.start(0);
-
-  // Push existing DOM UI parameter settings dynamically into the core
-  syncAllParameters();
-}
-
-/* ── VOICING MIXER & PARAMETER SYNCHRONIZATION ─────────── */
-function syncAllParameters() {
-  if (!audioCtx) return;
-  const now = audioCtx.currentTime;
-
-  // Mixer Gain Mappings
-  osc1Gain.gain.setValueAtTime(parseFloat(document.getElementById('osc1-volume').value) / 100, now);
-  osc2Gain.gain.setValueAtTime(parseFloat(document.getElementById('osc2-volume').value) / 100, now);
-  osc3Gain.gain.setValueAtTime(parseFloat(document.getElementById('osc3-volume').value) / 100, now);
-
-  // Waveform Toggles Selection
-  ['osc1', 'osc2', 'osc3'].forEach((prefix, idx) => {
-    const oscs = [osc1, osc2, osc3];
-    const checkedWave = document.querySelector(`input[name="${prefix}-wave"]:checked`);
-    if (checkedWave && oscs[idx]) oscs[idx].type = checkedWave.value;
-  });
-
-  // Detuning & Tracking Calibration
-  oscDetunes[0] = parseInt(document.getElementById('osc1-detune').value);
-  oscDetunes[1] = parseInt(document.getElementById('osc2-detune').value);
-  oscDetunes[2] = parseInt(document.getElementById('osc3-detune').value);
-  pitchBendCents = parseInt(document.getElementById('pitch-wheel').value) * 2;
-  for (let i = 0; i < 3; i++) updateOscDetune(i);
-
-  // Filter Matrix Settings
-  filterNode.frequency.setValueAtTime(parseFloat(document.getElementById('filter-cutoff').value), now);
-  filterNode.Q.setValueAtTime(parseFloat(document.getElementById('filter-resonance').value) / 5, now); // Scale 0-100 down to 0-20 clean operational band
-
-  // Envelope Interpolation Intervals
-  attackTime = (parseInt(document.getElementById('env-attack').value) * 10) / 1000;
-  releaseTime = (parseInt(document.getElementById('env-release').value) * 50) / 1000;
-
-  // Performance Matrix Settings
-  modLFOGain.gain.setValueAtTime(parseFloat(document.getElementById('mod-wheel').value) * 30, now);
-}
-
-function updateOscDetune(index) {
-  const oscs = [osc1, osc2, osc3];
-  if (oscs[index] && audioCtx) {
-    oscs[index].detune.setValueAtTime(oscDetunes[index] + pitchBendCents, audioCtx.currentTime);
-  }
-}
-
-/* ── MONOPHONIC VOICE ENGINE & LOW-NOTE PRIORITY ──────── */
-function updateSynthVoice() {
-  if (!audioCtx) return;
-  const now = audioCtx.currentTime;
-
-  if (!powered || noteStack.length === 0) {
-    // Gate Off: Trigger Envelope Release Stage
-    if (isGateActive) {
-      envelopeGain.gain.cancelScheduledValues(now);
-      envelopeGain.gain.setValueAtTime(envelopeGain.gain.value, now);
-      envelopeGain.gain.linearRampToValueAtTime(0.0, now + releaseTime);
-      isGateActive = false;
-    }
-    document.getElementById('scope-readout').innerHTML = `--- Hz &nbsp;·&nbsp; IDLE<span class="blink"> _</span>`;
-  } else {
-    // Monophonic Sorting: Filter and acquire Lowest Active Pitch Node
-    noteStack.sort((a, b) => a.freq - b.freq);
-    const primaryNote = noteStack[0];
-
-    // On-the-fly Legato Frequency Modulation updates
-    osc1.frequency.setValueAtTime(primaryNote.freq, now);
-    osc2.frequency.setValueAtTime(primaryNote.freq, now);
-    osc3.frequency.setValueAtTime(primaryNote.freq, now);
-
-    // Gate On: Trigger Attack Stage (skip if running legato on a lower key target)
-    if (!isGateActive) {
-      envelopeGain.gain.cancelScheduledValues(now);
-      envelopeGain.gain.setValueAtTime(envelopeGain.gain.value, now);
-      envelopeGain.gain.linearRampToValueAtTime(1.0, now + attackTime);
-      isGateActive = true;
-    }
-
-    // Refresh Visual HUD Diagnostics
-    document.getElementById('scope-readout').innerHTML = `${Math.round(primaryNote.freq)} Hz &nbsp;·&nbsp; ${primaryNote.el.dataset.note}<span class="blink"> _</span>`;
-  }
-}
-
-/* ── POWER SYSTEM ──────────────────────────────────────── */
+/* ── POWER BUTTON ──────────────────────────────────────── */
 const powerBtn = document.getElementById('power-btn');
 const powerLed = document.getElementById('power-led');
+let powered = false;
 
 powerBtn.addEventListener('click', () => {
   powered = !powered;
   powerLed.classList.toggle('on', powered);
   powerBtn.textContent = powered ? 'ON' : 'POWER';
-
-  if (powered) {
-    initAudioEngine();
-    if (audioCtx && audioCtx.state === 'suspended') {
-      audioCtx.resume();
-    }
-  } else {
-    // Structural Safety Purge: Instantly cut audio pipeline & flush trackers
-    noteStack = [];
-    document.querySelectorAll('.white-key, .black-key').forEach(k => k.classList.remove('key-active'));
-    updateSynthVoice();
-  }
 });
 
-/* ── UI KNOB CONTROL ASSIGNMENTS ───────────────────────── */
-function initKnob(rangeId, tickId, valId, formatter, audioCallback) {
+/* ── KNOB ROTATION UTILITY ─────────────────────────────── */
+function initKnob(rangeId, tickId, valId, formatter) {
   const range = document.getElementById(rangeId);
   const tick  = document.getElementById(tickId);
   const val   = document.getElementById(valId);
@@ -1519,62 +1421,41 @@ function initKnob(rangeId, tickId, valId, formatter, audioCallback) {
     tick.style.transform = `rotate(${deg}deg)`;
     if (val && formatter) val.textContent = formatter(range.value);
     else if (val) val.textContent = range.value;
-    
-    if (audioCallback) audioCallback(parseFloat(range.value));
   }
 
   range.addEventListener('input', update);
   update();
 }
 
-initKnob('osc1-volume', 'osc1-vol-tick', 'osc1-vol-val', null, v => {
-  if (osc1Gain && audioCtx) osc1Gain.gain.setValueAtTime(v / 100, audioCtx.currentTime);
-});
-initKnob('osc2-volume', 'osc2-vol-tick', 'osc2-vol-val', null, v => {
-  if (osc2Gain && audioCtx) osc2Gain.gain.setValueAtTime(v / 100, audioCtx.currentTime);
-});
-initKnob('osc3-volume', 'osc3-vol-tick', 'osc3-vol-val', null, v => {
-  if (osc3Gain && audioCtx) osc3Gain.gain.setValueAtTime(v / 100, audioCtx.currentTime);
-});
+/* ── OSC VOLUME KNOBS ──────────────────────────────────── */
+initKnob('osc1-volume', 'osc1-vol-tick', 'osc1-vol-val');
+initKnob('osc2-volume', 'osc2-vol-tick', 'osc2-vol-val');
+initKnob('osc3-volume', 'osc3-vol-tick', 'osc3-vol-val');
 
+/* ── FILTER KNOBS ──────────────────────────────────────── */
 initKnob('filter-cutoff', 'filter-cutoff-tick', 'filter-cutoff-val', v => {
   const hz = parseInt(v);
   if (hz >= 1000) return (hz / 1000).toFixed(hz >= 10000 ? 0 : 1) + 'kHz';
   return hz + 'Hz';
-}, v => {
-  if (filterNode && audioCtx) filterNode.frequency.setValueAtTime(v, audioCtx.currentTime);
 });
 
-initKnob('filter-resonance', 'filter-res-tick', 'filter-res-val', null, v => {
-  if (filterNode && audioCtx) filterNode.Q.setValueAtTime(v / 5, audioCtx.currentTime);
-});
+initKnob('filter-resonance', 'filter-res-tick', 'filter-res-val');
 
-/* ── OSC DETUNE SYSTEM INTERACTION ─────────────────────── */
-['osc1','osc2','osc3'].forEach((prefix, idx) => {
+/* ── DETUNE SLIDERS ────────────────────────────────────── */
+['osc1','osc2','osc3'].forEach(prefix => {
   const input = document.getElementById(prefix + '-detune');
   const readout = document.getElementById(prefix + '-detune-val');
   if (!input || !readout) return;
   function updateDetune() {
     const v = parseInt(input.value);
     readout.textContent = v > 0 ? '+' + v + '¢' : v === 0 ? '±0¢' : v + '¢';
-    oscDetunes[idx] = v;
-    updateOscDetune(idx);
   }
   input.addEventListener('input', updateDetune);
+  updateDetune();
 });
 
-/* ── WAVEFORM RADIO INTERACTIVE ROUTING ────────────────── */
-['osc1', 'osc2', 'osc3'].forEach((prefix, idx) => {
-  const oscs = [osc1, osc2, osc3];
-  document.querySelectorAll(`input[name="${prefix}-wave"]`).forEach(radio => {
-    radio.addEventListener('change', () => {
-      if (oscs[idx]) oscs[idx].type = radio.value;
-    });
-  });
-});
-
-/* ── ENVELOPE CONTROLLERS (FADERS) ─────────────────────── */
-function initFader(rangeId, thumbId, valId, msScale, audioCallback) {
+/* ── ENVELOPE FADERS ───────────────────────────────────── */
+function initFader(rangeId, thumbId, valId, msScale) {
   const range = document.getElementById(rangeId);
   const thumb = document.getElementById(thumbId);
   const val   = document.getElementById(valId);
@@ -1586,21 +1467,20 @@ function initFader(rangeId, thumbId, valId, msScale, audioCallback) {
     const pct = (range.value - range.min) / (range.max - range.min);
     const bottomPx = MARGIN + pct * travel;
     if (thumb) thumb.style.bottom = bottomPx + 'px';
-    const ms = Math.round(parseInt(range.value) * msScale);
     if (val) {
+      const ms = Math.round(parseInt(range.value) * msScale);
       val.textContent = ms >= 1000 ? (ms / 1000).toFixed(1) + 's' : ms + 'ms';
     }
-    if (audioCallback) audioCallback(ms / 1000);
   }
   range.addEventListener('input', update);
   update();
 }
 
-initFader('env-attack',  'attack-thumb',  'env-attack-val',  10, v => { attackTime = v; });
-initFader('env-release', 'release-thumb', 'env-release-val', 50, v => { releaseTime = v; });
+initFader('env-attack',  'attack-thumb',  'env-attack-val',  10);
+initFader('env-release', 'release-thumb', 'env-release-val', 50);
 
-/* ── PERFORMANCE CONTROLLERS (WHEELS) ──────────────────── */
-function initWheel(id, snapToCenter, audioCallback) {
+/* ── PERFORMANCE WHEELS ────────────────────────────────── */
+function initWheel(id, snapToCenter) {
   const range  = document.getElementById(id + '-wheel');
   const thumb  = document.getElementById(id + '-wheel-thumb');
   const readout = document.getElementById(id + '-wheel-val');
@@ -1612,65 +1492,93 @@ function initWheel(id, snapToCenter, audioCallback) {
     const pct = (range.value - range.min) / (range.max - range.min);
     const topPx = (1 - pct) * travel;
     if (thumb) thumb.style.top = topPx + 'px';
-    const v = parseInt(range.value);
     if (readout) {
+      const v = parseInt(range.value);
       readout.textContent = (v > 0 && snapToCenter) ? '+' + v : (v === 0 && snapToCenter) ? '±0' : v.toString();
     }
-    if (audioCallback) audioCallback(v);
   }
 
   range.addEventListener('input', update);
 
   if (snapToCenter) {
-    const reset = () => { range.value = 0; update(); };
-    range.addEventListener('pointerup', reset);
-    range.addEventListener('keyup', reset);
+    range.addEventListener('pointerup', () => {
+      range.value = 0;
+      update();
+    });
+    range.addEventListener('keyup', () => {
+      range.value = 0;
+      update();
+    });
   }
   update();
 }
 
-initWheel('pitch', true, v => {
-  pitchBendCents = v * 2; // Map mechanical sweep ±100 scale parameter cleanly onto a full ±200¢ layout boundary
-  for (let i = 0; i < 3; i++) updateOscDetune(i);
-});
+initWheel('pitch', true);
+initWheel('mod', false);
 
-initWheel('mod', false, v => {
-  if (modLFOGain && audioCtx) {
-    modLFOGain.gain.setValueAtTime(v * 30, audioCtx.currentTime);
+/* ── BASE OCTAVE CALCULATOR ENGINE ──────────────────────── */
+let baseOctave = 3; // Engine boundaries: C0 to C8
+const displayEl = document.getElementById('octave-display');
+const scopeReadout = document.getElementById('scope-readout');
+
+function updateOctaveUI() {
+  displayEl.innerHTML = `OCT ${baseOctave} <span class="blink">▮</span>`;
+  
+  // Shift baseline notations across structural keys dynamically
+  document.getElementById('lbl-n0').textContent = `C${baseOctave}`;
+  document.getElementById('lbl-n12').textContent = `C${baseOctave + 1}`;
+  document.getElementById('lbl-n24').textContent = `C${baseOctave + 2}`;
+}
+
+document.getElementById('octave-down').addEventListener('click', () => {
+  if (baseOctave > 0) {
+    baseOctave--;
+    updateOctaveUI();
   }
 });
 
-/* ── KEY CONTROL PIANO INTERFACES ──────────────────────── */
+document.getElementById('octave-up').addEventListener('click', () => {
+  if (baseOctave < 6) { // Sets floor of target high octave to C8 limits max upper range cleanly
+    baseOctave++;
+    updateOctaveUI();
+  }
+});
+
+// Semitone frequency table calculator derived from baseline note offset formulas
+function getFrequencyForOffset(offset) {
+  const totalSemitonesFromC4 = (offset + (baseOctave * 12)) - 48;
+  return (440 * Math.pow(2, (totalSemitonesFromC4 - 9) / 12)).toFixed(2);
+}
+
+function getNoteNameForOffset(offset) {
+  const names = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+  const absoluteNoteIndex = offset + (baseOctave * 12);
+  const name = names[absoluteNoteIndex % 12];
+  const octave = Math.floor(absoluteNoteIndex / 12);
+  return `${name}${octave}`;
+}
+
+/* ── RESPONSIVE PIANO INTERACTION CONTROLLERS ───────────── */
+const activeKeys = new Set();
+
 function pressKey(el) {
   if (!el || activeKeys.has(el.id)) return;
-  
-  if (powered && !audioCtx) {
-    initAudioEngine();
-  }
-
   activeKeys.add(el.id);
   el.classList.add('key-active');
-
-  if (!noteStack.some(n => n.id === el.id)) {
-    noteStack.push({
-      id: el.id,
-      freq: parseFloat(el.getAttribute('data-freq')),
-      el: el
-    });
+  
+  const offset = parseInt(el.getAttribute('data-note-offset'));
+  if (scopeReadout) {
+    scopeReadout.innerHTML = `${getFrequencyForOffset(offset)} Hz &nbsp;·&nbsp; ${getNoteNameForOffset(offset)}<span class="blink"> _</span>`;
   }
-  updateSynthVoice();
 }
 
 function releaseKey(el) {
   if (!el) return;
   activeKeys.delete(el.id);
   el.classList.remove('key-active');
-
-  noteStack = noteStack.filter(n => n.id !== el.id);
-  updateSynthVoice();
 }
 
-// Visual layout trigger surface links
+// Global UI assignment listeners covering all responsive elements
 document.querySelectorAll('.white-key, .black-key').forEach(key => {
   key.addEventListener('pointerdown', e => {
     e.preventDefault();
@@ -1681,26 +1589,32 @@ document.querySelectorAll('.white-key, .black-key').forEach(key => {
   key.addEventListener('pointercancel',() => releaseKey(key));
 });
 
-// PC QWERTY keyboard map link routing
-const KB_MAP = {
-  a: 'C3',  w: 'Cs3', s: 'D3',  e: 'Ds3',
-  d: 'E3',  f: 'F3',  t: 'Fs3', g: 'G3',
-  y: 'Gs3', h: 'A3',  u: 'As3', j: 'B3',
-  k: 'C4'
+/* ── TWO-OCTAVE PROFESSIONAL TRACKER DESKTOP MAPPING ────── */
+const MAPPING_MATRIX = {
+  // OCTAVE 1 (Lower Rows)
+  'z': 0,  's': 1,  'x': 2,  'd': 3,  'c': 4,  'v': 5,  'g': 6,  'b': 7,  'h': 8,  'n': 9,  'j': 10, 'm': 11,
+  // OCTAVE 2 (Upper Rows)
+  'q': 12, '2': 13, 'w': 14, '3': 15, 'e': 16, 'r': 17, '5': 18, 't': 19, '6': 20, 'y': 21, '7': 22, 'u': 23, 'i': 24
 };
 
 document.addEventListener('keydown', e => {
   if (e.repeat || e.metaKey || e.ctrlKey) return;
-  const note = KB_MAP[e.key.toLowerCase()];
-  if (note) pressKey(document.getElementById('key-' + note));
+  const offset = MAPPING_MATRIX[e.key.toLowerCase()];
+  if (offset !== undefined) {
+    const targetKey = document.getElementById(`key-n${offset}`);
+    if (targetKey) pressKey(targetKey);
+  }
 });
 
 document.addEventListener('keyup', e => {
-  const note = KB_MAP[e.key.toLowerCase()];
-  if (note) releaseKey(document.getElementById('key-' + note));
+  const offset = MAPPING_MATRIX[e.key.toLowerCase()];
+  if (offset !== undefined) {
+    const targetKey = document.getElementById(`key-n${offset}`);
+    if (targetKey) releaseKey(targetKey);
+  }
 });
 
-// A11y keyboard link parameters
+// A11y Key Enter / space bar compatibility overrides
 document.querySelectorAll('.white-key, .black-key').forEach(key => {
   key.addEventListener('keydown', e => {
     if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); pressKey(key); }
@@ -1710,7 +1624,7 @@ document.querySelectorAll('.white-key, .black-key').forEach(key => {
   });
 });
 
-/* ── OSCILLOSCOPE REAL-TIME VISUALIZATION ENGINE ───────── */
+/* ── OSCILLOSCOPE PLACEHOLDER ANIMATION ────────────────── */
 (function() {
   const wrapper = document.getElementById('scope-wrapper');
   const canvas  = document.getElementById('scope-canvas');
@@ -1730,107 +1644,46 @@ document.querySelectorAll('.white-key, .black-key').forEach(key => {
     const W = canvas.width, H = canvas.height;
     ctx.clearRect(0, 0, W, H);
 
-    if (audioCtx && powered && analyserNode && noteStack.length > 0) {
-      // Live Vector Rendering from Native AnalyserNode Output
-      const bufferLength = analyserNode.frequencyBinCount;
-      const dataArray = new Uint8Array(bufferLength);
-      analyserNode.getByteTimeDomainData(dataArray);
-
-      // Trigger tracking stabilizing threshold (aligning phase start boundary)
-      let offset = 0;
-      for (let i = 0; i < bufferLength / 2; i++) {
-        if (dataArray[i] < 128 && dataArray[i + 1] >= 128) {
-          offset = i;
-          break;
-        }
-      }
-
-      const sliceWidth = W / (bufferLength * 0.35); // Visual focal scaling zoom
-
-      // Primary trace graph — cyan
-      ctx.save();
-      ctx.strokeStyle = '#00f5ff';
-      ctx.lineWidth   = 1.5;
-      ctx.shadowColor = '#00f5ff';
-      ctx.shadowBlur  = 8;
-      ctx.globalAlpha = 0.85;
-      ctx.beginPath();
-
-      let x = 0;
-      for (let i = offset; i < bufferLength; i++) {
-        const v = dataArray[i] / 128.0;
-        const y = (v * H) / 2;
-        if (x === 0) ctx.moveTo(x, y);
-        else ctx.lineTo(x, y);
-        x += sliceWidth;
-        if (x > W) break;
-      }
-      ctx.stroke();
-      ctx.restore();
-
-      // Ambient subtrace overlay graph — pink
-      ctx.save();
-      ctx.strokeStyle = '#ff2d78';
-      ctx.lineWidth   = 1;
-      ctx.shadowColor = '#ff2d78';
-      ctx.shadowBlur  = 4;
-      ctx.globalAlpha = 0.22;
-      ctx.beginPath();
-
-      x = 0;
-      for (let i = offset; i < bufferLength; i++) {
-        const v = dataArray[i] / 128.0;
-        const y = (v * H) / 2 + Math.sin(i * 0.04) * 1.5; // Micro-offset shimmer
-        if (x === 0) ctx.moveTo(x, y);
-        else ctx.lineTo(x, y);
-        x += sliceWidth;
-        if (x > W) break;
-      }
-      ctx.stroke();
-      ctx.restore();
-
-    } else {
-      // Synchronized Idle Synthetic Wave Generator (Phase 1 Ambient Fallback)
-      ctx.save();
-      ctx.strokeStyle = '#00f5ff';
-      ctx.lineWidth   = 1.5;
-      ctx.shadowColor = '#00f5ff';
-      ctx.shadowBlur  = 8;
-      ctx.globalAlpha = 0.75;
-      ctx.beginPath();
-      for (let x = 0; x <= W; x++) {
-        const phase = (x / W) * Math.PI * 2;
-        const y = H / 2
-          + Math.sin(phase * 3 + t)          * H * 0.26
-          + Math.sin(phase * 5 + t * 1.2)    * H * 0.07
-          + Math.sin(phase * 7 + t * 0.8)    * H * 0.03;
-        x === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
-      }
-      ctx.stroke();
-      ctx.restore();
-
-      ctx.save();
-      ctx.strokeStyle = '#ff2d78';
-      ctx.lineWidth   = 1;
-      ctx.shadowColor = '#ff2d78';
-      ctx.shadowBlur  = 4;
-      ctx.globalAlpha = 0.18;
-      ctx.beginPath();
-      for (let x = 0; x <= W; x++) {
-        const phase = (x / W) * Math.PI * 2;
-        const y = H / 2
-          + Math.sin(phase * 4 + t * 1.7) * H * 0.14
-          + Math.sin(phase * 8 + t * 2.1) * H * 0.04;
-        x === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
-      }
-      ctx.stroke();
-      ctx.restore();
-
-      t += 0.038;
+    ctx.save();
+    ctx.strokeStyle = '#00f5ff';
+    ctx.lineWidth   = 1.5;
+    ctx.shadowColor = '#00f5ff';
+    ctx.shadowBlur  = 8;
+    ctx.globalAlpha = 0.75;
+    ctx.beginPath();
+    for (let x = 0; x <= W; x++) {
+      const phase = (x / W) * Math.PI * 2;
+      const y = H / 2
+        + Math.sin(phase * 3 + t)          * H * 0.26
+        + Math.sin(phase * 5 + t * 1.2)    * H * 0.07
+        + Math.sin(phase * 7 + t * 0.8)    * H * 0.03;
+      x === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
     }
+    ctx.stroke();
+    ctx.restore();
+
+    ctx.save();
+    ctx.strokeStyle = '#ff2d78';
+    ctx.lineWidth   = 1;
+    ctx.shadowColor = '#ff2d78';
+    ctx.shadowBlur  = 4;
+    ctx.globalAlpha = 0.18;
+    ctx.beginPath();
+    for (let x = 0; x <= W; x++) {
+      const phase = (x / W) * Math.PI * 2;
+      const y = H / 2
+        + Math.sin(phase * 4 + t * 1.7) * H * 0.14
+        + Math.sin(phase * 8 + t * 2.1) * H * 0.04;
+      x === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+    }
+    ctx.stroke();
+    ctx.restore();
+
+    t += 0.038;
     requestAnimationFrame(drawScope);
   }
   drawScope();
+  updateOctaveUI(); // Initialized tracker labeling system baseline values
 })();
 </script>
 </body>
