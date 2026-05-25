@@ -1,0 +1,909 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Carl William Music — Standalone Hybrid Drum Machine</title>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=VT323&display=swap" rel="stylesheet">
+    <style>
+        /* ── YOUR GLOBAL MUSIC WORKSPACE STYLES ──────────────────────────── */
+        :root {
+            --bg:      #0a0a12;
+            --surface: #0d0d1a;
+            --pink:    #ff2d78;
+            --cyan:    #00f5ff;
+            --gold:    #ffd700;
+            --purple:  #b06aff;
+            --green:   #99cc77;
+            --text:    #e0d8f0;
+            --muted:   #9988aa;
+            --dim:     #443355;
+        }
+
+        *, *::before, *::after { 
+            box-sizing: border-box; 
+            margin: 0; 
+            padding: 0; 
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: 'Space Mono', monospace;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* ── CRT SCANLINE OVERLAY ───────────────────────────────────── */
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background: repeating-linear-gradient(
+                0deg,
+                transparent,
+                transparent 3px,
+                rgba(0,245,255,0.015) 3px,
+                rgba(0,245,255,0.015) 4px
+            );
+            pointer-events: none;
+            z-index: 999;
+        }
+
+        /* ── HEADER ─────────────────────────────────────────────────── */
+        header {
+            border-bottom: 2px solid var(--cyan);
+            padding: 36px 48px 24px;
+        }
+
+        .artist-name {
+            font-family: 'VT323', monospace;
+            font-size: clamp(44px, 8vw, 72px);
+            color: #00ff41;
+            letter-spacing: 6px;
+            line-height: 1;
+            text-shadow: 3px 3px 0 #003d10, 0 0 40px #00ff4155;
+            animation: breathe 3s ease-in-out infinite;
+        }
+
+        @keyframes breathe {
+            0%, 100% { text-shadow: 3px 3px 0 #003d10, 0 0 20px #00ff4133, 0 0 40px #00ff4122; }
+            50%      { text-shadow: 3px 3px 0 #003d10, 0 0 30px #00ff41aa, 0 0 60px #00ff4155, 0 0 80px #00ff4122; }
+        }
+
+        .artist-tagline {
+            font-size: 11px;
+            color: var(--cyan);
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            margin-top: 8px;
+            opacity: 0.8;
+        }
+
+        /* ── PAGE LAYOUT SYSTEMS ─────────────────────────────────────── */
+        .page {
+            display: grid;
+            grid-template-columns: 1fr 280px;
+            min-height: calc(100vh - 200px);
+        }
+
+        .left-col {
+            padding: 36px 36px 36px 48px;
+            border-right: 1px solid #ff2d7822;
+        }
+
+        .right-col {
+            padding: 28px 24px;
+            background: var(--surface);
+        }
+
+        .section-label {
+            font-size: 10px;
+            color: var(--cyan);
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            margin-bottom: 14px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section-label::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: #00f5ff33;
+        }
+
+        /* ── DAW SCREEN & SEQUENCER INTEGRATION ──────────────────────── */
+        .daw-interface {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+            width: 100%;
+            margin: 0 auto;
+        }
+
+        .status-screen {
+            background: var(--surface);
+            border: 1px solid #00ff4133;
+            padding: 16px 20px;
+            box-shadow: inset 0 0 20px rgba(0, 255, 65, 0.05);
+        }
+
+        .lcd-panel {
+            display: flex;
+            justify-content: space-between;
+            font-family: 'VT323', monospace;
+            font-size: clamp(20px, 4vw, 28px);
+            color: #00ff41;
+            text-shadow: 0 0 8px #00ff4166;
+            letter-spacing: 2px;
+            margin-top: 8px;
+        }
+
+        /* ── Modern 16-Step Grid Component ───────────────────────────── */
+        .sequencer-grid-container {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            background: rgba(13, 13, 26, 0.7);
+            border: 1px solid #ff2d7822;
+            padding: 20px;
+            border-radius: 4px;
+        }
+
+        .instrument-row {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .instrument-label {
+            width: 100px;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text);
+        }
+
+        .steps-row {
+            display: grid;
+            grid-template-columns: repeat(16, 1fr);
+            gap: 6px;
+            flex: 1;
+        }
+
+        .step-cell {
+            aspect-ratio: 1 / 1;
+            background: #06060f;
+            border: 1px solid var(--dim);
+            cursor: pointer;
+            transition: all 0.1s ease;
+        }
+
+        /* 4x4 matrix rhythm visual helpers */
+        .step-cell:nth-child(4n+1) {
+            border-left-color: rgba(0, 245, 255, 0.4);
+        }
+
+        .step-cell.active {
+            background: var(--pink);
+            border-color: #ff2d7888;
+            box-shadow: 0 0 10px rgba(255, 45, 120, 0.6);
+        }
+
+        .step-cell.current-tick {
+            outline: 2px solid var(--cyan);
+            outline-offset: 1px;
+        }
+
+        .step-cell.active.current-tick {
+            background: #fff;
+            box-shadow: 0 0 14px #00f5ff;
+        }
+
+        /* ── YOUR CASIO SK-5 CORE CONSOLE AESTHETIC ─────────────────── */
+        #sk5-app-container {
+            background-color: #2e3136;
+            border: 6px solid #1f2124;
+            border-radius: 8px;
+            padding: 20px;
+            width: 100%;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.6), inset 0 2px 2px rgba(255,255,255,0.1);
+            margin-top: 10px;
+        }
+
+        .control-panel {
+            display: flex;
+            justify-content: space-between;
+            background-color: #242629;
+            border-radius: 4px;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-bottom: 4px solid #191b1d;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .panel-section {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            background-color: #1b1d20;
+            border: 1px solid #3a3f44;
+            border-radius: 4px;
+            padding: 12px;
+        }
+
+        .left-controls {
+            flex: 1;
+            min-width: 160px;
+            gap: 12px;
+        }
+
+        .toggle-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+            background: #242629;
+            padding: 6px;
+            border-radius: 3px;
+            border: 1px solid #111;
+        }
+
+        .switch-label {
+            font-size: 10px;
+            font-weight: bold;
+            letter-spacing: 1px;
+            color: #a0a6af;
+            text-align: center;
+            text-transform: uppercase;
+        }
+
+        .toggle-switch {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 9px;
+            font-weight: bold;
+        }
+
+        .toggle-text { color: #888; }
+
+        input[type="checkbox"]#pattern-toggle {
+            appearance: none;
+            width: 34px;
+            height: 16px;
+            background-color: #111;
+            border-radius: 3px;
+            position: relative;
+            cursor: pointer;
+            border: 1px solid #444;
+        }
+
+        input[type="checkbox"]#pattern-toggle::before {
+            content: '';
+            position: absolute;
+            width: 16px;
+            height: 14px;
+            background: #6c757d;
+            border-radius: 2px;
+            top: 0; left: 0;
+            transition: left 0.1s ease;
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.3), 0 1px 3px rgba(0,0,0,0.5);
+        }
+
+        input[type="checkbox"]:checked::before {
+            left: 16px;
+            background: #7ba29b;
+        }
+
+        .led-indicator {
+            width: 8px;
+            height: 8px;
+            background-color: #3a1111;
+            border-radius: 50%;
+            box-shadow: inset 0 1px 1px rgba(0,0,0,0.7);
+            transition: background-color 0.1s ease;
+        }
+
+        .led-indicator.led-on {
+            background-color: #ff3b30;
+            box-shadow: 0 0 8px #ff3b30, inset 0 1px 0 rgba(255,255,255,0.4);
+        }
+
+        .red-button {
+            background-color: #a92323;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            padding: 10px 16px;
+            font-weight: bold;
+            font-size: 11px;
+            letter-spacing: 1px;
+            cursor: pointer;
+            width: 100%;
+            font-family: 'Space Mono', monospace;
+            box-shadow: 0 3px 0 #5c1313, 0 4px 5px rgba(0,0,0,0.4);
+        }
+
+        .red-button:active {
+            transform: translateY(2px);
+            box-shadow: 0 1px 0 #5c1313, 0 1px 2px rgba(0,0,0,0.4);
+        }
+
+        /* Center Section: Yellow Performance Pads */
+        .pads-container {
+            flex: 2;
+            min-width: 280px;
+            display: flex;
+            gap: 12px;
+        }
+
+        .pad-group {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+            width: 100%;
+        }
+
+        .yellow-pad {
+            background-color: #dcb342;
+            color: #222;
+            font-weight: 800;
+            font-size: 10px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            box-shadow: 0 4px 0 #947424, 0 4px 6px rgba(0,0,0,0.4);
+            text-shadow: 0 1px 0 rgba(255,255,255,0.2);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 12px 4px;
+            font-family: 'Space Mono', monospace;
+        }
+
+        .yellow-pad span {
+            font-size: 8px;
+            opacity: 0.7;
+            margin-top: 4px;
+        }
+
+        .yellow-pad:active, .yellow-pad.pad-active-glow {
+            transform: translateY(3px);
+            box-shadow: 0 1px 0 #947424, 0 1px 2px rgba(0,0,0,0.4);
+            background-color: #ecd05b;
+        }
+
+        /* Right Side Parameters */
+        .dropdowns-sliders {
+            flex: 1.5;
+            min-width: 200px;
+            gap: 10px;
+        }
+
+        .menu-item {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .menu-item label {
+            font-size: 9px;
+            font-weight: bold;
+            color: #8a909a;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+
+        input[type="range"] {
+            appearance: none;
+            background: #111;
+            height: 6px;
+            border-radius: 3px;
+            outline: none;
+            border: 1px solid #333;
+            width: 100%;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            appearance: none;
+            width: 12px;
+            height: 18px;
+            background: #6c757d;
+            border-radius: 2px;
+            cursor: pointer;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.4);
+            border: 1px solid #222;
+        }
+
+        /* --- Keyboard Layout System --- */
+        .keyboard {
+            display: flex;
+            background-color: #111;
+            padding: 4px;
+            border-radius: 4px;
+            box-shadow: inset 0 4px 10px rgba(0,0,0,0.8);
+            height: 140px;
+            position: relative;
+        }
+
+        .key {
+            position: relative;
+            cursor: pointer;
+            flex: 1;
+        }
+
+        .white-key {
+            background: linear-gradient(to bottom, #eeeeee 0%, #ffffff 100%);
+            height: 100%;
+            border-left: 1px solid #bbb;
+            border-right: 1px solid #bbb;
+            border-bottom: 4px solid #d0d0d0;
+            border-radius: 0 0 3px 3px;
+            z-index: 1;
+        }
+
+        .white-key:active, .white-key.key-active {
+            background: linear-gradient(to bottom, #dddddd 0%, #e5e5e5 100%);
+            border-bottom: 1px solid #bbb;
+            height: calc(100% - 3px);
+            transform: translateY(3px);
+        }
+
+        .black-key {
+            background: linear-gradient(to bottom, #2b2b2b 0%, #111111 100%);
+            width: 24px;
+            height: 60%;
+            border-left: 1px solid #000;
+            border-right: 1px solid #000;
+            border-bottom: 3px solid #000;
+            border-radius: 0 0 2px 2px;
+            margin-left: -12px;
+            margin-right: -12px;
+            z-index: 2;
+            box-shadow: 2px 3px 4px rgba(0,0,0,0.4);
+        }
+
+        .black-key:active, .black-key.key-active {
+            background: linear-gradient(to bottom, #151515 0%, #000000 100%);
+            height: calc(60% - 2px);
+            transform: translateY(2px);
+        }
+
+        .social-links-vertical {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        /* ── RESPONSIVE BACKUP ── */
+        @media (max-width: 820px) {
+            .page { grid-template-columns: 1fr; }
+            .right-col { display: none; }
+            .left-col { padding: 24px; }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="artist-name">CARL WILLIAM DAW</div>
+        <div class="artist-tagline">INTEGRATED ANALOG SYNTHESIS RUNTIME ENGINE</div>
+    </header>
+
+    <div class="page">
+        <!-- Main Working Environment -->
+        <div class="left-col">
+            <div class="daw-interface">
+                
+                <!-- LCD Status Display Panel -->
+                <div class="status-screen">
+                    <div class="section-label">SYSTEM TELEMETRY</div>
+                    <div class="lcd-panel">
+                        <div id="lcd-tempo">TEMPO: 120 BPM</div>
+                        <div id="lcd-pattern">PATTERN: BANK A</div>
+                        <div id="lcd-step">STEP: 01/16</div>
+                    </div>
+                </div>
+
+                <!-- Step Sequencer Engine Matrix Area -->
+                <div class="sequencer-grid-container">
+                    <div class="section-label">16-STEP MATRIX PATTERN PROGRAMMER</div>
+                    
+                    <!-- Kick Row -->
+                    <div class="instrument-row" data-instrument="kick">
+                        <div class="instrument-label">01 KICK</div>
+                        <div class="steps-row">
+                            <!-- JS will dump 16 steps here dynamically -->
+                        </div>
+                    </div>
+
+                    <!-- Snare Row -->
+                    <div class="instrument-row" data-instrument="snare">
+                        <div class="instrument-label">02 SNARE</div>
+                        <div class="steps-row"></div>
+                    </div>
+
+                    <!-- Closed Hat Row -->
+                    <div class="instrument-row" data-instrument="closedHat">
+                        <div class="instrument-label">03 CL-HAT</div>
+                        <div class="steps-row"></div>
+                    </div>
+
+                    <!-- Open Hat Row -->
+                    <div class="instrument-row" data-instrument="openHat">
+                        <div class="instrument-label">04 OP-HAT</div>
+                        <div class="steps-row"></div>
+                    </div>
+                </div>
+
+                <!-- Casio SK-5 Hardware Emulation Console Workspace -->
+                <div id="sk5-app-container">
+                    <div class="section-label" style="color: #a0a6af; margin-bottom: 8px;">CASIO SK-5 ARCHITECTURE CORE</div>
+                    <div class="control-panel">
+                        
+                        <!-- Left Panel Segment: Transport & Chain Controls -->
+                        <div class="panel-section left-controls">
+                            <button class="red-button" id="btn-global-play">START / STOP</button>
+                            <button class="red-button" id="btn-global-clear" style="background-color: #555; box-shadow: 0 3px 0 #333;">CLEAR GRID</button>
+                            
+                            <div class="toggle-container">
+                                <div class="switch-label">PATTERN SYSTEM</div>
+                                <div class="toggle-switch">
+                                    <span class="toggle-text">BANK A</span>
+                                    <input type="checkbox" id="pattern-toggle">
+                                    <span class="toggle-text">BANK B</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Center Panel Segment: Yellow Live Performance Trigger Pads -->
+                        <div class="panel-section pads-container">
+                            <div class="pad-group">
+                                <button class="yellow-pad" data-pad="kick">KICK <span>PAD 1</span></button>
+                                <button class="yellow-pad" data-pad="snare">SNARE <span>PAD 2</span></button>
+                                <button class="yellow-pad" data-pad="closedHat">CL-HAT <span>PAD 3</span></button>
+                                <button class="yellow-pad" data-pad="openHat">OP-HAT <span>PAD 4</span></button>
+                            </div>
+                        </div>
+
+                        <!-- Right Panel Segment: Environment Sliders -->
+                        <div class="panel-section dropdowns-sliders">
+                            <div class="menu-item">
+                                <label for="tempo-slider">SYSTEM TEMPO SPEED</label>
+                                <input type="range" id="tempo-slider" min="60" max="200" value="120">
+                            </div>
+                            <div class="menu-item">
+                                <label id="decay-label" for="decay-slider">SYNTH DECAY TAIL: 0.25s</label>
+                                <input type="range" id="decay-slider" min="5" max="80" value="25">
+                            </div>
+                            <div class="menu-item">
+                                <label id="pitch-label" for="pitch-slider">SYNTH BASE PITCH COARSE</label>
+                                <input type="range" id="pitch-slider" min="40" max="150" value="60">
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <!-- Keyboard Preview Interface For Custom Tuning Testing -->
+                    <div class="keyboard">
+                        <div class="key white-key" data-note="c"></div>
+                        <div class="key black-key" data-note="cs" style="position: absolute; left: 7.5%;"></div>
+                        <div class="key white-key" data-note="d"></div>
+                        <div class="key black-key" data-note="ds" style="position: absolute; left: 21.5%;"></div>
+                        <div class="key white-key" data-note="e"></div>
+                        <div class="key white-key" data-note="f"></div>
+                        <div class="key black-key" data-note="fs" style="position: absolute; left: 49.5%;"></div>
+                        <div class="key white-key" data-note="g"></div>
+                        <div class="key black-key" data-note="gs" style="position: absolute; left: 63.5%;"></div>
+                        <div class="key white-key" data-note="a"></div>
+                        <div class="key black-key" data-note="as" style="position: absolute; left: 77.5%;"></div>
+                        <div class="key white-key" data-note="b"></div>
+                        <div class="key white-key" data-note="c2"></div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- Sidebar Panel Module Container -->
+        <div class="right-col">
+            <div class="section-label">PERIPHERALS</div>
+            <div class="social-links-vertical">
+                <div class="bio-box">
+                    <p class="bio-text" style="margin-bottom: 12px;">Web Audio API synthesis generator operational.</p>
+                    <p class="bio-text">Toggle grid steps while the sequence is playing to construct variations inside your current bank structure.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── SYSTEM ENGINE JAVASCRIPT ARCHITECTURE ───────────────────── -->
+    <script>
+        // --- 1. CORE ENGINE STATE STORAGE ---
+        let audioCtx = null;
+        let isPlaying = false;
+        let currentStep = 0;
+        let tempo = 120;
+        let lookahead = 25.0; // Miliseconds between scheduling scans
+        let scheduleAheadTime = 0.1; // Amount of audio to schedule ahead (seconds)
+        let nextNoteTime = 0.0; // When the next step calculation tick is due
+        let timerId = null;
+
+        // Pattern Storage Matrix Structure: 2 Banks (A and B) x 4 Instruments x 16 Steps
+        let currentBank = 'A';
+        const patterns = {
+            'A': { kick: Array(16).fill(false), snare: Array(16).fill(false), closedHat: Array(16).fill(false), openHat: Array(16).fill(false) },
+            'B': { kick: Array(16).fill(false), snare: Array(16).fill(false), closedHat: Array(16).fill(false), openHat: Array(16).fill(false) }
+        };
+
+        // --- 2. DOM INITIALIZATION MANAGEMENT ---
+        const instruments = ['kick', 'snare', 'closedHat', 'openHat'];
+        
+        // Build 16 Step Check boxes dynamically into structural matrix
+        instruments.forEach(inst => {
+            const row = document.querySelector(`.instrument-row[data-instrument="${inst}"] .steps-row`);
+            for(let i = 0; i < 16; i++) {
+                const cell = document.createElement('div');
+                cell.classList.add('step-cell');
+                cell.dataset.step = i;
+                cell.addEventListener('click', () => {
+                    patterns[currentBank][inst][i] = !patterns[currentBank][inst][i];
+                    cell.classList.toggle('active', patterns[currentBank][inst][i]);
+                });
+                row.appendChild(cell);
+            }
+        });
+
+        // --- 3. ANALOG SYNTHESIS SOUND ENGINE GENERATION ---
+        function initAudio() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+        }
+
+        // Configuration modifiers based on hardware console state
+        function getModifierValues() {
+            const decay = parseFloat(document.getElementById('decay-slider').value) / 100;
+            const pitch = parseFloat(document.getElementById('pitch-slider').value);
+            return { decay, pitch };
+        }
+
+        function playSynthSound(type, time) {
+            initAudio();
+            const mods = getModifierValues();
+
+            switch(type) {
+                case 'kick':
+                    // Bass Drum: Fast pitch drop sweeping from base tuning values down towards zero
+                    let kickOsc = audioCtx.createOscillator();
+                    let kickGain = audioCtx.createGain();
+                    kickOsc.connect(kickGain);
+                    kickGain.connect(audioCtx.destination);
+
+                    kickOsc.frequency.setValueAtTime(mods.pitch + 90, time);
+                    kickOsc.frequency.exponentialRampToValueAtTime(0.01, time + mods.decay);
+                    
+                    kickGain.gain.setValueAtTime(1, time);
+                    kickGain.gain.exponentialRampToValueAtTime(0.01, time + mods.decay);
+
+                    kickOsc.start(time);
+                    kickOsc.stop(time + mods.decay);
+                    break;
+
+                case 'snare':
+                    // Snare Drum: Mixed white noise burst coupled with a short mid-range fundamental sweep
+                    let snapOsc = audioCtx.createOscillator();
+                    let snapGain = audioCtx.createGain();
+                    snapOsc.type = 'triangle';
+                    snapOsc.frequency.setValueAtTime(mods.pitch + 120, time);
+                    
+                    // Create White Noise Buffer for wire brush rattle reproduction
+                    let bufferSize = audioCtx.sampleRate * mods.decay;
+                    let buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+                    let data = buffer.getChannelData(0);
+                    for (let i = 0; i < bufferSize; i++) {
+                        data[i] = Math.random() * 2 - 1;
+                    }
+                    
+                    let noiseNode = audioCtx.createBufferSource();
+                    noiseNode.buffer = buffer;
+                    
+                    let noiseFilter = audioCtx.createBiquadFilter();
+                    noiseFilter.type = 'highpass';
+                    noiseFilter.frequency.value = 1000;
+
+                    let noiseGain = audioCtx.createGain();
+                    
+                    // Route nodes
+                    snapOsc.connect(snapGain);
+                    snapGain.connect(audioCtx.destination);
+                    noiseNode.connect(noiseFilter);
+                    noiseFilter.connect(noiseGain);
+                    noiseGain.connect(audioCtx.destination);
+
+                    // Volume envelopes
+                    snapGain.gain.setValueAtTime(0.7, time);
+                    snapGain.gain.exponentialRampToValueAtTime(0.01, time + mods.decay * 0.5);
+                    noiseGain.gain.setValueAtTime(0.8, time);
+                    noiseGain.gain.exponentialRampToValueAtTime(0.01, time + mods.decay);
+
+                    snapOsc.start(time);
+                    noiseNode.start(time);
+                    snapOsc.stop(time + mods.decay);
+                    noiseNode.stop(time + mods.decay);
+                    break;
+
+                case 'closedHat':
+                case 'openHat':
+                    // Hi-Hats: Highpassed white noise utilizing distinct decay lengths
+                    let hatBufferSize = audioCtx.sampleRate * (type === 'openHat' ? mods.decay * 2.5 : mods.decay * 0.3);
+                    let hatBuffer = audioCtx.createBuffer(1, hatBufferSize, audioCtx.sampleRate);
+                    let hatData = hatBuffer.getChannelData(0);
+                    for (let i = 0; i < hatBufferSize; i++) {
+                        hatData[i] = Math.random() * 2 - 1;
+                    }
+
+                    let hatSource = audioCtx.createBufferSource();
+                    hatSource.buffer = hatBuffer;
+
+                    let hatFilter = audioCtx.createBiquadFilter();
+                    hatFilter.type = 'highpass';
+                    hatFilter.frequency.value = 7000 + (mods.pitch * 10);
+
+                    let hatGain = audioCtx.createGain();
+                    hatSource.connect(hatFilter);
+                    hatFilter.connect(hatGain);
+                    hatGain.connect(audioCtx.destination);
+
+                    hatGain.gain.setValueAtTime(0.5, time);
+                    hatGain.gain.exponentialRampToValueAtTime(0.01, time + (type === 'openHat' ? mods.decay * 2.5 : mods.decay * 0.3));
+
+                    hatSource.start(time);
+                    hatSource.stop(time + (type === 'openHat' ? mods.decay * 2.5 : mods.decay * 0.3));
+                    break;
+            }
+        }
+
+        // --- 4. CLOCK SCHEDULER TIMING LOOP WORKHORSE ---
+        function nextStepTick() {
+            const secondsPerBeat = 60.0 / tempo;
+            nextNoteTime += 0.25 * secondsPerBeat; // Advance current calculation window by exact quarter sixteenth note value
+
+            currentStep++;
+            if (currentStep === 16) {
+                currentStep = 0;
+            }
+        }
+
+        function scheduleStep(stepNumber, time) {
+            // Check matrix arrays across all four voices for active trigger matches
+            instruments.forEach(inst => {
+                if (patterns[currentBank][inst][stepNumber]) {
+                    playSynthSound(inst, time);
+                }
+            });
+
+            // Handle UI update operations inside safe animation frame cycles
+            requestAnimationFrame(() => {
+                document.getElementById('lcd-step').innerText = `STEP: ${String(stepNumber + 1).padStart(2, '0')}/16`;
+                
+                // Clear out active current style markers across the grid rows
+                document.querySelectorAll('.step-cell').forEach(cell => {
+                    if (parseInt(cell.dataset.step) === stepNumber) {
+                        cell.classList.add('current-tick');
+                    } else {
+                        cell.classList.remove('current-tick');
+                    }
+                });
+            });
+        }
+
+        function scheduler() {
+            while (nextNoteTime < audioCtx.currentTime + scheduleAheadTime) {
+                scheduleStep(currentStep, nextNoteTime);
+                nextStepTick();
+            }
+            timerId = setTimeout(scheduler, lookahead);
+        }
+
+        function togglePlayback() {
+            initAudio();
+            isPlaying = !isPlaying;
+
+            if (isPlaying) {
+                if (audioCtx.state === 'suspended') {
+                    audioCtx.resume();
+                }
+                currentStep = 0;
+                nextNoteTime = audioCtx.currentTime;
+                scheduler();
+                document.getElementById('btn-global-play').style.backgroundColor = '#00ff41';
+                document.getElementById('btn-global-play').style.color = '#000';
+            } else {
+                clearTimeout(timerId);
+                document.getElementById('btn-global-play').style.backgroundColor = '#a92323';
+                document.getElementById('btn-global-play').style.color = '#fff';
+                document.querySelectorAll('.step-cell').forEach(cell => cell.classList.remove('current-tick'));
+            }
+        }
+
+        // --- 5. SYSTEM CONTROL EVENT INTERFACE BINDINGS ---
+        document.getElementById('btn-global-play').addEventListener('click', togglePlayback);
+        
+        document.getElementById('btn-global-clear').addEventListener('click', () => {
+            instruments.forEach(inst => patterns[currentBank][inst].fill(false));
+            updateGridDisplay();
+        });
+
+        // Sliders & Telemetry updates
+        const tempoSlider = document.getElementById('tempo-slider');
+        tempoSlider.addEventListener('input', (e) => {
+            tempo = parseInt(e.target.value);
+            document.getElementById('lcd-tempo').innerText = `TEMPO: ${tempo} BPM`;
+        });
+
+        const decaySlider = document.getElementById('decay-slider');
+        decaySlider.addEventListener('input', (e) => {
+            document.getElementById('decay-label').innerText = `SYNTH DECAY TAIL: ${(e.target.value / 100).toFixed(2)}s`;
+        });
+
+        // Bank Switch System Implementation
+        const patternToggle = document.getElementById('pattern-toggle');
+        patternToggle.addEventListener('change', (e) => {
+            currentBank = e.target.checked ? 'B' : 'A';
+            document.getElementById('lcd-pattern').innerText = `PATTERN: BANK ${currentBank}`;
+            updateGridDisplay();
+        });
+
+        function updateGridDisplay() {
+            instruments.forEach(inst => {
+                const cells = document.querySelectorAll(`.instrument-row[data-instrument="${inst}"] .step-cell`);
+                cells.forEach((cell, index) => {
+                    cell.classList.toggle('active', patterns[currentBank][inst][index]);
+                });
+            });
+        }
+
+        // Yellow Interactive Live Trigger Pads
+        document.querySelectorAll('.yellow-pad').forEach(pad => {
+            pad.addEventListener('mousedown', () => {
+                const inst = pad.dataset.pad;
+                playSynthSound(inst, audioCtx ? audioCtx.currentTime : 0);
+                pad.classList.add('pad-active-glow');
+            });
+            pad.addEventListener('mouseup', () => pad.classList.remove('pad-active-glow'));
+            pad.addEventListener('mouseleave', () => pad.classList.remove('pad-active-glow'));
+        });
+
+        // Piano Key Preview Tuning Test System
+        document.querySelectorAll('.key').forEach(key => {
+            key.addEventListener('mousedown', () => {
+                initAudio();
+                key.classList.add('key-active');
+                
+                // Play quick procedural sweep based on selected physical key orientation note frequencies
+                let osc = audioCtx.createOscillator();
+                let gain = audioCtx.createGain();
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                
+                const notes = { c: 130, cs: 138, d: 146, ds: 155, e: 164, f: 174, fs: 185, g: 196, gs: 207, a: 220, as: 233, b: 246, c2: 261 };
+                osc.frequency.setValueAtTime(notes[key.dataset.note], audioCtx.currentTime);
+                
+                gain.gain.setValueAtTime(0.4, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.4);
+                
+                osc.start();
+                osc.stop(audioCtx.currentTime + 0.4);
+            });
+            key.addEventListener('mouseup', () => key.classList.remove('key-active'));
+        });
+    </script>
+</body>
+</html>
