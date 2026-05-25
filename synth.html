@@ -1030,6 +1030,91 @@ footer span {
   .env-section { grid-row: auto; grid-column: auto; }
   .osc-row { flex-wrap: wrap; }
 }
+
+/* ── iOS 6 USER-INTERACTION GATE OVERLAY ─────────────────── */
+#start-gate {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(10, 10, 18, 0.96);
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: flex;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+  -webkit-flex-direction: column;
+  flex-direction: column;
+  -webkit-box-align: center;
+  -webkit-align-items: center;
+  align-items: center;
+  -webkit-box-pack: center;
+  -webkit-justify-content: center;
+  justify-content: center;
+  z-index: 2000;
+  gap: 20px;
+}
+#start-gate.hidden {
+  display: none;
+}
+.start-gate-title {
+  font-family: 'VT323', monospace;
+  font-size: 38px;
+  color: #00f5ff;
+  letter-spacing: 6px;
+  text-transform: uppercase;
+  text-shadow: 0 0 24px #00f5ff55;
+  text-align: center;
+  margin-bottom: 8px;
+}
+.start-gate-sub {
+  font-family: 'Space Mono', monospace;
+  font-size: 9px;
+  color: #443355;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  text-align: center;
+  margin-bottom: 16px;
+}
+.start-gate-btn {
+  font-family: 'Space Mono', monospace;
+  font-size: 13px;
+  letter-spacing: 5px;
+  text-transform: uppercase;
+  color: #00f5ff;
+  background: transparent;
+  border: 2px solid #00f5ff;
+  padding: 16px 52px;
+  cursor: pointer;
+  outline: none;
+  -webkit-tap-highlight-color: transparent;
+  box-shadow: 0 0 24px #00f5ff22, inset 0 0 24px #00f5ff08;
+  -webkit-transition: all 0.2s;
+  transition: all 0.2s;
+}
+.start-gate-btn:hover,
+.start-gate-btn:active {
+  background: #00f5ff14;
+  box-shadow: 0 0 40px #00f5ff55, inset 0 0 24px #00f5ff14;
+  color: #ffffff;
+}
+.start-gate-note {
+  font-family: 'Space Mono', monospace;
+  font-size: 8px;
+  color: #2a1a30;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  text-align: center;
+  margin-top: 10px;
+}
+.start-gate-scanline {
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent, transparent 3px,
+    rgba(0,245,255,0.012) 3px, rgba(0,245,255,0.012) 4px
+  );
+  pointer-events: none;
+}
 </style>
 </head>
 <body>
@@ -1336,14 +1421,45 @@ footer span {
   </section>
 </main>
 
+<!-- ── iOS 6 USER-INTERACTION GATE (must click/tap before audio can start) ── -->
+<div id="start-gate" role="dialog" aria-modal="true" aria-label="Start audio engine">
+  <div class="start-gate-scanline"></div>
+  <div class="start-gate-title">MINISYNTH&#8211;1</div>
+  <div class="start-gate-sub">MONOPHONIC SUBTRACTIVE SYNTHESIZER</div>
+  <button class="start-gate-btn" id="start-gate-btn">&#9654;&nbsp;&nbsp;INITIALIZE ENGINE</button>
+  <div class="start-gate-note">TAP OR CLICK TO ACTIVATE AUDIO &nbsp;&middot;&nbsp; REQUIRED FOR iOS SAFARI</div>
+</div>
+
 <footer>
   <span>STATUS: ENGINE ONLINE</span>
   <span>DESIGN BY CARL WILLIAM // 2026</span>
 </footer>
 
 <script>
+/* ── iOS 6 / Safari 6 COMPATIBILITY LAYER ─────────────────────────────────
+   1. AudioContext normalization  — webkit-prefixed fallback
+   2. OscillatorNode method shims — noteOn()/noteOff() → start()/stop()
+   3. Frame-rate throttle         — draw() executes only every 2nd rAF tick
+   4. User-interaction gate       — audioCtx only created on explicit tap/click
+   ───────────────────────────────────────────────────────────────────────── */
+
+// 1. Normalise AudioContext constructor for webkit-prefixed Safari / iOS 6
+window.AudioContext = window.AudioContext || window.webkitAudioContext;
+
+// 2. Shim start()/stop() → noteOn()/noteOff() on legacy WebKit AudioNodes
+(function shimAudioNodeMethods() {
+  var protosToShim = [];
+  if (window.OscillatorNode)       protosToShim.push(window.OscillatorNode.prototype);
+  if (window.AudioBufferSourceNode) protosToShim.push(window.AudioBufferSourceNode.prototype);
+  for (var i = 0; i < protosToShim.length; i++) {
+    var p = protosToShim[i];
+    if (p && !p.start  && typeof p.noteOn  === 'function') p.start  = p.noteOn;
+    if (p && !p.stop   && typeof p.noteOff === 'function') p.stop   = p.noteOff;
+  }
+})();
+
 let audioCtx = null;
-let powered = true;
+let powered = false;   // stays false until the Start-gate button is tapped
 
 // Audio Node Routing References
 let osc1 = null, osc2 = null, osc3 = null;
@@ -1773,8 +1889,19 @@ resizeCanvas();
 
 const dataArray = new Uint8Array(1024);
 
+/* ── FRAME-RATE THROTTLE (iOS 6 / legacy CPU protection) ──
+   Only execute the canvas draw body every second rAF frame (~30 fps).
+   Modern browsers run the full loop at 60 fps; on older hardware the
+   skipped frame prevents the JS thread from becoming the bottleneck.   */
+let _drawFrameCount = 0;
+
 function draw() {
   requestAnimationFrame(draw);
+
+  // Throttle: skip odd-numbered frames — execute on every 2nd frame only
+  _drawFrameCount++;
+  if (_drawFrameCount % 2 !== 0) return;
+
   t += 0.03;
   
   const W = canvas.width / window.devicePixelRatio;
@@ -1823,6 +1950,41 @@ function draw() {
 document.getElementById('power-led').classList.add('on');
 initKeyboardLayoutInteractions();
 draw();
+
+/* ── START-GATE: user-interaction gate required by iOS 6 auto-play policy ──
+   The AudioContext is constructed *inside* the direct click/touchend handler
+   so that legacy Safari accepts it as a valid user-gesture unlock.          */
+(function initStartGate() {
+  var gate = document.getElementById('start-gate');
+  var btn  = document.getElementById('start-gate-btn');
+  if (!gate || !btn) return;
+
+  function onStartTap(e) {
+    // Prevent ghost mouse event on touch devices
+    if (e && e.preventDefault) e.preventDefault();
+
+    // --- Core unlock: create AudioContext inside the gesture handler ---
+    initAudioEngine();
+
+    // Resume a pre-existing suspended context (iOS Safari sometimes suspends on first creation)
+    if (audioCtx && audioCtx.state === 'suspended') {
+      audioCtx.resume();
+    }
+
+    // Activate the synth engine state
+    powered = true;
+
+    // Dismiss the gate overlay
+    gate.className = gate.className + ' hidden';   // avoid classList for IE/iOS 6 compat
+
+    // Remove listeners — gate is one-shot
+    btn.removeEventListener('click',      onStartTap);
+    btn.removeEventListener('touchend',   onStartTap);
+  }
+
+  btn.addEventListener('touchend', onStartTap);   // touchend fires before click; handles iOS 6
+  btn.addEventListener('click',    onStartTap);   // fallback for desktop / modern browsers
+})();
 </script>
 </body>
 </html>
