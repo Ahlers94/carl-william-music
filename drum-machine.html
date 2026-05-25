@@ -6,7 +6,7 @@
     <title>Carl William Music — Standalone Hybrid Drum Machine</title>
     <link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=VT323&display=swap" rel="stylesheet">
     <style>
-        /* ── YOUR GLOBAL MUSIC WORKSPACE STYLES ──────────────────────────── */
+        /* ── GLOBAL MUSIC WORKSPACE STYLES ──────────────────────────── */
         :root {
             --bg:      #0a0a12;
             --surface: #0d0d1a;
@@ -90,6 +90,7 @@
         .left-col {
             padding: 36px 36px 36px 48px;
             border-right: 1px solid #ff2d7822;
+            position: relative;
         }
 
         .right-col {
@@ -157,6 +158,24 @@
             display: flex;
             align-items: center;
             gap: 16px;
+            padding: 4px;
+            border-radius: 4px;
+            transition: background 0.2s ease, border-color 0.2s ease;
+            border: 1px solid transparent;
+            position: relative;
+        }
+
+        /* 🌟 UPGRADE: Track Focus Styling */
+        .instrument-row.focused-track {
+            background: rgba(0, 245, 255, 0.04);
+            border-color: rgba(0, 245, 255, 0.3);
+            box-shadow: 0 0 12px rgba(0, 245, 255, 0.05);
+        }
+
+        .instrument-row.focused-track .instrument-label {
+            color: var(--cyan);
+            text-shadow: 0 0 8px rgba(0, 245, 255, 0.5);
+            font-weight: bold;
         }
 
         .instrument-label {
@@ -165,6 +184,15 @@
             text-transform: uppercase;
             letter-spacing: 1px;
             color: var(--text);
+            cursor: pointer;
+            user-select: none;
+            padding: 4px;
+            border-radius: 3px;
+            transition: background 0.1s;
+        }
+        
+        .instrument-label:hover {
+            background: rgba(255, 255, 255, 0.05);
         }
 
         .steps-row {
@@ -182,7 +210,6 @@
             transition: all 0.1s ease;
         }
 
-        /* 4x4 matrix rhythm visual helpers */
         .step-cell:nth-child(4n+1) {
             border-left-color: rgba(0, 245, 255, 0.4);
         }
@@ -203,7 +230,7 @@
             box-shadow: 0 0 14px #00f5ff;
         }
 
-        /* ── YOUR CASIO SK-5 CORE CONSOLE AESTHETIC ─────────────────── */
+        /* ── CASIO SK-5 CORE CONSOLE AESTHETIC ─────────────────── */
         #sk5-app-container {
             background-color: #2e3136;
             border: 6px solid #1f2124;
@@ -268,9 +295,11 @@
             gap: 8px;
             font-size: 9px;
             font-weight: bold;
+            cursor: pointer;
         }
 
-        .toggle-text { color: #888; }
+        .toggle-text { color: #888; user-select: none; }
+        .toggle-switch:hover .toggle-text { color: #ccc; }
 
         input[type="checkbox"]#pattern-toggle {
             appearance: none;
@@ -281,6 +310,7 @@
             position: relative;
             cursor: pointer;
             border: 1px solid #444;
+            pointer-events: none; /* Let the container handle clicks reliably */
         }
 
         input[type="checkbox"]#pattern-toggle::before {
@@ -298,20 +328,6 @@
         input[type="checkbox"]:checked::before {
             left: 16px;
             background: #7ba29b;
-        }
-
-        .led-indicator {
-            width: 8px;
-            height: 8px;
-            background-color: #3a1111;
-            border-radius: 50%;
-            box-shadow: inset 0 1px 1px rgba(0,0,0,0.7);
-            transition: background-color 0.1s ease;
-        }
-
-        .led-indicator.led-on {
-            background-color: #ff3b30;
-            box-shadow: 0 0 8px #ff3b30, inset 0 1px 0 rgba(255,255,255,0.4);
         }
 
         .red-button {
@@ -365,6 +381,7 @@
             justify-content: center;
             padding: 12px 4px;
             font-family: 'Space Mono', monospace;
+            user-select: none;
         }
 
         .yellow-pad span {
@@ -398,6 +415,12 @@
             color: #8a909a;
             letter-spacing: 0.5px;
             text-transform: uppercase;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .inline-val {
+            color: var(--cyan);
         }
 
         input[type="range"] {
@@ -419,6 +442,52 @@
             cursor: pointer;
             box-shadow: 0 1px 3px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.4);
             border: 1px solid #222;
+        }
+
+        /* ── LONG-PRESS POPOVER DESIGN SYSTEM ──────────────────────── */
+        .voice-popover {
+            position: absolute;
+            left: 115px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: #15171c;
+            border: 2px solid var(--cyan);
+            border-radius: 4px;
+            padding: 4px;
+            display: flex;
+            gap: 4px;
+            z-index: 100;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.8), 0 0 10px rgba(0,245,255,0.2);
+            animation: popIn 0.15s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        @keyframes popIn {
+            from { transform: translateY(-50%) scale(0.8); opacity: 0; }
+            to { transform: translateY(-50%) scale(1); opacity: 1; }
+        }
+
+        .voice-btn {
+            background: #242629;
+            color: var(--muted);
+            border: 1px solid #3a3f44;
+            padding: 4px 8px;
+            font-family: 'Space Mono', monospace;
+            font-size: 9px;
+            font-weight: bold;
+            cursor: pointer;
+            border-radius: 2px;
+            transition: all 0.1s;
+        }
+
+        .voice-btn:hover {
+            color: #fff;
+            background: #2e3136;
+        }
+
+        .voice-btn.active-voice {
+            background: var(--cyan);
+            color: #000;
+            border-color: #fff;
         }
 
         /* --- Keyboard Layout System --- */
@@ -481,7 +550,6 @@
             gap: 10px;
         }
 
-        /* ── RESPONSIVE BACKUP ── */
         @media (max-width: 820px) {
             .page { grid-template-columns: 1fr; }
             .right-col { display: none; }
@@ -497,11 +565,9 @@
     </header>
 
     <div class="page">
-        <!-- Main Working Environment -->
         <div class="left-col">
             <div class="daw-interface">
                 
-                <!-- LCD Status Display Panel -->
                 <div class="status-screen">
                     <div class="section-label">SYSTEM TELEMETRY</div>
                     <div class="lcd-panel">
@@ -511,58 +577,48 @@
                     </div>
                 </div>
 
-                <!-- Step Sequencer Engine Matrix Area -->
                 <div class="sequencer-grid-container">
                     <div class="section-label">16-STEP MATRIX PATTERN PROGRAMMER</div>
                     
-                    <!-- Kick Row -->
-                    <div class="instrument-row" data-instrument="kick">
-                        <div class="instrument-label">01 KICK</div>
-                        <div class="steps-row">
-                            <!-- JS will dump 16 steps here dynamically -->
-                        </div>
-                    </div>
-
-                    <!-- Snare Row -->
-                    <div class="instrument-row" data-instrument="snare">
-                        <div class="instrument-label">02 SNARE</div>
+                    <div class="instrument-row" data-instrument="kick" id="row-kick">
+                        <div class="instrument-label">01 KICK <span class="voice-indicator" style="font-size:8px; display:block; opacity:0.5;">[808]</span></div>
                         <div class="steps-row"></div>
                     </div>
 
-                    <!-- Closed Hat Row -->
-                    <div class="instrument-row" data-instrument="closedHat">
-                        <div class="instrument-label">03 CL-HAT</div>
+                    <div class="instrument-row" data-instrument="snare" id="row-snare">
+                        <div class="instrument-label">02 SNARE <span class="voice-indicator" style="font-size:8px; display:block; opacity:0.5;">[808]</span></div>
                         <div class="steps-row"></div>
                     </div>
 
-                    <!-- Open Hat Row -->
-                    <div class="instrument-row" data-instrument="openHat">
-                        <div class="instrument-label">04 OP-HAT</div>
+                    <div class="instrument-row" data-instrument="closedHat" id="row-closedHat">
+                        <div class="instrument-label">03 CL-HAT <span class="voice-indicator" style="font-size:8px; display:block; opacity:0.5;">[808]</span></div>
+                        <div class="steps-row"></div>
+                    </div>
+
+                    <div class="instrument-row" data-instrument="openHat" id="row-openHat">
+                        <div class="instrument-label">04 OP-HAT <span class="voice-indicator" style="font-size:8px; display:block; opacity:0.5;">[808]</span></div>
                         <div class="steps-row"></div>
                     </div>
                 </div>
 
-                <!-- Casio SK-5 Hardware Emulation Console Workspace -->
                 <div id="sk5-app-container">
                     <div class="section-label" style="color: #a0a6af; margin-bottom: 8px;">CASIO SK-5 ARCHITECTURE CORE</div>
                     <div class="control-panel">
                         
-                        <!-- Left Panel Segment: Transport & Chain Controls -->
                         <div class="panel-section left-controls">
                             <button class="red-button" id="btn-global-play">START / STOP</button>
                             <button class="red-button" id="btn-global-clear" style="background-color: #555; box-shadow: 0 3px 0 #333;">CLEAR GRID</button>
                             
-                            <div class="toggle-container">
+                            <div class="toggle-container" id="pattern-switch-wrapper" style="cursor: pointer;">
                                 <div class="switch-label">PATTERN SYSTEM</div>
                                 <div class="toggle-switch">
-                                    <span class="toggle-text">BANK A</span>
+                                    <span class="toggle-text" id="lbl-bank-a" style="color:#fff;">BANK A</span>
                                     <input type="checkbox" id="pattern-toggle">
-                                    <span class="toggle-text">BANK B</span>
+                                    <span class="toggle-text" id="lbl-bank-b">BANK B</span>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Center Panel Segment: Yellow Live Performance Trigger Pads -->
                         <div class="panel-section pads-container">
                             <div class="pad-group">
                                 <button class="yellow-pad" data-pad="kick">KICK <span>PAD 1</span></button>
@@ -572,14 +628,13 @@
                             </div>
                         </div>
 
-                        <!-- Right Panel Segment: Environment Sliders -->
                         <div class="panel-section dropdowns-sliders">
                             <div class="menu-item">
-                                <label for="tempo-slider">SYSTEM TEMPO SPEED</label>
+                                <label for="tempo-slider">SYSTEM TEMPO SPEED <span class="inline-val" id="inline-tempo">120 BPM</span></label>
                                 <input type="range" id="tempo-slider" min="60" max="200" value="120">
                             </div>
                             <div class="menu-item">
-                                <label id="decay-label" for="decay-slider">SYNTH DECAY TAIL: 0.25s</label>
+                                <label id="decay-label" for="decay-slider">SYNTH DECAY TAIL: <span class="inline-val">0.25s</span></label>
                                 <input type="range" id="decay-slider" min="5" max="80" value="25">
                             </div>
                             <div class="menu-item">
@@ -590,52 +645,61 @@
 
                     </div>
 
-                    <!-- Keyboard Preview Interface For Custom Tuning Testing -->
                     <div class="keyboard">
-                        <div class="key white-key" data-note="c"></div>
-                        <div class="key black-key" data-note="cs" style="position: absolute; left: 7.5%;"></div>
-                        <div class="key white-key" data-note="d"></div>
-                        <div class="key black-key" data-note="ds" style="position: absolute; left: 21.5%;"></div>
-                        <div class="key white-key" data-note="e"></div>
-                        <div class="key white-key" data-note="f"></div>
-                        <div class="key black-key" data-note="fs" style="position: absolute; left: 49.5%;"></div>
-                        <div class="key white-key" data-note="g"></div>
-                        <div class="key black-key" data-note="gs" style="position: absolute; left: 63.5%;"></div>
-                        <div class="key white-key" data-note="a"></div>
-                        <div class="key black-key" data-note="as" style="position: absolute; left: 77.5%;"></div>
-                        <div class="key white-key" data-note="b"></div>
-                        <div class="key white-key" data-note="c2"></div>
+                        <div class="key white-key" data-note="c" data-mult="1.00"></div>
+                        <div class="key black-key" data-note="cs" data-mult="1.06" style="position: absolute; left: 7.5%;"></div>
+                        <div class="key white-key" data-note="d" data-mult="1.12"></div>
+                        <div class="key black-key" data-note="ds" data-mult="1.19" style="position: absolute; left: 21.5%;"></div>
+                        <div class="key white-key" data-note="e" data-mult="1.26"></div>
+                        <div class="key white-key" data-note="f" data-mult="1.33"></div>
+                        <div class="key black-key" data-note="fs" data-mult="1.41" style="position: absolute; left: 49.5%;"></div>
+                        <div class="key white-key" data-note="g" data-mult="1.50"></div>
+                        <div class="key black-key" data-note="gs" data-mult="1.59" style="position: absolute; left: 63.5%;"></div>
+                        <div class="key white-key" data-note="a" data-mult="1.68"></div>
+                        <div class="key black-key" data-note="as" data-mult="1.78" style="position: absolute; left: 77.5%;"></div>
+                        <div class="key white-key" data-note="b" data-mult="1.89"></div>
+                        <div class="key white-key" data-note="c2" data-mult="2.00"></div>
                     </div>
                 </div>
 
             </div>
         </div>
 
-        <!-- Sidebar Panel Module Container -->
         <div class="right-col">
             <div class="section-label">PERIPHERALS</div>
             <div class="social-links-vertical">
                 <div class="bio-box">
-                    <p class="bio-text" style="margin-bottom: 12px;">Web Audio API synthesis generator operational.</p>
-                    <p class="bio-text">Toggle grid steps while the sequence is playing to construct variations inside your current bank structure.</p>
+                    <p class="bio-text" style="margin-bottom: 12px; color: var(--cyan); font-size:11px;">[NEW UPGRADE FEATURES]</p>
+                    <p class="bio-text" style="margin-bottom: 12px; font-size: 11px;">• <strong>Track Focus:</strong> Tap any track label to link it to the bottom chromatically mapped keyboard engine.</p>
+                    <p class="bio-text" style="margin-bottom: 12px; font-size: 11px;">• <strong>Voice Pop-over:</strong> Press & Hold any track label for 1.5 seconds to switch engines between 808, 909, and Toy modes.</p>
+                    <p class="bio-text" style="font-size: 11px;">Toggle grid steps while the sequence runs to adjust pattern architecture.</p>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- ── SYSTEM ENGINE JAVASCRIPT ARCHITECTURE ───────────────────── -->
     <script>
         // --- 1. CORE ENGINE STATE STORAGE ---
         let audioCtx = null;
         let isPlaying = false;
         let currentStep = 0;
         let tempo = 120;
-        let lookahead = 25.0; // Miliseconds between scheduling scans
-        let scheduleAheadTime = 0.1; // Amount of audio to schedule ahead (seconds)
-        let nextNoteTime = 0.0; // When the next step calculation tick is due
+        let lookahead = 25.0; 
+        let scheduleAheadTime = 0.1; 
+        let nextNoteTime = 0.0; 
         let timerId = null;
 
-        // Pattern Storage Matrix Structure: 2 Banks (A and B) x 4 Instruments x 16 Steps
+        // Track Focus State System
+        let focusedTrack = 'kick';
+
+        // Voice Engine Selection Memory State
+        const voiceEngines = {
+            kick: '808',
+            snare: '808',
+            closedHat: '808',
+            openHat: '808'
+        };
+
         let currentBank = 'A';
         const patterns = {
             'A': { kick: Array(16).fill(false), snare: Array(16).fill(false), closedHat: Array(16).fill(false), openHat: Array(16).fill(false) },
@@ -645,9 +709,11 @@
         // --- 2. DOM INITIALIZATION MANAGEMENT ---
         const instruments = ['kick', 'snare', 'closedHat', 'openHat'];
         
-        // Build 16 Step Check boxes dynamically into structural matrix
         instruments.forEach(inst => {
-            const row = document.querySelector(`.instrument-row[data-instrument="${inst}"] .steps-row`);
+            const rowWrapper = document.getElementById(`row-${inst}`);
+            const row = rowWrapper.querySelector('.steps-row');
+            
+            // Generate matrix grid spaces
             for(let i = 0; i < 16; i++) {
                 const cell = document.createElement('div');
                 cell.classList.add('step-cell');
@@ -658,122 +724,287 @@
                 });
                 row.appendChild(cell);
             }
+
+            // --- UPGRADE: Track Focus Click Registries ---
+            const label = rowWrapper.querySelector('.instrument-label');
+            label.addEventListener('click', (e) => {
+                // Prevent focus shift if clicking directly on a popover option button
+                if (e.target.classList.contains('voice-btn')) return;
+                setTrackFocus(inst);
+            });
+
+            // --- UPGRADE: Long-Press Voice Menu Handling Variables ---
+            let pressTimer = null;
+            
+            const startPress = (e) => {
+                if (e.target.classList.contains('voice-btn')) return;
+                pressTimer = setTimeout(() => {
+                    openVoicePopover(inst, rowWrapper);
+                }, 1500); // 1.5 Second Requirement Guard
+            };
+
+            const endPress = () => {
+                if (pressTimer) clearTimeout(pressTimer);
+            };
+
+            label.addEventListener('mousedown', startPress);
+            label.addEventListener('mouseup', endPress);
+            label.addEventListener('mouseleave', endPress);
+            label.addEventListener('touchstart', startPress, {passive: true});
+            label.addEventListener('touchend', endPress, {passive: true});
         });
 
-        // --- 3. ANALOG SYNTHESIS SOUND ENGINE GENERATION ---
+        // Track Focus UI Updater
+        function setTrackFocus(targetInstrument) {
+            focusedTrack = targetInstrument;
+            instruments.forEach(inst => {
+                const row = document.getElementById(`row-${inst}`);
+                if (inst === targetInstrument) {
+                    row.classList.add('focused-track');
+                } else {
+                    row.classList.remove('focused-track');
+                }
+            });
+        }
+
+        // Default layout mapping focus activation setup
+        setTrackFocus('kick');
+
+        // Close Popovers globally when tapping anywhere outside
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('.instrument-label') && !e.target.closest('.voice-popover')) {
+                document.querySelectorAll('.voice-popover').forEach(el => el.remove());
+            }
+        });
+
+        function openVoicePopover(instrument, anchorRow) {
+            // Remove lingering instances
+            document.querySelectorAll('.voice-popover').forEach(el => el.remove());
+
+            const popover = document.createElement('div');
+            popover.classList.add('voice-popover');
+
+            ['808', '909', 'TOY'].forEach(mode => {
+                const btn = document.createElement('button');
+                btn.classList.add('voice-btn');
+                btn.innerText = mode;
+                if (voiceEngines[instrument] === mode) {
+                    btn.classList.add('active-voice');
+                }
+
+                btn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    voiceEngines[instrument] = mode;
+                    anchorRow.querySelector('.voice-indicator').innerText = `[${mode}]`;
+                    popover.remove();
+                });
+                popover.appendChild(btn);
+            });
+
+            anchorRow.appendChild(popover);
+        }
+
+        // --- 3. DYNAMIC REFACTORED AUDIO PROCESSING ENGINE ─────────────────
         function initAudio() {
             if (!audioCtx) {
                 audioCtx = new (window.AudioContext || window.webkitAudioContext)();
             }
         }
 
-        // Configuration modifiers based on hardware console state
         function getModifierValues() {
             const decay = parseFloat(document.getElementById('decay-slider').value) / 100;
             const pitch = parseFloat(document.getElementById('pitch-slider').value);
             return { decay, pitch };
         }
 
-        function playSynthSound(type, time) {
+        // Chromatic multiplier argument default = 1.0 (Standard play)
+        function playSynthSound(type, time, pitchMultiplier = 1.0) {
             initAudio();
             const mods = getModifierValues();
+            const currentEngine = voiceEngines[type];
+
+            // Primary calculated tuning values incorporating keyboard scale adjustments
+            const baseFreq = mods.pitch * pitchMultiplier;
 
             switch(type) {
                 case 'kick':
-                    // Bass Drum: Fast pitch drop sweeping from base tuning values down towards zero
-                    let kickOsc = audioCtx.createOscillator();
-                    let kickGain = audioCtx.createGain();
-                    kickOsc.connect(kickGain);
-                    kickGain.connect(audioCtx.destination);
+                    if (currentEngine === '808') {
+                        // Booming Pure Sub Sweep Execution
+                        let osc = audioCtx.createOscillator();
+                        let gain = audioCtx.createGain();
+                        osc.connect(gain);
+                        gain.connect(audioCtx.destination);
 
-                    kickOsc.frequency.setValueAtTime(mods.pitch + 90, time);
-                    kickOsc.frequency.exponentialRampToValueAtTime(0.01, time + mods.decay);
-                    
-                    kickGain.gain.setValueAtTime(1, time);
-                    kickGain.gain.exponentialRampToValueAtTime(0.01, time + mods.decay);
+                        osc.frequency.setValueAtTime(baseFreq + 90, time);
+                        osc.frequency.exponentialRampToValueAtTime(Math.max(0.01, baseFreq * 0.5), time + mods.decay);
+                        
+                        gain.gain.setValueAtTime(1, time);
+                        gain.gain.exponentialRampToValueAtTime(0.01, time + mods.decay);
 
-                    kickOsc.start(time);
-                    kickOsc.stop(time + mods.decay);
+                        osc.start(time);
+                        osc.stop(time + mods.decay);
+                    } 
+                    else if (currentEngine === '909') {
+                        // Snappy Beater Attack + Fast Hard Pitch Drop Curve
+                        let osc = audioCtx.createOscillator();
+                        let gain = audioCtx.createGain();
+                        osc.type = 'triangle';
+                        osc.connect(gain);
+                        gain.connect(audioCtx.destination);
+
+                        osc.frequency.setValueAtTime(baseFreq + 300, time);
+                        osc.frequency.exponentialRampToValueAtTime(Math.max(0.01, baseFreq * 0.8), time + 0.06);
+
+                        // Transient snap click layer injection
+                        let clickOsc = audioCtx.createOscillator();
+                        let clickGain = audioCtx.createGain();
+                        clickOsc.type = 'sine';
+                        clickOsc.connect(clickGain);
+                        clickGain.connect(audioCtx.destination);
+                        clickOsc.frequency.setValueAtTime(1200, time);
+                        clickGain.gain.setValueAtTime(0.5, time);
+                        clickGain.gain.exponentialRampToValueAtTime(0.01, time + 0.015);
+
+                        gain.gain.setValueAtTime(1, time);
+                        gain.gain.exponentialRampToValueAtTime(0.01, time + (mods.decay * 0.7));
+
+                        osc.start(time);
+                        clickOsc.start(time);
+                        osc.stop(time + (mods.decay * 0.7));
+                        clickOsc.stop(time + 0.02);
+                    } 
+                    else if (currentEngine === 'TOY') {
+                        // Crufty Chiptune Lo-Fi Modulated Square Stack
+                        let osc = audioCtx.createOscillator();
+                        let gain = audioCtx.createGain();
+                        osc.type = 'square';
+                        osc.connect(gain);
+                        gain.connect(audioCtx.destination);
+
+                        osc.frequency.setValueAtTime(baseFreq, time);
+                        osc.frequency.setValueAtTime(baseFreq * 0.5, time + 0.05);
+
+                        gain.gain.setValueAtTime(0.6, time);
+                        gain.gain.linearRampToValueAtTime(0.01, time + mods.decay);
+
+                        osc.start(time);
+                        osc.stop(time + mods.decay);
+                    }
                     break;
 
                 case 'snare':
-                    // Snare Drum: Mixed white noise burst coupled with a short mid-range fundamental sweep
-                    let snapOsc = audioCtx.createOscillator();
-                    let snapGain = audioCtx.createGain();
-                    snapOsc.type = 'triangle';
-                    snapOsc.frequency.setValueAtTime(mods.pitch + 120, time);
-                    
-                    // Create White Noise Buffer for wire brush rattle reproduction
-                    let bufferSize = audioCtx.sampleRate * mods.decay;
-                    let buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
-                    let data = buffer.getChannelData(0);
-                    for (let i = 0; i < bufferSize; i++) {
-                        data[i] = Math.random() * 2 - 1;
+                    if (currentEngine === '808' || currentEngine === '909') {
+                        let snapOsc = audioCtx.createOscillator();
+                        let snapGain = audioCtx.createGain();
+                        snapOsc.type = (currentEngine === '909') ? 'sine' : 'triangle';
+                        snapOsc.frequency.setValueAtTime(baseFreq + 120, time);
+                        
+                        let bufferSize = audioCtx.sampleRate * mods.decay;
+                        let buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+                        let data = buffer.getChannelData(0);
+                        for (let i = 0; i < bufferSize; i++) {
+                            data[i] = Math.random() * 2 - 1;
+                        }
+                        
+                        let noiseNode = audioCtx.createBufferSource();
+                        noiseNode.buffer = buffer;
+                        
+                        let noiseFilter = audioCtx.createBiquadFilter();
+                        noiseFilter.type = (currentEngine === '909') ? 'bandpass' : 'highpass';
+                        noiseFilter.frequency.value = (currentEngine === '909') ? 1500 : 1000;
+
+                        let noiseGain = audioCtx.createGain();
+                        
+                        snapOsc.connect(snapGain);
+                        snapGain.connect(audioCtx.destination);
+                        noiseNode.connect(noiseFilter);
+                        noiseFilter.connect(noiseGain);
+                        noiseGain.connect(audioCtx.destination);
+
+                        snapGain.gain.setValueAtTime(0.7, time);
+                        snapGain.gain.exponentialRampToValueAtTime(0.01, time + mods.decay * 0.4);
+                        noiseGain.gain.setValueAtTime(0.8, time);
+                        noiseGain.gain.exponentialRampToValueAtTime(0.01, time + mods.decay);
+
+                        snapOsc.start(time);
+                        noiseNode.start(time);
+                        snapOsc.stop(time + mods.decay);
+                        noiseNode.stop(time + mods.decay);
+                    } 
+                    else if (currentEngine === 'TOY') {
+                        // Ringing digital sawtooth style degradation pass
+                        let osc = audioCtx.createOscillator();
+                        let gain = audioCtx.createGain();
+                        osc.type = 'sawtooth';
+                        osc.connect(gain);
+                        gain.connect(audioCtx.destination);
+
+                        osc.frequency.setValueAtTime(baseFreq * 2.33, time);
+                        
+                        gain.gain.setValueAtTime(0.5, time);
+                        gain.gain.linearRampToValueAtTime(0.01, time + (mods.decay * 0.5));
+
+                        osc.start(time);
+                        osc.stop(time + mods.decay);
                     }
-                    
-                    let noiseNode = audioCtx.createBufferSource();
-                    noiseNode.buffer = buffer;
-                    
-                    let noiseFilter = audioCtx.createBiquadFilter();
-                    noiseFilter.type = 'highpass';
-                    noiseFilter.frequency.value = 1000;
-
-                    let noiseGain = audioCtx.createGain();
-                    
-                    // Route nodes
-                    snapOsc.connect(snapGain);
-                    snapGain.connect(audioCtx.destination);
-                    noiseNode.connect(noiseFilter);
-                    noiseFilter.connect(noiseGain);
-                    noiseGain.connect(audioCtx.destination);
-
-                    // Volume envelopes
-                    snapGain.gain.setValueAtTime(0.7, time);
-                    snapGain.gain.exponentialRampToValueAtTime(0.01, time + mods.decay * 0.5);
-                    noiseGain.gain.setValueAtTime(0.8, time);
-                    noiseGain.gain.exponentialRampToValueAtTime(0.01, time + mods.decay);
-
-                    snapOsc.start(time);
-                    noiseNode.start(time);
-                    snapOsc.stop(time + mods.decay);
-                    noiseNode.stop(time + mods.decay);
                     break;
 
                 case 'closedHat':
                 case 'openHat':
-                    // Hi-Hats: Highpassed white noise utilizing distinct decay lengths
-                    let hatBufferSize = audioCtx.sampleRate * (type === 'openHat' ? mods.decay * 2.5 : mods.decay * 0.3);
-                    let hatBuffer = audioCtx.createBuffer(1, hatBufferSize, audioCtx.sampleRate);
-                    let hatData = hatBuffer.getChannelData(0);
-                    for (let i = 0; i < hatBufferSize; i++) {
-                        hatData[i] = Math.random() * 2 - 1;
+                    let isLong = (type === 'openHat');
+                    let targetDecay = isLong ? mods.decay * 2.5 : mods.decay * 0.3;
+
+                    if (currentEngine === '808' || currentEngine === '909') {
+                        let hatBufferSize = audioCtx.sampleRate * targetDecay;
+                        let hatBuffer = audioCtx.createBuffer(1, hatBufferSize, audioCtx.sampleRate);
+                        let hatData = hatBuffer.getChannelData(0);
+                        for (let i = 0; i < hatBufferSize; i++) {
+                            hatData[i] = Math.random() * 2 - 1;
+                        }
+
+                        let hatSource = audioCtx.createBufferSource();
+                        hatSource.buffer = hatBuffer;
+
+                        let hatFilter = audioCtx.createBiquadFilter();
+                        hatFilter.type = 'highpass';
+                        // 909 uses heavily metallic band/high-pass processing splits
+                        hatFilter.frequency.value = (currentEngine === '909') ? 9000 : (7000 + (baseFreq * 2));
+
+                        let hatGain = audioCtx.createGain();
+                        hatSource.connect(hatFilter);
+                        hatFilter.connect(hatGain);
+                        hatGain.connect(audioCtx.destination);
+
+                        hatGain.gain.setValueAtTime(0.5, time);
+                        hatGain.gain.exponentialRampToValueAtTime(0.01, time + targetDecay);
+
+                        hatSource.start(time);
+                        hatSource.stop(time + targetDecay);
+                    } 
+                    else if (currentEngine === 'TOY') {
+                        // Pseudorandom short square wave pitch bleep pulse train burst 
+                        let osc = audioCtx.createOscillator();
+                        let gain = audioCtx.createGain();
+                        osc.type = 'square';
+                        osc.connect(gain);
+                        gain.connect(audioCtx.destination);
+
+                        osc.frequency.setValueAtTime(12000 * pitchMultiplier, time);
+                        
+                        gain.gain.setValueAtTime(0.3, time);
+                        gain.gain.linearRampToValueAtTime(0.01, time + (targetDecay * 0.8));
+
+                        osc.start(time);
+                        osc.stop(time + targetDecay);
                     }
-
-                    let hatSource = audioCtx.createBufferSource();
-                    hatSource.buffer = hatBuffer;
-
-                    let hatFilter = audioCtx.createBiquadFilter();
-                    hatFilter.type = 'highpass';
-                    hatFilter.frequency.value = 7000 + (mods.pitch * 10);
-
-                    let hatGain = audioCtx.createGain();
-                    hatSource.connect(hatFilter);
-                    hatFilter.connect(hatGain);
-                    hatGain.connect(audioCtx.destination);
-
-                    hatGain.gain.setValueAtTime(0.5, time);
-                    hatGain.gain.exponentialRampToValueAtTime(0.01, time + (type === 'openHat' ? mods.decay * 2.5 : mods.decay * 0.3));
-
-                    hatSource.start(time);
-                    hatSource.stop(time + (type === 'openHat' ? mods.decay * 2.5 : mods.decay * 0.3));
                     break;
             }
         }
 
-        // --- 4. CLOCK SCHEDULER TIMING LOOP WORKHORSE ---
+        // --- 4. CLOCK SCHEDULER TIMING LOOP ---
         function nextStepTick() {
             const secondsPerBeat = 60.0 / tempo;
-            nextNoteTime += 0.25 * secondsPerBeat; // Advance current calculation window by exact quarter sixteenth note value
+            nextNoteTime += 0.25 * secondsPerBeat; 
 
             currentStep++;
             if (currentStep === 16) {
@@ -782,18 +1013,15 @@
         }
 
         function scheduleStep(stepNumber, time) {
-            // Check matrix arrays across all four voices for active trigger matches
             instruments.forEach(inst => {
                 if (patterns[currentBank][inst][stepNumber]) {
                     playSynthSound(inst, time);
                 }
             });
 
-            // Handle UI update operations inside safe animation frame cycles
             requestAnimationFrame(() => {
                 document.getElementById('lcd-step').innerText = `STEP: ${String(stepNumber + 1).padStart(2, '0')}/16`;
                 
-                // Clear out active current style markers across the grid rows
                 document.querySelectorAll('.step-cell').forEach(cell => {
                     if (parseInt(cell.dataset.step) === stepNumber) {
                         cell.classList.add('current-tick');
@@ -833,7 +1061,7 @@
             }
         }
 
-        // --- 5. SYSTEM CONTROL EVENT INTERFACE BINDINGS ---
+        // --- 5. CONTROL EVENT INTERFACE BINDINGS ---
         document.getElementById('btn-global-play').addEventListener('click', togglePlayback);
         
         document.getElementById('btn-global-clear').addEventListener('click', () => {
@@ -841,22 +1069,32 @@
             updateGridDisplay();
         });
 
-        // Sliders & Telemetry updates
+        // Sliders & UI Displays
         const tempoSlider = document.getElementById('tempo-slider');
         tempoSlider.addEventListener('input', (e) => {
             tempo = parseInt(e.target.value);
+            // Synchronized Telemetry Array Displays
             document.getElementById('lcd-tempo').innerText = `TEMPO: ${tempo} BPM`;
+            document.getElementById('inline-tempo').innerText = `${tempo} BPM`;
         });
 
         const decaySlider = document.getElementById('decay-slider');
         decaySlider.addEventListener('input', (e) => {
-            document.getElementById('decay-label').innerText = `SYNTH DECAY TAIL: ${(e.target.value / 100).toFixed(2)}s`;
+            document.querySelector('#decay-label span').innerText = `${(e.target.value / 100).toFixed(2)}s`;
         });
 
-        // Bank Switch System Implementation
+        // --- UPGRADE: Bank Switch System Framework fix ---
+        const patternWrapper = document.getElementById('pattern-switch-wrapper');
         const patternToggle = document.getElementById('pattern-toggle');
-        patternToggle.addEventListener('change', (e) => {
-            currentBank = e.target.checked ? 'B' : 'A';
+        
+        patternWrapper.addEventListener('click', () => {
+            patternToggle.checked = !patternToggle.checked;
+            currentBank = patternToggle.checked ? 'B' : 'A';
+            
+            // Text color highlighting states
+            document.getElementById('lbl-bank-a').style.color = patternToggle.checked ? '#888' : '#fff';
+            document.getElementById('lbl-bank-b').style.color = patternToggle.checked ? '#fff' : '#888';
+            
             document.getElementById('lcd-pattern').innerText = `PATTERN: BANK ${currentBank}`;
             updateGridDisplay();
         });
@@ -870,7 +1108,7 @@
             });
         }
 
-        // Yellow Interactive Live Trigger Pads
+        // Yellow Live Trigger Pads
         document.querySelectorAll('.yellow-pad').forEach(pad => {
             pad.addEventListener('mousedown', () => {
                 const inst = pad.dataset.pad;
@@ -881,28 +1119,20 @@
             pad.addEventListener('mouseleave', () => pad.classList.remove('pad-active-glow'));
         });
 
-        // Piano Key Preview Tuning Test System
+        // --- UPGRADE: Unified Chromatically Routed Bottom Keybed Engine ---
         document.querySelectorAll('.key').forEach(key => {
             key.addEventListener('mousedown', () => {
                 initAudio();
                 key.classList.add('key-active');
                 
-                // Play quick procedural sweep based on selected physical key orientation note frequencies
-                let osc = audioCtx.createOscillator();
-                let gain = audioCtx.createGain();
-                osc.connect(gain);
-                gain.connect(audioCtx.destination);
+                // Read exact math scale multiplier directly from raw key attribute values
+                const multValue = parseFloat(key.dataset.mult);
                 
-                const notes = { c: 130, cs: 138, d: 146, ds: 155, e: 164, f: 174, fs: 185, g: 196, gs: 207, a: 220, as: 233, b: 246, c2: 261 };
-                osc.frequency.setValueAtTime(notes[key.dataset.note], audioCtx.currentTime);
-                
-                gain.gain.setValueAtTime(0.4, audioCtx.currentTime);
-                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.4);
-                
-                osc.start();
-                osc.stop(audioCtx.currentTime + 0.4);
+                // Routes play logic dynamically down into the currently targeted focused instrument string
+                playSynthSound(focusedTrack, audioCtx.currentTime, multValue);
             });
             key.addEventListener('mouseup', () => key.classList.remove('key-active'));
+            key.addEventListener('mouseleave', () => key.classList.remove('key-active'));
         });
     </script>
 </body>
