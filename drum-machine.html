@@ -6,6 +6,24 @@
     <title>Carl William Music — Standalone Hybrid Drum Machine</title>
     <link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=VT323&display=swap" rel="stylesheet">
     <style>
+        /* ── DYNAMIC MIXER MINI SLIDERS ───────────────────────────────── */
+        input[type="range"].mini-slider::-webkit-slider-thumb {
+            height: 10px;
+            width: 8px;
+            background: #e0d8f0;
+            border: 1px solid #000;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.8);
+            border-radius: 2px;
+        }
+
+        input[type="range"].mini-slider::-moz-range-thumb {
+            height: 10px;
+            width: 8px;
+            background: #e0d8f0;
+            border: 1px solid #000;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.8);
+            border-radius: 2px;
+        }
         /* ── GLOBAL MUSIC WORKSPACE STYLES ──────────────────────────── */
         :root {
             --bg:      #0a0a12;
@@ -1522,11 +1540,11 @@ function injectPerformanceExtensions() {
         // Injected Dynamic Mixer Controls Panel
         const mixerPanel = document.createElement('div');
         mixerPanel.style.cssText = "display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; padding: 2px 4px; background: rgba(0,0,0,0.3); border-radius: 3px; border: 1px solid #332244; margin-left: 8px; width: 150px; align-items: center;";
-        mixerPanel.innerHTML = `
-            <div style="display:flex; flex-direction:column; align-items:center;"><span style="font-size:7px; color:var(--muted); line-height:1;">VOL</span><input type="range" class="mix-vol" min="0" max="100" value="${trackMixSettings[inst].vol*100}" style="width:100%; height:4px; accent-color:var(--pink); background:#111; border:none;"></div>
-            <div style="display:flex; flex-direction:column; align-items:center;"><span style="font-size:7px; color:var(--muted); line-height:1;">PAN</span><input type="range" class="mix-pan" min="-100" max="100" value="${trackMixSettings[inst].pan*100}" style="width:100%; height:4px; accent-color:var(--cyan); background:#111; border:none;"></div>
-            <div style="display:flex; flex-direction:column; align-items:center;"><span style="font-size:7px; color:var(--muted); line-height:1;">DLY</span><input type="range" class="mix-dly" min="0" max="100" value="${trackMixSettings[inst].dly*100}" style="width:100%; height:4px; accent-color:var(--gold); background:#111; border:none;"></div>
-            <div style="display:flex; flex-direction:column; align-items:center;"><span style="font-size:7px; color:var(--muted); line-height:1;">REV</span><input type="range" class="mix-rev" min="0" max="100" value="${trackMixSettings[inst].rev*100}" style="width:100%; height:4px; accent-color:var(--purple); background:#111; border:none;"></div>
+      mixerPanel.innerHTML = `
+            <div style="display:flex; flex-direction:column; align-items:center;"><span style="font-size:7px; color:var(--muted); line-height:1; margin-bottom:4px;">VOL</span><input type="range" class="mix-vol mini-slider" min="0" max="100" value="${trackMixSettings[inst].vol*100}" style="width:100%; height:4px; accent-color:var(--pink); background:#111; border:none;"></div>
+            <div style="display:flex; flex-direction:column; align-items:center;"><span style="font-size:7px; color:var(--muted); line-height:1; margin-bottom:4px;">PAN</span><input type="range" class="mix-pan mini-slider" min="-100" max="100" value="${trackMixSettings[inst].pan*100}" style="width:100%; height:4px; accent-color:var(--cyan); background:#111; border:none;"></div>
+            <div style="display:flex; flex-direction:column; align-items:center;"><span style="font-size:7px; color:var(--muted); line-height:1; margin-bottom:4px;">DLY</span><input type="range" class="mix-dly mini-slider" min="0" max="100" value="${trackMixSettings[inst].dly*100}" style="width:100%; height:4px; accent-color:var(--gold); background:#111; border:none;"></div>
+            <div style="display:flex; flex-direction:column; align-items:center;"><span style="font-size:7px; color:var(--muted); line-height:1; margin-bottom:4px;">REV</span><input type="range" class="mix-rev mini-slider" min="0" max="100" value="${trackMixSettings[inst].rev*100}" style="width:100%; height:4px; accent-color:var(--purple); background:#111; border:none;"></div>
         `;
 
         mixerPanel.querySelector('.mix-vol').addEventListener('input', (e) => {
