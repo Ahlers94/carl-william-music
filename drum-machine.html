@@ -165,7 +165,6 @@
             position: relative;
         }
 
-        /* 🌟 UPGRADE: Track Focus Styling */
         .instrument-row.focused-track {
             background: rgba(0, 245, 255, 0.04);
             border-color: rgba(0, 245, 255, 0.3);
@@ -310,7 +309,7 @@
             position: relative;
             cursor: pointer;
             border: 1px solid #444;
-            pointer-events: none; /* Let the container handle clicks reliably */
+            pointer-events: none;
         }
 
         input[type="checkbox"]#pattern-toggle::before {
@@ -442,52 +441,6 @@
             cursor: pointer;
             box-shadow: 0 1px 3px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.4);
             border: 1px solid #222;
-        }
-
-        /* ── LONG-PRESS POPOVER DESIGN SYSTEM ──────────────────────── */
-        .voice-popover {
-            position: absolute;
-            left: 115px;
-            top: 50%;
-            transform: translateY(-50%);
-            background: #15171c;
-            border: 2px solid var(--cyan);
-            border-radius: 4px;
-            padding: 4px;
-            display: flex;
-            gap: 4px;
-            z-index: 100;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.8), 0 0 10px rgba(0,245,255,0.2);
-            animation: popIn 0.15s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        }
-
-        @keyframes popIn {
-            from { transform: translateY(-50%) scale(0.8); opacity: 0; }
-            to { transform: translateY(-50%) scale(1); opacity: 1; }
-        }
-
-        .voice-btn {
-            background: #242629;
-            color: var(--muted);
-            border: 1px solid #3a3f44;
-            padding: 4px 8px;
-            font-family: 'Space Mono', monospace;
-            font-size: 9px;
-            font-weight: bold;
-            cursor: pointer;
-            border-radius: 2px;
-            transition: all 0.1s;
-        }
-
-        .voice-btn:hover {
-            color: #fff;
-            background: #2e3136;
-        }
-
-        .voice-btn.active-voice {
-            background: var(--cyan);
-            color: #000;
-            border-color: #fff;
         }
 
         /* --- Keyboard Layout System --- */
@@ -671,7 +624,7 @@
                 <div class="bio-box">
                     <p class="bio-text" style="margin-bottom: 12px; color: var(--cyan); font-size:11px;">[NEW UPGRADE FEATURES]</p>
                     <p class="bio-text" style="margin-bottom: 12px; font-size: 11px;">• <strong>Track Focus:</strong> Tap any track label to link it to the bottom chromatically mapped keyboard engine.</p>
-                    <p class="bio-text" style="margin-bottom: 12px; font-size: 11px;">• <strong>Voice Pop-over:</strong> Press & Hold any track label for 1.5 seconds to switch engines between 808, 909, and Toy modes.</p>
+                    <p class="bio-text" style="margin-bottom: 12px; font-size: 11px;">• <strong>Bitcrusher Effect:</strong> Adjust the custom DSP sliders below to downscale amplitude depth and sample rates to mimic old-school sampler hardware grit.</p>
                     <p class="bio-text" style="font-size: 11px;">Toggle grid steps while the sequence runs to adjust pattern architecture.</p>
                 </div>
             </div>
@@ -690,7 +643,12 @@ let nextNoteTime = 0.0;
 let timerId = null;
 
 // FEATURE 3: Swing / Shuffle State Tracking Scalar Variable
-let swingFactor = 0.0; // Range: 0.0 (Perfect robotic grid) to 1.0 (Maximum lazy shuffle swing)
+let swingFactor = 0.0; 
+
+// FEATURE 9: Bitcrusher Node & Settings State Tracking Variables
+let bitcrusherNode = null;
+let crushBits = 16;     // Range: 1 (extreme total disintegration) to 16 (clean studio master pass)
+let crushDownsample = 1; // Range: 1 (no reduction) to 40 (drastic down-scaling sample decimation)
 
 // Track Focus State System
 let focusedTrack = 'kick';
@@ -703,7 +661,6 @@ const voiceEngines = {
     openHat: '808'
 };
 
-// Mode cycling array sequence
 const ENGINE_MODES = ['808', '909', 'CR78', 'FM', 'TOY', 'CUSTOM'];
 
 // FEATURE 1: Per-Voice Mute and Solo States Dictionary Matrix
@@ -716,14 +673,67 @@ const trackStates = {
 
 // FEATURE 2: Pattern Chain Configuration Flag
 let isChainingActive = false;
-
 let currentBank = 'A';
 
-// FEATURE 4: Expanded Pattern Grid Storage (0 = Off, 1 = Accent/Ghost Note, 2 = Full Hit Hit)
+// FEATURE 4: Expanded Pattern Grid Storage
 const patterns = {
     'A': { kick: Array(16).fill(0), snare: Array(16).fill(0), closedHat: Array(16).fill(0), openHat: Array(16).fill(0) },
     'B': { kick: Array(16).fill(0), snare: Array(16).fill(0), closedHat: Array(16).fill(0), openHat: Array(16).fill(0) }
 };
+
+// --- FEATURE 9: INLINE BITCRUSHER AUDIO WORKLET CODE BLOB GENERATOR ---
+const bitcrusherWorkletCode = `
+    class BitcrusherProcessor extends AudioWorkletProcessor {
+        static get Bureau() { return []; }
+        
+        constructor() {
+            super();
+            this.lastSampleValue = 0.0;
+            this.downsampleCounter = 0;
+        }
+
+        process(inputs, outputs, parameters) {
+            const input = inputs[0];
+            const output = outputs[0];
+            
+            if (!input || !input[0]) return true;
+
+            // Gather values sent from runtime port connection map variables
+            const bits = 16; 
+            const downsample = 1;
+
+            for (let channel = 0; channel < input.length; ++channel) {
+                const inputChannel = input[channel];
+                const outputChannel = output[channel];
+                
+                // Read continuous target frame params safely passed down via processor ports
+                let currentBits = this.bits || 16;
+                let currentDownsample = this.downsample || 1;
+
+                // Mathematical step sizing matrix variables scaling
+                const stepCount = Math.pow(2, currentBits);
+
+                for (let i = 0; i < inputChannel.length; ++i) {
+                    // 1. Handle Sample Rate Decimation / Downsampling Phase
+                    if (this.downsampleCounter >= currentDownsample) {
+                        this.downsampleCounter = 0;
+                        this.lastSampleValue = inputChannel[i];
+                    }
+                    this.downsampleCounter++;
+
+                    // 2. Handle Quantization / Amplitude Bitcrushing Phase
+                    let sample = this.lastSampleValue;
+                    let quantizedSample = Math.round(sample * stepCount) / stepCount;
+                    
+                    outputChannel[i] = quantizedSample;
+                }
+            }
+            return true;
+        }
+    }
+
+    registerProcessor('bitcrusher-processor', BitcrusherProcessor);
+`;
 
 // --- 2. DOM INITIALIZATION & INTERACTION LOGIC REFACTOR ---
 const instruments = ['kick', 'snare', 'closedHat', 'openHat'];
@@ -732,66 +742,54 @@ instruments.forEach(inst => {
     const rowWrapper = document.getElementById(`row-${inst}`);
     const row = rowWrapper.querySelector('.steps-row');
     
-    // FEATURE 4: Generate Interactive Tri-State Step Cells Array
     for(let i = 0; i < 16; i++) {
         const cell = document.createElement('div');
         cell.classList.add('step-cell');
         cell.dataset.step = i;
         
         cell.addEventListener('click', () => {
-            // Cycle velocity values sequentially: 0 -> 1 -> 2 -> 0...
             let currentState = patterns[currentBank][inst][i];
             let nextState = (currentState + 1) % 3;
             patterns[currentBank][inst][i] = nextState;
-            
-            // Render structural UI updates based on structural velocity depth
             updateCellVisualState(cell, nextState);
         });
         row.appendChild(cell);
     }
 
-    // Tap Focus & Cycle Voice Selector Logic Integration
     const label = rowWrapper.querySelector('.instrument-label');
     label.addEventListener('click', () => {
-        initAudio();
-        
-        if (focusedTrack !== inst) {
-            setTrackFocus(inst);
-        } else {
-            const currentIdx = ENGINE_MODES.indexOf(voiceEngines[inst]);
-            const nextIdx = (currentIdx + 1) % ENGINE_MODES.length;
-            const newMode = ENGINE_MODES[nextIdx];
-            
-            voiceEngines[inst] = newMode;
-            
-            rowWrapper.querySelector('.voice-indicator').innerText = `[${newMode}]`;
-            
-            // Audibly fire immediate preview tracking trigger upon voice cycle change
-            playSynthSound(inst, audioCtx.currentTime, 1.0, 2); // Previews at full velocity
-        }
+        initAudio().then(() => {
+            if (focusedTrack !== inst) {
+                setTrackFocus(inst);
+            } else {
+                const currentIdx = ENGINE_MODES.indexOf(voiceEngines[inst]);
+                const nextIdx = (currentIdx + 1) % ENGINE_MODES.length;
+                const newMode = ENGINE_MODES[nextIdx];
+                
+                voiceEngines[inst] = newMode;
+                rowWrapper.querySelector('.voice-indicator').innerText = `[${newMode}]`;
+                playSynthSound(inst, audioCtx.currentTime, 1.0, 2); 
+            }
+        });
     });
 });
 
-// FEATURE 4: Cell Graphic Velocity Renderer Switch
 function updateCellVisualState(cell, velocityState) {
     if (velocityState === 0) {
         cell.classList.remove('active');
         cell.style.background = '';
         cell.style.boxShadow = '';
     } else if (velocityState === 1) {
-        // Accent Note State: Dim Amber/Pink hybrid glow accent signature
         cell.classList.add('active');
         cell.style.background = '#b31a52'; 
         cell.style.boxShadow = '0 0 6px rgba(179, 26, 82, 0.4)';
     } else if (velocityState === 2) {
-        // Full Hit Velocity State: Hot Neon Pink standard signature
         cell.classList.add('active');
         cell.style.background = 'var(--pink)';
         cell.style.boxShadow = '0 0 10px rgba(255, 45, 120, 0.6)';
     }
 }
 
-// Track Focus UI Updater
 function setTrackFocus(targetInstrument) {
     focusedTrack = targetInstrument;
     instruments.forEach(inst => {
@@ -806,10 +804,30 @@ function setTrackFocus(targetInstrument) {
 
 setTrackFocus('kick');
 
-// --- 3. EXPANDED AUDIO SYNTHESIS ENGINES (6 MODES + VELOCITY MATRIX) ---
-function initAudio() {
+// --- 3. EXPANDED AUDIO SYNTHESIS ENGINES (6 MODES + NEW FX PROCESSING GRAPH) ---
+async function initAudio() {
     if (!audioCtx) {
         audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        
+        // FEATURE 9: Compile and Injection-Register inline Worklet runtime code block
+        try {
+            const blob = new Blob([bitcrusherWorkletCode], { type: 'application/javascript' });
+            const workletUrl = URL.createObjectURL(blob);
+            await audioCtx.audioWorklet.addModule(workletUrl);
+            
+            // Generate the dynamic worklet instance node inside graph topology mapping
+            bitcrusherNode = new AudioWorkletNode(audioCtx, 'bitcrusher-processor');
+            
+            // Set initial state tracking values directly down into processor scope
+            bitcrusherNode.bits = crushBits;
+            bitcrusherNode.downsample = crushDownsample;
+            
+            // Patch worklet directly into final master monitoring output port nodes
+            bitcrusherNode.connect(audioCtx.destination);
+        } catch (e) {
+            console.error("AudioWorklet initialization crashed, falling back to clean bypass path.", e);
+            bitcrusherNode = null;
+        }
     }
 }
 
@@ -831,28 +849,28 @@ function makeDistortionCurve(amount) {
     return curve;
 }
 
-// FEATURE 4: playSynthSound updated to accept and process velocity values
 function playSynthSound(type, time, pitchMultiplier = 1.0, velocityValue = 2) {
-    initAudio();
+    if (!audioCtx) return;
     const mods = getModifierValues();
     const currentEngine = voiceEngines[type];
     const baseFreq = mods.pitch * pitchMultiplier;
 
-    // FEATURE 4 Math: Calculate velocity modifier (0.0 -> Off, 0.35 -> Accent, 1.0 -> Full Hit)
     let velocityGainScalar = 0.0;
     if (velocityValue === 1) velocityGainScalar = 0.35;
     if (velocityValue === 2) velocityGainScalar = 1.0;
-    if (velocityGainScalar === 0.0) return; // Guard clause against zero velocity triggers
+    if (velocityGainScalar === 0.0) return; 
 
     let osc = null;
     let gainNode = audioCtx.createGain();
-    let finalTargetNode = audioCtx.destination;
+    
+    // FEATURE 9 Routing: Intercept master track feeds and route through bitcrusher node if ready
+    let finalTargetNode = bitcrusherNode ? bitcrusherNode : audioCtx.destination;
 
     if (currentEngine === 'CUSTOM') {
         const distortion = audioCtx.createWaveShaper();
         distortion.curve = makeDistortionCurve(80);
         distortion.oversample = '4x';
-        distortion.connect(audioCtx.destination);
+        distortion.connect(finalTargetNode);
         finalTargetNode = distortion;
     }
 
@@ -867,7 +885,6 @@ function playSynthSound(type, time, pitchMultiplier = 1.0, velocityValue = 2) {
                 osc.frequency.setValueAtTime(baseFreq + 90, time);
                 osc.frequency.exponentialRampToValueAtTime(Math.max(0.01, baseFreq * 0.5), time + mods.decay);
                 
-                // Incorporate dynamic velocity scalars directly into baseline gain calculation
                 gainNode.gain.setValueAtTime(1.0 * velocityGainScalar, time);
                 gainNode.gain.exponentialRampToValueAtTime(0.01, time + mods.decay);
                 osc.start(time);
@@ -1124,7 +1141,6 @@ function playSynthSound(type, time, pitchMultiplier = 1.0, velocityValue = 2) {
     }
 }
 
-// FEATURE 1 Helper: Analyzes matrix state arrays to dictate audible properties
 function isTrackAudible(inst) {
     if (trackStates[inst].muted) return false;
     const anyTrackSoloed = Object.values(trackStates).some(state => state.soloed);
@@ -1135,21 +1151,15 @@ function isTrackAudible(inst) {
 // --- 4. CLOCK SCHEDULER TIMING LOOP ---
 function nextStepTick() {
     const secondsPerBeat = 60.0 / tempo;
-    
-    // Base 16th note timing step length increment mapping
     const baseStepDuration = 0.25 * secondsPerBeat;
     nextNoteTime += baseStepDuration; 
 
     currentStep++;
     
-    // FEATURE 2 Integration: Intercept boundary condition right on loop completion
     if (currentStep === 16) {
         currentStep = 0;
-        
         if (isChainingActive) {
             currentBank = (currentBank === 'A') ? 'B' : 'A';
-            
-            // Sync user interfaces cleanly without disrupting execution flows
             updateGridDisplay();
             
             const toggleElement = document.getElementById('pattern-toggle');
@@ -1168,12 +1178,10 @@ function nextStepTick() {
 }
 
 function scheduleStep(stepNumber, time) {
-    // FEATURE 3 Math: Process timeline adjustments for even steps to add groove/swing
     let dynamicTriggerTime = time;
-    if (stepNumber % 2 !== 0) { // Off-beats (steps 2, 4, 6, etc., are indexed odd as 1, 3, 5)
+    if (stepNumber % 2 !== 0) { 
         const secondsPerBeat = 60.0 / tempo;
         const straightSixteenthLength = 0.25 * secondsPerBeat;
-        // Maximum delay matches 1/3 of a 16th note length for a triplets feel triplet swing
         const maxSwingDelay = straightSixteenthLength * 0.333;
         dynamicTriggerTime += (swingFactor * maxSwingDelay);
     }
@@ -1181,7 +1189,6 @@ function scheduleStep(stepNumber, time) {
     instruments.forEach(inst => {
         const cellVelocityValue = patterns[currentBank][inst][stepNumber];
         if (cellVelocityValue > 0) {
-            // FEATURE 1: Verify audio path conditions before execution
             if (isTrackAudible(inst)) {
                 playSynthSound(inst, dynamicTriggerTime, 1.0, cellVelocityValue);
             }
@@ -1190,7 +1197,6 @@ function scheduleStep(stepNumber, time) {
 
     requestAnimationFrame(() => {
         document.getElementById('lcd-step').innerText = `STEP: ${String(stepNumber + 1).padStart(2, '0')}/16`;
-        
         document.querySelectorAll('.step-cell').forEach(cell => {
             if (parseInt(cell.dataset.step) === stepNumber) {
                 cell.classList.add('current-tick');
@@ -1210,24 +1216,25 @@ function scheduler() {
 }
 
 function togglePlayback() {
-    initAudio();
-    isPlaying = !isPlaying;
+    initAudio().then(() => {
+        isPlaying = !isPlaying;
 
-    if (isPlaying) {
-        if (audioCtx.state === 'suspended') {
-            audioCtx.resume();
+        if (isPlaying) {
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+            currentStep = 0;
+            nextNoteTime = audioCtx.currentTime;
+            scheduler();
+            document.getElementById('btn-global-play').style.backgroundColor = '#00ff41';
+            document.getElementById('btn-global-play').style.color = '#000';
+        } else {
+            clearTimeout(timerId);
+            document.getElementById('btn-global-play').style.backgroundColor = '#a92323';
+            document.getElementById('btn-global-play').style.color = '#fff';
+            document.querySelectorAll('.step-cell').forEach(cell => cell.classList.remove('current-tick'));
         }
-        currentStep = 0;
-        nextNoteTime = audioCtx.currentTime;
-        scheduler();
-        document.getElementById('btn-global-play').style.backgroundColor = '#00ff41';
-        document.getElementById('btn-global-play').style.color = '#000';
-    } else {
-        clearTimeout(timerId);
-        document.getElementById('btn-global-play').style.backgroundColor = '#a92323';
-        document.getElementById('btn-global-play').style.color = '#fff';
-        document.querySelectorAll('.step-cell').forEach(cell => cell.classList.remove('current-tick'));
-    }
+    });
 }
 
 // --- 5. CONTROL EVENT INTERFACE BINDINGS ---
@@ -1274,25 +1281,25 @@ function updateGridDisplay() {
     });
 }
 
-// Yellow Performance Pads
 document.querySelectorAll('.yellow-pad').forEach(pad => {
     pad.addEventListener('mousedown', () => {
         const inst = pad.dataset.pad;
-        playSynthSound(inst, audioCtx ? audioCtx.currentTime : 0, 1.0, 2);
-        pad.classList.add('pad-active-glow');
+        initAudio().then(() => {
+            playSynthSound(inst, audioCtx.currentTime, 1.0, 2);
+            pad.classList.add('pad-active-glow');
+        });
     });
     pad.addEventListener('mouseup', () => pad.classList.remove('pad-active-glow'));
     pad.addEventListener('mouseleave', () => pad.classList.remove('pad-active-glow'));
 });
 
-// Chromatically Routed Bottom Keybed Engine
 document.querySelectorAll('.key').forEach(key => {
     key.addEventListener('mousedown', () => {
-        initAudio();
-        key.classList.add('key-active');
-        const multValue = parseFloat(key.dataset.mult);
-        // Plays chromatic inputs at full velocity
-        playSynthSound(focusedTrack, audioCtx.currentTime, multValue, 2);
+        initAudio().then(() => {
+            key.classList.add('key-active');
+            const multValue = parseFloat(key.dataset.mult);
+            playSynthSound(focusedTrack, audioCtx.currentTime, multValue, 2);
+        });
     });
     key.addEventListener('mouseup', () => key.classList.remove('key-active'));
     key.addEventListener('mouseleave', () => key.classList.remove('key-active'));
@@ -1300,7 +1307,6 @@ document.querySelectorAll('.key').forEach(key => {
 
 // --- 6. DYNAMIC UI PERFORMANCE EXTRACTION INJECTION NODE PLANT ---
 function injectPerformanceExtensions() {
-    // 1. Mount Per-Voice Mute & Solo Utility Rows
     instruments.forEach(inst => {
         const rowWrapper = document.getElementById(`row-${inst}`);
         if (!rowWrapper) return;
@@ -1313,13 +1319,12 @@ function injectPerformanceExtensions() {
         perfCluster.style.marginLeft = '8px';
         perfCluster.style.verticalAlign = 'middle';
 
-        // Mute Button Component
         const muteBtn = document.createElement('button');
         muteBtn.innerText = 'M';
         muteBtn.style.cssText = "width:20px; height:20px; font-size:10px; font-weight:bold; border:1px solid #443355; background:#110d22; color:#9988aa; cursor:pointer; border-radius:3px; font-family:'Space Mono', monospace;";
         
         muteBtn.addEventListener('click', (e) => {
-            e.stopPropagation(); // Shield track focus routing modifications
+            e.stopPropagation(); 
             trackStates[inst].muted = !trackStates[inst].muted;
             if (trackStates[inst].muted) {
                 muteBtn.style.background = 'var(--gold)';
@@ -1332,7 +1337,6 @@ function injectPerformanceExtensions() {
             }
         });
 
-        // Solo Button Component
         const soloBtn = document.createElement('button');
         soloBtn.innerText = 'S';
         soloBtn.style.cssText = "width:20px; height:20px; font-size:10px; font-weight:bold; border:1px solid #443355; background:#110d22; color:#9988aa; cursor:pointer; border-radius:3px; font-family:'Space Mono', monospace;";
@@ -1356,7 +1360,6 @@ function injectPerformanceExtensions() {
         labelNode.parentNode.insertBefore(perfCluster, labelNode.nextSibling);
     });
 
-    // 2. Mount Automatic Bank Chain Checkbox Layout Structure
     const bankWrapper = document.getElementById('pattern-switch-wrapper');
     if (bankWrapper && bankWrapper.parentNode) {
         const chainBox = document.createElement('div');
@@ -1380,9 +1383,9 @@ function injectPerformanceExtensions() {
         bankWrapper.parentNode.appendChild(chainBox);
     }
 
-    // 3. Mount Parameter Sliders Block Array Insertion for Swing/Groove Control
     const parametersContainer = document.querySelector('.dropdowns-sliders');
     if (parametersContainer) {
+        // A. Swing/Groove Control Node Element
         const swingDeck = document.createElement('div');
         swingDeck.className = 'menu-item';
         swingDeck.style.marginTop = '4px';
@@ -1407,6 +1410,63 @@ function injectPerformanceExtensions() {
         swingDeck.appendChild(swingLabel);
         swingDeck.appendChild(slider);
         parametersContainer.appendChild(swingDeck);
+
+        // B. FEATURE 9: Bitcrusher Parameter Bit Depth Slider Component Injection
+        const crushBitsDeck = document.createElement('div');
+        crushBitsDeck.className = 'menu-item';
+        crushBitsDeck.style.marginTop = '4px';
+
+        const bitsLabel = document.createElement('label');
+        bitsLabel.htmlFor = 'crush-bits-slider';
+        bitsLabel.innerHTML = 'CRUSHER BIT DEPTH <span class="inline-val" id="inline-crush-bits">16 BIT</span>';
+
+        const bitsSlider = document.createElement('input');
+        bitsSlider.type = 'range';
+        bitsSlider.id = 'crush-bits-slider';
+        bitsSlider.min = '1';
+        bitsSlider.max = '16';
+        bitsSlider.value = '16';
+        
+        bitsSlider.addEventListener('input', (e) => {
+            crushBits = parseInt(e.target.value);
+            document.getElementById('inline-crush-bits').innerText = `${crushBits} BIT`;
+            if (bitcrusherNode) {
+                // Instantly sync value change to processor reference properties
+                bitcrusherNode.bits = crushBits;
+            }
+        });
+
+        crushBitsDeck.appendChild(bitsLabel);
+        crushBitsDeck.appendChild(bitsSlider);
+        parametersContainer.appendChild(crushBitsDeck);
+
+        // C. FEATURE 9: Bitcrusher Downsampling Decimation Slider Component Injection
+        const downsampleDeck = document.createElement('div');
+        downsampleDeck.className = 'menu-item';
+        downsampleDeck.style.marginTop = '4px';
+
+        const dsLabel = document.createElement('label');
+        dsLabel.htmlFor = 'crush-ds-slider';
+        dsLabel.innerHTML = 'CRUSHER DOWNSAMPLE <span class="inline-val" id="inline-crush-ds">1x (CLEAN)</span>';
+
+        const dsSlider = document.createElement('input');
+        dsSlider.type = 'range';
+        dsSlider.id = 'crush-ds-slider';
+        dsSlider.min = '1';
+        dsSlider.max = '40';
+        dsSlider.value = '1';
+        
+        dsSlider.addEventListener('input', (e) => {
+            crushDownsample = parseInt(e.target.value);
+            document.getElementById('inline-crush-ds').innerText = crushDownsample === 1 ? '1x (CLEAN)' : `${crushDownsample}x`;
+            if (bitcrusherNode) {
+                bitcrusherNode.downsample = crushDownsample;
+            }
+        });
+
+        downsampleDeck.appendChild(dsLabel);
+        downsampleDeck.appendChild(dsSlider);
+        parametersContainer.appendChild(downsampleDeck);
     }
 }
 
@@ -1416,26 +1476,17 @@ function injectPerformanceExtensions() {
 
 const BASE64_CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+-";
 
-/**
- * Packs an array of 16 tri-state integers (0, 1, 2) into 6 Base64 characters.
- */
 function packTriStateArray(arr) {
     let result = "";
-    // Pack into groups of 3 elements (except the last group which has 1 element)
-    // Group 1: 0,1,2 | Group 2: 3,4,5 | Group 3: 6,7,8 | Group 4: 9,10,11 | Group 5: 12,13,14 | Group 6: 15
     for (let i = 0; i < 15; i += 3) {
         let val = (arr[i] * 9) + (arr[i+1] * 3) + arr[i+2];
         result += BASE64_CHARS[val];
     }
-    // Last element handling (index 15)
-    let lastVal = arr[15] * 9; // Pad remaining bits with 0
+    let lastVal = arr[15] * 9; 
     result += BASE64_CHARS[lastVal];
     return result;
 }
 
-/**
- * Unpacks 6 Base64 characters back into an array of 16 tri-state integers.
- */
 function unpackTriStateArray(str) {
     let arr = new Array(16).fill(0);
     let idx = 0;
@@ -1450,13 +1501,9 @@ function unpackTriStateArray(str) {
     return arr;
 }
 
-/**
- * Serializes the entire application state matrix into a tight alphanumeric hash.
- */
 function encodeCurrentPattern() {
     let parts = [];
     
-    // 1. Serialize Grid Matrices (Banks A & B)
     let gridString = "";
     ['A', 'B'].forEach(bank => {
         instruments.forEach(inst => {
@@ -1465,37 +1512,35 @@ function encodeCurrentPattern() {
     });
     parts.push(`g=${gridString}`);
 
-    // 2. Serialize Sliders & Parameters
     const decay = document.getElementById('decay-slider').value;
     const pitch = document.getElementById('pitch-slider').value;
     const swing = document.getElementById('swing-slider') ? document.getElementById('swing-slider').value : 0;
-    parts.push(`t=${tempo}`, `d=${decay}`, `p=${pitch}`, `s=${swing}`);
+    
+    // FEATURE 9 Integration: Pack custom bit depth and downsampling factors directly into string serialization
+    const cb = document.getElementById('crush-bits-slider') ? document.getElementById('crush-bits-slider').value : 16;
+    const cd = document.getElementById('crush-ds-slider') ? document.getElementById('crush-ds-slider').value : 1;
 
-    // 3. Serialize Active Voice Engines Mapping Matrix
+    parts.push(`t=${tempo}`, `d=${decay}`, `p=${pitch}`, `s=${swing}`, `cb=${cb}`, `cd=${cd}`);
+
     let voices = instruments.map(inst => ENGINE_MODES.indexOf(voiceEngines[inst])).join('');
     parts.push(`v=${voices}`);
 
-    // 4. Update window location without adding history fatigue overhead
     const hashToken = parts.join(';');
     window.history.replaceState(null, null, '#' + hashToken);
 }
 
-/**
- * Synchronizes the entire system telemetry state back from a hash URL.
- */
 function decodeUrlPattern() {
     const hash = window.location.hash.substring(1);
-    if (!hash) return; // Fallback gracefully if loading an unconfigured layout
+    if (!hash) return; 
 
     try {
         const params = {};
         hash.split(';').forEach(p => {
             const kv = p.split('=');
-            if (kv.length === 2) params[kv[kv.length - 2]] = kv[kv.length - 1];
+            if (kv.length === 2) params[kv[0]] = kv[1];
         });
 
-        // 1. Rehydrate Grid Architectures
-        if (params.g && params.g.length === 48) { // 2 banks * 4 tracks * 6 characters = 48
+        if (params.g && params.g.length === 48) { 
             let strIdx = 0;
             ['A', 'B'].forEach(bank => {
                 instruments.forEach(inst => {
@@ -1506,7 +1551,6 @@ function decodeUrlPattern() {
             });
         }
 
-        // 2. Rehydrate Global Parameter Controls
         if (params.t) {
             tempo = parseInt(params.t);
             const tSlider = document.getElementById('tempo-slider');
@@ -1532,15 +1576,29 @@ function decodeUrlPattern() {
             const inlineSwing = document.getElementById('inline-swing');
             if (inlineSwing) inlineSwing.innerText = `${params.s}%`;
         }
+        
+        // FEATURE 9 Decoding: Extract bitcrusher positions and pass updates natively down into variables
+        if (params.cb) {
+            crushBits = parseInt(params.cb);
+            const cbSlider = document.getElementById('crush-bits-slider');
+            if (cbSlider) cbSlider.value = crushBits;
+            const inlineBits = document.getElementById('inline-crush-bits');
+            if (inlineBits) inlineBits.innerText = `${crushBits} BIT`;
+        }
+        if (params.cd) {
+            crushDownsample = parseInt(params.cd);
+            const cdSlider = document.getElementById('crush-ds-slider');
+            if (cdSlider) cdSlider.value = crushDownsample;
+            const inlineDs = document.getElementById('inline-crush-ds');
+            if (inlineDs) inlineDs.innerText = crushDownsample === 1 ? '1x (CLEAN)' : `${crushDownsample}x`;
+        }
 
-        // 3. Rehydrate Custom Engines Mapping Configurations
         if (params.v && params.v.length === 4) {
             instruments.forEach((inst, i) => {
                 let modeIdx = parseInt(params.v[i]);
                 if (modeIdx >= 0 && modeIdx < ENGINE_MODES.length) {
                     const newMode = ENGINE_MODES[modeIdx];
                     voiceEngines[inst] = newMode;
-                    
                     const rowWrapper = document.getElementById(`row-${inst}`);
                     if (rowWrapper) {
                         rowWrapper.querySelector('.voice-indicator').innerText = `[${newMode}]`;
@@ -1549,7 +1607,6 @@ function decodeUrlPattern() {
             });
         }
 
-        // 4. Force Redraw Structural Displays
         updateGridDisplay();
 
     } catch (e) {
@@ -1557,56 +1614,41 @@ function decodeUrlPattern() {
     }
 }
 
-/**
- * Injects Real-time state listeners across all inputs without destructive mutations
- */
 function bindPersistenceTriggers() {
-    // A. Intercept Matrix Cell Updates
     instruments.forEach(inst => {
         const cells = document.querySelectorAll(`.instrument-row[data-instrument="${inst}"] .step-cell`);
         cells.forEach(cell => {
             cell.addEventListener('click', encodeCurrentPattern);
         });
         
-        // Intercept Voice Selection Switching clicks
         const label = document.querySelector(`#row-${inst} .instrument-label`);
         if (label) {
             label.addEventListener('click', encodeCurrentPattern);
         }
     });
 
-    // B. Intercept Control Slider Changes
-    ['tempo-slider', 'decay-slider', 'pitch-slider', 'swing-slider'].forEach(id => {
+    ['tempo-slider', 'decay-slider', 'pitch-slider', 'swing-slider', 'crush-bits-slider', 'crush-ds-slider'].forEach(id => {
         const el = document.getElementById(id);
         if (el) el.addEventListener('input', encodeCurrentPattern);
     });
 
-    // C. Intercept Matrix Clear Operation
     document.getElementById('btn-global-clear').addEventListener('click', encodeCurrentPattern);
 }
 
-/**
- * Creates and appends the Share System UI inside the Control Console layout
- */
 function injectShareInterface() {
     const targetContainer = document.querySelector('.panel-section.left-controls');
     if (!targetContainer) return;
 
-    // Build Retro-themed share trigger component
     const shareBtn = document.createElement('button');
     shareBtn.id = 'btn-global-share';
     shareBtn.className = 'red-button';
     shareBtn.innerText = 'SHARE LOOP';
     shareBtn.style.cssText = "background-color: #00f5ff; color: #000; box-shadow: 0 3px 0 #0099aa, 0 4px 5px rgba(0,0,0,0.4); margin-top: 4px; font-weight: 800;";
 
-    // Click to copy logic execution node
     shareBtn.addEventListener('click', () => {
-        // Run final sync verification to ensure URL is up to date
         encodeCurrentPattern();
-        
         const urlToCopy = window.location.href;
         navigator.clipboard.writeText(urlToCopy).then(() => {
-            // Success Feedback Cycle
             shareBtn.innerText = 'COPIED!';
             shareBtn.style.backgroundColor = '#99cc77';
             shareBtn.style.boxShadow = '0 3px 0 #558833';
@@ -1621,12 +1663,11 @@ function injectShareInterface() {
         });
     });
 
-    // Insert as the last performance node in the left utility deck controls matrix
     targetContainer.appendChild(shareBtn);
 }
 
 // ── BOOTSTRAP INITIALIZATION PROCEDURES ──────────────────────────────────────
-// Execute immediately to mount structures before runtime initialization
+injectPerformanceExtensions();
 injectShareInterface();
 decodeUrlPattern();
 bindPersistenceTriggers();
