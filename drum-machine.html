@@ -679,7 +679,7 @@
     </div>
 
     <script>
-       // --- 1. CORE ENGINE STATE STORAGE (UPDATED) ---
+     // --- 1. CORE ENGINE STATE STORAGE (EXPANDED ARCHITECTURE) ---
 let audioCtx = null;
 let isPlaying = false;
 let currentStep = 0;
@@ -689,10 +689,13 @@ let scheduleAheadTime = 0.1;
 let nextNoteTime = 0.0; 
 let timerId = null;
 
+// FEATURE 3: Swing / Shuffle State Tracking Scalar Variable
+let swingFactor = 0.0; // Range: 0.0 (Perfect robotic grid) to 1.0 (Maximum lazy shuffle swing)
+
 // Track Focus State System
 let focusedTrack = 'kick';
 
-// Expanded Voice Engine Selection Memory State (6 Modes)
+// Expanded Voice Engine Selection Memory State (6 Modes Architecture)
 const voiceEngines = {
     kick: '808',
     snare: '808',
@@ -703,55 +706,90 @@ const voiceEngines = {
 // Mode cycling array sequence
 const ENGINE_MODES = ['808', '909', 'CR78', 'FM', 'TOY', 'CUSTOM'];
 
-let currentBank = 'A';
-const patterns = {
-    'A': { kick: Array(16).fill(false), snare: Array(16).fill(false), closedHat: Array(16).fill(false), openHat: Array(16).fill(false) },
-    'B': { kick: Array(16).fill(false), snare: Array(16).fill(false), closedHat: Array(16).fill(false), openHat: Array(16).fill(false) }
+// FEATURE 1: Per-Voice Mute and Solo States Dictionary Matrix
+const trackStates = {
+    kick: { muted: false, soloed: false },
+    snare: { muted: false, soloed: false },
+    closedHat: { muted: false, soloed: false },
+    openHat: { muted: false, soloed: false }
 };
 
-// --- 2. DOM INITIALIZATION & CLEAN REFACTORED INTERACTION LOGIC ---
+// FEATURE 2: Pattern Chain Configuration Flag
+let isChainingActive = false;
+
+let currentBank = 'A';
+
+// FEATURE 4: Expanded Pattern Grid Storage (0 = Off, 1 = Accent/Ghost Note, 2 = Full Hit Hit)
+const patterns = {
+    'A': { kick: Array(16).fill(0), snare: Array(16).fill(0), closedHat: Array(16).fill(0), openHat: Array(16).fill(0) },
+    'B': { kick: Array(16).fill(0), snare: Array(16).fill(0), closedHat: Array(16).fill(0), openHat: Array(16).fill(0) }
+};
+
+// --- 2. DOM INITIALIZATION & INTERACTION LOGIC REFACTOR ---
 const instruments = ['kick', 'snare', 'closedHat', 'openHat'];
 
 instruments.forEach(inst => {
     const rowWrapper = document.getElementById(`row-${inst}`);
     const row = rowWrapper.querySelector('.steps-row');
     
-    // Generate matrix grid spaces
+    // FEATURE 4: Generate Interactive Tri-State Step Cells Array
     for(let i = 0; i < 16; i++) {
         const cell = document.createElement('div');
         cell.classList.add('step-cell');
         cell.dataset.step = i;
+        
         cell.addEventListener('click', () => {
-            patterns[currentBank][inst][i] = !patterns[currentBank][inst][i];
-            cell.classList.toggle('active', patterns[currentBank][inst][i]);
+            // Cycle velocity values sequentially: 0 -> 1 -> 2 -> 0...
+            let currentState = patterns[currentBank][inst][i];
+            let nextState = (currentState + 1) % 3;
+            patterns[currentBank][inst][i] = nextState;
+            
+            // Render structural UI updates based on structural velocity depth
+            updateCellVisualState(cell, nextState);
         });
         row.appendChild(cell);
     }
 
-    // REFACTORED: Instant Tap Focus & Cycle Voice Selector Logic
+    // Tap Focus & Cycle Voice Selector Logic Integration
     const label = rowWrapper.querySelector('.instrument-label');
     label.addEventListener('click', () => {
         initAudio();
         
         if (focusedTrack !== inst) {
-            // Rule A: If not focused, focus immediately
             setTrackFocus(inst);
         } else {
-            // Rule B: If already focused, instantly cycle to next voice engine
             const currentIdx = ENGINE_MODES.indexOf(voiceEngines[inst]);
             const nextIdx = (currentIdx + 1) % ENGINE_MODES.length;
             const newMode = ENGINE_MODES[nextIdx];
             
             voiceEngines[inst] = newMode;
             
-            // Real-time UI Update
             rowWrapper.querySelector('.voice-indicator').innerText = `[${newMode}]`;
             
-            // Audible Preview Trigger immediately upon cycling
-            playSynthSound(inst, audioCtx.currentTime);
+            // Audibly fire immediate preview tracking trigger upon voice cycle change
+            playSynthSound(inst, audioCtx.currentTime, 1.0, 2); // Previews at full velocity
         }
     });
 });
+
+// FEATURE 4: Cell Graphic Velocity Renderer Switch
+function updateCellVisualState(cell, velocityState) {
+    if (velocityState === 0) {
+        cell.classList.remove('active');
+        cell.style.background = '';
+        cell.style.boxShadow = '';
+    } else if (velocityState === 1) {
+        // Accent Note State: Dim Amber/Pink hybrid glow accent signature
+        cell.classList.add('active');
+        cell.style.background = '#b31a52'; 
+        cell.style.boxShadow = '0 0 6px rgba(179, 26, 82, 0.4)';
+    } else if (velocityState === 2) {
+        // Full Hit Velocity State: Hot Neon Pink standard signature
+        cell.classList.add('active');
+        cell.style.background = 'var(--pink)';
+        cell.style.boxShadow = '0 0 10px rgba(255, 45, 120, 0.6)';
+    }
+}
 
 // Track Focus UI Updater
 function setTrackFocus(targetInstrument) {
@@ -766,10 +804,9 @@ function setTrackFocus(targetInstrument) {
     });
 }
 
-// Default layout focus initialization
 setTrackFocus('kick');
 
-// --- 3. EXPANDED AUDIO SYNTHESIS ENGINES (6 MODES) ---
+// --- 3. EXPANDED AUDIO SYNTHESIS ENGINES (6 MODES + VELOCITY MATRIX) ---
 function initAudio() {
     if (!audioCtx) {
         audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -782,7 +819,6 @@ function getModifierValues() {
     return { decay, pitch };
 }
 
-// Custom WaveShaper distortion curve formula generator for CUSTOM mode
 function makeDistortionCurve(amount) {
     const k = typeof amount === 'number' ? amount : 50;
     const n_samples = 44100;
@@ -795,20 +831,23 @@ function makeDistortionCurve(amount) {
     return curve;
 }
 
-function playSynthSound(type, time, pitchMultiplier = 1.0) {
+// FEATURE 4: playSynthSound updated to accept and process velocity values
+function playSynthSound(type, time, pitchMultiplier = 1.0, velocityValue = 2) {
     initAudio();
     const mods = getModifierValues();
     const currentEngine = voiceEngines[type];
-
-    // Primary calculated frequency processing scale adjustments
     const baseFreq = mods.pitch * pitchMultiplier;
 
-    // Node setup architecture for global configurations
+    // FEATURE 4 Math: Calculate velocity modifier (0.0 -> Off, 0.35 -> Accent, 1.0 -> Full Hit)
+    let velocityGainScalar = 0.0;
+    if (velocityValue === 1) velocityGainScalar = 0.35;
+    if (velocityValue === 2) velocityGainScalar = 1.0;
+    if (velocityGainScalar === 0.0) return; // Guard clause against zero velocity triggers
+
     let osc = null;
     let gainNode = audioCtx.createGain();
     let finalTargetNode = audioCtx.destination;
 
-    // Saturated Soft-Clipping overdriven implementation wrapper for CUSTOM engine
     if (currentEngine === 'CUSTOM') {
         const distortion = audioCtx.createWaveShaper();
         distortion.curve = makeDistortionCurve(80);
@@ -825,13 +864,12 @@ function playSynthSound(type, time, pitchMultiplier = 1.0) {
                 osc = audioCtx.createOscillator();
                 osc.type = 'sine';
                 osc.connect(gainNode);
-
                 osc.frequency.setValueAtTime(baseFreq + 90, time);
                 osc.frequency.exponentialRampToValueAtTime(Math.max(0.01, baseFreq * 0.5), time + mods.decay);
                 
-                gainNode.gain.setValueAtTime(1.0, time);
+                // Incorporate dynamic velocity scalars directly into baseline gain calculation
+                gainNode.gain.setValueAtTime(1.0 * velocityGainScalar, time);
                 gainNode.gain.exponentialRampToValueAtTime(0.01, time + mods.decay);
-
                 osc.start(time);
                 osc.stop(time + mods.decay);
             } 
@@ -839,81 +877,65 @@ function playSynthSound(type, time, pitchMultiplier = 1.0) {
                 osc = audioCtx.createOscillator();
                 osc.type = 'triangle';
                 osc.connect(gainNode);
-
                 osc.frequency.setValueAtTime(baseFreq + 320, time);
                 osc.frequency.exponentialRampToValueAtTime(Math.max(0.01, baseFreq * 0.8), time + 0.06);
 
-                // Transient punch beater layer
                 let clickOsc = audioCtx.createOscillator();
                 let clickGain = audioCtx.createGain();
                 clickOsc.type = 'sine';
                 clickOsc.connect(clickGain);
                 clickGain.connect(finalTargetNode);
-                
                 clickOsc.frequency.setValueAtTime(1500, time);
-                clickGain.gain.setValueAtTime(0.6, time);
+                
+                clickGain.gain.setValueAtTime(0.6 * velocityGainScalar, time);
                 clickGain.gain.exponentialRampToValueAtTime(0.01, time + 0.015);
 
-                gainNode.gain.setValueAtTime(1.0, time);
+                gainNode.gain.setValueAtTime(1.0 * velocityGainScalar, time);
                 gainNode.gain.exponentialRampToValueAtTime(0.01, time + (mods.decay * 0.7));
-
                 osc.start(time);
                 clickOsc.start(time);
                 osc.stop(time + (mods.decay * 0.7));
                 clickOsc.stop(time + 0.02);
             } 
             else if (currentEngine === 'CR78') {
-                // Primitive early analog simulation woodblock ring
                 osc = audioCtx.createOscillator();
                 osc.type = 'sine';
                 osc.connect(gainNode);
-
                 osc.frequency.setValueAtTime(baseFreq * 1.5, time);
-                gainNode.gain.setValueAtTime(0.8, time);
+                
+                gainNode.gain.setValueAtTime(0.8 * velocityGainScalar, time);
                 gainNode.gain.exponentialRampToValueAtTime(0.01, time + 0.06);
-
                 osc.start(time);
                 osc.stop(time + 0.07);
             }
             else if (currentEngine === 'FM') {
-                // Modulator -> Carrier FM Matrix pairing
                 let carrier = audioCtx.createOscillator();
                 let modulator = audioCtx.createOscillator();
                 let modGain = audioCtx.createGain();
-
-                carrier.type = 'sine';
-                modulator.type = 'sine';
-
+                carrier.type = 'sine'; modulator.type = 'sine';
                 carrier.connect(gainNode);
                 modulator.connect(modGain);
                 modGain.connect(carrier.frequency);
 
                 carrier.frequency.setValueAtTime(baseFreq, time);
                 modulator.frequency.setValueAtTime(baseFreq * 1.4, time);
-                
-                // Intense modulated dynamic envelope scaling sweep
                 modGain.gain.setValueAtTime(baseFreq * 4, time);
                 modGain.gain.exponentialRampToValueAtTime(0.01, time + mods.decay);
 
-                gainNode.gain.setValueAtTime(0.8, time);
+                gainNode.gain.setValueAtTime(0.8 * velocityGainScalar, time);
                 gainNode.gain.exponentialRampToValueAtTime(0.01, time + mods.decay);
-
-                carrier.start(time);
-                modulator.start(time);
-                carrier.stop(time + mods.decay);
-                modulator.stop(time + mods.decay);
+                carrier.start(time); modulator.start(time);
+                carrier.stop(time + mods.decay); modulator.stop(time + mods.decay);
             }
             else if (currentEngine === 'TOY') {
                 osc = audioCtx.createOscillator();
                 osc.type = 'square';
                 osc.connect(gainNode);
-
                 osc.frequency.setValueAtTime(baseFreq, time);
                 osc.frequency.setValueAtTime(baseFreq * 0.5, time + 0.04);
 
-                gainNode.gain.setValueAtTime(0.6, time);
+                gainNode.gain.setValueAtTime(0.6 * velocityGainScalar, time);
                 gainNode.gain.linearRampToValueAtTime(0.01, time + mods.decay);
-
                 osc.start(time);
                 osc.stop(time + mods.decay);
             }
@@ -921,13 +943,11 @@ function playSynthSound(type, time, pitchMultiplier = 1.0) {
                 osc = audioCtx.createOscillator();
                 osc.type = 'sawtooth';
                 osc.connect(gainNode);
-
                 osc.frequency.setValueAtTime(baseFreq + 60, time);
                 osc.frequency.linearRampToValueAtTime(baseFreq * 0.4, time + mods.decay);
 
-                gainNode.gain.setValueAtTime(0.9, time);
+                gainNode.gain.setValueAtTime(0.9 * velocityGainScalar, time);
                 gainNode.gain.exponentialRampToValueAtTime(0.01, time + mods.decay);
-
                 osc.start(time);
                 osc.stop(time + mods.decay);
             }
@@ -944,97 +964,69 @@ function playSynthSound(type, time, pitchMultiplier = 1.0) {
                 let buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
                 let data = buffer.getChannelData(0);
                 for (let i = 0; i < bufferSize; i++) { data[i] = Math.random() * 2 - 1; }
-                
                 let noiseNode = audioCtx.createBufferSource();
                 noiseNode.buffer = buffer;
                 
                 let noiseFilter = audioCtx.createBiquadFilter();
                 noiseFilter.type = (currentEngine === '909') ? 'bandpass' : 'highpass';
                 noiseFilter.frequency.value = (currentEngine === '909') ? 1500 : 1000;
-
                 let noiseGain = audioCtx.createGain();
                 
-                snapOsc.connect(snapGain);
-                snapGain.connect(finalTargetNode);
-                noiseNode.connect(noiseFilter);
-                noiseFilter.connect(noiseGain);
-                noiseGain.connect(finalTargetNode);
+                snapOsc.connect(snapGain); snapGain.connect(finalTargetNode);
+                noiseNode.connect(noiseFilter); noiseFilter.connect(noiseGain); noiseGain.connect(finalTargetNode);
 
-                snapGain.gain.setValueAtTime(0.6, time);
+                snapGain.gain.setValueAtTime(0.6 * velocityGainScalar, time);
                 snapGain.gain.exponentialRampToValueAtTime(0.01, time + mods.decay * 0.4);
-                noiseGain.gain.setValueAtTime(0.7, time);
+                noiseGain.gain.setValueAtTime(0.7 * velocityGainScalar, time);
                 noiseGain.gain.exponentialRampToValueAtTime(0.01, time + mods.decay);
 
-                snapOsc.start(time);
-                noiseNode.start(time);
-                snapOsc.stop(time + mods.decay);
-                noiseNode.stop(time + mods.decay);
+                snapOsc.start(time); noiseNode.start(time);
+                snapOsc.stop(time + mods.decay); noiseNode.stop(time + mods.decay);
             } 
             else if (currentEngine === 'CR78') {
-                // Short primitive filtered burst simulation 
                 let bufferSize = audioCtx.sampleRate * 0.15;
                 let buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
                 let data = buffer.getChannelData(0);
                 for (let i = 0; i < bufferSize; i++) { data[i] = Math.random() * 2 - 1; }
-
                 let noiseNode = audioCtx.createBufferSource();
                 noiseNode.buffer = buffer;
 
                 let filter = audioCtx.createBiquadFilter();
-                filter.type = 'bandpass';
-                filter.frequency.setValueAtTime(1200, time);
-                filter.Q.setValueAtTime(4, time);
+                filter.type = 'bandpass'; filter.frequency.setValueAtTime(1200, time); filter.Q.setValueAtTime(4, time);
+                noiseNode.connect(filter); filter.connect(gainNode);
 
-                noiseNode.connect(filter);
-                filter.connect(gainNode);
-
-                gainNode.gain.setValueAtTime(0.8, time);
+                gainNode.gain.setValueAtTime(0.8 * velocityGainScalar, time);
                 gainNode.gain.exponentialRampToValueAtTime(0.01, time + 0.12);
-
-                noiseNode.start(time);
-                noiseNode.stop(time + 0.13);
+                noiseNode.start(time); noiseNode.stop(time + 0.13);
             }
             else if (currentEngine === 'FM') {
                 let carrier = audioCtx.createOscillator();
                 let modulator = audioCtx.createOscillator();
                 let modGain = audioCtx.createGain();
-
-                carrier.type = 'triangle';
-                modulator.type = 'sawtooth';
-
-                carrier.connect(gainNode);
-                modulator.connect(modGain);
-                modGain.connect(carrier.frequency);
+                carrier.type = 'triangle'; modulator.type = 'sawtooth';
+                carrier.connect(gainNode); modulator.connect(modGain); modGain.connect(carrier.frequency);
 
                 carrier.frequency.setValueAtTime(baseFreq * 2.2, time);
                 modulator.frequency.setValueAtTime(baseFreq * 3.7, time);
-                
                 modGain.gain.setValueAtTime(baseFreq * 6, time);
                 modGain.gain.exponentialRampToValueAtTime(0.01, time + mods.decay);
 
-                gainNode.gain.setValueAtTime(0.7, time);
+                gainNode.gain.setValueAtTime(0.7 * velocityGainScalar, time);
                 gainNode.gain.exponentialRampToValueAtTime(0.01, time + mods.decay);
-
-                carrier.start(time);
-                modulator.start(time);
-                carrier.stop(time + mods.decay);
-                modulator.stop(time + mods.decay);
+                carrier.start(time); modulator.start(time);
+                carrier.stop(time + mods.decay); modulator.stop(time + mods.decay);
             }
             else if (currentEngine === 'TOY') {
                 osc = audioCtx.createOscillator();
                 osc.type = 'sawtooth';
                 osc.connect(gainNode);
-
                 osc.frequency.setValueAtTime(baseFreq * 2.33, time);
                 
-                gainNode.gain.setValueAtTime(0.5, time);
+                gainNode.gain.setValueAtTime(0.5 * velocityGainScalar, time);
                 gainNode.gain.linearRampToValueAtTime(0.01, time + (mods.decay * 0.5));
-
-                osc.start(time);
-                osc.stop(time + mods.decay);
+                osc.start(time); osc.stop(time + mods.decay);
             }
             else if (currentEngine === 'CUSTOM') {
-                // Highly aggressive industrial breakdown digital bite snare
                 osc = audioCtx.createOscillator();
                 osc.type = 'square';
                 osc.connect(gainNode);
@@ -1045,16 +1037,12 @@ function playSynthSound(type, time, pitchMultiplier = 1.0) {
                 let data = buffer.getChannelData(0);
                 for (let i = 0; i < bufferSize; i++) { data[i] = Math.random() * 2 - 1; }
                 let noiseNode = audioCtx.createBufferSource();
-                noiseNode.buffer = buffer;
-                noiseNode.connect(gainNode);
+                noiseNode.buffer = buffer; noiseNode.connect(gainNode);
 
-                gainNode.gain.setValueAtTime(0.8, time);
+                gainNode.gain.setValueAtTime(0.8 * velocityGainScalar, time);
                 gainNode.gain.exponentialRampToValueAtTime(0.01, time + mods.decay);
-
-                osc.start(time);
-                noiseNode.start(time);
-                osc.stop(time + mods.decay);
-                noiseNode.stop(time + mods.decay);
+                osc.start(time); noiseNode.start(time);
+                osc.stop(time + mods.decay); noiseNode.stop(time + mods.decay);
             }
             break;
 
@@ -1068,116 +1056,135 @@ function playSynthSound(type, time, pitchMultiplier = 1.0) {
                 let hatBuffer = audioCtx.createBuffer(1, hatBufferSize, audioCtx.sampleRate);
                 let hatData = hatBuffer.getChannelData(0);
                 for (let i = 0; i < hatBufferSize; i++) { hatData[i] = Math.random() * 2 - 1; }
-
                 let hatSource = audioCtx.createBufferSource();
                 hatSource.buffer = hatBuffer;
 
                 let hatFilter = audioCtx.createBiquadFilter();
                 hatFilter.type = 'highpass';
                 hatFilter.frequency.value = (currentEngine === '909') ? 9000 : (7000 + (baseFreq * 2));
+                hatSource.connect(hatFilter); hatFilter.connect(gainNode);
 
-                hatSource.connect(hatFilter);
-                hatFilter.connect(gainNode);
-
-                gainNode.gain.setValueAtTime(0.4, time);
+                gainNode.gain.setValueAtTime(0.4 * velocityGainScalar, time);
                 gainNode.gain.exponentialRampToValueAtTime(0.01, time + targetDecay);
-
-                hatSource.start(time);
-                hatSource.stop(time + targetDecay);
+                hatSource.start(time); hatSource.stop(time + targetDecay);
             } 
             else if (currentEngine === 'CR78') {
-                // Short crisp fixed high oscillator square clusters
                 osc = audioCtx.createOscillator();
                 osc.type = 'square';
                 let crFilter = audioCtx.createBiquadFilter();
-                crFilter.type = 'highpass';
-                crFilter.frequency.setValueAtTime(10000, time);
-
-                osc.connect(crFilter);
-                crFilter.connect(gainNode);
+                crFilter.type = 'highpass'; crFilter.frequency.setValueAtTime(10000, time);
+                osc.connect(crFilter); crFilter.connect(gainNode);
 
                 osc.frequency.setValueAtTime(14000, time);
-                gainNode.gain.setValueAtTime(0.5, time);
+                gainNode.gain.setValueAtTime(0.5 * velocityGainScalar, time);
                 gainNode.gain.exponentialRampToValueAtTime(0.01, time + (isLong ? 0.25 : 0.04));
-
-                osc.start(time);
-                osc.stop(time + (isLong ? 0.26 : 0.05));
+                osc.start(time); osc.stop(time + (isLong ? 0.26 : 0.05));
             }
             else if (currentEngine === 'FM') {
                 let carrier = audioCtx.createOscillator();
                 let modulator = audioCtx.createOscillator();
                 let modGain = audioCtx.createGain();
-
-                carrier.type = 'sine';
-                modulator.type = 'square';
-
-                carrier.connect(gainNode);
-                modulator.connect(modGain);
-                modGain.connect(carrier.frequency);
+                carrier.type = 'sine'; modulator.type = 'square';
+                carrier.connect(gainNode); modulator.connect(modGain); modGain.connect(carrier.frequency);
 
                 carrier.frequency.setValueAtTime(9000 + baseFreq, time);
                 modulator.frequency.setValueAtTime(13500, time);
                 modGain.gain.setValueAtTime(8000, time);
 
-                gainNode.gain.setValueAtTime(0.4, time);
+                gainNode.gain.setValueAtTime(0.4 * velocityGainScalar, time);
                 gainNode.gain.exponentialRampToValueAtTime(0.01, time + targetDecay);
-
-                carrier.start(time);
-                modulator.start(time);
-                carrier.stop(time + targetDecay);
-                modulator.stop(time + targetDecay);
+                carrier.start(time); modulator.start(time);
+                carrier.stop(time + targetDecay); modulator.stop(time + targetDecay);
             }
             else if (currentEngine === 'TOY') {
                 osc = audioCtx.createOscillator();
                 osc.type = 'square';
                 osc.connect(gainNode);
-
                 osc.frequency.setValueAtTime(11000 * pitchMultiplier, time);
                 
-                gainNode.gain.setValueAtTime(0.25, time);
+                gainNode.gain.setValueAtTime(0.25 * velocityGainScalar, time);
                 gainNode.gain.linearRampToValueAtTime(0.01, time + (targetDecay * 0.8));
-
-                osc.start(time);
-                osc.stop(time + targetDecay);
+                osc.start(time); osc.stop(time + targetDecay);
             }
             else if (currentEngine === 'CUSTOM') {
                 osc = audioCtx.createOscillator();
                 osc.type = 'sawtooth';
                 let highPass = audioCtx.createBiquadFilter();
-                highPass.type = 'highpass';
-                highPass.frequency.setValueAtTime(8000, time);
-
-                osc.connect(highPass);
-                highPass.connect(gainNode);
+                highPass.type = 'highpass'; highPass.frequency.setValueAtTime(8000, time);
+                osc.connect(highPass); highPass.connect(gainNode);
 
                 osc.frequency.setValueAtTime(4000 * pitchMultiplier, time);
                 osc.frequency.exponentialRampToValueAtTime(12000, time + targetDecay);
 
-                gainNode.gain.setValueAtTime(0.5, time);
+                gainNode.gain.setValueAtTime(0.5 * velocityGainScalar, time);
                 gainNode.gain.exponentialRampToValueAtTime(0.01, time + targetDecay);
-
-                osc.start(time);
-                osc.stop(time + targetDecay);
+                osc.start(time); osc.stop(time + targetDecay);
             }
             break;
     }
 }
 
+// FEATURE 1 Helper: Analyzes matrix state arrays to dictate audible properties
+function isTrackAudible(inst) {
+    if (trackStates[inst].muted) return false;
+    const anyTrackSoloed = Object.values(trackStates).some(state => state.soloed);
+    if (anyTrackSoloed && !trackStates[inst].soloed) return false;
+    return true;
+}
+
 // --- 4. CLOCK SCHEDULER TIMING LOOP ---
 function nextStepTick() {
     const secondsPerBeat = 60.0 / tempo;
-    nextNoteTime += 0.25 * secondsPerBeat; 
+    
+    // Base 16th note timing step length increment mapping
+    const baseStepDuration = 0.25 * secondsPerBeat;
+    nextNoteTime += baseStepDuration; 
 
     currentStep++;
+    
+    // FEATURE 2 Integration: Intercept boundary condition right on loop completion
     if (currentStep === 16) {
         currentStep = 0;
+        
+        if (isChainingActive) {
+            currentBank = (currentBank === 'A') ? 'B' : 'A';
+            
+            // Sync user interfaces cleanly without disrupting execution flows
+            updateGridDisplay();
+            
+            const toggleElement = document.getElementById('pattern-toggle');
+            const lblA = document.getElementById('lbl-bank-a');
+            const lblB = document.getElementById('lbl-bank-b');
+            const lcdPat = document.getElementById('lcd-pattern');
+            
+            if (toggleElement && lblA && lblB && lcdPat) {
+                toggleElement.checked = (currentBank === 'B');
+                lblA.style.color = (currentBank === 'B') ? '#888' : '#fff';
+                lblB.style.color = (currentBank === 'B') ? '#fff' : '#888';
+                lcdPat.innerText = `PATTERN: BANK ${currentBank}`;
+            }
+        }
     }
 }
 
 function scheduleStep(stepNumber, time) {
+    // FEATURE 3 Math: Process timeline adjustments for even steps to add groove/swing
+    let dynamicTriggerTime = time;
+    if (stepNumber % 2 !== 0) { // Off-beats (steps 2, 4, 6, etc., are indexed odd as 1, 3, 5)
+        const secondsPerBeat = 60.0 / tempo;
+        const straightSixteenthLength = 0.25 * secondsPerBeat;
+        // Maximum delay matches 1/3 of a 16th note length for a triplets feel triplet swing
+        const maxSwingDelay = straightSixteenthLength * 0.333;
+        dynamicTriggerTime += (swingFactor * maxSwingDelay);
+    }
+
     instruments.forEach(inst => {
-        if (patterns[currentBank][inst][stepNumber]) {
-            playSynthSound(inst, time);
+        const cellVelocityValue = patterns[currentBank][inst][stepNumber];
+        if (cellVelocityValue > 0) {
+            // FEATURE 1: Verify audio path conditions before execution
+            if (isTrackAudible(inst)) {
+                playSynthSound(inst, dynamicTriggerTime, 1.0, cellVelocityValue);
+            }
         }
     });
 
@@ -1227,11 +1234,10 @@ function togglePlayback() {
 document.getElementById('btn-global-play').addEventListener('click', togglePlayback);
 
 document.getElementById('btn-global-clear').addEventListener('click', () => {
-    instruments.forEach(inst => patterns[currentBank][inst].fill(false));
+    instruments.forEach(inst => patterns[currentBank][inst].fill(0));
     updateGridDisplay();
 });
 
-// Sliders & UI Displays
 const tempoSlider = document.getElementById('tempo-slider');
 tempoSlider.addEventListener('input', (e) => {
     tempo = parseInt(e.target.value);
@@ -1244,7 +1250,6 @@ decaySlider.addEventListener('input', (e) => {
     document.querySelector('#decay-label span').innerText = `${(e.target.value / 100).toFixed(2)}s`;
 });
 
-// Bank Switch System Framework
 const patternWrapper = document.getElementById('pattern-switch-wrapper');
 const patternToggle = document.getElementById('pattern-toggle');
 
@@ -1263,37 +1268,150 @@ function updateGridDisplay() {
     instruments.forEach(inst => {
         const cells = document.querySelectorAll(`.instrument-row[data-instrument="${inst}"] .step-cell`);
         cells.forEach((cell, index) => {
-            cell.classList.toggle('active', patterns[currentBank][inst][index]);
+            const currentVelocityState = patterns[currentBank][inst][index];
+            updateCellVisualState(cell, currentVelocityState);
         });
     });
 }
 
-// Yellow Live Trigger Pads
+// Yellow Performance Pads
 document.querySelectorAll('.yellow-pad').forEach(pad => {
     pad.addEventListener('mousedown', () => {
         const inst = pad.dataset.pad;
-        playSynthSound(inst, audioCtx ? audioCtx.currentTime : 0);
+        playSynthSound(inst, audioCtx ? audioCtx.currentTime : 0, 1.0, 2);
         pad.classList.add('pad-active-glow');
     });
     pad.addEventListener('mouseup', () => pad.classList.remove('pad-active-glow'));
     pad.addEventListener('mouseleave', () => pad.classList.remove('pad-active-glow'));
 });
 
-// --- 6. UNIFIED CHROMATICALLY ROUTED KEYBED INTERFACE ---
+// Chromatically Routed Bottom Keybed Engine
 document.querySelectorAll('.key').forEach(key => {
     key.addEventListener('mousedown', () => {
         initAudio();
         key.classList.add('key-active');
-        
-        // Read exact mathematical scale multiplier value
         const multValue = parseFloat(key.dataset.mult);
-        
-        // Dynamic Routing: Targets the specific instrument row currently active via focusedTrack
-        playSynthSound(focusedTrack, audioCtx.currentTime, multValue);
+        // Plays chromatic inputs at full velocity
+        playSynthSound(focusedTrack, audioCtx.currentTime, multValue, 2);
     });
     key.addEventListener('mouseup', () => key.classList.remove('key-active'));
     key.addEventListener('mouseleave', () => key.classList.remove('key-active'));
 });
+
+// --- 6. DYNAMIC UI PERFORMANCE EXTRACTION INJECTION NODE PLANT ---
+function injectPerformanceExtensions() {
+    // 1. Mount Per-Voice Mute & Solo Utility Rows
+    instruments.forEach(inst => {
+        const rowWrapper = document.getElementById(`row-${inst}`);
+        if (!rowWrapper) return;
+        const labelNode = rowWrapper.querySelector('.instrument-label');
+        
+        const perfCluster = document.createElement('div');
+        perfCluster.className = 'dynamic-perf-cluster';
+        perfCluster.style.display = 'inline-flex';
+        perfCluster.style.gap = '4px';
+        perfCluster.style.marginLeft = '8px';
+        perfCluster.style.verticalAlign = 'middle';
+
+        // Mute Button Component
+        const muteBtn = document.createElement('button');
+        muteBtn.innerText = 'M';
+        muteBtn.style.cssText = "width:20px; height:20px; font-size:10px; font-weight:bold; border:1px solid #443355; background:#110d22; color:#9988aa; cursor:pointer; border-radius:3px; font-family:'Space Mono', monospace;";
+        
+        muteBtn.addEventListener('click', (e) => {
+            e.stopPropagation(); // Shield track focus routing modifications
+            trackStates[inst].muted = !trackStates[inst].muted;
+            if (trackStates[inst].muted) {
+                muteBtn.style.background = 'var(--gold)';
+                muteBtn.style.color = '#000';
+                muteBtn.style.borderColor = '#fff';
+            } else {
+                muteBtn.style.background = '#110d22';
+                muteBtn.style.color = '#9988aa';
+                muteBtn.style.borderColor = '#443355';
+            }
+        });
+
+        // Solo Button Component
+        const soloBtn = document.createElement('button');
+        soloBtn.innerText = 'S';
+        soloBtn.style.cssText = "width:20px; height:20px; font-size:10px; font-weight:bold; border:1px solid #443355; background:#110d22; color:#9988aa; cursor:pointer; border-radius:3px; font-family:'Space Mono', monospace;";
+        
+        soloBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            trackStates[inst].soloed = !trackStates[inst].soloed;
+            if (trackStates[inst].soloed) {
+                soloBtn.style.background = 'var(--cyan)';
+                soloBtn.style.color = '#000';
+                soloBtn.style.borderColor = '#fff';
+            } else {
+                soloBtn.style.background = '#110d22';
+                soloBtn.style.color = '#9988aa';
+                soloBtn.style.borderColor = '#443355';
+            }
+        });
+
+        perfCluster.appendChild(muteBtn);
+        perfCluster.appendChild(soloBtn);
+        labelNode.parentNode.insertBefore(perfCluster, labelNode.nextSibling);
+    });
+
+    // 2. Mount Automatic Bank Chain Checkbox Layout Structure
+    const bankWrapper = document.getElementById('pattern-switch-wrapper');
+    if (bankWrapper && bankWrapper.parentNode) {
+        const chainBox = document.createElement('div');
+        chainBox.style.cssText = "margin-top:10px; display:flex; align-items:center; gap:8px; font-family:'Space Mono', monospace; font-size:10px;";
+
+        const checkbox = document.createElement('input');
+        checkbox.type = 'checkbox';
+        checkbox.id = 'dynamic-chain-cb';
+        checkbox.style.cssText = 'cursor:pointer; accent-color:var(--pink);';
+        checkbox.addEventListener('change', (e) => {
+            isChainingActive = e.target.checked;
+        });
+
+        const label = document.createElement('label');
+        label.htmlFor = 'dynamic-chain-cb';
+        label.innerText = 'CHAIN BANKS (A ⇄ B)';
+        label.style.cssText = 'color:#a0a6af; cursor:pointer; font-weight:bold; letter-spacing:0.5px;';
+
+        chainBox.appendChild(checkbox);
+        chainBox.appendChild(label);
+        bankWrapper.parentNode.appendChild(chainBox);
+    }
+
+    // 3. Mount Parameter Sliders Block Array Insertion for Swing/Groove Control
+    const parametersContainer = document.querySelector('.dropdowns-sliders');
+    if (parametersContainer) {
+        const swingDeck = document.createElement('div');
+        swingDeck.className = 'menu-item';
+        swingDeck.style.marginTop = '4px';
+
+        const swingLabel = document.createElement('label');
+        swingLabel.htmlFor = 'swing-slider';
+        swingLabel.innerHTML = 'GROOVE SHUFFLE / SWING <span class="inline-val" id="inline-swing">0%</span>';
+
+        const slider = document.createElement('input');
+        slider.type = 'range';
+        slider.id = 'swing-slider';
+        slider.min = '0';
+        slider.max = '100';
+        slider.value = '0';
+        
+        slider.addEventListener('input', (e) => {
+            let pctVal = parseInt(e.target.value);
+            swingFactor = pctVal / 100;
+            document.getElementById('inline-swing').innerText = `${pctVal}%`;
+        });
+
+        swingDeck.appendChild(swingLabel);
+        swingDeck.appendChild(slider);
+        parametersContainer.appendChild(swingDeck);
+    }
+}
+
+// Bootstrap dynamic UI layouts seamlessly on load
+injectPerformanceExtensions();
     </script>
 </body>
 </html>
