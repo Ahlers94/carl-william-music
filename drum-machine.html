@@ -526,6 +526,7 @@
                     <div class="lcd-panel">
                         <div id="lcd-tempo">TEMPO: 120 BPM</div>
                         <div id="lcd-pattern">PATTERN: BANK A</div>
+                        <div id="lcd-kit">KIT: 808</div>
                         <div id="lcd-step">STEP: 01/16</div>
                     </div>
                 </div>
@@ -661,6 +662,35 @@ const voiceEngines = {
     openHat: '808'
 };
 
+// Global Kit State — tracks the currently selected kit across all instruments
+let currentKit = '808';
+
+// setGlobalKit: syncs all 4 voiceEngines to the new kit, updates all UI indicators
+function setGlobalKit(newKit) {
+    currentKit = newKit;
+    instruments.forEach(inst => {
+        voiceEngines[inst] = newKit;
+        // Update voice indicator label in the sequencer grid row
+        const rowWrapper = document.getElementById(`row-${inst}`);
+        if (rowWrapper) {
+            const indicator = rowWrapper.querySelector('.voice-indicator');
+            if (indicator) indicator.innerText = `[${newKit}]`;
+        }
+    });
+    // Update yellow pad sub-labels to reflect the active kit
+    document.querySelectorAll('.yellow-pad').forEach(pad => {
+        const span = pad.querySelector('span');
+        if (span) {
+            const padLabel = span.dataset.baseLabel || span.innerText.replace(/\s*\[.*?\]/, '').trim();
+            span.dataset.baseLabel = padLabel;
+            span.innerText = `${padLabel} [${newKit}]`;
+        }
+    });
+    // Update LCD screen kit indicator
+    const lcdKit = document.getElementById('lcd-kit');
+    if (lcdKit) lcdKit.innerText = `KIT: ${newKit}`;
+}
+
 const ENGINE_MODES = ['808', '909', 'CR78', 'FM', 'TOY', 'CUSTOM'];
 
 // FEATURE 1: Per-Voice Mute and Solo States Dictionary Matrix
@@ -762,13 +792,13 @@ instruments.forEach(inst => {
             if (focusedTrack !== inst) {
                 setTrackFocus(inst);
             } else {
-                const currentIdx = ENGINE_MODES.indexOf(voiceEngines[inst]);
+                // Cycle the GLOBAL kit — all instruments advance together
+                const currentIdx = ENGINE_MODES.indexOf(currentKit);
                 const nextIdx = (currentIdx + 1) % ENGINE_MODES.length;
                 const newMode = ENGINE_MODES[nextIdx];
-                
-                voiceEngines[inst] = newMode;
-                rowWrapper.querySelector('.voice-indicator').innerText = `[${newMode}]`;
-                playSynthSound(inst, audioCtx.currentTime, 1.0, 2); 
+
+                setGlobalKit(newMode);
+                playSynthSound(inst, audioCtx.currentTime, 1.0, 2);
             }
         });
     });
@@ -1603,6 +1633,20 @@ function decodeUrlPattern() {
                     if (rowWrapper) {
                         rowWrapper.querySelector('.voice-indicator').innerText = `[${newMode}]`;
                     }
+                }
+            });
+            // Sync currentKit to the kick's engine as the canonical reference,
+            // then propagate yellow pad sub-labels via setGlobalKit
+            const restoredKit = voiceEngines['kick'];
+            currentKit = restoredKit;
+            const lcdKit = document.getElementById('lcd-kit');
+            if (lcdKit) lcdKit.innerText = `KIT: ${restoredKit}`;
+            document.querySelectorAll('.yellow-pad').forEach(pad => {
+                const span = pad.querySelector('span');
+                if (span) {
+                    const base = span.dataset.baseLabel || span.innerText.replace(/\s*\[.*?\]/, '').trim();
+                    span.dataset.baseLabel = base;
+                    span.innerText = `${base} [${restoredKit}]`;
                 }
             });
         }
