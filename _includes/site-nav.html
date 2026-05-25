@@ -70,5 +70,12 @@
          <span class="nav-icon">■</span> Synth
       </a>
     </li>
+     <li>
+      <a href="{{ '/drum-machine.html' | relative_url }}" 
+         id="nav-drum-machine" 
+         {% if page.nav == 'drum-machine' or page.url == '/drum-machine.html' %}aria-current="page"{% endif %}>
+         <span class="nav-icon">■</span> Drums
+      </a>
+    </li>
   </ul>
 </nav>
