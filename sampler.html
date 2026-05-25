@@ -959,7 +959,6 @@ nav: sampler
     <div class="section-label">SAMPLE PADS — CLICK TO ARM, HOLD REC TO RECORD</div>
     <div class="pads-grid" id="pads-grid"></div>
 
-    <!-- TRIM EDITOR PANEL -->
     <div class="trim-panel" id="trim-panel">
       <div class="trim-header">
         <div>
@@ -990,7 +989,6 @@ nav: sampler
       </div>
     </div>
 
-    <!-- DELAY EFFECT SECTION -->
     <div class="delay-section">
       <div class="delay-header">
         <span class="delay-title">DELAY / ECHO</span>
@@ -1035,6 +1033,7 @@ nav: sampler
         <div class="rec-circle"></div>
         <div class="rec-label">HOLD REC</div>
       </button>
+
       <div class="fx-section">
         <div class="section-label">EFFECTS</div>
         <div class="fx-row">
@@ -1066,7 +1065,6 @@ nav: sampler
       <span class="vol-value" id="vol-value">70%</span>
     </div>
 
-    <!-- Keyboard header with octave controls inline -->
     <div class="keyboard-header">
       <div class="section-label" style="margin-bottom:0;">KEYBOARD — ROOT: A4 (●)</div>
       <div class="octave-controls">
@@ -1081,7 +1079,7 @@ nav: sampler
 
     <div class="keyboard-section">
       <div class="keyboard-hint">
-        <span>WHITE:</span> Z X C V B N M / Q W E R T Y U I
+        <span>WHITE:</span> Z X C V B N M / Q W E R T Y U I &nbsp;&nbsp;&nbsp;
         <span>BLACK:</span> S D G H J / 2 3 5 6 7
       </div>
       <div class="keyboard-scroll">
@@ -1095,1302 +1093,1057 @@ nav: sampler
     </div>
   </div>
 
-<script>
-/* ════════════════════════════════════════════════════════
-   MicroSampler  —  root A4 (MIDI 69)
-   Keyboard visual range: C3 (48) → C5 (72)  [fixed on screen]
-   Octave offset shifts playback pitch only; visual stays put.
-════════════════════════════════════════════════════════ */
-class MicroSampler {
-  constructor() {
-    this.audioCtx   = null;
-    this.masterGain = null;
-    this.limiter    = null;
+  <script>
+    /* ════════════════════════════════════════════════════════
+       MicroSampler — root A4 (MIDI 69)
+       Keyboard visual range: C3 (48) → C5 (72) [fixed on screen]
+       Octave offset shifts playback pitch only; visual stays put.
+       ════════════════════════════════════════════════════════ */
 
-    this.slots      = [null, null, null, null];
-    this.activePad  = -1;
-    this.padStates  = ['empty','empty','empty','empty'];
+    class MicroSampler {
+      constructor() {
+        this.audioCtx = null;
+        this.masterGain = null;
+        this.limiter = null;
 
-    // Per-pad filter cutoff (normalized 0-1, maps to 200Hz-20kHz)
-    this.padFilterCutoff = [0.5, 0.5, 0.5, 0.5];
-    this.padFilters = [null, null, null, null];
+        // Effect Nodes
+        this.delayNode = null;
+        this.delayFeedbackNode = null;
+        this.delayWetGain = null;
+        this.delayDryGain = null;
 
-    // Trim points for each pad (0.0 to 1.0 normalized)
-    this.trimPoints = [
-      { start: 0.0, end: 1.0 },
-      { start: 0.0, end: 1.0 },
-      { start: 0.0, end: 1.0 },
-      { start: 0.0, end: 1.0 }
-    ];
+        // Core State Constants
+        this.POLY_LIMIT = 6;
+        this.ROOT_MIDI = 69; // A4
+        this.VISUAL_START_MIDI = 48; // C3
+        this.VISUAL_END_MIDI = 72;   // C5
 
-    // Track playback position for scanline animation
-    this.playbackPositions = [0, 0, 0, 0];
-    this.scanlineAnimFrame = null;
-    this.activeSources = new Map();
+        // Slots Management
+        this.slots = [null, null, null, null];
+        this.activePad = -1;
+        this.padStates = ['empty', 'empty', 'empty', 'empty'];
 
-    this.fx = { reverse: false, loop: false, lofi: false };
+        // Per-pad DSP Parameters
+        this.padFilterCutoffs = [0.5, 0.5, 0.5, 0.5]; // Normalized values ( maps to 200Hz - 20kHz )
+        this.padReverseStates = [false, false, false, false];
+        this.padLoopStates    = [false, false, false, false];
+        this.padLofiStates    = [false, false, false, false];
 
-    // Delay effect
-    this.delayEnabled = false;
-    this.delayNode = null;
-    this.delayFeedback = null;
-    this.delayMix = null;
-    this.delayDryGain = null;
-    this.delayWetGain = null;
-    this.delayFeedbackValue = 0.4;
-    this.delayMixValue = 0.3;
-    this.delayTimeValue = 300;
+        // Per-pad Trim Metadata
+        this.padTrimStart = [0, 0, 0, 0];
+        this.padTrimEnd   = [0, 0, 0, 0];
 
-    // Map<playedMidi, {source, gainNode, visualMidi, padIndex, filterNode}>
-    this.activeNotes = new Map();
-    this.POLY_LIMIT  = 6;
+        // Global Parameters
+        this.octaveOffset = 0;
+        this.masterVolumeValue = 0.7;
+        this.delayEnabled = false;
+        this.delayTimeValue = 300;     // ms
+        this.delayFeedbackValue = 0.4; // 0.0 -> 0.9
+        this.delayMixValue = 0.3;      // 0.0 -> 1.0
 
-    this.heldVisualKeys = new Map();
+        // Voice Engine Tracking
+        this.activeNotes = new Map(); // key: visualMidi, value: Set of active voice data objects
 
-    this.isRecording   = false;
-    this.mediaRecorder = null;
-    this.audioChunks   = [];
-    this.stream        = null;
-    this.recTimeout    = null;
+        // Recording System Engine
+        this.mediaRecorder = null;
+        this.audioChunks = [];
+        this.isRecording = false;
 
-    this.ROOT_MIDI = 69;
+        // Visual VU Meter Loop Tracking
+        this.vuLevel = 0;
+        this.vuTargetLv = 0;
 
-    this.octaveOffset = 0;
-    this.OCT_MIN = -4;
-    this.OCT_MAX =  4;
+        // Mouse/Touch Tracking for Key Beds
+        this.isMouseDown = false;
 
-    this.pcKeyMap = {
-      'z':48,'x':50,'c':52,'v':53,'b':55,'n':57,'m':59,
-      'q':60,'w':62,'e':64,'r':65,'t':67,'y':69,'u':71,'i':72,
-      's':49,'d':51,'g':54,'h':56,'j':58,
-      '2':61,'3':63,'5':66,'6':68,'7':70
-    };
-    this.midiToKey = {};
-    Object.entries(this.pcKeyMap).forEach(([k,m]) => { this.midiToKey[m] = k; });
-
-    this.midiAccess     = null;
-    this.midiConnected  = false;
-    this.midiFlashTimer = null;
-
-    this.vuLevel    = 0;
-    this.vuTargetLv = 0;
-
-    // Trim editor state
-    this.trimPadIndex = -1;
-    this.trimDragging = null;
-
-    // Filter knob dragging state
-    this.filterDragging = null;
-    this.filterDragStartY = 0;
-    this.filterDragStartValue = 0;
-
-    this.initDOM();
-    this.initMidi();
-    this.loadTrimPoints();
-    this.loadFilterCutoffs();
-    this.loadDelaySettings();
-  }
-
-  /* ── Audio context ───────────────────────────────────── */
-  initAudio() {
-    if (this.audioCtx) {
-      if (this.audioCtx.state === 'suspended') this.audioCtx.resume();
-      return;
-    }
-    this.audioCtx   = new (window.AudioContext || window.webkitAudioContext)();
-
-    // Create brick-wall limiter at the end of the chain
-    this.limiter = this.audioCtx.createDynamicsCompressor();
-    this.limiter.threshold.value = -1;
-    this.limiter.knee.value = 0;
-    this.limiter.ratio.value = 20;
-    this.limiter.attack.value = 0.003;
-    this.limiter.release.value = 0.1;
-    this.limiter.connect(this.audioCtx.destination);
-
-    this.masterGain = this.audioCtx.createGain();
-    this.masterGain.gain.value = parseFloat(document.getElementById('master-vol').value);
-    this.masterGain.connect(this.limiter);
-
-    this.initDelayEffect();
-    this.loadFromStorage();
-    this.startVuLoop();
-    this.startScanlineLoop();
-  }
-
-  /* ── Delay Effect Setup ──────────────────────────────── */
-  initDelayEffect() {
-    // Create delay nodes
-    this.delayNode = this.audioCtx.createDelay(2.0);
-    this.delayNode.delayTime.value = this.delayTimeValue / 1000;
-
-    this.delayFeedback = this.audioCtx.createGain();
-    this.delayFeedback.gain.value = this.delayFeedbackValue;
-
-    this.delayDryGain = this.audioCtx.createGain();
-    this.delayDryGain.gain.value = 1.0;
-
-    this.delayWetGain = this.audioCtx.createGain();
-    this.delayWetGain.gain.value = this.delayEnabled ? this.delayMixValue : 0;
-
-    // Connect: masterGain -> dry path to limiter
-    this.masterGain.connect(this.delayDryGain);
-    this.delayDryGain.connect(this.limiter);
-
-    // Connect: masterGain -> delay -> feedback loop -> wet path
-    this.masterGain.connect(this.delayNode);
-    this.delayNode.connect(this.delayFeedback);
-    this.delayFeedback.connect(this.delayNode);
-    this.delayNode.connect(this.delayWetGain);
-    this.delayWetGain.connect(this.limiter);
-  }
-
-  updateDelayTime(valueMs) {
-    this.delayTimeValue = valueMs;
-    if (this.delayNode) {
-      this.delayNode.delayTime.setValueAtTime(valueMs / 1000, this.audioCtx.currentTime);
-    }
-    this.saveDelaySettings();
-  }
-
-  updateDelayFeedback(value) {
-    this.delayFeedbackValue = value;
-    if (this.delayFeedback) {
-      this.delayFeedback.gain.setValueAtTime(value, this.audioCtx.currentTime);
-    }
-    this.saveDelaySettings();
-  }
-
-  updateDelayMix(value) {
-    this.delayMixValue = value;
-    if (this.delayWetGain && this.delayEnabled) {
-      this.delayWetGain.gain.setValueAtTime(value, this.audioCtx.currentTime);
-    }
-    this.saveDelaySettings();
-  }
-
-  toggleDelay(enabled) {
-    this.delayEnabled = enabled;
-    if (this.delayWetGain) {
-      this.delayWetGain.gain.setValueAtTime(enabled ? this.delayMixValue : 0, this.audioCtx.currentTime);
-    }
-    this.saveDelaySettings();
-  }
-
-  saveDelaySettings() {
-    try {
-      localStorage.setItem('ms4_delay', JSON.stringify({
-        enabled: this.delayEnabled,
-        time: this.delayTimeValue,
-        feedback: this.delayFeedbackValue,
-        mix: this.delayMixValue
-      }));
-    } catch(e) {}
-  }
-
-  loadDelaySettings() {
-    try {
-      const raw = localStorage.getItem('ms4_delay');
-      if (raw) {
-        const data = JSON.parse(raw);
-        if (typeof data.enabled === 'boolean') this.delayEnabled = data.enabled;
-        if (typeof data.time === 'number') this.delayTimeValue = Math.max(0, Math.min(1000, data.time));
-        if (typeof data.feedback === 'number') this.delayFeedbackValue = Math.max(0, Math.min(0.9, data.feedback));
-        if (typeof data.mix === 'number') this.delayMixValue = Math.max(0, Math.min(1, data.mix));
+        // Dragging states for Trim Windows
+        this.isDraggingStart = false;
+        this.isDraggingEnd = false;
       }
-    } catch(e) {}
-  }
 
-  /* ── Per-Pad Filter ──────────────────────────────────── */
-  createPadFilter(padIndex) {
-    const filter = this.audioCtx.createBiquadFilter();
-    filter.type = 'lowpass';
-    filter.Q.value = 1.0;
-    const cutoff = this.freqFromNormalized(this.padFilterCutoff[padIndex]);
-    filter.frequency.value = cutoff;
-    return filter;
-  }
+      /* ── DSP Audio Architecture Init ── */
+      initAudio() {
+        if (this.audioCtx) return;
+        
+        const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+        this.audioCtx = new AudioContextClass();
 
-  freqFromNormalized(norm) {
-    // Map 0-1 to 200Hz-20kHz logarithmically
-    const minFreq = 200;
-    const maxFreq = 20000;
-    return minFreq * Math.pow(maxFreq / minFreq, norm);
-  }
+        // 1. Output Limiter Node Protection
+        this.limiter = this.audioCtx.createDynamicsCompressor();
+        this.limiter.threshold.setValueAtTime(-1.0, this.audioCtx.currentTime);
+        this.limiter.knee.setValueAtTime(0, this.audioCtx.currentTime);
+        this.limiter.ratio.setValueAtTime(20, this.audioCtx.currentTime);
+        this.limiter.attack.setValueAtTime(0.002, this.audioCtx.currentTime);
+        this.limiter.release.setValueAtTime(0.1, this.audioCtx.currentTime);
+        this.limiter.connect(this.audioCtx.destination);
 
-  normalizedFromFreq(freq) {
-    const minFreq = 200;
-    const maxFreq = 20000;
-    return Math.log(freq / minFreq) / Math.log(maxFreq / minFreq);
-  }
+        // 2. Main Terminal Post Master Gain Node
+        this.masterGain = this.audioCtx.createGain();
+        this.masterGain.gain.setValueAtTime(this.masterVolumeValue, this.audioCtx.currentTime);
 
-  updateFilterCutoff(padIndex, normValue) {
-    this.padFilterCutoff[padIndex] = normValue;
-    this.saveFilterCutoffs();
-    this.renderPads();
-  }
+        // 3. Delay Pipeline Setup
+        this.delayNode = this.audioCtx.createDelay(1.0);
+        this.delayFeedbackNode = this.audioCtx.createGain();
+        this.delayWetGain = this.audioCtx.createGain();
+        this.delayDryGain = this.audioCtx.createGain();
 
-  saveFilterCutoffs() {
-    try {
-      localStorage.setItem('ms4_filter_cutoffs', JSON.stringify(this.padFilterCutoff));
-    } catch(e) {}
-  }
+        // Configure initial delay values
+        this.delayNode.delayTime.setValueAtTime(this.delayTimeValue / 1000, this.audioCtx.currentTime);
+        this.delayFeedbackNode.gain.setValueAtTime(this.delayFeedbackValue, this.audioCtx.currentTime);
+        
+        const wetVal = this.delayEnabled ? this.delayMixValue : 0;
+        const dryVal = this.delayEnabled ? (1 - this.delayMixValue) : 1;
+        this.delayWetGain.gain.setValueAtTime(wetVal, this.audioCtx.currentTime);
+        this.delayDryGain.gain.setValueAtTime(dryVal, this.audioCtx.currentTime);
 
-  loadFilterCutoffs() {
-    try {
-      const raw = localStorage.getItem('ms4_filter_cutoffs');
-      if (raw) {
-        const data = JSON.parse(raw);
-        if (Array.isArray(data) && data.length === 4) {
-          data.forEach((v, i) => {
-            if (typeof v === 'number') {
-              this.padFilterCutoff[i] = Math.max(0, Math.min(1, v));
-            }
-          });
+        // Delay internal loop routing
+        this.delayNode.connect(this.delayFeedbackNode);
+        this.delayFeedbackNode.connect(this.delayNode);
+
+        // Router topology splitter connection
+        this.masterGain.connect(this.delayDryGain);
+        this.masterGain.connect(this.delayNode);
+        this.delayNode.connect(this.delayWetGain);
+
+        // Terminate split signal legs on Master Limiter strip
+        this.delayDryGain.connect(this.limiter);
+        this.delayWetGain.connect(this.limiter);
+
+        this.startVuLoop();
+      }
+
+      /* ── User Interface Setup & DOM Rendering ── */
+      render() {
+        this.renderPadsGrid();
+        this.renderKeyboardBed();
+        this.attachControlListeners();
+        this.initMidi();
+      }
+
+      renderPadsGrid() {
+        const grid = document.getElementById('pads-grid');
+        grid.innerHTML = '';
+        
+        for (let i = 0; i < 4; i++) {
+          const pad = document.createElement('div');
+          pad.className = `pad state-empty`;
+          pad.dataset.index = i;
+          pad.id = `pad-${i}`;
+
+          pad.innerHTML = `
+            <canvas class="pad-canvas" id="pad-canvas-${i}"></canvas>
+            <div class="pad-content">
+              <span class="pad-num">${i + 1}</span>
+              <span class="pad-status" id="pad-status-${i}">EMPTY</span>
+            </div>
+            <div class="pad-filter-section" data-index="${i}">
+              <span class="filter-knob-label">CUTOFF</span>
+              <div class="filter-knob" id="filter-knob-${i}" role="slider" aria-valuemin="0" aria-valuemax="100"></div>
+              <span class="filter-knob-value" id="filter-val-${i}">100%</span>
+            </div>
+          `;
+          grid.appendChild(pad);
         }
       }
-    } catch(e) {}
-  }
 
-  /* ── DOM ─────────────────────────────────────────────── */
-  initDOM() {
-    this.buildPads();
-    this.buildKeyboard();
-    this.bindEvents();
-    this.bindTrimEvents();
-    this.bindFilterEvents();
-    this.bindDelayEvents();
-    this.renderPads();
-    this.renderOctave();
-    this.renderDelayUI();
-  }
+      renderKeyboardBed() {
+        const bed = document.getElementById('keyboard-bed');
+        bed.innerHTML = '';
 
-  buildPads() {
-    const grid = document.getElementById('pads-grid');
-    for (let i = 0; i < 4; i++) {
-      const pad = document.createElement('div');
-      pad.className = 'pad state-empty';
-      pad.dataset.pad = i;
+        const totalWhiteKeys = 15; 
+        const whiteWidth = 36;    
+        const gap = 1;            
+        const totalBedWidth = totalWhiteKeys * whiteWidth + (totalWhiteKeys - 1) * gap;
+        bed.style.width = `${totalBedWidth}px`;
 
-      const canvas = document.createElement('canvas');
-      canvas.className = 'pad-canvas';
-      canvas.id = `pad-canvas-${i}`;
-      pad.appendChild(canvas);
+        const notesStructure = [
+          { visualMidi: 48, isBlack: false, label: 'C3' },
+          { visualMidi: 49, isBlack: true,  label: 'C#3' },
+          { visualMidi: 50, isBlack: false, label: 'D3' },
+          { visualMidi: 51, isBlack: true,  label: 'D#3' },
+          { visualMidi: 52, isBlack: false, label: 'E3' },
+          { visualMidi: 53, isBlack: false, label: 'F3' },
+          { visualMidi: 54, isBlack: true,  label: 'F#3' },
+          { visualMidi: 55, isBlack: false, label: 'G3' },
+          { visualMidi: 56, isBlack: true,  label: 'G#3' },
+          { visualMidi: 57, isBlack: false, label: 'A3' },
+          { visualMidi: 58, isBlack: true,  label: 'A#3' },
+          { visualMidi: 59, isBlack: false, label: 'B3' },
+          { visualMidi: 60, isBlack: false, label: 'C4' },
+          { visualMidi: 61, isBlack: true,  label: 'C#4' },
+          { visualMidi: 62, isBlack: false, label: 'D4' },
+          { visualMidi: 63, isBlack: true,  label: 'D#4' },
+          { visualMidi: 64, isBlack: false, label: 'E4' },
+          { visualMidi: 65, isBlack: false, label: 'F4' },
+          { visualMidi: 66, isBlack: true,  label: 'F#4' },
+          { visualMidi: 67, isBlack: false, label: 'G4' },
+          { visualMidi: 68, isBlack: true,  label: 'G#4' },
+          { visualMidi: 69, isBlack: false, label: 'A4' }, // Root Note Reference Marker Indicator
+          { visualMidi: 70, isBlack: true,  label: 'A#4' },
+          { visualMidi: 71, isBlack: false, label: 'B4' },
+          { visualMidi: 72, isBlack: false, label: 'C5' }
+        ];
 
-      const content = document.createElement('div');
-      content.className = 'pad-content';
+        let whiteIndex = 0;
+        const blackKeysToRender = [];
 
-      const num    = document.createElement('div');
-      num.className = 'pad-num';
-      num.textContent = i + 1;
+        notesStructure.forEach(n => {
+          const keyEl = document.createElement('div');
+          keyEl.dataset.midi = n.visualMidi;
 
-      const status = document.createElement('div');
-      status.className = 'pad-status';
-      status.textContent = 'EMPTY';
+          if (!n.isBlack) {
+            keyEl.className = 'key white';
+            if (n.visualMidi === this.ROOT_MIDI) keyEl.classList.add('root-note');
+            
+            const leftPos = whiteIndex * (whiteWidth + gap);
+            keyEl.style.left = `${leftPos}px`;
+            keyEl.style.width = `${whiteWidth}px`;
+            keyEl.style.height = '100%';
 
-      content.appendChild(num);
-      content.appendChild(status);
-      pad.appendChild(content);
+            keyEl.innerHTML = `<span class="key-lbl">${n.label}</span>`;
+            bed.appendChild(keyEl);
+            whiteIndex++;
+          } else {
+            blackKeysToRender.push({ note: n, associatedWhiteIndex: whiteIndex - 1 });
+          }
+        });
 
-      // Filter knob section
-      const filterSection = document.createElement('div');
-      filterSection.className = 'pad-filter-section';
+        const blackWidth = 22;
+        const blackHeight = 50;
 
-      const knob = document.createElement('div');
-      knob.className = 'filter-knob';
-      knob.dataset.pad = i;
-      knob.id = `filter-knob-${i}`;
+        blackKeysToRender.forEach(bk => {
+          const keyEl = document.createElement('div');
+          keyEl.className = 'key black';
+          keyEl.dataset.midi = bk.note.visualMidi;
 
-      const knobLabel = document.createElement('div');
-      knobLabel.className = 'filter-knob-label';
-      knobLabel.textContent = 'FLT';
+          const associatedLeft = bk.associatedWhiteIndex * (whiteWidth + gap);
+          const leftPos = associatedLeft + whiteWidth - (blackWidth / 2);
+          
+          keyEl.style.left = `${leftPos}px`;
+          keyEl.style.width = `${blackWidth}px`;
+          keyEl.style.height = `${blackHeight}px`;
 
-      const knobValue = document.createElement('div');
-      knobValue.className = 'filter-knob-value';
-      knobValue.id = `filter-value-${i}`;
-      knobValue.textContent = this.formatFilterValue(this.padFilterCutoff[i]);
+          keyEl.innerHTML = `<span class="key-lbl">${bk.note.label}</span>`;
+          bed.appendChild(keyEl);
+        });
+      }
 
-      filterSection.appendChild(knob);
-      filterSection.appendChild(knobLabel);
-      filterSection.appendChild(knobValue);
-      pad.appendChild(filterSection);
+      attachControlListeners() {
+        // --- Pad Management Selection System ---
+        document.getElementById('pads-grid').addEventListener('click', (e) => {
+          const filterSec = e.target.closest('.pad-filter-section');
+          if (filterSec) return; // Allow separate execution path for rotary dials
+          
+          const padEl = e.target.closest('.pad');
+          if (!padEl) return;
 
-      grid.appendChild(pad);
+          const idx = parseInt(padEl.dataset.index, 10);
+          this.setActivePad(idx);
+        });
 
-      pad.addEventListener('click', (e) => {
-        if (e.target.closest('.pad-filter-section')) return;
+        // --- Filter Knob Control Interaction Loop (Rotary System Mapping) ---
+        for (let i = 0; i < 4; i++) {
+          const knob = document.getElementById(`filter-knob-${i}`);
+          this.attachKnobPointerTracking(knob, i);
+        }
+
+        // --- Hardware Master Voice Loop Controls Trigger Handling ---
+        const recBtn = document.getElementById('rec-btn');
+        recBtn.addEventListener('pointerdown', (e) => {
+          e.preventDefault();
+          recBtn.setPointerCapture(e.pointerId);
+          this.startRecordingAction();
+        });
+        recBtn.addEventListener('pointerup', (e) => {
+          e.preventDefault();
+          this.stopRecordingAction();
+        });
+
+        // --- Global Effect State Binding Registrars ---
+        document.getElementById('fx-reverse').addEventListener('change', (e) => {
+          if (this.activePad !== -1) {
+            this.padReverseStates[this.activePad] = e.target.checked;
+            this.toggleFxWrapperActiveState('fx-reverse-wrap', e.target.checked);
+          }
+        });
+        document.getElementById('fx-loop').addEventListener('change', (e) => {
+          if (this.activePad !== -1) {
+            this.padLoopStates[this.activePad] = e.target.checked;
+            this.toggleFxWrapperActiveState('fx-loop-wrap', e.target.checked);
+          }
+        });
+        document.getElementById('fx-lofi').addEventListener('change', (e) => {
+          if (this.activePad !== -1) {
+            this.padLofiStates[this.activePad] = e.target.checked;
+            this.toggleFxWrapperActiveState('fx-lofi-wrap', e.target.checked);
+          }
+        });
+
+        // --- Delay UI Elements State Binding Registrars ---
+        const dToggle = document.getElementById('delay-toggle');
+        dToggle.addEventListener('click', () => {
+          this.delayEnabled = !this.delayEnabled;
+          dToggle.classList.toggle('active', this.delayEnabled);
+          this.updateDelayDspGraph();
+        });
+
+        this.attachSliderEngine('delay-time', 'delay-time-fill', 'delay-time-value', ' ms', (val) => {
+          this.delayTimeValue = val;
+          this.updateDelayDspGraph();
+        });
+        this.attachSliderEngine('delay-feedback', 'delay-feedback-fill', 'delay-feedback-value', '%', (val) => {
+          this.delayFeedbackValue = val;
+          this.updateDelayDspGraph();
+        }, true);
+        this.attachSliderEngine('delay-mix', 'delay-mix-fill', 'delay-mix-value', '%', (val) => {
+          this.delayMixValue = val;
+          this.updateDelayDspGraph();
+        }, true);
+
+        // --- Master Volume Potentiometer Control Strips ---
+        this.attachSliderEngine('master-vol', 'vol-fill', 'vol-value', '%', (val) => {
+          this.masterVolumeValue = val;
+          if (this.masterGain && this.audioCtx) {
+            this.masterGain.gain.setValueAtTime(this.masterVolumeValue, this.audioCtx.currentTime);
+          }
+        }, true);
+
+        // --- Pitch Octave Shifter Control Blocks ---
+        document.getElementById('oct-down').addEventListener('click', () => this.shiftOctaveOffset(-1));
+        document.getElementById('oct-up').addEventListener('click', () => this.shiftOctaveOffset(1));
+
+        // --- Virtual Note Key Bed Trigger Routers ---
+        const bed = document.getElementById('keyboard-bed');
+        bed.addEventListener('pointerdown', (e) => {
+          const key = e.target.closest('.key');
+          if (!key) return;
+          this.isMouseDown = true;
+          bed.setPointerCapture(e.pointerId);
+          const mid = parseInt(key.dataset.midi, 10);
+          this.noteOnAction(mid);
+        });
+
+        bed.addEventListener('pointermove', (e) => {
+          if (!this.isMouseDown) return;
+          const key = document.elementFromPoint(e.clientX, e.clientY)?.closest('.key');
+          if (!key || !bed.contains(key)) return;
+          const mid = parseInt(key.dataset.midi, 10);
+          
+          // Mono sliding logic across physical UI bounds
+          if (!this.activeNotes.has(mid)) {
+            this.allNotesOffAction();
+            this.noteOnAction(mid);
+          }
+        });
+
+        const releasePointerHandler = (e) => {
+          if (!this.isMouseDown) return;
+          this.isMouseDown = false;
+          this.allNotesOffAction();
+        };
+        bed.addEventListener('pointerup', releasePointerHandler);
+        bed.addEventListener('pointercancel', releasePointerHandler);
+
+        // --- Physical Computer ASCII QWERTY Matrix Hooks ---
+        this.attachKeyboardMatrixHooks();
+
+        // --- Dynamic Non-Destructive Interactive Trim Handle Listeners ---
+        this.attachTrimHandleInteractionEngine();
+        document.getElementById('trim-close-btn').addEventListener('click', () => {
+          document.getElementById('trim-panel').classList.remove('open');
+        });
+      }
+
+      attachSliderEngine(sliderId, fillId, valId, unit, callback, isPercent = false) {
+        const slider = document.getElementById(sliderId);
+        const fill = document.getElementById(fillId);
+        const label = document.getElementById(valId);
+
+        slider.addEventListener('input', (e) => {
+          const val = parseFloat(e.target.value);
+          const max = parseFloat(e.target.max) || 1;
+          const min = parseFloat(e.target.min) || 0;
+          const percent = ((val - min) / (max - min)) * 100;
+          
+          fill.style.width = `${percent}%`;
+          if (isPercent) {
+            label.textContent = `${Math.round(val * 100)}${unit}`;
+          } else {
+            label.textContent = `${val}${unit}`;
+          }
+          callback(val);
+        });
+      }
+
+      attachKnobPointerTracking(knob, index) {
+        let startY = 0;
+        let startCutoff = 0;
+
+        const onPointerMove = (e) => {
+          const deltaY = startY - e.clientY;
+          let nextCutoff = startCutoff + (deltaY * 0.006); // Tuning Sensitivity Coefficient Range
+          nextCutoff = Math.max(0, Math.min(1, nextCutoff));
+          
+          this.padFilterCutoffs[index] = nextCutoff;
+          this.updateFilterKnobDisplay(index);
+        };
+
+        const onPointerUp = (e) => {
+          knob.releasePointerCapture(e.pointerId);
+          knob.removeEventListener('pointermove', onPointerMove);
+          knob.removeEventListener('pointerup', onPointerUp);
+        };
+
+        knob.addEventListener('pointerdown', (e) => {
+          e.preventDefault();
+          this.initAudio();
+          knob.setPointerCapture(e.pointerId);
+          startY = e.clientY;
+          startCutoff = this.padFilterCutoffs[index];
+          
+          knob.addEventListener('pointermove', onPointerMove);
+          knob.addEventListener('pointerup', onPointerUp);
+        });
+      }
+
+      updateFilterKnobDisplay(index) {
+        const knob = document.getElementById(`filter-knob-${index}`);
+        const label = document.getElementById(`filter-val-${index}`);
+        const normVal = this.padFilterCutoffs[index];
+        
+        // Rotation degrees mapping standard radial arcs (-135 to +135 deg)
+        const degrees = (normVal * 270) - 135;
+        knob.style.transform = `rotate(${degrees}deg)`;
+        label.textContent = `${Math.round(normVal * 100)}%`;
+      }
+
+      toggleFxWrapperActiveState(elementId, status) {
+        const wrapper = document.getElementById(elementId);
+        if (wrapper) wrapper.classList.toggle('on', status);
+      }
+
+      shiftOctaveOffset(dir) {
+        const nextOct = this.octaveOffset + dir;
+        if (nextOct >= -2 && nextOct <= 2) {
+          this.octaveOffset = nextOct;
+          const disp = document.getElementById('oct-value');
+          disp.textContent = (this.octaveOffset >= 0 ? '+' : '') + this.octaveOffset;
+          disp.className = 'oct-display-value' + (this.octaveOffset > 0 ? ' up' : this.octaveOffset < 0 ? ' down' : '');
+        }
+      }
+
+      setActivePad(idx) {
         this.initAudio();
-        this.selectPad(i);
-      });
-
-      pad.addEventListener('dblclick', (e) => {
-        if (e.target.closest('.pad-filter-section')) return;
-        this.initAudio();
-        if (this.slots[i]) {
-          this.openTrimEditor(i);
-        }
-      });
-    }
-  }
-
-  formatFilterValue(norm) {
-    const freq = this.freqFromNormalized(norm);
-    if (freq >= 1000) {
-      return (freq / 1000).toFixed(1) + 'k';
-    }
-    return Math.round(freq).toString();
-  }
-
-  bindFilterEvents() {
-    for (let i = 0; i < 4; i++) {
-      const knob = document.getElementById(`filter-knob-${i}`);
-
-      const startDrag = (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        this.initAudio();
-        this.filterDragging = i;
-        this.filterDragStartY = e.clientY || (e.touches && e.touches[0].clientY);
-        this.filterDragStartValue = this.padFilterCutoff[i];
-        knob.classList.add('dragging');
-      };
-
-      knob.addEventListener('mousedown', startDrag);
-      knob.addEventListener('touchstart', startDrag, { passive: false });
-    }
-
-    window.addEventListener('mousemove', (e) => {
-      if (this.filterDragging !== null) {
-        this.handleFilterDrag(e.clientY);
-      }
-    });
-
-    window.addEventListener('touchmove', (e) => {
-      if (this.filterDragging !== null && e.touches.length > 0) {
-        this.handleFilterDrag(e.touches[0].clientY);
-      }
-    }, { passive: false });
-
-    window.addEventListener('mouseup', () => {
-      if (this.filterDragging !== null) {
-        const knob = document.getElementById(`filter-knob-${this.filterDragging}`);
-        if (knob) knob.classList.remove('dragging');
-        this.filterDragging = null;
-      }
-    });
-
-    window.addEventListener('touchend', () => {
-      if (this.filterDragging !== null) {
-        const knob = document.getElementById(`filter-knob-${this.filterDragging}`);
-        if (knob) knob.classList.remove('dragging');
-        this.filterDragging = null;
-      }
-    });
-  }
-
-  handleFilterDrag(clientY) {
-    const deltaY = this.filterDragStartY - clientY;
-    const sensitivity = 0.005;
-    let newValue = this.filterDragStartValue + deltaY * sensitivity;
-    newValue = Math.max(0, Math.min(1, newValue));
-    this.updateFilterCutoff(this.filterDragging, newValue);
-  }
-
-  bindDelayEvents() {
-    const toggle = document.getElementById('delay-toggle');
-    toggle.addEventListener('click', () => {
-      this.delayEnabled = !this.delayEnabled;
-      this.toggleDelay(this.delayEnabled);
-      this.renderDelayUI();
-    });
-
-    const timeSlider = document.getElementById('delay-time');
-    const timeFill = document.getElementById('delay-time-fill');
-    const timeValue = document.getElementById('delay-time-value');
-
-    timeSlider.addEventListener('input', () => {
-      const v = parseInt(timeSlider.value);
-      this.updateDelayTime(v);
-      timeFill.style.width = (v / 1000 * 100).toFixed(0) + '%';
-      timeValue.textContent = v + ' ms';
-    });
-
-    const feedbackSlider = document.getElementById('delay-feedback');
-    const feedbackFill = document.getElementById('delay-feedback-fill');
-    const feedbackValue = document.getElementById('delay-feedback-value');
-
-    feedbackSlider.addEventListener('input', () => {
-      const v = parseFloat(feedbackSlider.value);
-      this.updateDelayFeedback(v);
-      feedbackFill.style.width = (v / 0.9 * 100).toFixed(0) + '%';
-      feedbackValue.textContent = Math.round(v * 100) + '%';
-    });
-
-    const mixSlider = document.getElementById('delay-mix');
-    const mixFill = document.getElementById('delay-mix-fill');
-    const mixValue = document.getElementById('delay-mix-value');
-
-    mixSlider.addEventListener('input', () => {
-      const v = parseFloat(mixSlider.value);
-      this.updateDelayMix(v);
-      mixFill.style.width = (v * 100).toFixed(0) + '%';
-      mixValue.textContent = Math.round(v * 100) + '%';
-    });
-  }
-
-  renderDelayUI() {
-    const toggle = document.getElementById('delay-toggle');
-    toggle.classList.toggle('active', this.delayEnabled);
-
-    const timeSlider = document.getElementById('delay-time');
-    timeSlider.value = this.delayTimeValue;
-    document.getElementById('delay-time-fill').style.width = (this.delayTimeValue / 1000 * 100).toFixed(0) + '%';
-    document.getElementById('delay-time-value').textContent = this.delayTimeValue + ' ms';
-
-    const feedbackSlider = document.getElementById('delay-feedback');
-    feedbackSlider.value = this.delayFeedbackValue;
-    document.getElementById('delay-feedback-fill').style.width = (this.delayFeedbackValue / 0.9 * 100).toFixed(0) + '%';
-    document.getElementById('delay-feedback-value').textContent = Math.round(this.delayFeedbackValue * 100) + '%';
-
-    const mixSlider = document.getElementById('delay-mix');
-    mixSlider.value = this.delayMixValue;
-    document.getElementById('delay-mix-fill').style.width = (this.delayMixValue * 100).toFixed(0) + '%';
-    document.getElementById('delay-mix-value').textContent = Math.round(this.delayMixValue * 100) + '%';
-  }
-
-  buildKeyboard() {
-    const bed = document.getElementById('keyboard-bed');
-    const MIDI_START = 48, MIDI_END = 72;
-    const WW=30, WH=82, BW=19, BH=50, GAP=2;
-    const isBlack = m => [1,3,6,8,10].includes(m % 12);
-
-    let whiteX = 0, lastWhiteX = 0;
-    const keyData = [];
-
-    for (let m = MIDI_START; m <= MIDI_END; m++) {
-      if (!isBlack(m)) {
-        keyData.push({ midi:m, black:false, x:whiteX, w:WW, h:WH });
-        lastWhiteX = whiteX;
-        whiteX += WW + GAP;
-      } else {
-        keyData.push({ midi:m, black:true, x:lastWhiteX + WW - BW/2, w:BW, h:BH });
-      }
-    }
-
-    bed.style.width  = (whiteX - GAP) + 'px';
-    bed.style.height = WH + 'px';
-
-    const whites = keyData.filter(k => !k.black);
-    const blacks  = keyData.filter(k =>  k.black);
-
-    [...whites, ...blacks].forEach(k => {
-      const el = document.createElement('div');
-      el.className    = k.black ? 'key black' : 'key white';
-      el.dataset.midi = k.midi;
-      if (k.midi === this.ROOT_MIDI) el.classList.add('root-note');
-      el.style.cssText = `left:${k.x}px;width:${k.w}px;height:${k.h}px`;
-
-      const lbl = document.createElement('span');
-      lbl.className   = 'key-lbl';
-      lbl.textContent = (this.midiToKey[k.midi] || '').toUpperCase();
-      el.appendChild(lbl);
-
-      const onPress = () => {
-        this.initAudio();
-        const playMidi = k.midi + this.octaveOffset * 12;
-        this.heldVisualKeys.set(k.midi, playMidi);
-        this.noteOn(playMidi, k.midi);
-      };
-
-      const onRelease = () => {
-        const playMidi = this.heldVisualKeys.get(k.midi);
-        if (playMidi !== undefined) {
-          this.noteOff(playMidi, k.midi);
-          this.heldVisualKeys.delete(k.midi);
-        }
-      };
-
-      el.addEventListener('mousedown',  (e) => { e.preventDefault(); onPress(); });
-      el.addEventListener('mouseup',    onRelease);
-      el.addEventListener('mouseleave', onRelease);
-      el.addEventListener('touchstart', (e) => { e.preventDefault(); onPress(); }, { passive: false });
-      el.addEventListener('touchend',   (e) => { e.preventDefault(); onRelease(); }, { passive: false });
-
-      bed.appendChild(el);
-    });
-  }
-
-  /* ── Events ──────────────────────────────────────────── */
-  bindEvents() {
-    ['reverse','loop','lofi'].forEach(name => {
-      const cb   = document.getElementById(`fx-${name}`);
-      const wrap = document.getElementById(`fx-${name}-wrap`);
-      cb.addEventListener('change', () => { this.fx[name] = cb.checked; wrap.classList.toggle('on', cb.checked); });
-      wrap.addEventListener('click', () => { cb.checked = !cb.checked; this.fx[name] = cb.checked; wrap.classList.toggle('on', cb.checked); });
-    });
-
-    const volInput = document.getElementById('master-vol');
-    const volFill  = document.getElementById('vol-fill');
-    const volVal   = document.getElementById('vol-value');
-    volInput.addEventListener('input', () => {
-      const v = parseFloat(volInput.value);
-      if (this.masterGain) this.masterGain.gain.setValueAtTime(v, this.audioCtx.currentTime);
-      volFill.style.width = (v * 100).toFixed(0) + '%';
-      volVal.textContent  = (v * 100).toFixed(0) + '%';
-    });
-
-    const recBtn = document.getElementById('rec-btn');
-    recBtn.addEventListener('mousedown',  () => { this.initAudio(); this.startRec(); });
-    recBtn.addEventListener('mouseup',    () => this.stopRec());
-    recBtn.addEventListener('mouseleave', () => this.stopRec());
-    recBtn.addEventListener('touchstart', (e) => { e.preventDefault(); this.initAudio(); this.startRec(); }, { passive: false });
-    recBtn.addEventListener('touchend',   (e) => { e.preventDefault(); this.stopRec(); }, { passive: false });
-
-    document.getElementById('oct-down').addEventListener('click', () => this.shiftOctave(-1));
-    document.getElementById('oct-up')  .addEventListener('click', () => this.shiftOctave(+1));
-
-    this.pcHeld = {};
-
-    window.addEventListener('keydown', (e) => {
-      if (e.repeat || e.ctrlKey || e.metaKey || e.altKey) return;
-      const baseMidi = this.pcKeyMap[e.key];
-      if (baseMidi === undefined) return;
-      e.preventDefault();
-      if (this.pcHeld[e.key] !== undefined) return;
-      this.initAudio();
-      const playMidi = baseMidi + this.octaveOffset * 12;
-      this.pcHeld[e.key] = playMidi;
-      this.noteOn(playMidi, baseMidi);
-    });
-
-    window.addEventListener('keyup', (e) => {
-      const baseMidi = this.pcKeyMap[e.key];
-      if (baseMidi === undefined) return;
-      const playMidi = this.pcHeld[e.key];
-      if (playMidi !== undefined) {
-        this.noteOff(playMidi, baseMidi);
-        delete this.pcHeld[e.key];
-      }
-    });
-  }
-
-  bindTrimEvents() {
-    const container = document.getElementById('trim-waveform-container');
-    const handleStart = document.getElementById('trim-handle-start');
-    const handleEnd = document.getElementById('trim-handle-end');
-    const closeBtn = document.getElementById('trim-close-btn');
-
-    closeBtn.addEventListener('click', () => this.closeTrimEditor());
-
-    const startDrag = (e, handle) => {
-      if (this.trimPadIndex === -1 || !this.slots[this.trimPadIndex]) return;
-      e.preventDefault();
-      this.trimDragging = handle;
-      handle.classList.add('dragging');
-    };
-
-    handleStart.addEventListener('mousedown', (e) => startDrag(e, 'start'));
-    handleEnd.addEventListener('mousedown', (e) => startDrag(e, 'end'));
-
-    handleStart.addEventListener('touchstart', (e) => startDrag(e, 'start'), { passive: false });
-    handleEnd.addEventListener('touchstart', (e) => startDrag(e, 'end'), { passive: false });
-
-    const moveDrag = (e) => {
-      if (!this.trimDragging) return;
-      const rect = container.getBoundingClientRect();
-      const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-      let x = (clientX - rect.left) / rect.width;
-      x = Math.max(0, Math.min(1, x));
-
-      const trim = this.trimPoints[this.trimPadIndex];
-      if (this.trimDragging === 'start') {
-        trim.start = Math.min(x, trim.end - 0.01);
-      } else {
-        trim.end = Math.max(x, trim.start + 0.01);
-      }
-
-      this.renderTrimEditor();
-      this.saveTrimPoints();
-    };
-
-    window.addEventListener('mousemove', moveDrag);
-    window.addEventListener('touchmove', moveDrag, { passive: false });
-
-    const endDrag = () => {
-      if (this.trimDragging) {
-        const handle = document.getElementById(`trim-handle-${this.trimDragging}`);
-        if (handle) handle.classList.remove('dragging');
-        this.trimDragging = null;
-      }
-    };
-
-    window.addEventListener('mouseup', endDrag);
-    window.addEventListener('touchend', endDrag);
-  }
-
-  /* ── Octave transpose ────────────────────────────────── */
-  shiftOctave(delta) {
-    const next = this.octaveOffset + delta;
-    if (next < this.OCT_MIN || next > this.OCT_MAX) return;
-    this.octaveOffset = next;
-    this.renderOctave();
-    const rootName = this.midiToNoteName(this.ROOT_MIDI + this.octaveOffset * 12);
-    const msg = this.octaveOffset === 0
-      ? 'OCTAVE RESET — ROOT: A4'
-      : `OCT ${this.octaveOffset > 0 ? '+' : ''}${this.octaveOffset} — ROOT: ${rootName}`;
-    this.setStatus(msg, false, this.octaveOffset !== 0 ? 'active' : '');
-  }
-
-  renderOctave() {
-    const v  = this.octaveOffset;
-    const el = document.getElementById('oct-value');
-    el.textContent = v === 0 ? '0' : (v > 0 ? `+${v}` : `${v}`);
-    el.className = 'oct-display-value' + (v > 0 ? ' up' : v < 0 ? ' down' : '');
-    document.getElementById('oct-down').disabled = (v <= this.OCT_MIN);
-    document.getElementById('oct-up')  .disabled = (v >= this.OCT_MAX);
-  }
-
-  midiToNoteName(midi) {
-    const names = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
-    return names[((midi % 12) + 12) % 12] + (Math.floor(midi / 12) - 1);
-  }
-
-  /* ── MIDI ─────────────────────────────────────────────── */
-  async initMidi() {
-    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
-
-    if (isIOS) {
-      this.updateMidiStatus('unsupported', 'MIDI: iOS N/A');
-      return;
-    }
-
-    if (!navigator.requestMIDIAccess) {
-      this.updateMidiStatus('unsupported', 'MIDI: NO API');
-      return;
-    }
-
-    try {
-      this.midiAccess = await navigator.requestMIDIAccess({ sysex: false });
-      this.refreshMidiInputs();
-      this.midiAccess.onstatechange = () => this.refreshMidiInputs();
-    } catch (err) {
-      console.warn('MIDI access denied:', err);
-      this.updateMidiStatus('error', 'MIDI: DENIED');
-    }
-  }
-
-  refreshMidiInputs() {
-    for (const [, input] of this.midiAccess.inputs) {
-      input.onmidimessage = null;
-    }
-    let count = 0;
-    for (const [, input] of this.midiAccess.inputs) {
-      if (input.state === 'connected') {
-        input.onmidimessage = (e) => this.onMidiMessage(e);
-        count++;
-      }
-    }
-    this.midiConnected = count > 0;
-    if (this.midiConnected) {
-      const name = this.midiAccess.inputs.values().next().value?.name || `${count} DEV`;
-      this.updateMidiStatus('connected', `MIDI: ${count > 1 ? count + ' DEV' : name.slice(0,10)}`);
-    } else {
-      this.updateMidiStatus('idle', 'MIDI: READY');
-    }
-  }
-
-  onMidiMessage(event) {
-    if (!event.data || event.data.length < 2) return;
-    const [status, note, velocity = 0] = event.data;
-    const command = status & 0xF0;
-
-    if (command === 0x90 && velocity > 0) {
-      this.initAudio();
-      this.flashMidiLed();
-      const playMidi = note + this.octaveOffset * 12;
-      this.noteOn(playMidi, null, velocity / 127);
-    } else if (command === 0x80 || (command === 0x90 && velocity === 0)) {
-      const playMidi = note + this.octaveOffset * 12;
-      this.noteOff(playMidi, null);
-    }
-  }
-
-  updateMidiStatus(state, text) {
-    const led   = document.getElementById('midi-led');
-    const label = document.getElementById('midi-text');
-    led.className   = 'midi-led' + (state === 'connected' ? ' connected' : state === 'unsupported' ? ' unsupported' : '');
-    label.className = 'midi-text' + (state === 'connected' ? ' connected' : state === 'error' || state === 'unsupported' ? ' error' : '');
-    label.textContent = text;
-  }
-
-  flashMidiLed() {
-    const led = document.getElementById('midi-led');
-    led.classList.add('active');
-    clearTimeout(this.midiFlashTimer);
-    this.midiFlashTimer = setTimeout(() => {
-      led.classList.remove('active');
-      if (this.midiConnected) led.classList.add('connected');
-    }, 130);
-  }
-
-  /* ── Pad selection ───────────────────────────────────── */
-  selectPad(i) {
-    if (this.activePad !== -1 && this.padStates[this.activePad] === 'armed') {
-      this.padStates[this.activePad] = this.slots[this.activePad] ? 'loaded' : 'empty';
-    }
-
-    if (this.activePad === i) {
-      this.activePad = -1;
-      this.setStatus('SELECT A PAD TO BEGIN');
-      this.renderPads();
-      return;
-    }
-
-    this.activePad = i;
-    this.padStates[i] = 'armed';
-    this.setStatus(this.slots[i]
-      ? `PAD ${i+1} ARMED — HOLD REC TO RE-SAMPLE OR PLAY KEYS`
-      : `PAD ${i+1} ARMED — HOLD REC TO RECORD`);
-    this.renderPads();
-  }
-
-  renderPads() {
-    document.querySelectorAll('.pad').forEach((el, i) => {
-      const s = this.padStates[i];
-      el.className = `pad state-${s}`;
-      const num = el.querySelector('.pad-num');
-      const status = el.querySelector('.pad-status');
-      if (num) num.textContent = i + 1;
-      if (status) status.textContent = s === 'loaded' ? 'LOADED' : s === 'armed' ? 'ARMED' : 'EMPTY';
-
-      const valueEl = document.getElementById(`filter-value-${i}`);
-      if (valueEl) {
-        valueEl.textContent = this.formatFilterValue(this.padFilterCutoff[i]);
-      }
-
-      this.renderPadWaveform(i);
-    });
-  }
-
-  /* ── Waveform Rendering ───────────────────────────────── */
-  renderPadWaveform(padIndex) {
-    const canvas = document.getElementById(`pad-canvas-${padIndex}`);
-    if (!canvas) return;
-
-    const pad = document.querySelector(`[data-pad="${padIndex}"]`);
-    if (!pad) return;
-
-    const rect = pad.getBoundingClientRect();
-    canvas.width = rect.width || 100;
-    canvas.height = rect.height || 100;
-
-    const ctx = canvas.getContext('2d');
-    const width = canvas.width;
-    const height = canvas.height;
-
-    ctx.fillStyle = 'transparent';
-    ctx.clearRect(0, 0, width, height);
-
-    const buffer = this.slots[padIndex];
-    if (!buffer) return;
-
-    const data = buffer.getChannelData(0);
-    const step = Math.ceil(data.length / width);
-    const amp = height / 2;
-
-    ctx.fillStyle = '#402a00';
-
-    for (let i = 0; i < width; i++) {
-      let min = 1.0, max = -1.0;
-      for (let j = 0; j < step; j++) {
-        const idx = i * step + j;
-        if (idx < data.length) {
-          const val = data[idx];
-          if (val < min) min = val;
-          if (val > max) max = val;
-        }
-      }
-      const y1 = (1 + min) * amp;
-      const y2 = (1 + max) * amp;
-      ctx.fillRect(i, y1, 1, y2 - y1);
-    }
-
-    const trim = this.trimPoints[padIndex];
-
-    ctx.fillStyle = 'rgba(255, 183, 0, 0.15)';
-    ctx.fillRect(trim.start * width, 0, (trim.end - trim.start) * width, height);
-
-    const playbackPos = this.playbackPositions[padIndex];
-    if (playbackPos > 0) {
-      const scanX = trim.start * width + playbackPos * (trim.end - trim.start) * width;
-      ctx.strokeStyle = '#ffb700';
-      ctx.lineWidth = 2;
-      ctx.beginPath();
-      ctx.moveTo(scanX, 0);
-      ctx.lineTo(scanX, height);
-      ctx.stroke();
-    }
-  }
-
-  /* ── Trim Editor ──────────────────────────────────────── */
-  openTrimEditor(padIndex) {
-    this.trimPadIndex = padIndex;
-    const panel = document.getElementById('trim-panel');
-    panel.classList.add('open');
-    document.getElementById('trim-pad-label').textContent = `PAD ${padIndex + 1}`;
-    this.renderTrimEditor();
-  }
-
-  closeTrimEditor() {
-    const panel = document.getElementById('trim-panel');
-    panel.classList.remove('open');
-    this.trimPadIndex = -1;
-  }
-
-  renderTrimEditor() {
-    if (this.trimPadIndex === -1) return;
-
-    const buffer = this.slots[this.trimPadIndex];
-    if (!buffer) return;
-
-    const canvas = document.getElementById('trim-waveform-canvas');
-    const container = document.getElementById('trim-waveform-container');
-
-    canvas.width = container.offsetWidth;
-    canvas.height = container.offsetHeight;
-
-    const ctx = canvas.getContext('2d');
-    const width = canvas.width;
-    const height = canvas.height;
-    const data = buffer.getChannelData(0);
-    const sampleRate = buffer.sampleRate;
-    const duration = buffer.duration;
-
-    ctx.fillStyle = '#050505';
-    ctx.fillRect(0, 0, width, height);
-
-    const step = Math.ceil(data.length / width);
-    const amp = height / 2;
-
-    ctx.fillStyle = '#402a00';
-
-    for (let i = 0; i < width; i++) {
-      let min = 1.0, max = -1.0;
-      for (let j = 0; j < step; j++) {
-        const idx = i * step + j;
-        if (idx < data.length) {
-          const val = data[idx];
-          if (val < min) min = val;
-          if (val > max) max = val;
-        }
-      }
-      const y1 = (1 + min) * amp;
-      const y2 = (1 + max) * amp;
-      ctx.fillRect(i, y1, 1, y2 - y1);
-    }
-
-    const trim = this.trimPoints[this.trimPadIndex];
-
-    const overlay = document.getElementById('trim-region-overlay');
-    overlay.style.left = `${trim.start * width}px`;
-    overlay.style.width = `${(trim.end - trim.start) * width}px`;
-
-    const handleStart = document.getElementById('trim-handle-start');
-    const handleEnd = document.getElementById('trim-handle-end');
-    handleStart.style.left = `${trim.start * width}px`;
-    handleEnd.style.left = `${trim.end * width - 7}px`;
-
-    const startSec = (trim.start * duration).toFixed(3);
-    const endSec = (trim.end * duration).toFixed(3);
-    const lengthSec = ((trim.end - trim.start) * duration).toFixed(3);
-
-    document.getElementById('trim-start-value').textContent = `${startSec}s`;
-    document.getElementById('trim-end-value').textContent = `${endSec}s`;
-    document.getElementById('trim-duration-value').textContent = `${lengthSec}s`;
-  }
-
-  saveTrimPoints() {
-    try {
-      localStorage.setItem('ms4_trim_points', JSON.stringify(this.trimPoints));
-    } catch (e) {
-      console.warn('Failed to save trim points:', e);
-    }
-  }
-
-  loadTrimPoints() {
-    try {
-      const raw = localStorage.getItem('ms4_trim_points');
-      if (raw) {
-        const loaded = JSON.parse(raw);
-        if (Array.isArray(loaded) && loaded.length === 4) {
-          loaded.forEach((tp, i) => {
-            if (tp && typeof tp.start === 'number' && typeof tp.end === 'number') {
-              this.trimPoints[i] = {
-                start: Math.max(0, Math.min(1, tp.start)),
-                end: Math.max(0, Math.min(1, tp.end))
-              };
-              if (this.trimPoints[i].start > this.trimPoints[i].end) {
-                this.trimPoints[i].start = 0;
-                this.trimPoints[i].end = 1;
-              }
-            }
-          });
-        }
-      }
-    } catch (e) {
-      console.warn('Failed to load trim points:', e);
-    }
-  }
-
-  /* ── Recording ───────────────────────────────────────── */
-  async startRec() {
-    if (this.isRecording) return;
-    if (this.activePad === -1) { this.setStatus('SELECT A PAD FIRST'); return; }
-    try {
-      this.stream        = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
-      this.audioChunks   = [];
-      this.mediaRecorder = new MediaRecorder(this.stream);
-      this.mediaRecorder.ondataavailable = (e) => { if (e.data.size > 0) this.audioChunks.push(e.data); };
-      this.mediaRecorder.onstop = () => this.processRecording();
-      this.isRecording = true;
-      document.getElementById('rec-btn').classList.add('recording');
-      this.setStatus('● RECORDING…', true, 'rec');
-      this.vuTargetLv = 0.7;
-      this.mediaRecorder.start();
-      this.recTimeout = setTimeout(() => this.stopRec(), 4000);
-    } catch (err) {
-      console.error('Mic error:', err);
-      this.setStatus('MICROPHONE ACCESS DENIED');
-    }
-  }
-
-  stopRec() {
-    if (!this.isRecording) return;
-    clearTimeout(this.recTimeout);
-    this.isRecording = false;
-    document.getElementById('rec-btn').classList.remove('recording');
-    this.vuTargetLv = 0;
-    if (this.mediaRecorder?.state !== 'inactive') this.mediaRecorder.stop();
-    this.stream?.getTracks().forEach(t => t.stop());
-    this.stream = null;
-  }
-
-  async processRecording() {
-    this.setStatus('PROCESSING…');
-    const blob = new Blob(this.audioChunks, { type: 'audio/webm' });
-    this.audioCtx.decodeAudioData(await blob.arrayBuffer(), (raw) => {
-      this.slots[this.activePad]     = raw;
-      this.padStates[this.activePad] = 'loaded';
-      this.trimPoints[this.activePad] = { start: 0.0, end: 1.0 };
-      this.saveTrimPoints();
-      this.renderPads();
-      this.persistSlot(this.activePad, raw);
-      this.setStatus(`PAD ${this.activePad + 1} RECORDED — PLAY KEYS TO PITCH`, false, 'active');
-      this.flashVu();
-    }, (err) => {
-      console.error('Decode error:', err);
-      this.setStatus('DECODE ERROR — TRY AGAIN');
-    });
-  }
-
-  /* ── Playback ────────────────────────────────────────── */
-  noteOn(playMidi, visualMidi = null, velocity = 0.8) {
-    if (!this.audioCtx) return;
-    if (this.activeNotes.has(playMidi)) return;
-
-    const slot = this.activePad !== -1 ? this.activePad : this.findLoadedSlot();
-    if (slot === -1 || !this.slots[slot]) {
-      this.setStatus('NO SAMPLE — ARM A PAD AND RECORD');
-      return;
-    }
-
-    if (this.activeNotes.size >= this.POLY_LIMIT) {
-      const oldest = this.activeNotes.keys().next().value;
-      this.killNote(oldest, true);
-    }
-
-    // Prepare buffer with lofi effect (applied before reverse)
-    let buf = this.slots[slot];
-    if (this.fx.lofi) buf = this.applyLofi(buf);
-
-    // Apply reverse effect ONLY to the trimmed region
-    if (this.fx.reverse) {
-      buf = this.applyReverseTrimmed(buf, this.trimPoints[slot]);
-    }
-
-    if (!buf) return;
-
-    const source  = this.audioCtx.createBufferSource();
-    source.buffer = buf;
-
-    const semitones = playMidi - this.ROOT_MIDI;
-    source.playbackRate.value = Math.pow(2, semitones / 12);
-
-    // Calculate playback parameters based on trim points and reverse mode
-    const trim = this.trimPoints[slot];
-    const originalBuffer = this.slots[slot];
-    const startTime = trim.start * originalBuffer.duration;
-    const endTime = trim.end * originalBuffer.duration;
-    const playDuration = endTime - startTime;
-
-    if (this.fx.loop) {
-      source.loop = true;
-      // For trimmed reversed buffer, loop boundaries are 0 to duration
-      if (this.fx.reverse) {
-        source.loopStart = 0;
-        source.loopEnd = playDuration;
-      } else {
-        source.loopStart = startTime;
-        source.loopEnd = endTime;
-      }
-    }
-
-    // Create per-voice filter
-    const filterNode = this.audioCtx.createBiquadFilter();
-    filterNode.type = 'lowpass';
-    filterNode.Q.value = 1.0;
-    filterNode.frequency.value = this.freqFromNormalized(this.padFilterCutoff[slot]);
-
-    const gainNode = this.audioCtx.createGain();
-    gainNode.gain.value = Math.max(0.001, velocity);
-
-    // Connect: source -> filter -> gain -> masterGain
-    source.connect(filterNode);
-    filterNode.connect(gainNode);
-    gainNode.connect(this.masterGain);
-
-    // Determine playback start position
-    if (this.fx.reverse) {
-      // Reversed buffer plays from beginning (which is the trimmed region reversed)
-      source.start(0, 0, this.fx.loop ? undefined : playDuration);
-    } else {
-      source.start(0, startTime, this.fx.loop ? undefined : playDuration);
-    }
-
-    const padIndex = slot;
-    this.activeSources.set(playMidi, { source, padIndex, startTime: this.audioCtx.currentTime });
-    this.playbackPositions[padIndex] = 0;
-
-    source.onended = () => {
-      if (this.activeNotes.get(playMidi)?.source === source) {
-        this.activeNotes.delete(playMidi);
-        this.activeSources.delete(playMidi);
-        if (visualMidi !== null) this.highlightKey(visualMidi, false);
-        this.updatePolyCount();
-      }
-    };
-
-    this.activeNotes.set(playMidi, { source, gainNode, filterNode, visualMidi, padIndex: slot });
-
-    if (visualMidi !== null) this.highlightKey(visualMidi, true);
-    this.updatePolyCount();
-    this.vuTargetLv = Math.min(1, this.vuTargetLv + 0.25);
-  }
-
-  noteOff(playMidi, visualMidi = null) {
-    if (!this.activeNotes.has(playMidi)) return;
-    const note = this.activeNotes.get(playMidi);
-    const { source, gainNode, padIndex } = note;
-    const vis = visualMidi !== null ? visualMidi : note.visualMidi;
-    const now = this.audioCtx.currentTime;
-
-    if (this.fx.loop) {
-      gainNode.gain.setValueAtTime(gainNode.gain.value, now);
-      gainNode.gain.exponentialRampToValueAtTime(0.001, now + 0.08);
-      try { source.stop(now + 0.1); } catch(e) {}
-      this.activeSources.delete(playMidi);
-      this.playbackPositions[padIndex] = 0;
-    }
-
-    if (this.fx.loop) {
-      this.activeNotes.delete(playMidi);
-      if (vis !== null) this.highlightKey(vis, false);
-      this.updatePolyCount();
-    }
-  }
-
-  killNote(playMidi, immediate = false) {
-    if (!this.activeNotes.has(playMidi)) return;
-    const { source, gainNode, visualMidi, padIndex } = this.activeNotes.get(playMidi);
-    try {
-      if (immediate) {
-        const now = this.audioCtx.currentTime;
-        gainNode.gain.setValueAtTime(gainNode.gain.value, now);
-        gainNode.gain.exponentialRampToValueAtTime(0.001, now + 0.02);
-        source.stop(now + 0.025);
-      } else {
-        gainNode.disconnect(); source.stop();
-      }
-    } catch(e) {}
-    this.activeNotes.delete(playMidi);
-    this.activeSources.delete(playMidi);
-    this.playbackPositions[padIndex] = 0;
-    if (visualMidi !== null) this.highlightKey(visualMidi, false);
-    this.updatePolyCount();
-  }
-
-  findLoadedSlot() { return this.slots.findIndex(s => s !== null); }
-
-  /* ── Scanline Animation Loop ─────────────────────────── */
-  startScanlineLoop() {
-    const tick = () => {
-      for (let i = 0; i < 4; i++) {
-        let hasActive = false;
-        for (const [playMidi, note] of this.activeSources) {
-          if (note.padIndex === i) {
-            hasActive = true;
-            const src = note.source;
-            if (!this.audioCtx) continue;
-
-            const buffer = this.slots[i];
-            if (!buffer) continue;
-
-            const trim = this.trimPoints[i];
-            const startSample = trim.start * buffer.duration;
-            const endSample = trim.end * buffer.duration;
-            const loopLength = endSample - startSample;
-
-            const elapsed = this.audioCtx.currentTime - note.startTime;
-            let pos = (elapsed % loopLength) / loopLength;
-
-            if (this.fx.loop) {
-              this.playbackPositions[i] = pos;
-            } else {
-              this.playbackPositions[i] = Math.min(pos, 1);
-            }
-            break;
+        this.activePad = idx;
+
+        // Visual Class Selection Matrix Updating
+        for (let i = 0; i < 4; i++) {
+          const pad = document.getElementById(`pad-${i}`);
+          pad.classList.remove('state-armed');
+          if (this.padStates[i] === 'loaded') {
+            pad.className = 'pad state-loaded';
+          } else {
+            pad.className = 'pad state-empty';
           }
         }
-        if (!hasActive) {
-          this.playbackPositions[i] = 0;
-        }
-        this.renderPadWaveform(i);
-      }
-      this.scanlineAnimFrame = requestAnimationFrame(tick);
-    };
-    this.scanlineAnimFrame = requestAnimationFrame(tick);
-  }
 
-  /* ── Buffer processing ───────────────────────────────── */
-  prepareBuffer(buf) {
-    if (!buf) return null;
-    if (this.fx.lofi) buf = this.applyLofi(buf);
-    return buf;
-  }
+        const selectedPad = document.getElementById(`pad-${idx}`);
+        selectedPad.classList.remove('state-loaded','state-empty');
+        selectedPad.classList.add('state-armed');
 
-  applyReverseTrimmed(buffer, trim) {
-    // Extract and reverse only the trimmed portion of the audio
-    const startSample = Math.floor(trim.start * buffer.length);
-    const endSample = Math.floor(trim.end * buffer.length);
-    const trimmedLength = endSample - startSample;
+        // Sync Global Effect Toggle Switches to Selected Pad Values
+        document.getElementById('fx-reverse').checked = this.padReverseStates[idx];
+        this.toggleFxWrapperActiveState('fx-reverse-wrap', this.padReverseStates[idx]);
 
-    if (trimmedLength <= 0) return buffer;
+        document.getElementById('fx-loop').checked = this.padLoopStates[idx];
+        this.toggleFxWrapperActiveState('fx-loop-wrap', this.padLoopStates[idx]);
 
-    const out = this.audioCtx.createBuffer(buffer.numberOfChannels, trimmedLength, buffer.sampleRate);
+        document.getElementById('fx-lofi').checked = this.padLofiStates[idx];
+        this.toggleFxWrapperActiveState('fx-lofi-wrap', this.padLofiStates[idx]);
 
-    for (let c = 0; c < buffer.numberOfChannels; c++) {
-      const src = buffer.getChannelData(c);
-      const dst = out.getChannelData(c);
-
-      // Copy trimmed region in reverse order
-      for (let i = 0; i < trimmedLength; i++) {
-        dst[i] = src[endSample - 1 - i];
-      }
-    }
-
-    return out;
-  }
-
-  applyReverse(buffer) {
-    const out = this.audioCtx.createBuffer(buffer.numberOfChannels, buffer.length, buffer.sampleRate);
-    for (let c = 0; c < buffer.numberOfChannels; c++) {
-      const src = buffer.getChannelData(c), dst = out.getChannelData(c);
-      for (let i = 0; i < buffer.length; i++) dst[i] = src[buffer.length - 1 - i];
-    }
-    return out;
-  }
-
-  applyLofi(buffer) {
-    const factor = 4, targetLen = Math.floor(buffer.length / factor);
-    const out = this.audioCtx.createBuffer(1, targetLen, Math.floor(buffer.sampleRate / factor));
-    const src = buffer.getChannelData(0), dst = out.getChannelData(0);
-    const steps = 31;
-    for (let i = 0; i < targetLen; i++) dst[i] = Math.round(src[i * factor] * steps) / steps;
-    return out;
-  }
-
-  /* ── Persistence ─────────────────────────────────────── */
-  persistSlot(i, buffer) {
-    try {
-      localStorage.setItem(`ms4_slot_${i}`, JSON.stringify({
-        sampleRate: buffer.sampleRate,
-        data: Array.from(buffer.getChannelData(0))
-      }));
-    } catch(e) { console.warn('Storage quota exceeded.', e); }
-  }
-
-  loadFromStorage() {
-    for (let i = 0; i < 4; i++) {
-      try {
-        const raw = localStorage.getItem(`ms4_slot_${i}`);
-        if (!raw) continue;
-        const { sampleRate, data } = JSON.parse(raw);
-        const arr = new Float32Array(data);
-        const buf = this.audioCtx.createBuffer(1, arr.length, sampleRate);
-        buf.copyToChannel(arr, 0);
-        this.slots[i]     = buf;
-        this.padStates[i] = 'loaded';
-      } catch(e) {}
-    }
-    this.renderPads();
-    if (this.slots.some(s => s)) this.setStatus('SAMPLES RESTORED — ARM A PAD TO PLAY');
-  }
-
-  /* ── UI helpers ──────────────────────────────────────── */
-  highlightKey(visualMidi, on) {
-    const el = document.querySelector(`[data-midi="${visualMidi}"]`);
-    if (el) el.classList.toggle('active', on);
-  }
-
-  setStatus(msg, blink = false, cls = '') {
-    const el = document.getElementById('status-msg');
-    el.textContent = msg;
-    el.className   = 'status-msg' + (cls ? ` ${cls}` : '');
-    if (blink) el.classList.add('rec');
-  }
-
-  updatePolyCount() {
-    document.getElementById('poly-count').textContent =
-      `VOICES: ${this.activeNotes.size}/${this.POLY_LIMIT}`;
-  }
-
-  /* ── VU meter ────────────────────────────────────────── */
-  startVuLoop() {
-    const segs = document.querySelectorAll('.vu-seg');
-    const tick = () => {
-      this.vuLevel += (this.vuTargetLv - this.vuLevel) * 0.18;
-      if (this.vuTargetLv > 0) this.vuTargetLv *= 0.88;
-      const lit = Math.round(this.vuLevel * 8);
-      segs.forEach((s, i) => {
-        if (i < lit) {
-          s.classList.add(i >= 7 ? 'lit-red' : i >= 5 ? 'lit-amber' : 'lit-green');
-          s.classList.remove(i >= 7 ? 'lit-green' : 'lit-red');
+        this.setStatus(`PAD ${idx + 1} ARMED AND READY`);
+        
+        // Open/Update Trim Window if buffer populated
+        if (this.slots[idx]) {
+          this.openTrimEditorPanel(idx);
         } else {
-          s.classList.remove('lit-green','lit-amber','lit-red');
+          document.getElementById('trim-panel').classList.remove('open');
         }
-      });
-      requestAnimationFrame(tick);
-    };
-    requestAnimationFrame(tick);
-  }
+      }
 
-  flashVu() {
-    this.vuTargetLv = 1.0;
-    setTimeout(() => { this.vuTargetLv = 0; }, 200);
-  }
-}
+      /* ── Non-Destructive Precision Trim Editor Implementation ── */
+      openTrimEditorPanel(idx) {
+        const buffer = this.slots[idx];
+        if (!buffer) return;
 
-window.addEventListener('DOMContentLoaded', () => { window.sampler = new MicroSampler(); });
-</script>
+        document.getElementById('trim-pad-label').textContent = `PAD ${idx + 1}`;
+        document.getElementById('trim-panel').classList.add('open');
+
+        // Render waveform representation inside canvas view bounds
+        this.drawWaveformIntoCanvas('trim-waveform-canvas', buffer);
+        this.updateTrimEditorUiMarkers();
+      }
+
+      drawWaveformIntoCanvas(canvasId, buffer) {
+        const canvas = document.getElementById(canvasId);
+        const ctx = canvas.getContext('2d');
+        
+        // Device pixel ratio resizing mechanics initialization
+        const dpr = window.devicePixelRatio || 1;
+        const rect = canvas.parentElement.getBoundingClientRect();
+        canvas.width = rect.width * dpr;
+        canvas.height = rect.height * dpr;
+        ctx.scale(dpr, dpr);
+
+        const w = rect.width;
+        const h = rect.height;
+
+        ctx.clearRect(0, 0, w, h);
+        ctx.fillStyle = '#050505';
+        ctx.fillRect(0, 0, w, h);
+
+        // Sub-sample draw resolution optimizations for large buffers
+        const data = buffer.getChannelData(0);
+        const step = Math.ceil(data.length / w);
+        const amp = h / 2;
+
+        ctx.lineWidth = 1.5;
+        ctx.strokeStyle = '#8a5c00'; // Var Dim Amber
+        ctx.beginPath();
+        ctx.moveTo(0, amp);
+
+        for (let i = 0; i < w; i++) {
+          let min = 1.0;
+          let max = -1.0;
+          for (let j = 0; j < step; j++) {
+            const datum = data[(i * step) + j];
+            if (datum < min) min = datum;
+            if (datum > max) max = datum;
+          }
+          ctx.lineTo(i, amp + (max * amp));
+          ctx.lineTo(i, amp + (min * amp));
+        }
+
+        ctx.lineTo(w, amp);
+        ctx.stroke();
+      }
+
+      updateTrimEditorUiMarkers() {
+        if (this.activePad === -1 || !this.slots[this.activePad]) return;
+        
+        const idx = this.activePad;
+        const duration = this.slots[idx].duration;
+        
+        const startSec = this.padTrimStart[idx];
+        const endSec = this.padTrimEnd[idx];
+
+        const startPct = (startSec / duration) * 100;
+        const endPct = (endSec / duration) * 100;
+
+        // UI bounding structures updates via overlays
+        const overlay = document.getElementById('trim-region-overlay');
+        overlay.style.left = `${startPct}%`;
+        overlay.style.width = `${endPct - startPct}%`;
+
+        document.getElementById('trim-handle-start').style.left = `${startPct}%`;
+        document.getElementById('trim-handle-end').style.left = `${endPct}%`;
+
+        // Text value precision displays updates
+        document.getElementById('trim-start-value').textContent = `${startSec.toFixed(3)}s`;
+        document.getElementById('trim-end-value').textContent = `${endSec.toFixed(3)}s`;
+        document.getElementById('trim-duration-value').textContent = `${(endSec - startSec).toFixed(3)}s`;
+      }
+
+      attachTrimHandleInteractionEngine() {
+        const container = document.getElementById('trim-waveform-container');
+        const hStart = document.getElementById('trim-handle-start');
+        const hEnd = document.getElementById('trim-handle-end');
+
+        const processDragAction = (clientX, targetType) => {
+          if (this.activePad === -1 || !this.slots[this.activePad]) return;
+          const idx = this.activePad;
+          const duration = this.slots[idx].duration;
+          
+          const rect = container.getBoundingClientRect();
+          let currentPct = (clientX - rect.left) / rect.width;
+          currentPct = Math.max(0, Math.min(1, currentPct));
+          const targetSec = currentPct * duration;
+
+          const minSliceLen = 0.05; // 50 milliseconds safety slice resolution threshold guard
+
+          if (targetType === 'start') {
+            if (targetSec < this.padTrimEnd[idx] - minSliceLen) {
+              this.padTrimStart[idx] = targetSec;
+            }
+          } else if (targetType === 'end') {
+            if (targetSec > this.padTrimStart[idx] + minSliceLen) {
+              this.padTrimEnd[idx] = targetSec;
+            }
+          }
+          this.updateTrimEditorUiMarkers();
+          this.drawStaticPadThumbnailWaveforms(idx);
+        };
+
+        const attachHandlePointerHooks = (handle, type) => {
+          const onMove = (e) => processDragAction(e.clientX, type);
+          const onUp = (e) => {
+            handle.releasePointerCapture(e.pointerId);
+            handle.classList.remove('dragging');
+            window.removeEventListener('pointermove', onMove);
+            window.removeEventListener('pointerup', onUp);
+          };
+
+          handle.addEventListener('pointerdown', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            handle.setPointerCapture(e.pointerId);
+            handle.classList.add('dragging');
+            window.addEventListener('pointermove', onMove);
+            window.addEventListener('pointerup', onUp);
+          });
+        };
+
+        attachHandlePointerHooks(hStart, 'start');
+        attachHandlePointerHooks(hEnd, 'end');
+      }
+
+      /* ── Recording Infrastructure Operations Subsystem ── */
+      async startRecordingAction() {
+        this.initAudio();
+        if (this.activePad === -1) {
+          this.setStatus("CHOOSE TARGET ARMED PAD COMPARTMENT FIRST", false, "error");
+          return;
+        }
+
+        if (this.isRecording) return;
+        this.isRecording = true;
+        this.audioChunks = [];
+
+        this.setStatus("RECORDING AUDIO STREAM INPUT…", true, "rec");
+        const padEl = document.getElementById(`pad-${this.activePad}`);
+        padEl.className = 'pad state-armed';
+
+        try {
+          const stream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: false, noiseSuppression: false } });
+          this.mediaRecorder = new MediaRecorder(stream);
+          
+          this.mediaRecorder.ondataavailable = (e) => {
+            if (e.data.size > 0) this.audioChunks.push(e.data);
+          };
+
+          this.mediaRecorder.onstop = async () => {
+            const audioBlob = new Blob(this.audioChunks, { type: 'audio/wav' });
+            const arrayArr = await audioBlob.arrayBuffer();
+            
+            this.audioCtx.decodeAudioData(arrayArr, (decodedBuffer) => {
+              const idx = this.activePad;
+              this.slots[idx] = decodedBuffer;
+              
+              // Non-destructive initialization offsets mapping sequence defaults
+              this.padTrimStart[idx] = 0;
+              this.padTrimEnd[idx] = decodedBuffer.duration;
+
+              this.padStates[idx] = 'loaded';
+              
+              const statusLabel = document.getElementById(`pad-status-${idx}`);
+              statusLabel.textContent = `READY (${decodedBuffer.duration.toFixed(1)}s)`;
+              
+              const activePadEl = document.getElementById(`pad-${idx}`);
+              activePadEl.className = 'pad state-armed'; // Retain structural lighting assignment patterns
+
+              this.drawStaticPadThumbnailWaveforms(idx);
+              this.openTrimEditorPanel(idx);
+              this.setStatus(`COMPARTMENT SLICER ${idx + 1} WRITE COMPLETE`);
+            }, (err) => {
+              this.setStatus("DECODE EXECUTION FAILURE DETECTED", false, "error");
+              console.error(err);
+            });
+
+            // Stop hardware capturing pipeline sources cleanly
+            stream.getTracks().forEach(t => t.stop());
+          };
+
+          this.mediaRecorder.start();
+        } catch (err) {
+          console.error(err);
+          this.setStatus("HARDWARE CAPTURE SYSTEM REJECTED Access", false, "error");
+          this.isRecording = false;
+        }
+      }
+
+      stopRecordingAction() {
+        if (!this.isRecording) return;
+        if (this.mediaRecorder && this.mediaRecorder.state !== 'inactive') {
+          this.mediaRecorder.stop();
+        }
+        this.isRecording = false;
+      }
+
+      drawStaticPadThumbnailWaveforms(idx) {
+        const buffer = this.slots[idx];
+        if (!buffer) return;
+
+        const canvas = document.getElementById(`pad-canvas-${idx}`);
+        const ctx = canvas.getContext('2d');
+        const w = canvas.width = canvas.offsetWidth;
+        const h = canvas.height = canvas.offsetHeight;
+
+        ctx.clearRect(0,0,w,h);
+        ctx.fillStyle = 'rgba(255, 183, 0, 0.015)';
+        ctx.fillRect(0,0,w,h);
+
+        const data = buffer.getChannelData(0);
+        
+        // Match slice indexing visualization strictly to edited range constraints
+        const startIdx = Math.floor((this.padTrimStart[idx] / buffer.duration) * data.length);
+        const endIdx = Math.floor((this.padTrimEnd[idx] / buffer.duration) * data.length);
+        const rangeLen = endIdx - startIdx;
+
+        const step = Math.ceil(rangeLen / w) || 1;
+        const amp = h / 2;
+
+        ctx.lineWidth = 1;
+        ctx.strokeStyle = 'rgba(255, 183, 0, 0.18)'; // Dim interior micro plots
+        ctx.beginPath();
+        ctx.moveTo(0, amp);
+
+        for (let i = 0; i < w; i++) {
+          let max = 0;
+          for (let j = 0; j < step; j++) {
+            const targetPointer = startIdx + (i * step) + j;
+            if (targetPointer >= endIdx) break;
+            const val = Math.abs(data[targetPointer]);
+            if (val > max) max = val;
+          }
+          ctx.lineTo(i, amp - (max * amp));
+          ctx.lineTo(i, amp + (max * amp));
+        }
+        ctx.stroke();
+      }
+
+      /* ── DSP Audio Signal Graph Control Routines ── */
+      updateDelayDspGraph() {
+        if (!this.audioCtx || !this.delayNode) return;
+
+        const now = this.audioCtx.currentTime;
+        this.delayNode.delayTime.setTargetAtTime(this.delayTimeValue / 1000, now, 0.02);
+        this.delayFeedbackNode.gain.setTargetAtTime(this.delayFeedbackValue, now, 0.02);
+
+        const wetVal = this.delayEnabled ? this.delayMixValue : 0;
+        const dryVal = this.delayEnabled ? (1 - this.delayMixValue) : 1;
+
+        this.delayWetGain.gain.setTargetAtTime(wetVal, now, 0.01);
+        this.delayDryGain.gain.setTargetAtTime(dryVal, now, 0.01);
+      }
+
+      /* ── Core Monophonic / Polyphonic Voice Engine ── */
+      noteOnAction(visualMidi) {
+        this.initAudio();
+        if (this.activePad === -1 || !this.slots[this.activePad]) {
+          this.highlightKey(visualMidi, true);
+          return;
+        }
+
+        const idx = this.activePad;
+        const origBuffer = this.slots[idx];
+
+        // 1. Enforce polyphony assignment rules constraints
+        if (this.activeNotes.size >= this.POLY_LIMIT) {
+          // Push out oldest visual key signature allocations
+          const oldestVisualKey = this.activeNotes.keys().next().value;
+          this.noteOffAction(oldestVisualKey);
+        }
+
+        // 2. Transposition processing math calculations
+        const playedMidi = visualMidi + (this.octaveOffset * 12);
+        const pitchSemiShift = playedMidi - this.ROOT_MIDI;
+        let playbackRateValue = Math.pow(2, pitchSemiShift / 12);
+
+        // 3. Audio Extraction & Custom Channel Buffer Synthesis Execution Block
+        let activeTrimStart = this.padTrimStart[idx];
+        let activeTrimEnd = this.padTrimEnd[idx];
+        let sliceDuration = activeTrimEnd - activeTrimStart;
+
+        if (sliceDuration <= 0) return;
+
+        // Perform programmatic sample level extraction conversions inside allocation sequences
+        const sampleRate = origBuffer.sampleRate;
+        const startFrame = Math.floor(activeTrimStart * sampleRate);
+        const endFrame = Math.floor(activeTrimEnd * sampleRate);
+        const frameCount = endFrame - startFrame;
+
+        if (frameCount <= 0) return;
+
+        // Construct customized target sub-slice sound staging buffers
+        const sliceBuffer = this.audioCtx.createBuffer(
+          origBuffer.numberOfChannels,
+          frameCount,
+          sampleRate
+        );
+
+        for (let ch = 0; ch < origBuffer.numberOfChannels; ch++) {
+          const origData = origBuffer.getChannelData(ch);
+          const sliceData = sliceBuffer.getChannelData(ch);
+          
+          for (let f = 0; f < frameCount; f++) {
+            sliceData[f] = origData[startFrame + f];
+          }
+
+          // DSP FX Stage: In-place array data modifications
+          if (this.padReverseStates[idx]) {
+            Array.prototype.reverse.call(sliceData);
+          }
+
+          if (this.padLofiStates[idx]) {
+            // Apply severe bitcrushing sample reductions algorithms
+            const bitDepth = 4; 
+            const steps = Math.pow(2, bitDepth);
+            const downsampleFactor = 6; 
+            
+            for (let f = 0; f < frameCount; f++) {
+              if (f % downsampleFactor !== 0) {
+                sliceData[f] = sliceData[f - (f % downsampleFactor)];
+              }
+              // Amplitude quantization step normalization
+              sliceData[f] = Math.round(sliceData[f] * steps) / steps;
+            }
+          }
+        }
+
+        // 4. Build execution nodes path linkages
+        const voiceSrc = this.audioCtx.createBufferSource();
+        voiceSrc.buffer = sliceBuffer;
+        voiceSrc.playbackRate.setValueAtTime(playbackRateValue, this.audioCtx.currentTime);
+        voiceSrc.loop = this.padLoopStates[idx];
+
+        // Local dynamic voice dynamic low-pass ladder topologies initialization
+        const lowpassNode = this.audioCtx.createBiquadFilter();
+        lowpassNode.type = 'lowpass';
+        
+        // Apply exponential mappings distributions across the standard scale bounds
+        const normCutoff = this.padFilterCutoffs[idx];
+        const targetHz = 200 + (normCutoff * normCutoff * 19800);
+        lowpassNode.frequency.setValueAtTime(targetHz, this.audioCtx.currentTime);
+
+        const voiceGainNode = this.audioCtx.createGain();
+        voiceGainNode.gain.setValueAtTime(1.0, this.audioCtx.currentTime);
+
+        // Terminate pipeline pathways across primary output paths
+        voiceSrc.connect(lowpassNode);
+        lowpassNode.connect(voiceGainNode);
+        voiceGainNode.connect(this.masterGain);
+
+        // 5. Track operational run state data structures
+        const voiceInstance = {
+          source: voiceSrc,
+          gainNode: voiceGainNode,
+          filterNode: lowpassNode
+        };
+
+        if (!this.activeNotes.has(visualMidi)) {
+          this.activeNotes.set(visualMidi, new Set());
+        }
+        this.activeNotes.get(visualMidi).add(voiceInstance);
+
+        // Handle structural voice killing parameters gracefully at playback termination posts
+        voiceSrc.onended = () => {
+          const voiceSet = this.activeNotes.get(visualMidi);
+          if (voiceSet) {
+            voiceSet.delete(voiceInstance);
+            if (voiceSet.size === 0) {
+              this.activeNotes.delete(visualMidi);
+              this.highlightKey(visualMidi, false);
+            }
+            this.updatePolyCount();
+          }
+        };
+
+        // Fire physical terminal triggers
+        voiceSrc.start(0);
+        this.highlightKey(visualMidi, true);
+        this.updatePolyCount();
+
+        // Feed monitoring system structures values directly
+        this.vuTargetLv = Math.max(this.vuTargetLv, 0.75);
+      }
+
+      noteOffAction(visualMidi) {
+        const voiceSet = this.activeNotes.get(visualMidi);
+        if (!voiceSet) {
+          this.highlightKey(visualMidi, false);
+          return;
+        }
+
+        const now = this.audioCtx.currentTime;
+        const releaseTimeSec = 0.06; // Soft release envelope decay window sizing parameters
+
+        for (const voice of voiceSet) {
+          try {
+            voice.gainNode.gain.cancelScheduledValues(now);
+            voice.gainNode.gain.setValueAtTime(voice.gainNode.gain.value, now);
+            voice.gainNode.gain.exponentialRampToValueAtTime(0.001, now + releaseTimeSec);
+            voice.source.stop(now + releaseTimeSec);
+          } catch (e) {
+            // Context component exceptions protection
+          }
+        }
+        // UI visual toggles are dropped dynamically by voice termination listeners asynchronously
+      }
+
+      allNotesOffAction() {
+        const keys = Array.from(this.activeNotes.keys());
+        keys.forEach(k => this.noteOffAction(k));
+      }
+
+      /* ── Visual UI Animation and MIDI Pipeline Subsystems ── */
+      highlightKey(visualMidi, on) {
+        const el = document.querySelector(`[data-midi="${visualMidi}"]`);
+        if (el) el.classList.toggle('active', on);
+      }
+
+      setStatus(msg, blink = false, cls = '') {
+        const el = document.getElementById('status-msg');
+        el.textContent = msg;
+        el.className = 'status-msg' + (cls ? ` ${cls}` : '');
+        if (blink) el.classList.add('rec');
+      }
+
+      updatePolyCount() {
+        document.getElementById('poly-count').textContent =
+          `VOICES: ${this.activeNotes.size}/${this.POLY_LIMIT}`;
+      }
+
+      startVuLoop() {
+        const segs = document.querySelectorAll('.vu-seg');
+        const tick = () => {
+          this.vuLevel += (this.vuTargetLv - this.vuLevel) * 0.18;
+          if (this.vuTargetLv > 0) this.vuTargetLv *= 0.88;
+          
+          const lit = Math.round(this.vuLevel * 8);
+          segs.forEach((s, i) => {
+            if (i < lit) {
+              s.classList.add(i >= 7 ? 'lit-red' : i >= 5 ? 'lit-amber' : 'lit-green');
+              s.classList.remove(i >= 7 ? 'lit-green' : 'lit-red');
+            } else {
+              s.classList.remove('lit-green', 'lit-amber', 'lit-red');
+            }
+          });
+          requestAnimationFrame(tick);
+        };
+        requestAnimationFrame(tick);
+      }
+
+      /* ── Computer Keyboard Matrix Key Map Transposition Decoders ── */
+      attachKeyboardMatrixHooks() {
+        const asciiMap = {
+          // Lower White Keys Tier Row Assignments Mapping
+          'z': 48, 'x': 50, 'c': 52, 'v': 53, 'b': 55, 'n': 57, 'm': 59, ',': 60,
+          // Upper White Keys Tier Row Assignments Mapping
+          'q': 60, 'w': 62, 'e': 64, 'r': 65, 't': 67, 'y': 69, 'u': 71, 'i': 72,
+          // Lower Tier Black Keys Set Assignments Map
+          's': 49, 'd': 51, 'g': 54, 'h': 56, 'j': 58,
+          // Upper Tier Black Keys Set Assignments Map
+          '2': 61, '3': 63, '5': 66, '6': 68, '7': 70
+        };
+
+        const activePcKeys = new Set();
+
+        window.addEventListener('keydown', (e) => {
+          if (e.repeat || e.ctrlKey || e.metaKey || e.altKey) return;
+          const key = e.key.toLowerCase();
+          
+          if (asciiMap[key] !== undefined) {
+            const visualMidi = asciiMap[key];
+            activePcKeys.add(key);
+            this.noteOnAction(visualMidi);
+          }
+        });
+
+        window.addEventListener('keyup', (e) => {
+          const key = e.key.toLowerCase();
+          if (asciiMap[key] !== undefined) {
+            activePcKeys.delete(key);
+            const visualMidi = asciiMap[key];
+            this.noteOffAction(visualMidi);
+          }
+        });
+      }
+
+      /* ── Web MIDI Native API Controller Interfaces Subsystem ── */
+      initMidi() {
+        const led = document.getElementById('midi-led');
+        const text = document.getElementById('midi-text');
+
+        if (!navigator.requestMIDIAccess) {
+          led.className = 'midi-led unsupported';
+          text.textContent = 'NO MIDI';
+          return;
+        }
+
+        navigator.requestMIDIAccess()
+          .then((midi) => {
+            const scanPorts = () => {
+              const inputs = Array.from(midi.inputs.values());
+              if (inputs.length > 0) {
+                led.className = 'midi-led connected';
+                text.textContent = `MIDI: ${inputs[0].name.slice(0, 8).toUpperCase()}`;
+                
+                inputs.forEach(input => {
+                  input.onmidimessage = (msg) => this.handleMidiInputMessage(msg);
+                });
+              } else {
+                led.className = 'midi-led';
+                text.textContent = 'MIDI READY';
+              }
+            };
+
+            midi.onstatechange = () => scanPorts();
+            scanPorts();
+          })
+          .catch((err) => {
+            console.error(err);
+            led.className = 'midi-led unsupported';
+            text.textContent = 'MIDI ERR';
+          });
+      }
+
+      handleMidiInputMessage(msg) {
+        const [status, data1, data2] = msg.data;
+        const cmd = status & 0xf0;
+        
+        // Parse execution channels properties data packages
+        if (cmd === 0x90 && data2 > 0) {
+          // Midi Note On command format validation
+          const playedMidi = data1;
+          
+          // Reverse-transpose calculations to map physical key beds visual scopes correctly
+          const visualMidi = playedMidi - (this.octaveOffset * 12);
+          
+          if (visualMidi >= this.VISUAL_START_MIDI && visualMidi <= this.VISUAL_END_MIDI) {
+            // Flash indicator flash parameters asynchronously
+            const led = document.getElementById('midi-led');
+            led.classList.add('active');
+            setTimeout(() => led.classList.remove('active'), 40);
+            
+            this.noteOnAction(visualMidi);
+          }
+        } else if (cmd === 0x80 || (cmd === 0x90 && data2 === 0)) {
+          // Midi Note Off command format validation
+          const playedMidi = data1;
+          const visualMidi = playedMidi - (this.octaveOffset * 12);
+          
+          if (visualMidi >= this.VISUAL_START_MIDI && visualMidi <= this.VISUAL_END_MIDI) {
+            this.noteOffAction(visualMidi);
+          }
+        }
+      }
+    }
+
+    // Instantiation entry post execution point
+    window.addEventListener('DOMContentLoaded', () => {
+      const samplerApp = new MicroSampler();
+      samplerApp.render();
+    });
+  </script>
 </body>
 </html>
