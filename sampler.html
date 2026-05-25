@@ -10,72 +10,71 @@ nav: sampler
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>MicroSampler</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-    /* ── SYSTEM COLORS MAPPED FROM MAIN.CSS ─────────────────── */
     :root {
-      --bg:          #0a0a12;
-      --surface:     #0d0d1a;
-      --panel-deep:  #06060f;
-      --border:      #ff2d7822;
-      --border-hi:   #00f5ff44;
-      
-      --pink:        #ff2d78;
-      --cyan:        #00f5ff;
-      --gold:        #ffd700;
-      --purple:      #b06aff;
-      --green:       #99cc77;
-      --text:        #e0d8f0;
-      --muted:       #9988aa;
-      --dim:         #443355;
-      
-      --white-key:   #eeeeee;
-      --black-key:   #1a1a24;
+      --bg:          #0b0b0b;
+      --chassis:     #141414;
+      --panel:       #1a1a1a;
+      --panel-deep:  #0f0f0f;
+      --border:      #262626;
+      --border-hi:   #333333;
+      --amber:       #ffb700;
+      --amber-lo:    rgba(255,183,0,0.3);
+      --amber-dim:   #402a00;
+      --amber-mid:   #8a5c00;
+      --amber-bright:#ffb700;
+      --green:       #26e66b;
+      --green-lo:    rgba(38,230,107,0.25);
+      --red:         #ff3300;
+      --red-lo:      rgba(255,51,0,0.35);
+      --text:        #d49200;
+      --text-hi:     #ffcb47;
+      --text-lo:     #523400;
+      --text-dim:    #664200;
+      --white-key:   #e8e2d5;
+      --white-key-border: #a39b8c;
+      --black-key:   #121212;
     }
 
     html, body {
       background: var(--bg);
       color: var(--text);
-      font-family: 'Space Mono', monospace;
+      font-family: 'Share Tech Mono', monospace;
       min-height: 100vh;
       display: flex;
       justify-content: center;
       align-items: flex-start;
       padding: 32px 16px 48px;
-      position: relative;
     }
 
-    /* ── CRT SCANLINE OVERLAY FROM MAIN.CSS ────────────────── */
-    body::before {
-      content: '';
-      position: fixed;
-      inset: 0;
-      background: repeating-linear-gradient(
-        0deg,
-        transparent,
-        transparent 3px,
-        rgba(0,245,255,0.012) 3px,
-        rgba(0,245,255,0.012) 4px
-      );
-      pointer-events: none;
-      z-index: 999;
-    }
-
-    /* ── HARDWARE SAMPLER CONTAINER ────────────────────────── */
     .sampler {
       position: relative;
-      background: linear-gradient(160deg, #101020 0%, #0d0d1a 50%, #05050d 100%);
-      border: 2px solid var(--cyan);
-      border-radius: 8px;
-      padding: 28px 24px 24px;
+      background: linear-gradient(160deg, #1a1a1a 0%, #121212 50%, #0d0d0d 100%);
+      border: 1px solid var(--border-hi);
+      border-radius: 12px;
+      padding: 26px 22px 22px;
       width: 100%;
       max-width: 596px;
       box-shadow:
-        0 0 30px rgba(0, 245, 255, 0.15),
-        0 15px 40px rgba(0,0,0,0.8),
-        inset 0 1px 0 rgba(255,255,255,0.05);
+        0 0 0 1px #050505,
+        0 30px 90px rgba(0,0,0,0.9),
+        0 10px 30px rgba(0,0,0,0.75),
+        inset 0 1px 0 rgba(255,255,255,0.05),
+        inset 0 -1px 0 rgba(0,0,0,0.7);
+    }
+
+    .sampler::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: 12px;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.025'/%3E%3C/svg%3E");
+      pointer-events: none;
+      opacity: 0.55;
+      z-index: 0;
     }
 
     .sampler > * { position: relative; z-index: 1; }
@@ -84,7 +83,7 @@ nav: sampler
       position: absolute;
       width: 11px; height: 11px;
       border-radius: 50%;
-      background: radial-gradient(circle at 38% 32%, #333344 0%, #1a1a26 60%, #080810 100%);
+      background: radial-gradient(circle at 38% 32%, #404040 0%, #181818 60%, #0d0d0d 100%);
       box-shadow: inset 0 1px 2px rgba(0,0,0,0.95), 0 1px 0 rgba(255,255,255,0.03);
       z-index: 10;
     }
@@ -92,16 +91,17 @@ nav: sampler
       content: '';
       position: absolute;
       width: 7px; height: 1.5px;
-      background: rgba(0,0,0,0.6);
+      background: rgba(0,0,0,0.75);
       top: 50%; left: 50%;
       transform: translate(-50%,-50%) rotate(42deg);
+      border-radius: 1px;
     }
-    .screw.tl { top: 10px; left: 10px; }
-    .screw.tr { top: 10px; right: 10px; }
-    .screw.bl { bottom: 10px; left: 10px; }
-    .screw.br { bottom: 10px; right: 10px; }
+    .screw.tl { top: 9px; left: 9px; }
+    .screw.tr { top: 9px; right: 9px; }
+    .screw.bl { bottom: 9px; left: 9px; }
+    .screw.br { bottom: 9px; right: 9px; }
 
-    /* ── HEADER & VU SYSTEM ────────────────────────────────── */
+    /* ── HEADER ── */
     .header {
       display: flex;
       justify-content: space-between;
@@ -116,73 +116,65 @@ nav: sampler
     .brand-name {
       font-family: 'Orbitron', sans-serif;
       font-weight: 900;
-      font-size: 18px;
-      letter-spacing: 0.18em;
-      color: var(--cyan);
-      text-shadow: 0 0 12px rgba(0, 245, 255, 0.4);
+      font-size: 17px;
+      letter-spacing: 0.2em;
+      color: var(--text-hi);
+      text-shadow: 0 0 20px rgba(255,183,0,0.4), 0 0 8px rgba(255,183,0,0.15);
     }
 
     .brand-tag {
-      font-size: 9px;
-      letter-spacing: 0.2em;
-      color: var(--muted);
+      font-size: 8.5px;
+      letter-spacing: 0.24em;
+      color: var(--text-dim);
       text-transform: uppercase;
     }
 
     .vu { display: flex; align-items: center; gap: 3px; }
 
     .vu-seg {
-      width: 7px; height: 8px;
+      width: 7px; height: 7px;
       border-radius: 1px;
-      background: var(--dim);
+      background: var(--text-lo);
       transition: background 60ms, box-shadow 60ms;
     }
     .vu-seg.lit-green { background: var(--green); box-shadow: 0 0 8px var(--green); }
-    .vu-seg.lit-amber { background: var(--gold); box-shadow: 0 0 8px var(--gold); }
-    .vu-seg.lit-red   { background: var(--pink);   box-shadow: 0 0 10px var(--pink); }
+    .vu-seg.lit-amber { background: var(--amber); box-shadow: 0 0 8px var(--amber); }
+    .vu-seg.lit-red   { background: var(--red);   box-shadow: 0 0 8px var(--red); }
 
     .section-label {
-      font-size: 10px;
-      letter-spacing: 2px;
-      color: var(--cyan);
+      font-size: 8.5px;
+      letter-spacing: 0.3em;
+      color: var(--text-dim);
       text-transform: uppercase;
-      margin-bottom: 10px;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-    .section-label::after {
-      content: '';
-      flex: 1;
-      height: 1px;
-      background: var(--border);
+      margin-bottom: 9px;
     }
 
-    /* ── PERFORMANCE DRUM PADS ──────────────────────────────── */
+    /* ── PADS ── */
     .pads-grid {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
-      gap: 12px;
-      margin-bottom: 20px;
+      gap: 10px;
+      margin-bottom: 18px;
     }
 
     .pad {
       aspect-ratio: 1 / 1;
-      border-radius: 4px;
-      background: radial-gradient(ellipse at 50% 20%, rgba(255,255,255,0.02) 0%, transparent 70%), var(--panel-deep);
-      border: 1px solid var(--dim);
+      border-radius: 6px;
+      background: radial-gradient(ellipse at 42% 30%, rgba(255,255,255,0.03) 0%, transparent 65%), #0a0a0a;
+      border: 1px solid #222222;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: flex-start;
       cursor: pointer;
       user-select: none;
-      transition: transform 80ms, box-shadow 80ms, border-color 0.15s;
+      transition: transform 80ms, box-shadow 80ms;
       position: relative;
       overflow: hidden;
       box-shadow:
-        inset 0 2px 6px rgba(0,0,0,0.8),
-        0 2px 4px rgba(0,0,0,0.4);
+        inset 0 2px 6px rgba(0,0,0,0.85),
+        inset 0 -1px 0 rgba(255,255,255,0.02),
+        0 2px 4px rgba(0,0,0,0.55);
     }
 
     .pad-canvas {
@@ -193,7 +185,6 @@ nav: sampler
       height: 100%;
       z-index: 0;
       pointer-events: none;
-      opacity: 0.75;
     }
 
     .pad-content {
@@ -207,28 +198,27 @@ nav: sampler
     }
 
     .pad-num {
-      font-family: 'Space Mono', monospace;
+      font-family: 'Orbitron', sans-serif;
       font-weight: 700;
-      font-size: 18px;
+      font-size: 20px;
       line-height: 1;
-      color: var(--dim);
-      transition: color 0.15s, text-shadow 0.15s;
+      color: #242424;
+      transition: color 0.15s;
       pointer-events: none;
     }
 
     .pad-status {
-      font-size: 7px;
-      letter-spacing: 0.1em;
-      color: var(--dim);
+      font-size: 6.5px;
+      letter-spacing: 0.2em;
+      color: #242424;
       margin-top: 3px;
-      text-transform: uppercase;
       transition: color 0.15s;
       pointer-events: none;
     }
 
     .pad-filter-section {
       position: absolute;
-      bottom: 8px;
+      bottom: 6px;
       left: 50%;
       transform: translateX(-50%);
       z-index: 2;
@@ -240,82 +230,92 @@ nav: sampler
     }
 
     .filter-knob {
-      width: 30px;
-      height: 30px;
+      width: 32px;
+      height: 32px;
       border-radius: 50%;
-      background: radial-gradient(circle at 35% 30%, #202035 0%, #0d0d1a 60%, #04040a 100%);
-      border: 1px solid var(--dim);
+      background: radial-gradient(circle at 35% 30%, #2a2a2a 0%, #1a1a1a 50%, #0f0f0f 100%);
+      border: 1px solid #333;
       cursor: pointer;
       position: relative;
       box-shadow:
-        inset 0 1px 3px rgba(0,0,0,0.8),
-        0 2px 4px rgba(0,0,0,0.5);
+        inset 0 2px 4px rgba(0,0,0,0.8),
+        inset 0 -1px 2px rgba(255,255,255,0.05),
+        0 2px 6px rgba(0,0,0,0.6);
       transition: border-color 0.15s, box-shadow 0.15s;
     }
 
     .filter-knob:hover {
-      border-color: var(--cyan);
-      box-shadow: 0 0 8px rgba(0, 245, 255, 0.25);
+      border-color: var(--amber-mid);
+      box-shadow:
+        inset 0 2px 4px rgba(0,0,0,0.8),
+        0 0 8px rgba(255,183,0,0.2);
     }
 
     .filter-knob::after {
       content: '';
       position: absolute;
-      top: 3px;
+      top: 4px;
       left: 50%;
       transform: translateX(-50%);
       width: 2px;
-      height: 7px;
-      background: var(--cyan);
+      height: 8px;
+      background: var(--amber);
       border-radius: 1px;
+      box-shadow: 0 0 4px rgba(255,183,0,0.4);
     }
 
     .filter-knob-label {
       font-size: 6px;
-      letter-spacing: 0.05em;
-      color: var(--muted);
-      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-dim);
     }
 
     .filter-knob-value {
       font-size: 6px;
-      color: var(--cyan);
+      color: var(--amber);
+      font-family: 'Share Tech Mono', monospace;
     }
 
-    /* Dynamic Load States for Pads */
     .pad.state-loaded {
-      background: radial-gradient(ellipse at 50% 20%, rgba(0, 245, 255, 0.04) 0%, transparent 65%), #09121a;
-      border-color: rgba(0, 245, 255, 0.3);
-      box-shadow: 0 0 10px rgba(0, 245, 255, 0.05);
+      background: radial-gradient(ellipse at 42% 30%, rgba(255,183,0,0.05) 0%, transparent 60%), #0f0a00;
+      border-color: var(--amber-dim);
+      box-shadow:
+        inset 0 2px 6px rgba(0,0,0,0.75),
+        0 0 10px rgba(255,183,0,0.08),
+        0 2px 4px rgba(0,0,0,0.55);
     }
-    .pad.state-loaded .pad-num    { color: var(--cyan); opacity: 0.7; }
-    .pad.state-loaded .pad-status { color: var(--muted); }
+    .pad.state-loaded .pad-num    { color: var(--amber-mid); }
+    .pad.state-loaded .pad-status { color: var(--amber-dim); }
 
     .pad.state-armed {
-      background: radial-gradient(ellipse at 50% 20%, rgba(255, 45, 120, 0.08) 0%, transparent 65%), #1a0914;
-      border-color: var(--pink);
-      animation: pad-blink 0.8s ease-in-out infinite;
+      background: radial-gradient(ellipse at 42% 30%, rgba(255,183,0,0.1) 0%, transparent 60%), #140d00;
+      border-color: var(--amber);
+      animation: pad-blink 0.75s ease-in-out infinite;
     }
-    .pad.state-armed .pad-num    { color: var(--pink); text-shadow: 0 0 8px var(--pink); }
-    .pad.state-armed .pad-status { color: var(--pink); }
+    .pad.state-armed .pad-num    { color: var(--amber); text-shadow: 0 0 12px var(--amber); }
+    .pad.state-armed .pad-status { color: var(--amber); }
 
     @keyframes pad-blink {
-      0%, 100% { box-shadow: inset 0 2px 6px rgba(0,0,0,0.8), 0 0 16px rgba(255, 45, 120, 0.3); }
-      50% { box-shadow: inset 0 2px 6px rgba(0,0,0,0.8), 0 0 4px rgba(255, 45, 120, 0.05); }
+      0%, 100% {
+        box-shadow: inset 0 2px 6px rgba(0,0,0,0.75), 0 0 20px rgba(255,183,0,0.35), 0 0 8px rgba(255,183,0,0.2);
+      }
+      50% {
+        box-shadow: inset 0 2px 6px rgba(0,0,0,0.75), 0 0 4px rgba(255,183,0,0.05);
+      }
     }
 
-    .pad:active { transform: scale(0.96); }
+    .pad:active { transform: scale(0.94); }
 
-    /* ── WAVEFORM TRIM SECTION ─────────────────────────────── */
+    /* ── TRIM EDITOR PANEL ── */
     .trim-panel {
       background: var(--panel-deep);
       border: 1px solid var(--border);
-      border-radius: 4px;
-      margin-bottom: 20px;
+      border-radius: 6px;
+      margin-bottom: 18px;
       overflow: hidden;
       max-height: 0;
       opacity: 0;
-      transition: max-height 0.3s ease-out, opacity 0.2s ease-out, padding 0.3s ease-out;
+      transition: max-height 0.35s ease-out, opacity 0.25s ease-out, padding 0.35s ease-out;
       padding: 0 14px;
     }
 
@@ -333,47 +333,46 @@ nav: sampler
     }
 
     .trim-title {
+      font-family: 'Orbitron', sans-serif;
       font-size: 11px;
       font-weight: 700;
-      letter-spacing: 1.5px;
-      color: var(--pink);
-      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      color: var(--amber);
     }
 
     .trim-pad-label {
-      font-size: 10px;
-      color: var(--muted);
-      letter-spacing: 1px;
+      font-size: 9px;
+      color: var(--text-dim);
+      letter-spacing: 0.1em;
       margin-left: 8px;
     }
 
     .trim-close-btn {
       width: 24px;
       height: 24px;
-      border-radius: 2px;
-      background: var(--surface);
-      border: 1px solid var(--dim);
-      color: var(--muted);
+      border-radius: 4px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      color: var(--text-dim);
       cursor: pointer;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 12px;
+      font-size: 14px;
       transition: all 0.15s;
     }
 
     .trim-close-btn:hover {
-      border-color: var(--pink);
-      color: var(--pink);
-      box-shadow: 0 0 8px rgba(255, 45, 120, 0.3);
+      border-color: var(--amber);
+      color: var(--amber);
     }
 
     .trim-waveform-container {
       position: relative;
-      background: #030308;
-      border: 1px solid var(--dim);
-      border-radius: 2px;
-      height: 130px;
+      background: #050505;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      height: 140px;
       margin-bottom: 12px;
       overflow: hidden;
     }
@@ -390,16 +389,16 @@ nav: sampler
       position: absolute;
       top: 0;
       height: 100%;
-      background: rgba(0, 245, 255, 0.06);
-      border-left: 2px solid var(--cyan);
-      border-right: 2px solid var(--cyan);
+      background: rgba(255, 183, 0, 0.08);
+      border-left: 2px solid var(--amber);
+      border-right: 2px solid var(--amber);
       pointer-events: none;
     }
 
     .trim-handle {
       position: absolute;
       top: 0;
-      width: 16px;
+      width: 14px;
       height: 100%;
       cursor: ew-resize;
       z-index: 10;
@@ -411,64 +410,86 @@ nav: sampler
 
     .trim-handle::before {
       content: '';
-      width: 2px;
-      height: 50%;
-      background: var(--cyan);
-      box-shadow: 0 0 6px var(--cyan);
+      width: 4px;
+      height: 60%;
+      background: var(--amber);
+      border-radius: 2px;
+      box-shadow: 0 0 8px rgba(255, 183, 0, 0.5);
     }
 
     .trim-handle:hover::before,
     .trim-handle.dragging::before {
-      background: #ffffff;
-      box-shadow: 0 0 10px var(--cyan);
+      background: var(--amber-bright);
+      box-shadow: 0 0 12px rgba(255, 183, 0, 0.8);
     }
 
-    .trim-handle-start { left: -8px; }
-    .trim-handle-end { right: -8px; }
+    .trim-handle-start { left: -7px; }
+    .trim-handle-end { right: -7px; }
 
     .trim-info {
       display: flex;
       justify-content: space-between;
       align-items: center;
       gap: 12px;
-      font-size: 10px;
-      color: var(--muted);
+      font-size: 9px;
+      color: var(--text-dim);
+      letter-spacing: 0.08em;
     }
 
-    .trim-point { display: flex; align-items: center; gap: 6px; }
-    .trim-point-label { color: var(--dim); text-transform: uppercase; }
-    .trim-point-value { color: var(--cyan); min-width: 50px; }
-    .trim-duration-value { color: var(--text); margin-left: 4px; }
+    .trim-point {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
 
-    /* ── EFFECTS & CONTROLS SECTIONS ────────────────────────── */
+    .trim-point-label {
+      color: var(--text-lo);
+    }
+
+    .trim-point-value {
+      color: var(--amber);
+      font-family: 'Share Tech Mono', monospace;
+      min-width: 50px;
+    }
+
+    .trim-duration {
+      text-align: center;
+    }
+
+    .trim-duration-value {
+      color: var(--text);
+      margin-left: 4px;
+    }
+
+    /* ── DELAY EFFECT SECTION ── */
     .delay-section {
       background: var(--panel-deep);
       border: 1px solid var(--border);
-      border-radius: 4px;
-      padding: 12px 14px;
-      margin-bottom: 16px;
+      border-radius: 5px;
+      padding: 10px 14px;
+      margin-bottom: 18px;
     }
 
     .delay-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 12px;
+      margin-bottom: 10px;
     }
 
     .delay-title {
+      font-family: 'Orbitron', sans-serif;
       font-size: 10px;
       font-weight: 700;
-      letter-spacing: 1.5px;
-      color: var(--muted);
-      text-transform: uppercase;
+      letter-spacing: 0.2em;
+      color: var(--text-dim);
     }
 
     .delay-toggle {
-      width: 32px;
+      width: 28px;
       height: 16px;
-      background: var(--surface);
-      border: 1px solid var(--dim);
+      background: #1a1a1a;
+      border: 1px solid var(--border);
       border-radius: 8px;
       cursor: pointer;
       position: relative;
@@ -482,39 +503,60 @@ nav: sampler
       left: 2px;
       width: 10px;
       height: 10px;
-      background: var(--dim);
+      background: #333;
       border-radius: 50%;
       transition: left 0.2s, background 0.2s;
     }
 
     .delay-toggle.active {
-      background: rgba(153, 204, 119, 0.15);
-      border-color: var(--green);
+      background: #0a2a0a;
+      border-color: #1a5a1a;
     }
 
     .delay-toggle.active::after {
-      left: 18px;
+      left: 14px;
       background: var(--green);
-      box-shadow: 0 0 8px var(--green);
+      box-shadow: 0 0 6px var(--green);
     }
 
-    .delay-controls { display: flex; gap: 16px; }
-    .delay-control { flex: 1; display: flex; flex-direction: column; gap: 6px; }
-    .delay-control-label { font-size: 9px; color: var(--dim); text-transform: uppercase; }
-    .delay-control-row { display: flex; align-items: center; gap: 10px; }
+    .delay-controls {
+      display: flex;
+      gap: 12px;
+    }
+
+    .delay-control {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .delay-control-label {
+      font-size: 7.5px;
+      letter-spacing: 0.15em;
+      color: var(--text-lo);
+    }
+
+    .delay-control-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
 
     .delay-slider-track {
       flex: 1;
       position: relative;
       height: 4px;
-      background: var(--surface);
+      background: #1a1a1a;
       border-radius: 2px;
     }
 
     .delay-slider-fill {
       position: absolute;
-      left: 0; top: 0; bottom: 0;
-      background: var(--cyan);
+      left: 0;
+      top: 0;
+      bottom: 0;
+      background: linear-gradient(to right, var(--amber-dim), var(--amber-mid));
       border-radius: 2px;
       pointer-events: none;
     }
@@ -522,80 +564,79 @@ nav: sampler
     .delay-slider {
       position: absolute;
       inset: 0;
-      width: 100%; height: 100%;
+      width: 100%;
+      height: 100%;
       opacity: 0;
       cursor: pointer;
     }
 
     .delay-value {
-      font-size: 9px;
-      color: var(--cyan);
+      font-size: 8px;
+      color: var(--amber);
       min-width: 36px;
       text-align: right;
+      font-family: 'Share Tech Mono', monospace;
     }
 
-    /* ── UTILITY MAIN HUB ROW ───────────────────────────────── */
+    /* ── CONTROLS ROW ── */
     .controls-row {
       display: flex;
-      gap: 12px;
-      margin-bottom: 20px;
+      gap: 10px;
+      margin-bottom: 18px;
       align-items: stretch;
     }
 
     .rec-btn {
       flex: 0 0 auto;
-      min-width: 110px;
-      background: #140510;
-      border: 1px solid rgba(255, 45, 120, 0.2);
-      border-radius: 4px;
+      min-width: 100px;
+      background: #0f0300;
+      border: 1px solid #240500;
+      border-radius: 6px;
       padding: 0 16px;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      gap: 6px;
+      gap: 7px;
       cursor: pointer;
       user-select: none;
       transition: all 80ms;
+      touch-action: none;
     }
 
     .rec-circle {
-      width: 20px; height: 20px;
+      width: 22px; height: 22px;
       border-radius: 50%;
-      background: radial-gradient(circle at 40% 35%, #500a20, #14020a);
-      border: 1px solid rgba(255, 45, 120, 0.3);
-      box-shadow: inset 0 1px 3px rgba(0,0,0,0.8);
+      background: radial-gradient(circle at 40% 35%, #400e00, #140200);
+      border: 1.5px solid #330800;
+      box-shadow: 0 0 5px rgba(255,51,0,0.15), inset 0 1px 3px rgba(0,0,0,0.85);
       transition: all 0.12s;
     }
 
     .rec-label {
-      font-size: 9px;
+      font-family: 'Orbitron', sans-serif;
+      font-size: 8.5px;
       font-weight: 700;
-      letter-spacing: 1px;
-      color: var(--dim);
-      text-transform: uppercase;
+      letter-spacing: 0.2em;
+      color: #3b0a00;
       transition: color 0.12s;
     }
 
-    .rec-btn.recording {
-      background: #240515;
-      border-color: var(--pink);
-      box-shadow: 0 0 14px rgba(255, 45, 120, 0.25);
-    }
+    .rec-btn.recording { background: #170200; border-color: var(--red); box-shadow: 0 0 16px rgba(255,51,0,0.2); }
     .rec-btn.recording .rec-circle {
-      background: radial-gradient(circle at 40% 35%, var(--pink), #b00540);
-      border-color: #ffffff;
-      box-shadow: 0 0 10px var(--pink);
-      animation: rec-pulse 0.6s ease-in-out infinite;
+      background: radial-gradient(circle at 40% 35%, #ff4400, #b80d00);
+      border-color: var(--red);
+      box-shadow: 0 0 12px rgba(255,51,0,0.65), 0 0 5px rgba(255,51,0,0.35);
+      animation: rec-pulse 0.5s ease-in-out infinite;
     }
-    .rec-btn.recording .rec-label { color: var(--pink); }
+    .rec-btn.recording .rec-label { color: var(--red); }
 
     @keyframes rec-pulse {
-      0%, 100% { transform: scale(1); opacity: 1; }
-      50%       { transform: scale(0.9); opacity: 0.7; }
+      0%, 100% { transform: scale(1);    opacity: 1;   }
+      50%       { transform: scale(0.88); opacity: 0.55; }
     }
 
-    .rec-btn:active { transform: scale(0.97); }
+    .rec-btn:active { transform: scale(0.96); }
 
     .fx-section { flex: 1; display: flex; flex-direction: column; }
     .fx-row { display: flex; gap: 8px; flex: 1; }
@@ -604,7 +645,7 @@ nav: sampler
       flex: 1;
       background: var(--panel-deep);
       border: 1px solid var(--border);
-      border-radius: 4px;
+      border-radius: 5px;
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -615,275 +656,281 @@ nav: sampler
       padding: 10px 6px;
       transition: all 0.1s;
     }
+
     .fx-toggle input { display: none; }
 
     .fx-led {
       width: 8px; height: 8px;
       border-radius: 50%;
-      background: var(--panel-deep);
-      border: 1px solid var(--dim);
-      box-shadow: inset 0 1px 2px rgba(0,0,0,0.6);
+      background: #141414;
+      border: 1px solid #242424;
+      box-shadow: inset 0 1px 2px rgba(0,0,0,0.65);
       transition: all 0.1s;
     }
 
     .fx-name {
-      font-size: 8px;
-      font-weight: 700;
-      letter-spacing: 1px;
-      color: var(--dim);
-      text-transform: uppercase;
+      font-family: 'Orbitron', sans-serif;
+      font-size: 7.5px;
+      font-weight: 600;
+      letter-spacing: 0.16em;
+      color: var(--text-dim);
       transition: color 0.1s;
     }
 
-    .fx-toggle.on {
-      background: rgba(0, 245, 255, 0.04);
-      border-color: var(--cyan);
-      box-shadow: 0 0 10px rgba(0, 245, 255, 0.1);
-    }
-    .fx-toggle.on .fx-led {
-      background: var(--cyan);
-      border-color: #ffffff;
-      box-shadow: 0 0 8px var(--cyan);
-    }
-    .fx-toggle.on .fx-name { color: var(--cyan); }
+    .fx-toggle.on { background: #040f06; border-color: #134224; box-shadow: 0 0 10px rgba(38,230,107,0.1); }
+    .fx-toggle.on .fx-led { background: var(--green); border-color: var(--green); box-shadow: 0 0 8px rgba(38,230,107,0.75), 0 0 3px rgba(38,230,107,0.4); }
+    .fx-toggle.on .fx-name { color: var(--green); }
 
-    /* ── MASTER VOLUME FADER ───────────────────────────────── */
+    /* ── VOLUME ── */
     .vol-section {
       background: var(--panel-deep);
       border: 1px solid var(--border);
-      border-radius: 4px;
+      border-radius: 5px;
       display: flex;
       align-items: center;
       gap: 12px;
       padding: 10px 14px;
-      margin-bottom: 20px;
+      margin-bottom: 18px;
     }
 
-    .vol-label {
-      font-size: 9px;
-      letter-spacing: 1.5px;
-      color: var(--muted);
-      text-transform: uppercase;
-      white-space: nowrap;
-    }
+    .vol-label { font-size: 8.5px; letter-spacing: 0.24em; color: var(--text-dim); white-space: nowrap; flex-shrink: 0; }
 
-    .vol-track {
-      flex: 1;
-      position: relative;
-      height: 4px;
-      background: var(--surface);
-      border-radius: 2px;
-    }
+    .vol-track { flex: 1; position: relative; height: 3px; background: #181818; border-radius: 2px; }
 
     .vol-fill {
-      position: absolute;
-      left: 0; top: 0; bottom: 0;
-      background: linear-gradient(to right, var(--purple), var(--cyan));
-      border-radius: 2px;
-      pointer-events: none;
+      position: absolute; left: 0; top: 0; bottom: 0;
+      background: linear-gradient(to right, var(--amber-dim), var(--amber));
+      border-radius: 2px; pointer-events: none;
     }
 
     input[type="range"].master-vol {
-      position: absolute;
-      inset: 0;
-      width: 100%; height: 100%;
-      opacity: 0;
-      cursor: pointer;
-      margin: 0; padding: 8px 0;
-      box-sizing: content-box;
-      top: -8px;
+      position: absolute; inset: 0; width: 100%; height: 100%;
+      opacity: 0; cursor: pointer; margin: 0;
+      padding: 8px 0; box-sizing: content-box; top: -8px;
     }
 
-    .vol-value {
-      font-size: 10px;
-      color: var(--cyan);
-      min-width: 28px;
-      text-align: right;
-    }
+    .vol-value { font-size: 9px; color: var(--text-dim); flex-shrink: 0; min-width: 28px; text-align: right; }
 
-    /* ── KEYBOARD CONTROLS & MODULE PANEL ──────────────────── */
+    /* ── KEYBOARD HEADER with octave controls ── */
     .keyboard-header {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      margin-bottom: 10px;
+      margin-bottom: 9px;
     }
 
     .octave-controls { display: flex; align-items: center; gap: 6px; }
 
     .oct-btn {
-      width: 26px;
-      height: 26px;
-      border-radius: 2px;
+      width: 26px; height: 26px;
+      border-radius: 4px;
       background: var(--panel-deep);
       border: 1px solid var(--border);
-      color: var(--muted);
-      font-size: 14px;
+      color: var(--text-dim);
+      font-family: 'Orbitron', sans-serif;
+      font-size: 15px;
       font-weight: 700;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      line-height: 1;
+      display: flex; align-items: center; justify-content: center;
       cursor: pointer;
       user-select: none;
       transition: all 80ms;
     }
 
     .oct-btn:hover {
-      border-color: var(--cyan);
-      color: var(--cyan);
-      box-shadow: 0 0 8px rgba(0, 245, 255, 0.2);
+      border-color: var(--amber-mid);
+      color: var(--amber);
+      box-shadow: 0 0 8px rgba(255,183,0,0.15);
     }
 
-    .oct-btn:active { transform: scale(0.9); background: var(--surface); }
-    .oct-btn:disabled { opacity: 0.15; cursor: not-allowed; pointer-events: none; }
+    .oct-btn:active { transform: scale(0.88); background: #0f0a00; }
+
+    .oct-btn:disabled {
+      opacity: 0.25;
+      cursor: not-allowed;
+      pointer-events: none;
+    }
 
     .oct-display {
       background: var(--panel-deep);
       border: 1px solid var(--border);
-      border-radius: 2px;
+      border-radius: 4px;
       padding: 3px 10px;
-      min-width: 60px;
+      min-width: 56px;
       text-align: center;
     }
 
     .oct-display-label {
       font-size: 7px;
-      letter-spacing: 1px;
-      color: var(--dim);
-      text-transform: uppercase;
+      letter-spacing: 0.2em;
+      color: var(--text-lo);
+      display: block;
       margin-bottom: 1px;
     }
 
     .oct-display-value {
-      font-size: 12px;
+      font-family: 'Orbitron', sans-serif;
+      font-size: 13px;
       font-weight: 700;
-      color: var(--cyan);
-      text-shadow: 0 0 6px rgba(0, 245, 255, 0.3);
+      color: var(--amber);
+      text-shadow: 0 0 8px rgba(255,183,0,0.4);
+      display: block;
       line-height: 1;
-    }
-    .oct-display-value.up { color: var(--green); text-shadow: 0 0 6px var(--green); }
-    .oct-display-value.down { color: var(--pink); text-shadow: 0 0 6px var(--pink); }
-
-    /* ── CHROMATIC KEYS CHASSIS ────────────────────────────── */
-    .keyboard {
-      display: flex;
-      background-color: var(--panel-deep);
-      padding: 4px;
-      border-radius: 4px;
-      border: 1px solid var(--border);
-      position: relative;
-      height: 150px;
+      transition: color 0.15s, text-shadow 0.15s;
     }
 
-    .key {
-      position: relative;
-      cursor: pointer;
+    .oct-display-value.up   { color: var(--green); text-shadow: 0 0 8px rgba(38,230,107,0.5); }
+    .oct-display-value.down { color: var(--red);   text-shadow: 0 0 8px rgba(255,51,0,0.5); }
+
+    /* ── MIDI INDICATOR ── */
+    .midi-indicator { display: flex; align-items: center; gap: 5px; }
+
+    .midi-led {
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      background: #141414;
+      border: 1px solid #242424;
+      box-shadow: inset 0 1px 2px rgba(0,0,0,0.65);
+      flex-shrink: 0;
+      transition: background 0.1s, box-shadow 0.1s, border-color 0.1s;
     }
 
-    .white-key {
-      background: linear-gradient(to bottom, #d0cbd8 0%, var(--white-key) 100%);
-      width: 100%;
-      height: 100%;
-      border-left: 1px solid #9995a3;
-      border-right: 1px solid #9995a3;
-      border-bottom: 4px solid #b5b0bf;
-      border-radius: 0 0 2px 2px;
-      z-index: 1;
-      box-sizing: border-box;
+    .midi-led.connected {
+      background: var(--green);
+      border-color: var(--green);
+      box-shadow: 0 0 8px rgba(38,230,107,0.75);
     }
 
-    .white-key:active, .white-key.active {
-      background: linear-gradient(to bottom, #b8b3c2 0%, #cecad6 100%);
-      border-bottom: 1px solid #9995a3;
-      height: calc(100% - 3px);
-      transform: translateY(3px);
+    .midi-led.active {
+      background: var(--amber) !important;
+      border-color: var(--amber) !important;
+      box-shadow: 0 0 12px rgba(255,183,0,0.9) !important;
     }
 
-    .black-key {
-      background: linear-gradient(to bottom, #2b2b3a 0%, var(--black-key) 100%);
-      width: 24px;
-      height: 60%;
-      border: 1px solid #05050f;
-      border-bottom: 3px solid #0a0a14;
-      border-radius: 0 0 2px 2px;
-      position: absolute;
-      left: -12px;
-      z-index: 2;
-      box-sizing: border-box;
-      box-shadow: -1px 2px 3px rgba(0,0,0,0.5);
+    .midi-led.unsupported {
+      background: #2a1500;
+      border-color: #3a1a00;
     }
 
-    .black-key:active, .black-key.active {
-      background: #08080f;
-      border-bottom: 1px solid #05050f;
-      height: calc(60% - 2px);
-      transform: translateY(2px);
-    }
-
-    /* Key Mapping Labels styling overlay */
-    .key-label {
-      position: absolute;
-      bottom: 6px;
-      left: 0; width: 100%;
-      text-align: center;
+    .midi-text {
       font-size: 8px;
-      font-weight: 700;
-      color: var(--dim);
-      text-transform: uppercase;
-      pointer-events: none;
-      z-index: 3;
+      letter-spacing: 0.15em;
+      color: var(--text-lo);
+      transition: color 0.15s;
+      white-space: nowrap;
     }
-    .black-key .key-label { color: var(--muted); bottom: 4px; }
-    .key:active .key-label, .key.active .key-label { color: var(--cyan); }
+    .midi-text.connected  { color: var(--green); }
+    .midi-text.error      { color: #5a2200; }
 
-    /* ── SYSTEM BASE BAR ────────────────────────────────────── */
-    .footer-bar {
+    /* ── KEYBOARD SECTION ── */
+    .keyboard-section {
+      background: #050505;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 14px 14px 0;
+      margin-bottom: 14px;
+    }
+
+    .keyboard-hint {
+      font-size: 8px;
+      letter-spacing: 0.2em;
+      color: var(--text-lo);
+      margin-bottom: 8px;
       display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-top: 16px;
-      padding-top: 12px;
-      border-top: 1px solid var(--border);
-      font-size: 9px;
-      letter-spacing: 1px;
-      color: var(--muted);
-      text-transform: uppercase;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .keyboard-hint span { color: var(--text-dim); }
+
+    .keyboard-scroll {
+      overflow-x: auto;
+      overflow-y: hidden;
+      padding-bottom: 14px;
+      scrollbar-width: none;
+    }
+    .keyboard-scroll::-webkit-scrollbar { display: none; }
+
+    #keyboard-bed { position: relative; height: 82px; flex-shrink: 0; margin: 0 auto; }
+
+    .key.white {
+      position: absolute;
+      background: linear-gradient(to bottom, #c4beaf 0%, #d4ceba 50%, #d6ceba 100%);
+      border: 1px solid #8f8677;
+      border-top: none;
+      border-radius: 0 0 3px 3px;
+      cursor: pointer; user-select: none; bottom: 0;
+      box-shadow: inset 0 -4px 8px rgba(0,0,0,0.28), 2px 0 4px rgba(0,0,0,0.35), 0 4px 8px rgba(0,0,0,0.55);
+      transition: background 50ms;
+    }
+    .key.white:hover { background: linear-gradient(to bottom, #cdc6b5 0%, #ded7c2 100%); }
+    .key.white.active, .key.white:active {
+      background: linear-gradient(to bottom, var(--amber) 0%, #b88300 100%);
+      box-shadow: inset 0 2px 4px rgba(0,0,0,0.35);
+    }
+
+    .key.white.root-note::after {
+      content: '';
+      position: absolute; bottom: 6px; left: 50%;
+      transform: translateX(-50%);
+      width: 5px; height: 5px;
+      border-radius: 50%;
+      background: var(--amber);
+      box-shadow: 0 0 6px var(--amber);
+    }
+
+    .key-lbl {
+      position: absolute; bottom: 5px; left: 0; right: 0;
+      text-align: center;
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 7.5px; color: #7a7365;
+      pointer-events: none; user-select: none;
+    }
+    .key.white.root-note .key-lbl { bottom: 16px; color: #996e00; }
+
+    .key.black {
+      position: absolute; top: 0;
+      background: linear-gradient(to bottom, #1a1a1a 0%, #0d0d0d 60%, #121212 100%);
+      border: 1px solid #333333; border-top: none;
+      border-radius: 0 0 2px 2px;
+      cursor: pointer; user-select: none; z-index: 2;
+      box-shadow: inset 0 -3px 6px rgba(255,255,255,0.03), 2px 4px 10px rgba(0,0,0,0.75), -1px 0 2px rgba(0,0,0,0.45);
+      transition: background 50ms;
+    }
+    .key.black:hover { background: linear-gradient(to bottom, #242424 0%, #121212 100%); }
+    .key.black.active, .key.black:active {
+      background: linear-gradient(to bottom, #b88300 0%, #946900 100%);
+    }
+    .key.black .key-lbl { font-size: 6.5px; color: #4f4b42; bottom: 4px; }
+
+    /* ── STATUS BAR ── */
+    .status-bar {
+      display: flex; align-items: center; justify-content: space-between;
+      padding-top: 12px; border-top: 1px solid var(--border);
     }
 
     .status-msg {
-      color: var(--cyan);
-      max-width: 65%;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
+      font-size: 8.5px; letter-spacing: 0.2em;
+      color: var(--text-dim); min-height: 12px; transition: color 0.2s;
     }
-    .status-msg.rec { color: var(--pink); animation: txt-blink 0.8s steps(2, start) infinite; }
-    @keyframes txt-blink { to { visibility: hidden; } }
+    .status-msg.active { color: var(--amber); }
+    .status-msg.rec    { color: var(--red); animation: msg-blink 0.6s ease-in-out infinite; }
+    @keyframes msg-blink { 50% { opacity: 0.35; } }
 
-    .poly-count { color: var(--dim); }
+    .poly-count { font-size: 8px; color: var(--text-lo); letter-spacing: 0.12em; }
 
-    /* ── MIDI CONNECTOR OVERLAY FLAG ───────────────────────── */
-    .midi-badge {
-      display: flex;
-      align-items: center;
-      gap: 5px;
-      font-size: 8px;
-      color: var(--dim);
-      border: 1px solid var(--border);
-      padding: 2px 6px;
-      border-radius: 2px;
-      transition: all 0.2s;
+    @media (max-width: 480px) {
+      html, body { padding: 12px 10px 32px; }
+      .sampler { padding: 20px 14px 16px; }
+      .brand-name { font-size: 14px; }
+      .controls-row { flex-wrap: wrap; }
+      .rec-btn { min-width: 100%; flex-direction: row; padding: 10px 16px; gap: 10px; }
+      .fx-section { width: 100%; }
+      .delay-controls { flex-wrap: wrap; }
+      .delay-control { min-width: 45%; }
     }
-    .midi-badge.connected {
-      color: var(--green);
-      border-color: var(--green);
-      box-shadow: 0 0 6px rgba(153, 204, 119, 0.2);
-    }
-    .midi-dot { width: 4px; height: 4px; border-radius: 50%; background: currentColor; }
   </style>
 </head>
 <body>
-
   <div class="sampler">
     <div class="screw tl"></div>
     <div class="screw tr"></div>
@@ -893,201 +940,162 @@ nav: sampler
     <div class="header">
       <div class="brand">
         <span class="brand-name">MICROSAMPLER</span>
-        <span class="brand-tag">MS-1 Mini</span>
+        <span class="brand-tag">SMPL-4 / WEB AUDIO</span>
       </div>
-      <div class="vu" id="vu-meter">
-        <div class="vu-seg"></div>
-        <div class="vu-seg"></div>
-        <div class="vu-seg"></div>
-        <div class="vu-seg"></div>
-        <div class="vu-seg"></div>
-        <div class="vu-seg"></div>
-        <div class="vu-seg"></div>
-        <div class="vu-seg"></div>
-      </div>
-    </div>
-
-    <div class="section-label">Performance Pads</div>
-    <div class="pads-grid">
-      <div class="pad" data-pad="0">
-        <canvas class="pad-canvas"></canvas>
-        <div class="pad-content">
-          <span class="pad-num">1</span>
-          <span class="pad-status">EMPTY</span>
+      <div style="display:flex;align-items:center;gap:12px;">
+        <div class="midi-indicator">
+          <div class="midi-led" id="midi-led"></div>
+          <span class="midi-text" id="midi-text">MIDI…</span>
         </div>
-        <div class="pad-filter-section">
-          <div class="filter-knob" data-knob="0"></div>
-          <span class="filter-knob-label">CUTOFF</span>
-          <span class="filter-knob-value">FLT</span>
-        </div>
-      </div>
-      <div class="pad" data-pad="1">
-        <canvas class="pad-canvas"></canvas>
-        <div class="pad-content">
-          <span class="pad-num">2</span>
-          <span class="pad-status">EMPTY</span>
-        </div>
-        <div class="pad-filter-section">
-          <div class="filter-knob" data-knob="1"></div>
-          <span class="filter-knob-label">CUTOFF</span>
-          <span class="filter-knob-value">FLT</span>
-        </div>
-      </div>
-      <div class="pad" data-pad="2">
-        <canvas class="pad-canvas"></canvas>
-        <div class="pad-content">
-          <span class="pad-num">3</span>
-          <span class="pad-status">EMPTY</span>
-        </div>
-        <div class="pad-filter-section">
-          <div class="filter-knob" data-knob="2"></div>
-          <span class="filter-knob-label">CUTOFF</span>
-          <span class="filter-knob-value">FLT</span>
-        </div>
-      </div>
-      <div class="pad" data-pad="3">
-        <canvas class="pad-canvas"></canvas>
-        <div class="pad-content">
-          <span class="pad-num">4</span>
-          <span class="pad-status">EMPTY</span>
-        </div>
-        <div class="pad-filter-section">
-          <div class="filter-knob" data-knob="3"></div>
-          <span class="filter-knob-label">CUTOFF</span>
-          <span class="filter-knob-value">FLT</span>
+        <div class="vu" id="vu-meter">
+          <div class="vu-seg"></div><div class="vu-seg"></div>
+          <div class="vu-seg"></div><div class="vu-seg"></div>
+          <div class="vu-seg"></div><div class="vu-seg"></div>
+          <div class="vu-seg"></div><div class="vu-seg"></div>
         </div>
       </div>
     </div>
 
+    <div class="section-label">SAMPLE PADS — CLICK TO ARM, HOLD REC TO RECORD</div>
+    <div class="pads-grid" id="pads-grid"></div>
+
+    <!-- TRIM EDITOR PANEL -->
     <div class="trim-panel" id="trim-panel">
       <div class="trim-header">
         <div>
-          <span class="trim-title">Sample Trim</span>
+          <span class="trim-title">TRIM EDITOR</span>
           <span class="trim-pad-label" id="trim-pad-label">PAD 1</span>
         </div>
-        <button class="trim-close-btn" id="trim-close-btn">×</button>
+        <button class="trim-close-btn" id="trim-close-btn" aria-label="Close trim editor">×</button>
       </div>
-      <div class="trim-waveform-container">
+      <div class="trim-waveform-container" id="trim-waveform-container">
         <canvas class="trim-waveform-canvas" id="trim-waveform-canvas"></canvas>
-        <div class="trim-region-overlay" id="trim-region-overlay">
-          <div class="trim-handle trim-handle-start" id="trim-handle-start"></div>
-          <div class="trim-handle trim-handle-end" id="trim-handle-end"></div>
-        </div>
+        <div class="trim-region-overlay" id="trim-region-overlay"></div>
+        <div class="trim-handle trim-handle-start" id="trim-handle-start"></div>
+        <div class="trim-handle trim-handle-end" id="trim-handle-end"></div>
       </div>
       <div class="trim-info">
         <div class="trim-point">
-          <span class="trim-point-label">Start:</span>
-          <span class="trim-point-value" id="trim-start-value">0.00s</span>
+          <span class="trim-point-label">START:</span>
+          <span class="trim-point-value" id="trim-start-value">0.000s</span>
         </div>
         <div class="trim-duration">
-          <span class="trim-point-label">Length:</span>
-          <span class="trim-duration-value" id="trim-duration-value">0.00s</span>
+          <span>LENGTH:</span>
+          <span class="trim-duration-value" id="trim-duration-value">0.000s</span>
         </div>
         <div class="trim-point">
-          <span class="trim-point-label">End:</span>
-          <span class="trim-point-value" id="trim-end-value">0.00s</span>
+          <span class="trim-point-label">END:</span>
+          <span class="trim-point-value" id="trim-end-value">0.000s</span>
         </div>
       </div>
     </div>
 
+    <!-- DELAY EFFECT SECTION -->
     <div class="delay-section">
       <div class="delay-header">
-        <span class="delay-title">Tape Echo / Delay</span>
-        <button class="delay-toggle" id="delay-toggle" aria-label="Toggle Delay FX"></button>
+        <span class="delay-title">DELAY / ECHO</span>
+        <div class="delay-toggle" id="delay-toggle" role="button" aria-label="Toggle delay"></div>
       </div>
       <div class="delay-controls">
         <div class="delay-control">
-          <span class="delay-control-label">Time</span>
+          <span class="delay-control-label">TIME (MS)</span>
           <div class="delay-control-row">
             <div class="delay-slider-track">
-              <div class="delay-slider-fill" id="delay-time-fill"></div>
-              <input type="range" class="delay-slider" id="delay-time" min="0.05" max="1.0" step="0.01" value="0.3">
+              <div class="delay-slider-fill" id="delay-time-fill" style="width:30%"></div>
+              <input type="range" class="delay-slider" id="delay-time" min="0" max="1000" step="1" value="300">
             </div>
-            <span class="delay-value" id="delay-time-val">0.30s</span>
+            <span class="delay-value" id="delay-time-value">300 ms</span>
           </div>
         </div>
         <div class="delay-control">
-          <span class="delay-control-label">Feedback</span>
+          <span class="delay-control-label">FEEDBACK</span>
           <div class="delay-control-row">
             <div class="delay-slider-track">
-              <div class="delay-slider-fill" id="delay-feedback-fill"></div>
+              <div class="delay-slider-fill" id="delay-feedback-fill" style="width:44%"></div>
               <input type="range" class="delay-slider" id="delay-feedback" min="0" max="0.9" step="0.01" value="0.4">
             </div>
-            <span class="delay-value" id="delay-feedback-val">40%</span>
+            <span class="delay-value" id="delay-feedback-value">40%</span>
+          </div>
+        </div>
+        <div class="delay-control">
+          <span class="delay-control-label">MIX</span>
+          <div class="delay-control-row">
+            <div class="delay-slider-track">
+              <div class="delay-slider-fill" id="delay-mix-fill" style="width:30%"></div>
+              <input type="range" class="delay-slider" id="delay-mix" min="0" max="1" step="0.01" value="0.3">
+            </div>
+            <span class="delay-value" id="delay-mix-value">30%</span>
           </div>
         </div>
       </div>
     </div>
 
     <div class="controls-row">
-      <div class="rec-btn" id="rec-btn">
+      <button class="rec-btn" id="rec-btn" aria-label="Hold to record">
         <div class="rec-circle"></div>
-        <span class="rec-label">Record</span>
-      </div>
+        <div class="rec-label">HOLD REC</div>
+      </button>
       <div class="fx-section">
+        <div class="section-label">EFFECTS</div>
         <div class="fx-row">
-          <label class="fx-toggle" id="fx-reverse-label">
+          <label class="fx-toggle" id="fx-reverse-wrap">
             <input type="checkbox" id="fx-reverse">
             <div class="fx-led"></div>
-            <span class="fx-name">Reverse</span>
+            <span class="fx-name">REVERSE</span>
           </label>
-          <label class="fx-toggle" id="fx-loop-label">
+          <label class="fx-toggle" id="fx-loop-wrap">
             <input type="checkbox" id="fx-loop">
             <div class="fx-led"></div>
-            <span class="fx-name">Loop</span>
+            <span class="fx-name">LOOP</span>
+          </label>
+          <label class="fx-toggle" id="fx-lofi-wrap">
+            <input type="checkbox" id="fx-lofi">
+            <div class="fx-led"></div>
+            <span class="fx-name">LO-FI</span>
           </label>
         </div>
       </div>
     </div>
 
     <div class="vol-section">
-      <span class="vol-label">Master Vol</span>
+      <span class="vol-label">MASTER VOL</span>
       <div class="vol-track">
-        <div class="vol-fill" id="master-vol-fill"></div>
-        <input type="range" class="master-vol" id="master-vol" min="0" max="1.2" step="0.01" value="0.8">
+        <div class="vol-fill" id="vol-fill" style="width:70%"></div>
+        <input type="range" class="master-vol" id="master-vol" min="0" max="1" step="0.01" value="0.7">
       </div>
-      <span class="vol-value" id="master-vol-val">80%</span>
+      <span class="vol-value" id="vol-value">70%</span>
     </div>
 
+    <!-- Keyboard header with octave controls inline -->
     <div class="keyboard-header">
-      <div class="section-label" style="margin-bottom:0; flex:1;">Chromatic Monitor</div>
+      <div class="section-label" style="margin-bottom:0;">KEYBOARD — ROOT: A4 (●)</div>
       <div class="octave-controls">
-        <button class="oct-btn" id="oct-down" title="Octave Down">−</button>
+        <button class="oct-btn" id="oct-down" aria-label="Octave down">−</button>
         <div class="oct-display">
-          <span class="oct-display-label">Octave</span>
-          <span class="oct-display-value" id="oct-val">0</span>
+          <span class="oct-display-label">OCTAVE</span>
+          <span class="oct-display-value" id="oct-value">0</span>
         </div>
-        <button class="oct-btn" id="oct-up" title="Octave Up">+</button>
+        <button class="oct-btn" id="oct-up" aria-label="Octave up">+</button>
       </div>
     </div>
 
-    <div class="keyboard">
-      <div class="key white-key" data-midi="60"><span class="key-label">A</span></div>
-      <div class="key black-key" data-midi="61" style="left: calc((100% / 7) * 1);"><span class="key-label">W</span></div>
-      <div class="key white-key" data-midi="62"><span class="key-label">S</span></div>
-      <div class="key black-key" data-midi="63" style="left: calc((100% / 7) * 2);"><span class="key-label">E</span></div>
-      <div class="key white-key" data-midi="64"><span class="key-label">D</span></div>
-      <div class="key white-key" data-midi="65"><span class="key-label">F</span></div>
-      <div class="key black-key" data-midi="66" style="left: calc((100% / 7) * 4);"><span class="key-label">T</span></div>
-      <div class="key white-key" data-midi="67"><span class="key-label">G</span></div>
-      <div class="key black-key" data-midi="68" style="left: calc((100% / 7) * 5);"><span class="key-label">Y</span></div>
-      <div class="key white-key" data-midi="69"><span class="key-label">H</span></div>
-      <div class="key black-key" data-midi="70" style="left: calc((100% / 7) * 6);"><span class="key-label">U</span></div>
-      <div class="key white-key" data-midi="71"><span class="key-label">J</span></div>
-    </div>
-
-    <div class="footer-bar">
-      <span class="status-msg" id="status-msg">READY</span>
-      <div class="midi-badge" id="midi-badge">
-        <div class="midi-dot"></div>
-        <span>MIDI EXT</span>
+    <div class="keyboard-section">
+      <div class="keyboard-hint">
+        <span>WHITE:</span> Z X C V B N M / Q W E R T Y U I
+        <span>BLACK:</span> S D G H J / 2 3 5 6 7
       </div>
-      <span class="poly-count" id="poly-count">VOICES: 0/8</span>
+      <div class="keyboard-scroll">
+        <div id="keyboard-bed"></div>
+      </div>
     </div>
 
+    <div class="status-bar">
+      <div class="status-msg" id="status-msg">SELECT A PAD TO BEGIN</div>
+      <div class="poly-count" id="poly-count">VOICES: 0/6</div>
+    </div>
   </div>
-  <script>
 
+<script>
 /* ════════════════════════════════════════════════════════
    MicroSampler  —  root A4 (MIDI 69)
    Keyboard visual range: C3 (48) → C5 (72)  [fixed on screen]
