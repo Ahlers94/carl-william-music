@@ -559,8 +559,14 @@
                     <div class="control-panel">
                         
                         <div class="panel-section left-controls">
-                            <button class="red-button" id="btn-global-play">START / STOP</button>
-                            <button class="red-button" id="btn-global-clear" style="background-color: #555; box-shadow: 0 3px 0 #333;">CLEAR GRID</button>
+                            <div style="display: flex; gap: 8px; width: 100%;">
+                                <button class="red-button" id="btn-global-play" style="flex: 2;">START / STOP</button>
+                                <button class="red-button" id="btn-global-tap" style="flex: 1; background-color: #b06aff; box-shadow: 0 3px 0 #6a3bbb;">TAP</button>
+                            </div>
+                            <div style="display: flex; gap: 8px; width: 100%;">
+                                <button class="red-button" id="btn-global-clear" style="background-color: #555; box-shadow: 0 3px 0 #333; width: 50%;">CLEAR GRID</button>
+                                <button class="red-button" id="btn-global-undo" style="background-color: #443355; box-shadow: 0 3px 0 #221133; width: 50%;">UNDO</button>
+                            </div>
                             
                             <div class="toggle-container" id="pattern-switch-wrapper" style="cursor: pointer;">
                                 <div class="switch-label">PATTERN SYSTEM</div>
@@ -621,6 +627,12 @@
         <div class="right-col">
             <div class="section-label">PERIPHERALS</div>
             <div class="social-links-vertical">
+                <div class="bio-box" style="margin-bottom: 16px; border: 1px solid #00f5ff44; padding: 12px; background: rgba(0,0,0,0.2);">
+                    <p class="bio-text" style="margin-bottom: 8px; color: var(--cyan); font-size:11px;">[MIDI HARDWARE OUTPUT]</p>
+                    <select id="midi-output-select" style="width: 100%; background: #111; color: var(--cyan); border: 1px solid var(--dim); padding: 6px; font-family: 'Space Mono', monospace; font-size: 11px; outline: none; cursor: pointer;">
+                        <option value="none">NO MIDI OUT AVAILABLE</option>
+                    </select>
+                </div>
                 <div class="bio-box">
                     <p class="bio-text" style="margin-bottom: 12px; color: var(--cyan); font-size:11px;">[NEW UPGRADE FEATURES]</p>
                     <p class="bio-text" style="margin-bottom: 12px; font-size: 11px;">• <strong>Track Focus:</strong> Tap any track label to link it to the bottom chromatically mapped keyboard engine.</p>
@@ -642,13 +654,40 @@ let scheduleAheadTime = 0.1;
 let nextNoteTime = 0.0; 
 let timerId = null;
 
+// TAP TEMPO STATE
+let tapTimes = [];
+
+// UNDO STACK STATE
+let undoStack = [];
+
+// MIDI STATE CONFIGURATION
+let midiAccess = null;
+let midiOutput = null;
+const MIDI_NOTES = { kick: 36, snare: 38, closedHat: 42, openHat: 46 };
+
+// MIXER AND FX ROUTING GLOBAL NODES
+let mainMixBus = null;
+let delayNode = null;
+let delayFeedback = null;
+let delayWet = null;
+let reverbNode = null;
+let reverbWet = null;
+const trackMixer = {};
+
+const trackMixSettings = {
+    kick: { vol: 0.8, pan: 0, dly: 0.1, rev: 0.15 },
+    snare: { vol: 0.8, pan: 0, dly: 0.1, rev: 0.15 },
+    closedHat: { vol: 0.6, pan: -0.2, dly: 0.05, rev: 0.1 },
+    openHat: { vol: 0.6, pan: 0.2, dly: 0.1, rev: 0.15 }
+};
+
 // FEATURE 3: Swing / Shuffle State Tracking Scalar Variable
 let swingFactor = 0.0; 
 
 // FEATURE 9: Bitcrusher Node & Settings State Tracking Variables
 let bitcrusherNode = null;
-let crushBits = 16;     // Range: 1 (extreme total disintegration) to 16 (clean studio master pass)
-let crushDownsample = 1; // Range: 1 (no reduction) to 40 (drastic down-scaling sample decimation)
+let crushBits = 16;     // Range: 1 to 16
+let crushDownsample = 1; // Range: 1 to 40
 
 // Track Focus State System
 let focusedTrack = 'kick';
@@ -660,8 +699,6 @@ const voiceEngines = {
     closedHat: '808',
     openHat: '808'
 };
-
-
 
 const ENGINE_MODES = ['808', '909', 'CR78', 'FM', 'TOY', 'CUSTOM'];
 
@@ -683,6 +720,13 @@ const patterns = {
     'B': { kick: Array(16).fill(0), snare: Array(16).fill(0), closedHat: Array(16).fill(0), openHat: Array(16).fill(0) }
 };
 
+function pushUndoSnapshot() {
+    undoStack.push(JSON.stringify(patterns));
+    if (undoStack.length > 20) {
+        undoStack.shift();
+    }
+}
+
 // --- FEATURE 9: INLINE BITCRUSHER AUDIO WORKLET CODE BLOB GENERATOR ---
 const bitcrusherWorkletCode = `
     class BitcrusherProcessor extends AudioWorkletProcessor {
@@ -700,30 +744,22 @@ const bitcrusherWorkletCode = `
             
             if (!input || !input[0]) return true;
 
-            // Gather values sent from runtime port connection map variables
-            const bits = 16; 
-            const downsample = 1;
-
             for (let channel = 0; channel < input.length; ++channel) {
                 const inputChannel = input[channel];
                 const outputChannel = output[channel];
                 
-                // Read continuous target frame params safely passed down via processor ports
                 let currentBits = this.bits || 16;
                 let currentDownsample = this.downsample || 1;
 
-                // Mathematical step sizing matrix variables scaling
                 const stepCount = Math.pow(2, currentBits);
 
                 for (let i = 0; i < inputChannel.length; ++i) {
-                    // 1. Handle Sample Rate Decimation / Downsampling Phase
                     if (this.downsampleCounter >= currentDownsample) {
                         this.downsampleCounter = 0;
                         this.lastSampleValue = inputChannel[i];
                     }
                     this.downsampleCounter++;
 
-                    // 2. Handle Quantization / Amplitude Bitcrushing Phase
                     let sample = this.lastSampleValue;
                     let quantizedSample = Math.round(sample * stepCount) / stepCount;
                     
@@ -764,7 +800,6 @@ instruments.forEach(inst => {
             if (focusedTrack !== inst) {
                 setTrackFocus(inst);
             } else {
-                // Cycle this instrument's engine independently
                 const currentIdx = ENGINE_MODES.indexOf(voiceEngines[inst]);
                 const nextIdx = (currentIdx + 1) % ENGINE_MODES.length;
                 const newMode = ENGINE_MODES[nextIdx];
@@ -773,7 +808,6 @@ instruments.forEach(inst => {
                 rowWrapper.querySelector('.voice-indicator').innerText = `[${newMode}]`;
                 playSynthSound(inst, audioCtx.currentTime, 1.0, 2);
 
-                // Sync only this instrument's yellow pad sub-label
                 const pad = document.querySelector(`.yellow-pad[data-pad="${inst}"]`);
                 if (pad) {
                     const span = pad.querySelector('span');
@@ -818,30 +852,84 @@ function setTrackFocus(targetInstrument) {
 
 setTrackFocus('kick');
 
-// --- 3. EXPANDED AUDIO SYNTHESIS ENGINES (6 MODES + NEW FX PROCESSING GRAPH) ---
+// --- 3. EXPANDED AUDIO SYNTHESIS ENGINES (6 MODES + MIXER BUS GRAPH) ---
 async function initAudio() {
     if (!audioCtx) {
         audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         
-        // FEATURE 9: Compile and Injection-Register inline Worklet runtime code block
+        let finalOutputTarget = audioCtx.destination;
+        
         try {
             const blob = new Blob([bitcrusherWorkletCode], { type: 'application/javascript' });
             const workletUrl = URL.createObjectURL(blob);
             await audioCtx.audioWorklet.addModule(workletUrl);
             
-            // Generate the dynamic worklet instance node inside graph topology mapping
             bitcrusherNode = new AudioWorkletNode(audioCtx, 'bitcrusher-processor');
-            
-            // Set initial state tracking values directly down into processor scope
             bitcrusherNode.bits = crushBits;
             bitcrusherNode.downsample = crushDownsample;
-            
-            // Patch worklet directly into final master monitoring output port nodes
             bitcrusherNode.connect(audioCtx.destination);
+            finalOutputTarget = bitcrusherNode;
         } catch (e) {
-            console.error("AudioWorklet initialization crashed, falling back to clean bypass path.", e);
+            console.error("AudioWorklet initialisation crashed.", e);
             bitcrusherNode = null;
         }
+
+        // Setup Mixer Buses Matrix
+        mainMixBus = audioCtx.createGain();
+        mainMixBus.connect(finalOutputTarget);
+
+        delayNode = audioCtx.createDelay(2.0);
+        delayFeedback = audioCtx.createGain();
+        delayWet = audioCtx.createGain();
+
+        delayNode.delayTime.value = 0.33;
+        delayFeedback.gain.value = 0.4;
+        delayWet.gain.value = 0.25;
+
+        delayNode.connect(delayFeedback);
+        delayFeedback.connect(delayNode);
+        delayNode.connect(delayWet);
+        delayWet.connect(mainMixBus);
+
+        reverbNode = audioCtx.createConvolver();
+        reverbWet = audioCtx.createGain();
+        reverbWet.gain.value = 0.2;
+
+        const rate = audioCtx.sampleRate;
+        const len = rate * 2.0; 
+        const irBuffer = audioCtx.createBuffer(2, len, rate);
+        for (let c = 0; c < 2; c++) {
+            const data = irBuffer.getChannelData(c);
+            for (let i = 0; i < len; i++) {
+                data[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, 2.5);
+            }
+        }
+        reverbNode.buffer = irBuffer;
+        reverbNode.connect(reverbWet);
+        reverbWet.connect(mainMixBus);
+
+        instruments.forEach(inst => {
+            trackMixer[inst] = {
+                gain: audioCtx.createGain(),
+                pan: audioCtx.createStereoPanner(),
+                delaySend: audioCtx.createGain(),
+                reverbSend: audioCtx.createGain()
+            };
+
+            trackMixer[inst].gain.gain.value = trackMixSettings[inst].vol;
+            trackMixer[inst].pan.pan.value = trackMixSettings[inst].pan;
+            trackMixer[inst].delaySend.gain.value = trackMixSettings[inst].dly;
+            trackMixer[inst].reverbSend.gain.value = trackMixSettings[inst].rev;
+
+            trackMixer[inst].gain.connect(trackMixer[inst].pan);
+            trackMixer[inst].pan.connect(mainMixBus);
+
+            trackMixer[inst].gain.connect(trackMixer[inst].delaySend);
+            trackMixer[inst].delaySend.connect(delayNode);
+
+            trackMixer[inst].gain.connect(trackMixer[inst].reverbSend);
+            trackMixer[inst].reverbSend.connect(reverbNode);
+        });
     }
 }
 
@@ -877,8 +965,7 @@ function playSynthSound(type, time, pitchMultiplier = 1.0, velocityValue = 2) {
     let osc = null;
     let gainNode = audioCtx.createGain();
     
-    // FEATURE 9 Routing: Intercept master track feeds and route through bitcrusher node if ready
-    let finalTargetNode = bitcrusherNode ? bitcrusherNode : audioCtx.destination;
+    let finalTargetNode = (trackMixer && trackMixer[type]) ? trackMixer[type].gain : (bitcrusherNode ? bitcrusherNode : audioCtx.destination);
 
     if (currentEngine === 'CUSTOM') {
         const distortion = audioCtx.createWaveShaper();
@@ -1175,6 +1262,7 @@ function nextStepTick() {
         if (isChainingActive) {
             currentBank = (currentBank === 'A') ? 'B' : 'A';
             updateGridDisplay();
+            if (typeof updateCopyBtnLabel === 'function') updateCopyBtnLabel();
             
             const toggleElement = document.getElementById('pattern-toggle');
             const lblA = document.getElementById('lbl-bank-a');
@@ -1188,6 +1276,26 @@ function nextStepTick() {
                 lcdPat.innerText = `PATTERN: BANK ${currentBank}`;
             }
         }
+    }
+}
+
+function sendMidiNote(instrument, audioTime, velocity) {
+    if (!midiOutput || !audioCtx) return;
+    const note = MIDI_NOTES[instrument];
+    if (!note) return;
+    
+    const contextTimeNow = audioCtx.currentTime;
+    const perfTimeNow = performance.now();
+    const delta = audioTime - contextTimeNow;
+    const midiTime = perfTimeNow + (delta * 1000);
+    
+    const velByte = velocity === 1 ? 64 : 127;
+    
+    try {
+        midiOutput.send([0x90, note, velByte], midiTime);
+        midiOutput.send([0x80, note, 0x00], midiTime + 80);
+    } catch(e) {
+        console.error("MIDI transmission error:", e);
     }
 }
 
@@ -1205,6 +1313,7 @@ function scheduleStep(stepNumber, time) {
         if (cellVelocityValue > 0) {
             if (isTrackAudible(inst)) {
                 playSynthSound(inst, dynamicTriggerTime, 1.0, cellVelocityValue);
+                sendMidiNote(inst, dynamicTriggerTime, cellVelocityValue);
             }
         }
     });
@@ -1255,8 +1364,45 @@ function togglePlayback() {
 document.getElementById('btn-global-play').addEventListener('click', togglePlayback);
 
 document.getElementById('btn-global-clear').addEventListener('click', () => {
+    pushUndoSnapshot();
     instruments.forEach(inst => patterns[currentBank][inst].fill(0));
     updateGridDisplay();
+});
+
+document.getElementById('btn-global-undo').addEventListener('click', () => {
+    if (undoStack.length > 0) {
+        const snapshot = JSON.parse(undoStack.pop());
+        ['A', 'B'].forEach(bank => {
+            instruments.forEach(inst => {
+                patterns[bank][inst] = [...snapshot[bank][inst]];
+            });
+        });
+        updateGridDisplay();
+        if (typeof encodeCurrentPattern === 'function') encodeCurrentPattern();
+    }
+});
+
+// TAP TEMPO LISTENER
+document.getElementById('btn-global-tap').addEventListener('click', () => {
+    const now = performance.now();
+    tapTimes = tapTimes.filter(t => now - t < 2000);
+    tapTimes.push(now);
+    if (tapTimes.length > 1) {
+        let totalInterval = 0;
+        for (let i = 1; i < tapTimes.length; i++) {
+            totalInterval += (tapTimes[i] - tapTimes[i-1]);
+        }
+        let avgInterval = totalInterval / (tapTimes.length - 1);
+        let computedBpm = Math.round(60000 / avgInterval);
+        if (computedBpm >= 60 && computedBpm <= 200) {
+            tempo = computedBpm;
+            const tSlider = document.getElementById('tempo-slider');
+            if (tSlider) tSlider.value = tempo;
+            document.getElementById('lcd-tempo').innerText = `TEMPO: ${tempo} BPM`;
+            document.getElementById('inline-tempo').innerText = `${tempo} BPM`;
+            if (typeof encodeCurrentPattern === 'function') encodeCurrentPattern();
+        }
+    }
 });
 
 const tempoSlider = document.getElementById('tempo-slider');
@@ -1283,6 +1429,7 @@ patternWrapper.addEventListener('click', () => {
     
     document.getElementById('lcd-pattern').innerText = `PATTERN: BANK ${currentBank}`;
     updateGridDisplay();
+    if (typeof updateCopyBtnLabel === 'function') updateCopyBtnLabel();
 });
 
 function updateGridDisplay() {
@@ -1320,6 +1467,8 @@ document.querySelectorAll('.key').forEach(key => {
 });
 
 // --- 6. DYNAMIC UI PERFORMANCE EXTRACTION INJECTION NODE PLANT ---
+let updateCopyBtnLabel = null;
+
 function injectPerformanceExtensions() {
     instruments.forEach(inst => {
         const rowWrapper = document.getElementById(`row-${inst}`);
@@ -1328,10 +1477,7 @@ function injectPerformanceExtensions() {
         
         const perfCluster = document.createElement('div');
         perfCluster.className = 'dynamic-perf-cluster';
-        perfCluster.style.display = 'inline-flex';
-        perfCluster.style.gap = '4px';
-        perfCluster.style.marginLeft = '8px';
-        perfCluster.style.verticalAlign = 'middle';
+        perfCluster.style.cssText = "display: inline-flex; gap: 4px; margin-left: 8px; vertical-align: middle; align-items: center;";
 
         const muteBtn = document.createElement('button');
         muteBtn.innerText = 'M';
@@ -1372,10 +1518,67 @@ function injectPerformanceExtensions() {
         perfCluster.appendChild(muteBtn);
         perfCluster.appendChild(soloBtn);
         labelNode.parentNode.insertBefore(perfCluster, labelNode.nextSibling);
+
+        // Injected Dynamic Mixer Controls Panel
+        const mixerPanel = document.createElement('div');
+        mixerPanel.style.cssText = "display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; padding: 2px 4px; background: rgba(0,0,0,0.3); border-radius: 3px; border: 1px solid #332244; margin-left: 8px; width: 150px; align-items: center;";
+        mixerPanel.innerHTML = `
+            <div style="display:flex; flex-direction:column; align-items:center;"><span style="font-size:7px; color:var(--muted); line-height:1;">VOL</span><input type="range" class="mix-vol" min="0" max="100" value="${trackMixSettings[inst].vol*100}" style="width:100%; height:4px; accent-color:var(--pink); background:#111; border:none;"></div>
+            <div style="display:flex; flex-direction:column; align-items:center;"><span style="font-size:7px; color:var(--muted); line-height:1;">PAN</span><input type="range" class="mix-pan" min="-100" max="100" value="${trackMixSettings[inst].pan*100}" style="width:100%; height:4px; accent-color:var(--cyan); background:#111; border:none;"></div>
+            <div style="display:flex; flex-direction:column; align-items:center;"><span style="font-size:7px; color:var(--muted); line-height:1;">DLY</span><input type="range" class="mix-dly" min="0" max="100" value="${trackMixSettings[inst].dly*100}" style="width:100%; height:4px; accent-color:var(--gold); background:#111; border:none;"></div>
+            <div style="display:flex; flex-direction:column; align-items:center;"><span style="font-size:7px; color:var(--muted); line-height:1;">REV</span><input type="range" class="mix-rev" min="0" max="100" value="${trackMixSettings[inst].rev*100}" style="width:100%; height:4px; accent-color:var(--purple); background:#111; border:none;"></div>
+        `;
+
+        mixerPanel.querySelector('.mix-vol').addEventListener('input', (e) => {
+            const val = parseFloat(e.target.value) / 100;
+            trackMixSettings[inst].vol = val;
+            if (trackMixer[inst]) trackMixer[inst].gain.gain.setValueAtTime(val, audioCtx.currentTime);
+        });
+        mixerPanel.querySelector('.mix-pan').addEventListener('input', (e) => {
+            const val = parseFloat(e.target.value) / 100;
+            trackMixSettings[inst].pan = val;
+            if (trackMixer[inst]) trackMixer[inst].pan.pan.setValueAtTime(val, audioCtx.currentTime);
+        });
+        mixerPanel.querySelector('.mix-dly').addEventListener('input', (e) => {
+            const val = parseFloat(e.target.value) / 100;
+            trackMixSettings[inst].dly = val;
+            if (trackMixer[inst]) trackMixer[inst].delaySend.gain.setValueAtTime(val, audioCtx.currentTime);
+        });
+        mixerPanel.querySelector('.mix-rev').addEventListener('input', (e) => {
+            const val = parseFloat(e.target.value) / 100;
+            trackMixSettings[inst].rev = val;
+            if (trackMixer[inst]) trackMixer[inst].reverbSend.gain.setValueAtTime(val, audioCtx.currentTime);
+        });
+
+        perfCluster.parentNode.insertBefore(mixerPanel, perfCluster.nextSibling);
     });
 
     const bankWrapper = document.getElementById('pattern-switch-wrapper');
     if (bankWrapper && bankWrapper.parentNode) {
+        const copyBtn = document.createElement('button');
+        copyBtn.className = 'red-button';
+        copyBtn.style.cssText = "margin-top:8px; font-size:10px; padding:6px; background:#ffd700; color:#000; box-shadow: 0 3px 0 #947424;";
+        
+        updateCopyBtnLabel = function() {
+            const otherBank = currentBank === 'A' ? 'B' : 'A';
+            copyBtn.innerText = `COPY BANK ${currentBank} → ${otherBank}`;
+        };
+        updateCopyBtnLabel();
+
+        copyBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            pushUndoSnapshot();
+            const otherBank = currentBank === 'A' ? 'B' : 'A';
+            instruments.forEach(inst => {
+                patterns[otherBank][inst] = [...patterns[currentBank][inst]];
+            });
+            const originalText = copyBtn.innerText;
+            copyBtn.innerText = "COPIED!";
+            setTimeout(() => { updateCopyBtnLabel(); }, 800);
+            if (typeof encodeCurrentPattern === 'function') encodeCurrentPattern();
+        });
+        bankWrapper.parentNode.appendChild(copyBtn);
+
         const chainBox = document.createElement('div');
         chainBox.style.cssText = "margin-top:10px; display:flex; align-items:center; gap:8px; font-family:'Space Mono', monospace; font-size:10px;";
 
@@ -1399,6 +1602,22 @@ function injectPerformanceExtensions() {
 
     const parametersContainer = document.querySelector('.dropdowns-sliders');
     if (parametersContainer) {
+        // Master Delay Control Architecture Expansion
+        const masterDelayDeck = document.createElement('div');
+        masterDelayDeck.className = 'menu-item';
+        masterDelayDeck.style.marginTop = '4px';
+        masterDelayDeck.innerHTML = `
+            <label for="master-delay-time-slider">MASTER DELAY TIME <span class="inline-val" id="inline-master-dly">0.33s</span></label>
+            <input type="range" id="master-delay-time-slider" min="10" max="100" value="33">
+        `;
+        parametersContainer.appendChild(masterDelayDeck);
+        
+        masterDelayDeck.querySelector('input').addEventListener('input', (e) => {
+            const val = parseFloat(e.target.value) / 100;
+            document.getElementById('inline-master-dly').innerText = `${val.toFixed(2)}s`;
+            if (delayNode) delayNode.delayTime.setValueAtTime(val, audioCtx.currentTime);
+        });
+
         // A. Swing/Groove Control Node Element
         const swingDeck = document.createElement('div');
         swingDeck.className = 'menu-item';
@@ -1445,7 +1664,6 @@ function injectPerformanceExtensions() {
             crushBits = parseInt(e.target.value);
             document.getElementById('inline-crush-bits').innerText = `${crushBits} BIT`;
             if (bitcrusherNode) {
-                // Instantly sync value change to processor reference properties
                 bitcrusherNode.bits = crushBits;
             }
         });
@@ -1482,6 +1700,43 @@ function injectPerformanceExtensions() {
         downsampleDeck.appendChild(dsSlider);
         parametersContainer.appendChild(downsampleDeck);
     }
+}
+
+// =============================================================================
+// ── WEB MIDI INTEGRATION HYDRATION ENGINE ────────────────────────────────────
+// =============================================================================
+function initMidi() {
+    if (navigator.requestMIDIAccess) {
+        navigator.requestMIDIAccess().then(
+            (access) => {
+                midiAccess = access;
+                populateMidiOutputs();
+                midiAccess.onstatechange = populateMidiOutputs;
+            },
+            (err) => console.warn("MIDI System Access Denied:", err)
+        );
+    }
+}
+
+function populateMidiOutputs() {
+    const select = document.getElementById('midi-output-select');
+    if (!select) return;
+    select.innerHTML = '<option value="none">NO MIDI OUT AVAILABLE</option>';
+    
+    const outputs = midiAccess.outputs.values();
+    for (let output of outputs) {
+        const opt = document.createElement('option');
+        opt.value = output.id;
+        opt.innerText = output.name;
+        select.appendChild(opt);
+    }
+    if (select.options.length > 1) {
+        select.selectedIndex = 1;
+        midiOutput = midiAccess.outputs.get(select.value);
+    }
+    select.addEventListener('change', (e) => {
+        midiOutput = e.target.value === 'none' ? null : midiAccess.outputs.get(e.target.value);
+    });
 }
 
 // =============================================================================
@@ -1530,7 +1785,6 @@ function encodeCurrentPattern() {
     const pitch = document.getElementById('pitch-slider').value;
     const swing = document.getElementById('swing-slider') ? document.getElementById('swing-slider').value : 0;
     
-    // FEATURE 9 Integration: Pack custom bit depth and downsampling factors directly into string serialization
     const cb = document.getElementById('crush-bits-slider') ? document.getElementById('crush-bits-slider').value : 16;
     const cd = document.getElementById('crush-ds-slider') ? document.getElementById('crush-ds-slider').value : 1;
 
@@ -1591,7 +1845,6 @@ function decodeUrlPattern() {
             if (inlineSwing) inlineSwing.innerText = `${params.s}%`;
         }
         
-        // FEATURE 9 Decoding: Extract bitcrusher positions and pass updates natively down into variables
         if (params.cb) {
             crushBits = parseInt(params.cb);
             const cbSlider = document.getElementById('crush-bits-slider');
@@ -1617,7 +1870,6 @@ function decodeUrlPattern() {
                     if (rowWrapper) {
                         rowWrapper.querySelector('.voice-indicator').innerText = `[${newMode}]`;
                     }
-                    // Sync this instrument's yellow pad sub-label
                     const pad = document.querySelector(`.yellow-pad[data-pad="${inst}"]`);
                     if (pad) {
                         const span = pad.querySelector('span');
@@ -1695,6 +1947,7 @@ injectPerformanceExtensions();
 injectShareInterface();
 decodeUrlPattern();
 bindPersistenceTriggers();
+initMidi();
     </script>
 </body>
 </html>
