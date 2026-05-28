@@ -95,30 +95,34 @@ header {
 @keyframes slideIn {
   to { opacity: 1; transform: translateY(0); }
 }
-
 /* ── NAVIGATION ─────────────────────────────────────────────── */
 #site-nav {
   display: flex;
-  position: relative; 
-  z-index: 100; /* Forces navigation layers entirely above page text */
+  position: relative;
+  z-index: 100;
 }
 
-/* FIX: Target your custom .nav-links class to prevent vertical clipping */
 #site-nav .nav-links {
   display: flex;
   flex-direction: row;
   list-style: none;
   margin: 0;
   padding: 0;
-  padding-right: 60px; /* Space for the fade overlay */
-  
-  /* FIXED SCROLLING AND VISIBILITY CONFLICTS: */
-  overflow-x: auto;         /* Mobile links swipe cleanly left/right */
-  overflow-y: visible;      /* CRITICAL: Allows dropdown to drop downward */
-  height: 45px;             /* Standard bar thickness anchors dropdown */
-  
+  padding-right: 60px;
+
+  /*
+   * OVERFLOW FIX — do NOT set overflow-y here.
+   * CSS forces overflow-y to compute as "auto" whenever overflow-x is
+   * any non-"visible" value. Setting overflow-y: visible is silently
+   * ignored and the bar clips every absolutely-positioned child,
+   * including the dropdown. The dropdown escapes this entirely via
+   * the JS portal pattern (reparented to <body> at runtime).
+   */
+  overflow-x: auto;
+  height: 45px;
+
   scrollbar-width: none;
-  flex: 1;            
+  flex: 1;
 }
 
 #site-nav .nav-links::-webkit-scrollbar { display: none; }
@@ -128,8 +132,7 @@ header {
   flex-shrink: 0;
 }
 
-/* FIX: Target your explicit child class wrapper to prevent formatting bleed */
-#site-nav .nav-links > li > a {   
+#site-nav .nav-links > li > a {
   display: flex;
   align-items: center;
   padding: 12px 24px;
@@ -148,14 +151,14 @@ header {
 
 #site-nav::after {
   content: '';
-  position: absolute; 
+  position: absolute;
   right: 0;
   top: 0;
-  width: 60px;        
+  width: 60px;
   height: 100%;
   background: linear-gradient(to right, transparent, #10101e);
   pointer-events: none;
-  z-index: 2;         
+  z-index: 2;
 }
 
 /* Nav Tab Animation Delays */
@@ -169,8 +172,8 @@ header {
 #nav-matrix    { animation-delay: 1.55s; }
 #nav-sampler   { animation-delay: 1.65s; }
 
-@keyframes fadeInNav { 
-  to { opacity: 1; } 
+@keyframes fadeInNav {
+  to { opacity: 1; }
 }
 
 /* ── PER-TAB COLORS & HOVERS ────────────────────────────────── */
@@ -195,61 +198,55 @@ header {
 #site-nav #nav-sampler:hover   { color: #00f5ff; }
 
 /* ── THEORY DROPDOWN ────────────────────────────────────────── */
-#site-nav li.theory-dropdown {
-  position: relative;
-  z-index: 9999; /* Forces the item to sit in front of the article content */
+/*
+ * The menu element is reparented to <body> by main.js at runtime using
+ * the portal pattern. All position/display values are set by JS.
+ * These rules handle only visual appearance.
+ * Selectors are intentionally NOT scoped to #site-nav so they still
+ * match after the element is detached from the nav tree.
+ */
+
+/* Highlight the Theory tab while its menu is open */
+#site-nav li.theory-dropdown.open > a {
+  color: #ff9933;
 }
 
-/* FIX: Target specifically with #site-nav to beat the global selector priority */
-#site-nav .theory-dropdown-menu {
-  display: none;
-  position: absolute;
-  top: 100%; /* Automatically drops down directly below the link text */
-  left: 0;
+/* The floating menu panel itself */
+.theory-dropdown-menu {
+  /* display and position are set entirely by JS — do not override here */
   background: #10101e;
   border: 1px solid #ff993355;
   border-top: 2px solid #ff9933;
-  z-index: 10000;
+  z-index: 99999;
   min-width: 200px;
-  box-shadow: 0 10px 15px rgba(0,0,0,0.5);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.6);
   pointer-events: auto;
 }
 
-/* Desktop: open on hover */
-@media (hover: hover) {
-  #site-nav li.theory-dropdown:hover .theory-dropdown-menu {
-    display: block !important;
-  }
+/* Links inside the floating panel */
+.theory-dropdown-menu a {
+  display: block;
+  padding: 10px 20px;
+  font-family: 'Space Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: #9988aa;
+  text-decoration: none;
+  border-bottom: 1px solid #ffffff0d;
+  transition: color 0.2s, background 0.2s;
+  white-space: nowrap;
 }
 
-/* Mobile & Click Fallback: open via JS .open class */
-#site-nav li.theory-dropdown.open .theory-dropdown-menu {
-  display: block !important;
+.theory-dropdown-menu a:last-child {
+  border-bottom: none;
 }
 
-/* FIX: Added #site-nav to override global text layout properties */
-#site-nav .theory-dropdown-menu a {
-  display: block !important;
-  padding: 10px 20px !important;
-  font-size: 10px !important;
-  letter-spacing: 2px !important;
-  text-transform: uppercase !important;
-  color: #9988aa !important;
-  text-decoration: none !important;
-  border-bottom: 1px solid #ffffff0d !important;
-  border-right: none !important; /* Strips the vertical lines from the top nav bar style */
-  transition: color 0.2s, background 0.2s !important;
-  white-space: nowrap !important;
-  opacity: 1 !important;
-  animation: none !important;
+.theory-dropdown-menu a:hover,
+.theory-dropdown-menu a.active {
+  color: #ff9933;
+  background: #ffffff08;
 }
-
-#site-nav .theory-dropdown-menu a:hover,
-#site-nav .theory-dropdown-menu a.active {
-  color: #ff9933 !important;
-  background: #ffffff08 !important;
-}
-
 /* ── PAGE LAYOUT SYSTEMS ─────────────────────────────────────── */
 .page {
   display: grid;
