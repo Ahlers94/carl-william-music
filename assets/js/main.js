@@ -111,6 +111,28 @@
         }, 600);
       })();
     }
+
+    // ── Theory Dropdown — hover on desktop, tap to toggle on mobile ──
+    const theoryDropdown = document.querySelector('.theory-dropdown');
+    const theoryTab      = document.getElementById('nav-theory');
+
+    if (theoryDropdown && theoryTab) {
+      // Mobile: tap the Theory tab to open/close the dropdown
+      theoryTab.addEventListener('click', function (e) {
+        if (window.matchMedia('(hover: none)').matches) {
+          e.preventDefault();
+          theoryDropdown.classList.toggle('open');
+        }
+      });
+
+      // Tap anywhere outside the dropdown to close it
+      document.addEventListener('click', function (e) {
+        if (!theoryDropdown.contains(e.target)) {
+          theoryDropdown.classList.remove('open');
+        }
+      });
+    }
+
   }
 
   // ── Global Video/Audio Pipeline Controls ──────────────
@@ -119,13 +141,11 @@
       const src = iframe.src || '';
       try {
         if (src.includes('youtube') || src.includes('youtu.be')) {
-          // YouTube JS API
           iframe.contentWindow.postMessage(
             JSON.stringify({ event: 'command', func: 'pauseVideo', args: [] }),
             '*'
           );
         } else if (src.includes('soundcloud.com/player')) {
-          // SoundCloud Widget API
           iframe.contentWindow.postMessage(
             JSON.stringify({ method: 'pause' }),
             '*'
