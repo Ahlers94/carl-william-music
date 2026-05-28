@@ -66,12 +66,17 @@
     });
 
     // ── Text Decryption Sequence Engine ────────────────────
+        // ── Text Decryption Sequence Engine ────────────────────
     const bioEl = document.getElementById('bio-decrypt');
     if (bioEl) {
       (function decryptBio() {
-        const target = bioEl.textContent.trim();
+        const target = bioEl.textContent ? bioEl.textContent.trim() : null;
+        if (!target) return; /* FIX: Safe exit if element or text content is empty */
+        
         const pool = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*';
         const segments = Array.from(target);
+        /* ... keep the rest of your tick animation code exactly the same ... */
+
         const locked = new Array(segments.length).fill(false);
         let resolved = 0;
         let lastTime = 0;
