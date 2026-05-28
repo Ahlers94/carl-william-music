@@ -99,11 +99,13 @@ header {
 /* ── NAVIGATION ─────────────────────────────────────────────── */
 #site-nav {
   display: flex;
+  background: #10101e;
+  border-bottom: 1px solid #ffffff15;
   position: sticky;
   top: 0;
   z-index: 10;
-  overflow: hidden;   /* Change to hidden so the overlay doesn't cause overflow */
-  position: relative; /* Add this! */
+  overflow: visible; /* Keep this visible */
+  flex-wrap: nowrap;
 }
 #site-nav ul {
   display: flex;
@@ -111,12 +113,13 @@ header {
   list-style: none;
   margin: 0;
   padding: 0;
-  padding-right: 60px; /* Space for the overlay */
+  /* CRITICAL: Force the list to never shrink and allow internal scrolling */
+  flex: 1 0 auto; 
   overflow-x: auto;
   scrollbar-width: none;
-  flex: 1;            /* Allows the UL to fill the space */
+  /* Add padding here to account for the fade effect */
+  padding-right: 60px; 
 }
-
 #site-nav ul::-webkit-scrollbar { display: none; }
 
 #site-nav li {
@@ -142,14 +145,15 @@ header {
 }
 #site-nav::after {
   content: '';
-  position: absolute; /* Change from sticky to absolute */
+  position: sticky; /* Keep it sticky so it stays fixed to the right side of the nav bar */
   right: 0;
-  top: 0;
-  width: 60px;        /* Changed from min-width to width */
+  min-width: 60px; 
   height: 100%;
   background: linear-gradient(to right, transparent, #10101e);
   pointer-events: none;
-  z-index: 2;         /* Ensure it stays on top */
+  flex-shrink: 0;
+  /* If this still covers your last tab, try increasing this to -80px */
+  margin-left: -60px; 
 }
 
 /* Nav Tab Animation Delays */
