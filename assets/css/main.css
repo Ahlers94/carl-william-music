@@ -104,7 +104,7 @@ header {
   position: sticky;
   top: 0;
   z-index: 10;
-  overflow: visible;
+  overflow: visible !important; /* Ensures dropdown is not clipped */
   flex-wrap: nowrap;
 }
 
@@ -117,6 +117,7 @@ header {
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
   scrollbar-width: none;
+  overflow: visible; /* Prevents dropdown clipping */
 }
 
 #site-nav ul::-webkit-scrollbar { display: none; }
@@ -171,45 +172,6 @@ header {
   to { opacity: 1; } 
 }
 
-/* 1. Ensure the parent LI is the reference point for the absolute position */
-.theory-dropdown {
-  position: relative;
-}
-
-/* 2. Style the dropdown container */
-.theory-dropdown-menu {
-  display: none; /* Hidden by default */
-  position: absolute;
-  top: 100%; /* Positions it directly below the nav bar */
-  left: 0;
-  background-color: #10101e;
-  min-width: 200px;
-  border: 1px solid #ffffff15;
-  z-index: 100;
-  flex-direction: column; /* Stacks links vertically */
-}
-
-/* 3. Style the inner links */
-.theory-dropdown-menu a {
-  display: block; /* Ensures full width */
-  padding: 12px 24px;
-  color: #9988aa;
-  text-transform: uppercase;
-  font-size: 11px;
-  text-decoration: none;
-  border-right: none; /* Dropdowns usually don't need the right border */
-}
-
-.theory-dropdown-menu a:hover {
-  background: #ffffff05;
-  color: #ffffff;
-}
-
-/* 4. Trigger display on hover (or use JS for click) */
-.theory-dropdown:hover .theory-dropdown-menu {
-  display: block;
-}
-
 /* ── PER-TAB COLORS & HOVERS ────────────────────────────────── */
 #site-nav #nav-originals[aria-current="page"] { color: #d4001a; border-bottom: 2px solid #d4001a; text-shadow: 0 0 12px #d4001a88; }
 #site-nav #nav-covers[aria-current="page"]    { color: #0070c9; border-bottom: 2px solid #0070c9; text-shadow: 0 0 12px #0070c988; }
@@ -244,8 +206,9 @@ header {
   background: #10101e;
   border: 1px solid #ff993355;
   border-top: 2px solid #ff9933;
-  z-index: 20;
+  z-index: 9999;
   min-width: 200px;
+  box-shadow: 0 10px 15px rgba(0,0,0,0.5);
 }
 
 /* Desktop: open on hover */
@@ -280,6 +243,7 @@ header {
   color: #ff9933;
   background: #ffffff08;
 }
+
 /* ── PAGE LAYOUT SYSTEMS ─────────────────────────────────────── */
 .page {
   display: grid;
@@ -1041,10 +1005,10 @@ footer span {
   }
 }
 
+/* ── CASIO SK-5 RETRO AESTHETIC CORE ─────────────────────────── */
 
-<style>
-/* --- Casio SK-5 Retro Aesthetic Core --- */
-body {
+/* Wraps the SK-5 App to prevent it from fighting the site's body tag */
+.sk5-layout-wrapper {
     background-color: #1a1a1a;
     font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
     color: #e0e0e0;
@@ -1417,4 +1381,3 @@ input[type="range"]::-webkit-slider-thumb {
     transform: translateY(2px);
     box-shadow: 1px 1px 2px rgba(0,0,0,0.4);
 }
-</style>
