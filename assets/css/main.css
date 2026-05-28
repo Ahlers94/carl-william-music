@@ -102,19 +102,24 @@ header {
   position: sticky;
   top: 0;
   z-index: 10;
-  overflow: visible;  
   position: relative; /* Add this! */
 }
+
 #site-nav ul {
   display: flex;
   flex-direction: row;
   list-style: none;
   margin: 0;
   padding: 0;
-  padding-right: 60px; /* Space for the overlay */
-  overflow-x: initial;
+  padding-right: 60px; /* Space for the fade overlay */
+  
+  /* FIXES MOBILE SCROLLING: */
+  overflow-x: auto;         /* Allows links to scroll sideways on small screens */
+  overflow-y: visible;      /* CRITICAL: Allows the dropdown to fall downward */
+  height: 45px;             /* Match your navbar's height so it doesn't warp */
+  
   scrollbar-width: none;
-  flex: 1;            /* Allows the UL to fill the space */
+  flex: 1;            
 }
 
 #site-nav ul::-webkit-scrollbar { display: none; }
@@ -193,11 +198,10 @@ header {
 .theory-dropdown {
   position: relative;
 }
-
 .theory-dropdown-menu {
   display: none;
   position: absolute;
-  top: 100%;
+  top: 45px;                /* Match the height of your #site-nav ul exactly */
   left: 0;
   background: #10101e;
   border: 1px solid #ff993355;
