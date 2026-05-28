@@ -65,22 +65,22 @@
       }
     });
 
-    // ── Text Decryption Sequence Engine ────────────────────
         // ── Text Decryption Sequence Engine ────────────────────
     const bioEl = document.getElementById('bio-decrypt');
     if (bioEl) {
       (function decryptBio() {
-        const target = bioEl.textContent ? bioEl.textContent.trim() : null;
-        if (!target) return; /* FIX: Safe exit if element or text content is empty */
-        
+        // FIX: If the element exists but text is empty, exit gracefully
+        const target = bioEl.textContent ? bioEl.textContent.trim() : '';
+        if (!target) return; 
+
         const pool = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*';
         const segments = Array.from(target);
-        /* ... keep the rest of your tick animation code exactly the same ... */
-
         const locked = new Array(segments.length).fill(false);
         let resolved = 0;
         let lastTime = 0;
         const msPerChar = 55;
+        
+        /* ... rest of your ticker and animation loop text ... */
 
         function isSpecial(ch) {
           return ch.trim() === '' || /[^\x00-\x7F]/.test(ch);
