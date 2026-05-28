@@ -99,27 +99,22 @@ header {
 /* ── NAVIGATION ─────────────────────────────────────────────── */
 #site-nav {
   display: flex;
-  background: #10101e;
-  border-bottom: 1px solid #ffffff15;
   position: sticky;
   top: 0;
   z-index: 10;
-  /* Change overflow from visible to hidden if you want to clip perfectly, 
-     or keep it visible but ensure the wrapper width is not restricted */
-  overflow: visible; 
-  flex-wrap: nowrap;
+  overflow: hidden;   /* Change to hidden so the overlay doesn't cause overflow */
+  position: relative; /* Add this! */
 }
-
 #site-nav ul {
   display: flex;
   flex-direction: row;
   list-style: none;
   margin: 0;
   padding: 0;
-  padding-right: 80px; /* <--- ADD THIS: Ensures Synth and Drums are not covered by the fade */
+  padding-right: 60px; /* Space for the overlay */
   overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
   scrollbar-width: none;
+  flex: 1;            /* Allows the UL to fill the space */
 }
 
 #site-nav ul::-webkit-scrollbar { display: none; }
@@ -145,18 +140,16 @@ header {
   will-change: opacity;
   animation: fadeInNav 0.3s ease forwards;
 }
-
 #site-nav::after {
   content: '';
-  position: sticky;
+  position: absolute; /* Change from sticky to absolute */
   right: 0;
   top: 0;
-  min-width: 60px; /* <--- Slightly increase width if needed */
+  width: 60px;        /* Changed from min-width to width */
   height: 100%;
   background: linear-gradient(to right, transparent, #10101e);
   pointer-events: none;
-  flex-shrink: 0;
-  margin-left: -60px; /* <--- Match this to the new min-width */
+  z-index: 2;         /* Ensure it stays on top */
 }
 
 /* Nav Tab Animation Delays */
