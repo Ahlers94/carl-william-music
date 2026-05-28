@@ -191,6 +191,55 @@ header {
 #site-nav #nav-theory:hover    { color: #ff9933; }
 #site-nav #nav-sampler:hover   { color: #00f5ff; }
 
+/* ── THEORY DROPDOWN ────────────────────────────────────────── */
+.theory-dropdown {
+  position: relative;
+}
+
+.theory-dropdown-menu {
+  display: none;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  background: #10101e;
+  border: 1px solid #ff993355;
+  border-top: 2px solid #ff9933;
+  z-index: 20;
+  min-width: 200px;
+}
+
+/* Desktop: open on hover */
+@media (hover: hover) {
+  .theory-dropdown:hover .theory-dropdown-menu {
+    display: block;
+  }
+}
+
+/* Mobile: open via JS .open class */
+.theory-dropdown.open .theory-dropdown-menu {
+  display: block;
+}
+
+.theory-dropdown-menu a {
+  display: block;
+  padding: 10px 20px;
+  font-size: 10px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: #9988aa;
+  text-decoration: none;
+  border-bottom: 1px solid #ffffff0d;
+  transition: color 0.2s, background 0.2s;
+  white-space: nowrap;
+  opacity: 1;
+  animation: none;
+}
+
+.theory-dropdown-menu a:hover,
+.theory-dropdown-menu a.active {
+  color: #ff9933;
+  background: #ffffff08;
+}
 /* ── PAGE LAYOUT SYSTEMS ─────────────────────────────────────── */
 .page {
   display: grid;
