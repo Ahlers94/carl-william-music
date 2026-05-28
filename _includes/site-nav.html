@@ -42,12 +42,12 @@
          News
       </a>
     </li>
-    <li>
-      <a href="{{ '/theory/chord-stacking/' | relative_url }}" 
-         id="nav-theory" 
-         {% if page.nav == 'theory' or page.url contains '/theory/' %}aria-current="page"{% endif %}>
-         Theory
-      </a>
+     <li class="theory-dropdown">
+        <a href="#" id="nav-theory">Theory ▾</a>
+        <div class="theory-dropdown-menu">
+        <a href="chord-stacking.html">Chord Stacking</a>
+        <a href="compression.html">Compression</a>
+        </div>
     </li>
     <li>
       <a href="{{ '/matrix.html' | relative_url }}" 
