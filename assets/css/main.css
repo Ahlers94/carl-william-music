@@ -103,23 +103,23 @@ header {
   border-bottom: 1px solid #ffffff15;
   position: sticky;
   top: 0;
-  z-index: 100;
-  /* Ensure parent is relative so the absolute overlay is pinned correctly */
-  position: relative; 
+  z-index: 10;
+  overflow: visible !important; /* Ensures dropdown is not clipped */
   flex-wrap: nowrap;
 }
+
 #site-nav ul {
   display: flex;
   flex-direction: row;
   list-style: none;
   margin: 0;
   padding: 0;
-  /* Add buffer at the end so tabs can scroll past the overlay */
-  padding-right: 80px; 
   overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
   scrollbar-width: none;
-  flex: 1 0 auto;
+  overflow: visible; /* Prevents dropdown clipping */
 }
+
 #site-nav ul::-webkit-scrollbar { display: none; }
 
 #site-nav li {
@@ -143,18 +143,18 @@ header {
   will-change: opacity;
   animation: fadeInNav 0.3s ease forwards;
 }
+
 #site-nav::after {
   content: '';
-  /* Change to absolute to stop conflicting with sticky scroll logic */
-  position: absolute; 
+  position: sticky;
   right: 0;
   top: 0;
-  width: 60px;
+  min-width: 48px;
   height: 100%;
   background: linear-gradient(to right, transparent, #10101e);
-  /* Crucial: allows mouse clicks to pass through the gradient to the links */
-  pointer-events: none; 
-  z-index: 2;
+  pointer-events: none;
+  flex-shrink: 0;
+  margin-left: -48px;
 }
 
 /* Nav Tab Animation Delays */
@@ -195,7 +195,7 @@ header {
 
 /* ── THEORY DROPDOWN ────────────────────────────────────────── */
 .theory-dropdown {
-  position: relative; /* This is the anchor point for the dropdown */
+  position: relative;
 }
 
 .theory-dropdown-menu {
@@ -206,28 +206,40 @@ header {
   background: #10101e;
   border: 1px solid #ff993355;
   border-top: 2px solid #ff9933;
-  /* High z-index ensures it sits above the header and body content */
-  z-index: 9999; 
+  z-index: 9999;
   min-width: 200px;
   box-shadow: 0 10px 15px rgba(0,0,0,0.5);
 }
 
-/* Ensure the hover state is responsive to the parent container */
-.theory-dropdown:hover > .theory-dropdown-menu,
-.theory-dropdown.open > .theory-dropdown-menu {
+/* Desktop: open on hover */
+@media (hover: hover) {
+  .theory-dropdown:hover .theory-dropdown-menu {
+    display: block;
+  }
+}
+
+/* Mobile: open via JS .open class */
+.theory-dropdown.open .theory-dropdown-menu {
   display: block;
 }
 
 .theory-dropdown-menu a {
   display: block;
-  padding: 12px 20px;
+  padding: 10px 20px;
+  font-size: 10px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
   color: #9988aa;
   text-decoration: none;
-  font-size: 11px;
+  border-bottom: 1px solid #ffffff0d;
+  transition: color 0.2s, background 0.2s;
   white-space: nowrap;
+  opacity: 1;
+  animation: none;
 }
 
-.theory-dropdown-menu a:hover {
+.theory-dropdown-menu a:hover,
+.theory-dropdown-menu a.active {
   color: #ff9933;
   background: #ffffff08;
 }
