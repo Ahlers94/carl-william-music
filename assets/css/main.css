@@ -99,13 +99,12 @@ header {
 /* ── NAVIGATION ─────────────────────────────────────────────── */
 #site-nav {
   display: flex;
-  position: sticky;
-  top: 0;
-  z-index: 10;
-  position: relative; /* Add this! */
+  position: relative; 
+  z-index: 100; /* Forces navigation layers entirely above page text */
 }
 
-#site-nav ul {
+/* FIX: Target your custom .nav-links class to prevent vertical clipping */
+#site-nav .nav-links {
   display: flex;
   flex-direction: row;
   list-style: none;
@@ -113,23 +112,24 @@ header {
   padding: 0;
   padding-right: 60px; /* Space for the fade overlay */
   
-  /* FIXES MOBILE SCROLLING: */
-  overflow-x: auto;         /* Allows links to scroll sideways on small screens */
-  overflow-y: visible;      /* CRITICAL: Allows the dropdown to fall downward */
-  height: 45px;             /* Match your navbar's height so it doesn't warp */
+  /* FIXED SCROLLING AND VISIBILITY CONFLICTS: */
+  overflow-x: auto;         /* Mobile links swipe cleanly left/right */
+  overflow-y: visible;      /* CRITICAL: Allows dropdown to drop downward */
+  height: 45px;             /* Standard bar thickness anchors dropdown */
   
   scrollbar-width: none;
   flex: 1;            
 }
 
-#site-nav ul::-webkit-scrollbar { display: none; }
+#site-nav .nav-links::-webkit-scrollbar { display: none; }
 
 #site-nav li {
   display: flex;
   flex-shrink: 0;
 }
-/* Change this line in your CSS */
-#site-nav ul > li > a {   /* FIX: Only targets top-level navbar links */
+
+/* FIX: Target your explicit child class wrapper to prevent formatting bleed */
+#site-nav .nav-links > li > a {   
   display: flex;
   align-items: center;
   padding: 12px 24px;
@@ -148,14 +148,14 @@ header {
 
 #site-nav::after {
   content: '';
-  position: absolute; /* Change from sticky to absolute */
+  position: absolute; 
   right: 0;
   top: 0;
-  width: 60px;        /* Changed from min-width to width */
+  width: 60px;        
   height: 100%;
   background: linear-gradient(to right, transparent, #10101e);
   pointer-events: none;
-  z-index: 2;         /* Ensure it stays on top */
+  z-index: 2;         
 }
 
 /* Nav Tab Animation Delays */
