@@ -103,8 +103,9 @@ header {
   border-bottom: 1px solid #ffffff15;
   position: sticky;
   top: 0;
-  z-index: 10;
-  overflow: visible; /* Keep this visible */
+  z-index: 100; /* Increased z-index */
+  overflow: visible;
+  position: relative; /* Add this */
   flex-wrap: nowrap;
 }
 #site-nav ul {
@@ -113,12 +114,10 @@ header {
   list-style: none;
   margin: 0;
   padding: 0;
-  /* CRITICAL: Force the list to never shrink and allow internal scrolling */
-  flex: 1 0 auto; 
+  padding-right: 80px; /* Buffer for Synth and Drums */
   overflow-x: auto;
   scrollbar-width: none;
-  /* Add padding here to account for the fade effect */
-  padding-right: 60px; 
+  flex: 1 0 auto;
 }
 #site-nav ul::-webkit-scrollbar { display: none; }
 
@@ -145,15 +144,14 @@ header {
 }
 #site-nav::after {
   content: '';
-  position: sticky; /* Keep it sticky so it stays fixed to the right side of the nav bar */
+  position: absolute; /* Changed from sticky */
   right: 0;
-  min-width: 60px; 
+  top: 0;
+  width: 60px;
   height: 100%;
   background: linear-gradient(to right, transparent, #10101e);
-  pointer-events: none;
-  flex-shrink: 0;
-  /* If this still covers your last tab, try increasing this to -80px */
-  margin-left: -60px; 
+  pointer-events: none; /* Crucial: clicks go through the fade */
+  z-index: 2;
 }
 
 /* Nav Tab Animation Delays */
@@ -205,8 +203,7 @@ header {
   background: #10101e;
   border: 1px solid #ff993355;
   border-top: 2px solid #ff9933;
-  /* Higher z-index to ensure it sits on top of all nav elements */
-  z-index: 9999; 
+  z-index: 9999; /* Force it to the top of the layer stack */
   min-width: 200px;
   box-shadow: 0 10px 15px rgba(0,0,0,0.5);
 }
