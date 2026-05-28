@@ -195,53 +195,59 @@ header {
 #site-nav #nav-sampler:hover   { color: #00f5ff; }
 
 /* ── THEORY DROPDOWN ────────────────────────────────────────── */
-.theory-dropdown {
+#site-nav li.theory-dropdown {
   position: relative;
+  z-index: 9999; /* Forces the item to sit in front of the article content */
 }
-.theory-dropdown-menu {
+
+/* FIX: Target specifically with #site-nav to beat the global selector priority */
+#site-nav .theory-dropdown-menu {
   display: none;
   position: absolute;
-  top: 45px;                /* Match the height of your #site-nav ul exactly */
+  top: 100%; /* Automatically drops down directly below the link text */
   left: 0;
   background: #10101e;
   border: 1px solid #ff993355;
   border-top: 2px solid #ff9933;
-  z-index: 9999;
+  z-index: 10000;
   min-width: 200px;
   box-shadow: 0 10px 15px rgba(0,0,0,0.5);
+  pointer-events: auto;
 }
 
 /* Desktop: open on hover */
 @media (hover: hover) {
-  .theory-dropdown:hover .theory-dropdown-menu {
-    display: block;
+  #site-nav li.theory-dropdown:hover .theory-dropdown-menu {
+    display: block !important;
   }
 }
 
-/* Mobile: open via JS .open class */
-.theory-dropdown.open .theory-dropdown-menu {
-  display: block;
+/* Mobile & Click Fallback: open via JS .open class */
+#site-nav li.theory-dropdown.open .theory-dropdown-menu {
+  display: block !important;
 }
 
-.theory-dropdown-menu a {
-  display: block;
-  padding: 10px 20px;
-  font-size: 10px;
-  letter-spacing: 2px;
-  text-transform: uppercase;
-  color: #9988aa;
-  text-decoration: none;
-  border-bottom: 1px solid #ffffff0d;
-  transition: color 0.2s, background 0.2s;
-  white-space: nowrap;
-  opacity: 1;
-  animation: none;
+/* FIX: Added #site-nav to override global text layout properties */
+#site-nav .theory-dropdown-menu a {
+  display: block !important;
+  padding: 10px 20px !important;
+  font-size: 10px !important;
+  letter-spacing: 2px !important;
+  text-transform: uppercase !important;
+  color: #9988aa !important;
+  text-decoration: none !important;
+  border-bottom: 1px solid #ffffff0d !important;
+  border-right: none !important; /* Strips the vertical lines from the top nav bar style */
+  transition: color 0.2s, background 0.2s !important;
+  white-space: nowrap !important;
+  opacity: 1 !important;
+  animation: none !important;
 }
 
-.theory-dropdown-menu a:hover,
-.theory-dropdown-menu a.active {
-  color: #ff9933;
-  background: #ffffff08;
+#site-nav .theory-dropdown-menu a:hover,
+#site-nav .theory-dropdown-menu a.active {
+  color: #ff9933 !important;
+  background: #ffffff08 !important;
 }
 
 /* ── PAGE LAYOUT SYSTEMS ─────────────────────────────────────── */
