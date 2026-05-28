@@ -105,12 +105,8 @@ header {
   top: 0;
   z-index: 10;
   overflow: visible;
-  -webkit-overflow-scrolling: touch;
-  scrollbar-width: none;
-  flex-wrap: nowrap; 
+  flex-wrap: nowrap;
 }
-
-#site-nav::-webkit-scrollbar { display: none; }
 
 #site-nav ul {
   display: flex;
@@ -119,8 +115,11 @@ header {
   margin: 0;
   padding: 0;
   overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
   scrollbar-width: none;
 }
+
+#site-nav ul::-webkit-scrollbar { display: none; }
 
 #site-nav li {
   display: flex;
