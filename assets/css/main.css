@@ -112,7 +112,7 @@ header {
   margin: 0;
   padding: 0;
   padding-right: 60px; /* Space for the overlay */
-  overflow-x: auto;
+  overflow-x: initial;
   scrollbar-width: none;
   flex: 1;            /* Allows the UL to fill the space */
 }
