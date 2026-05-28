@@ -135,7 +135,7 @@
     (function () {
       var theoryLi   = document.querySelector('li.theory-dropdown');
       var theoryLink = document.getElementById('nav-theory');
-      var theoryMenu = document.getElementById('theory-dropdown-menu');
+      var theoryMenu = document.querySelector('.theory-dropdown-menu')
 
       if (!theoryLi || !theoryLink || !theoryMenu) { return; }
 
