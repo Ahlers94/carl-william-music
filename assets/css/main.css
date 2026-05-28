@@ -123,8 +123,8 @@ header {
   display: flex;
   flex-shrink: 0;
 }
-
-#site-nav li a {
+/* Change this line in your CSS */
+#site-nav ul > li > a {   /* FIX: Only targets top-level navbar links */
   display: flex;
   align-items: center;
   padding: 12px 24px;
@@ -140,6 +140,7 @@ header {
   will-change: opacity;
   animation: fadeInNav 0.3s ease forwards;
 }
+
 #site-nav::after {
   content: '';
   position: absolute; /* Change from sticky to absolute */
