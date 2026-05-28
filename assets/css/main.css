@@ -103,9 +103,9 @@ header {
   border-bottom: 1px solid #ffffff15;
   position: sticky;
   top: 0;
-  z-index: 100; /* Increased z-index */
-  overflow: visible;
-  position: relative; /* Add this */
+  z-index: 100;
+  /* Ensure parent is relative so the absolute overlay is pinned correctly */
+  position: relative; 
   flex-wrap: nowrap;
 }
 #site-nav ul {
@@ -114,7 +114,8 @@ header {
   list-style: none;
   margin: 0;
   padding: 0;
-  padding-right: 80px; /* Buffer for Synth and Drums */
+  /* Add buffer at the end so tabs can scroll past the overlay */
+  padding-right: 80px; 
   overflow-x: auto;
   scrollbar-width: none;
   flex: 1 0 auto;
@@ -144,13 +145,15 @@ header {
 }
 #site-nav::after {
   content: '';
-  position: absolute; /* Changed from sticky */
+  /* Change to absolute to stop conflicting with sticky scroll logic */
+  position: absolute; 
   right: 0;
   top: 0;
   width: 60px;
   height: 100%;
   background: linear-gradient(to right, transparent, #10101e);
-  pointer-events: none; /* Crucial: clicks go through the fade */
+  /* Crucial: allows mouse clicks to pass through the gradient to the links */
+  pointer-events: none; 
   z-index: 2;
 }
 
@@ -203,7 +206,8 @@ header {
   background: #10101e;
   border: 1px solid #ff993355;
   border-top: 2px solid #ff9933;
-  z-index: 9999; /* Force it to the top of the layer stack */
+  /* High z-index ensures it sits above the header and body content */
+  z-index: 9999; 
   min-width: 200px;
   box-shadow: 0 10px 15px rgba(0,0,0,0.5);
 }
