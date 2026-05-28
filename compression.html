@@ -1,415 +1,11 @@
 ---
 layout: default
 title: Compression — Theory
-nav: theory
+description: A complete guide to compression controls and advanced techniques
+permalink: /compression.html
+nav: compression
 ---
 
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Compression — Theory | Carl William Music</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=VT323&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="assets/css/main.css" />
-  <style>
-    /* ── THEORY NAV DROPDOWN ───────────────────────────────── */
-    .theory-dropdown {
-      position: relative;
-    }
-
-    .theory-dropdown-menu {
-      display: none;
-      position: absolute;
-      top: 100%;
-      left: 0;
-      background: #10101e;
-      border: 1px solid #ff993355;
-      border-top: 2px solid #ff9933;
-      z-index: 20;
-      min-width: 200px;
-    }
-
-    .theory-dropdown:hover .theory-dropdown-menu,
-    .theory-dropdown:focus-within .theory-dropdown-menu {
-      display: block;
-    }
-
-    .theory-dropdown-menu a {
-      display: block;
-      padding: 10px 20px;
-      font-size: 10px;
-      letter-spacing: 2px;
-      text-transform: uppercase;
-      color: #9988aa;
-      text-decoration: none;
-      border-bottom: 1px solid #ffffff0d;
-      transition: color 0.2s, background 0.2s;
-      white-space: nowrap;
-    }
-
-    .theory-dropdown-menu a:hover {
-      color: #ff9933;
-      background: #ffffff08;
-    }
-
-    .theory-dropdown-menu a.active {
-      color: #ff9933;
-    }
-
-    /* ── ARTICLE LAYOUT ────────────────────────────────────── */
-    .theory-article {
-      max-width: 820px;
-      padding: 48px 48px 80px;
-    }
-
-    .article-eyebrow {
-      font-size: 10px;
-      color: #ff9933;
-      letter-spacing: 4px;
-      text-transform: uppercase;
-      margin-bottom: 12px;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .article-eyebrow::after {
-      content: '';
-      flex: 1;
-      max-width: 60px;
-      height: 1px;
-      background: #ff993344;
-    }
-
-    .article-title {
-      font-family: 'VT323', monospace;
-      font-size: clamp(48px, 8vw, 80px);
-      color: #ff9933;
-      letter-spacing: 4px;
-      line-height: 1;
-      text-shadow: 3px 3px 0 #7a4400, 0 0 40px #ff993344;
-      margin-bottom: 8px;
-    }
-
-    .article-subtitle {
-      font-size: 12px;
-      color: var(--muted);
-      letter-spacing: 2px;
-      font-style: italic;
-      margin-bottom: 48px;
-      padding-bottom: 24px;
-      border-bottom: 1px solid #ff993322;
-    }
-
-    /* ── SECTION BLOCKS ────────────────────────────────────── */
-    .theory-section {
-      margin-bottom: 48px;
-    }
-
-    .theory-section-title {
-      font-size: 10px;
-      color: #ff9933;
-      letter-spacing: 4px;
-      text-transform: uppercase;
-      margin-bottom: 20px;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-
-    .theory-section-title::after {
-      content: '';
-      flex: 1;
-      height: 1px;
-      background: #ff993333;
-    }
-
-    .intro-block {
-      font-size: 13px;
-      line-height: 2;
-      color: var(--text);
-      margin-bottom: 24px;
-      padding: 20px 24px;
-      border-left: 3px solid #ff9933;
-      background: #ff993308;
-    }
-
-    .intro-block strong {
-      color: #ff9933;
-    }
-
-    /* ── CONTROL ROWS ──────────────────────────────────────── */
-    .control-block {
-      margin-bottom: 28px;
-      border: 1px solid #ffffff0d;
-      background: var(--surface);
-    }
-
-    .control-header {
-      display: flex;
-      align-items: baseline;
-      gap: 16px;
-      padding: 14px 20px 10px;
-      border-bottom: 1px solid #ffffff0d;
-      background: #ffffff04;
-    }
-
-    .control-name {
-      font-family: 'VT323', monospace;
-      font-size: 26px;
-      color: var(--cyan);
-      letter-spacing: 3px;
-      text-shadow: 0 0 12px #00f5ff55;
-    }
-
-    .control-body {
-      padding: 14px 20px 18px;
-      font-size: 12px;
-      line-height: 1.9;
-      color: var(--muted);
-    }
-
-    .control-body p { margin-bottom: 10px; }
-    .control-body p:last-child { margin-bottom: 0; }
-
-    /* ── SUB-MODES (Fast/Slow attack etc) ─────────────────── */
-    .mode-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 12px;
-      margin-top: 14px;
-    }
-
-    .mode-card {
-      padding: 14px 16px;
-      border: 1px solid #ffffff0d;
-      background: #06060f;
-    }
-
-    .mode-card-label {
-      font-size: 9px;
-      color: var(--gold);
-      letter-spacing: 3px;
-      text-transform: uppercase;
-      margin-bottom: 8px;
-    }
-
-    .mode-card p {
-      font-size: 11px;
-      color: var(--muted);
-      line-height: 1.8;
-      margin: 0;
-    }
-
-    /* ── RATIO TABLE ───────────────────────────────────────── */
-    .ratio-table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 14px;
-      font-size: 12px;
-    }
-
-    .ratio-table tr {
-      border-bottom: 1px solid #ffffff0d;
-      transition: background 0.15s;
-    }
-
-    .ratio-table tr:hover { background: #ffffff05; }
-
-    .ratio-table td {
-      padding: 10px 16px;
-      color: var(--muted);
-      vertical-align: top;
-    }
-
-    .ratio-table td:first-child {
-      font-family: 'VT323', monospace;
-      font-size: 20px;
-      color: var(--cyan);
-      white-space: nowrap;
-      width: 140px;
-      text-shadow: 0 0 8px #00f5ff44;
-    }
-
-    /* ── GAIN METER TIPS ───────────────────────────────────── */
-    .meter-tip {
-      display: flex;
-      gap: 14px;
-      padding: 12px 16px;
-      border-bottom: 1px solid #ffffff0d;
-      font-size: 12px;
-      color: var(--muted);
-      line-height: 1.8;
-    }
-
-    .meter-tip:last-child { border-bottom: none; }
-
-    .meter-tip-icon {
-      font-family: 'VT323', monospace;
-      font-size: 20px;
-      min-width: 28px;
-      padding-top: 2px;
-    }
-
-    .meter-tip-icon.bad  { color: var(--pink); text-shadow: 0 0 8px #ff2d7866; }
-    .meter-tip-icon.warn { color: var(--gold); text-shadow: 0 0 8px #ffd70066; }
-    .meter-tip-icon.good { color: var(--green); text-shadow: 0 0 8px #99cc7766; }
-    .meter-tip-icon.info { color: var(--cyan); text-shadow: 0 0 8px #00f5ff66; }
-
-    /* ── ADVANCED TECHNIQUE CARDS ──────────────────────────── */
-    .technique-card {
-      margin-bottom: 28px;
-      border: 1px solid #ff993322;
-      background: var(--surface);
-    }
-
-    .technique-card-header {
-      padding: 14px 20px 10px;
-      border-bottom: 1px solid #ff993318;
-      background: #ff993308;
-    }
-
-    .technique-card-title {
-      font-family: 'VT323', monospace;
-      font-size: 26px;
-      color: #ff9933;
-      letter-spacing: 3px;
-      text-shadow: 0 0 12px #ff993344;
-    }
-
-    .technique-card-body {
-      padding: 16px 20px;
-      font-size: 12px;
-      line-height: 1.9;
-      color: var(--muted);
-    }
-
-    .technique-card-body p { margin-bottom: 10px; }
-    .technique-card-body p:last-child { margin-bottom: 0; }
-
-    /* Sidechain sub-items */
-    .sidechain-item {
-      padding: 10px 0;
-      border-bottom: 1px solid #ffffff08;
-    }
-    .sidechain-item:last-child { border-bottom: none; }
-
-    .sidechain-label {
-      font-size: 9px;
-      color: var(--cyan);
-      letter-spacing: 3px;
-      text-transform: uppercase;
-      margin-bottom: 4px;
-    }
-
-    /* Serial steps */
-    .serial-steps {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-      margin: 14px 0;
-    }
-
-    .serial-step {
-      display: flex;
-      gap: 14px;
-      align-items: flex-start;
-      padding: 10px 14px;
-      border: 1px solid #ffffff0d;
-      background: #06060f;
-    }
-
-    .serial-step-num {
-      font-family: 'VT323', monospace;
-      font-size: 22px;
-      color: #ff9933;
-      min-width: 28px;
-    }
-
-    .serial-step-text {
-      font-size: 12px;
-      color: var(--muted);
-      line-height: 1.8;
-    }
-
-    /* ── BOTTOM LINE ───────────────────────────────────────── */
-    .bottom-line {
-      margin-top: 64px;
-      padding: 28px 32px;
-      border: 1px solid #ff993344;
-      background: #ff993308;
-      position: relative;
-    }
-
-    .bottom-line::before {
-      content: 'THE BOTTOM LINE';
-      position: absolute;
-      top: -10px;
-      left: 24px;
-      background: var(--bg);
-      padding: 0 10px;
-      font-size: 9px;
-      color: #ff9933;
-      letter-spacing: 4px;
-    }
-
-    .bottom-line p {
-      font-size: 13px;
-      line-height: 2;
-      color: var(--text);
-    }
-
-    /* ── MOBILE TWEAKS ─────────────────────────────────────── */
-    @media (max-width: 720px) {
-      .theory-article { padding: 24px 24px 60px; }
-      .mode-grid { grid-template-columns: 1fr; }
-      .ratio-table td:first-child { width: 100px; }
-    }
-  </style>
-</head>
-<body>
-
-<div id="cursor-glow"></div>
-
-<!-- ── HEADER ─────────────────────────────────────────────── -->
-<header>
-  <div class="artist-name">CARL WILLIAM</div>
-  <div class="artist-tagline">
-    <span class="tagline-word" style="animation-delay:0.2s">MUSICIAN</span>
-    <span class="tagline-word" style="animation-delay:0.35s">·</span>
-    <span class="tagline-word" style="animation-delay:0.5s">PRODUCER</span>
-    <span class="tagline-word" style="animation-delay:0.65s">·</span>
-    <span class="tagline-word" style="animation-delay:0.8s">ENGINEER</span>
-  </div>
-</header>
-
-<!-- ── NAVIGATION ─────────────────────────────────────────── -->
-<nav id="site-nav">
-  <ul>
-    <li><a href="originals.html"  id="nav-originals">Originals</a></li>
-    <li><a href="covers.html"     id="nav-covers">Covers</a></li>
-    <li><a href="gear.html"       id="nav-gear">Gear</a></li>
-    <li><a href="about.html"      id="nav-about">About</a></li>
-    <li><a href="shows.html"      id="nav-shows">Shows</a></li>
-    <li><a href="news.html"       id="nav-news">News</a></li>
-
-    <!-- THEORY DROPDOWN -->
-    <li class="theory-dropdown">
-      <a href="#" id="nav-theory" aria-current="page">Theory ▾</a>
-      <div class="theory-dropdown-menu">
-        <a href="chord-stacking.html">Chord Stacking</a>
-        <a href="compression.html" class="active">Compression</a>
-      </div>
-    </li>
-
-    <li><a href="matrix.html"     id="nav-matrix">Matrix</a></li>
-    <li><a href="sampler.html"    id="nav-sampler">Sampler</a></li>
-  </ul>
-</nav>
-
-<!-- ── PAGE CONTENT ───────────────────────────────────────── -->
 <main class="theory-article">
 
   <div class="article-eyebrow">Theory</div>
@@ -721,26 +317,358 @@ nav: theory
 
 </main>
 
-<footer>
-  <span>Carl William Music</span>
-  <span><span class="blink">█</span> All rights reserved</span>
-</footer>
+<style>
+  /* ── THEORY NAV DROPDOWN ───────────────────────────────── */
+  .theory-dropdown {
+    position: relative;
+  }
 
-<script>
-  // Cursor glow
-  const glow = document.getElementById('cursor-glow');
-  document.addEventListener('mousemove', e => {
-    glow.style.left = e.clientX + 'px';
-    glow.style.top  = e.clientY + 'px';
-  });
+  .theory-dropdown-menu {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    background: #10101e;
+    border: 1px solid #ff993355;
+    border-top: 2px solid #ff9933;
+    z-index: 20;
+    min-width: 200px;
+  }
 
-  // Tagline flicker
-  document.querySelectorAll('.tagline-word').forEach(w => {
-    w.addEventListener('mouseenter', () => {
-      w.classList.add('flickering');
-      w.addEventListener('animationend', () => w.classList.remove('flickering'), { once: true });
-    });
-  });
-</script>
-</body>
-</html>
+  .theory-dropdown:hover .theory-dropdown-menu,
+  .theory-dropdown:focus-within .theory-dropdown-menu {
+    display: block;
+  }
+
+  .theory-dropdown-menu a {
+    display: block;
+    padding: 10px 20px;
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: #9988aa;
+    text-decoration: none;
+    border-bottom: 1px solid #ffffff0d;
+    transition: color 0.2s, background 0.2s;
+    white-space: nowrap;
+  }
+
+  .theory-dropdown-menu a:hover {
+    color: #ff9933;
+    background: #ffffff08;
+  }
+
+  .theory-dropdown-menu a.active {
+    color: #ff9933;
+  }
+
+  /* ── ARTICLE LAYOUT ────────────────────────────────────── */
+  .theory-article {
+    max-width: 820px;
+    padding: 48px 48px 80px;
+  }
+
+  .article-eyebrow {
+    font-size: 10px;
+    color: #ff9933;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .article-eyebrow::after {
+    content: '';
+    flex: 1;
+    max-width: 60px;
+    height: 1px;
+    background: #ff993344;
+  }
+
+  .article-title {
+    font-family: 'VT323', monospace;
+    font-size: clamp(48px, 8vw, 80px);
+    color: #ff9933;
+    letter-spacing: 4px;
+    line-height: 1;
+    text-shadow: 3px 3px 0 #7a4400, 0 0 40px #ff993344;
+    margin-bottom: 8px;
+  }
+
+  .article-subtitle {
+    font-size: 12px;
+    color: var(--muted);
+    letter-spacing: 2px;
+    font-style: italic;
+    margin-bottom: 48px;
+    padding-bottom: 24px;
+    border-bottom: 1px solid #ff993322;
+  }
+
+  /* ── SECTION BLOCKS ────────────────────────────────────── */
+  .theory-section {
+    margin-bottom: 48px;
+  }
+
+  .theory-section-title {
+    font-size: 10px;
+    color: #ff9933;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .theory-section-title::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: #ff993333;
+  }
+
+  .intro-block {
+    font-size: 13px;
+    line-height: 2;
+    color: var(--text);
+    margin-bottom: 24px;
+    padding: 20px 24px;
+    border-left: 3px solid #ff9933;
+    background: #ff993308;
+  }
+
+  .intro-block strong {
+    color: #ff9933;
+  }
+
+  /* ── CONTROL ROWS ──────────────────────────────────────── */
+  .control-block {
+    margin-bottom: 28px;
+    border: 1px solid #ffffff0d;
+    background: var(--surface);
+  }
+
+  .control-header {
+    display: flex;
+    align-items: baseline;
+    gap: 16px;
+    padding: 14px 20px 10px;
+    border-bottom: 1px solid #ffffff0d;
+    background: #ffffff04;
+  }
+
+  .control-name {
+    font-family: 'VT323', monospace;
+    font-size: 26px;
+    color: var(--cyan);
+    letter-spacing: 3px;
+    text-shadow: 0 0 12px #00f5ff55;
+  }
+
+  .control-body {
+    padding: 14px 20px 18px;
+    font-size: 12px;
+    line-height: 1.9;
+    color: var(--muted);
+  }
+
+  .control-body p { margin-bottom: 10px; }
+  .control-body p:last-child { margin-bottom: 0; }
+
+  /* ── SUB-MODES (Fast/Slow attack etc) ─────────────────── */
+  .mode-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-top: 14px;
+  }
+
+  .mode-card {
+    padding: 14px 16px;
+    border: 1px solid #ffffff0d;
+    background: #06060f;
+  }
+
+  .mode-card-label {
+    font-size: 9px;
+    color: var(--gold);
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+
+  .mode-card p {
+    font-size: 11px;
+    color: var(--muted);
+    line-height: 1.8;
+    margin: 0;
+  }
+
+  /* ── RATIO TABLE ───────────────────────────────────────── */
+  .ratio-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 14px;
+    font-size: 12px;
+  }
+
+  .ratio-table tr {
+    border-bottom: 1px solid #ffffff0d;
+    transition: background 0.15s;
+  }
+
+  .ratio-table tr:hover { background: #ffffff05; }
+
+  .ratio-table td {
+    padding: 10px 16px;
+    color: var(--muted);
+    vertical-align: top;
+  }
+
+  .ratio-table td:first-child {
+    font-family: 'VT323', monospace;
+    font-size: 20px;
+    color: var(--cyan);
+    white-space: nowrap;
+    width: 140px;
+    text-shadow: 0 0 8px #00f5ff44;
+  }
+
+  /* ── GAIN METER TIPS ───────────────────────────────────── */
+  .meter-tip {
+    display: flex;
+    gap: 14px;
+    padding: 12px 16px;
+    border-bottom: 1px solid #ffffff0d;
+    font-size: 12px;
+    color: var(--muted);
+    line-height: 1.8;
+  }
+
+  .meter-tip:last-child { border-bottom: none; }
+
+  .meter-tip-icon {
+    font-family: 'VT323', monospace;
+    font-size: 20px;
+    min-width: 28px;
+    padding-top: 2px;
+  }
+
+  .meter-tip-icon.bad  { color: var(--pink); text-shadow: 0 0 8px #ff2d7866; }
+  .meter-tip-icon.warn { color: var(--gold); text-shadow: 0 0 8px #ffd70066; }
+  .meter-tip-icon.good { color: var(--green); text-shadow: 0 0 8px #99cc7766; }
+  .meter-tip-icon.info { color: var(--cyan); text-shadow: 0 0 8px #00f5ff66; }
+
+  /* ── ADVANCED TECHNIQUE CARDS ──────────────────────────── */
+  .technique-card {
+    margin-bottom: 28px;
+    border: 1px solid #ff993322;
+    background: var(--surface);
+  }
+
+  .technique-card-header {
+    padding: 14px 20px 10px;
+    border-bottom: 1px solid #ff993318;
+    background: #ff993308;
+  }
+
+  .technique-card-title {
+    font-family: 'VT323', monospace;
+    font-size: 26px;
+    color: #ff9933;
+    letter-spacing: 3px;
+    text-shadow: 0 0 12px #ff993344;
+  }
+
+  .technique-card-body {
+    padding: 16px 20px;
+    font-size: 12px;
+    line-height: 1.9;
+    color: var(--muted);
+  }
+
+  .technique-card-body p { margin-bottom: 10px; }
+  .technique-card-body p:last-child { margin-bottom: 0; }
+
+  /* Sidechain sub-items */
+  .sidechain-item {
+    padding: 10px 0;
+    border-bottom: 1px solid #ffffff08;
+  }
+  .sidechain-item:last-child { border-bottom: none; }
+
+  .sidechain-label {
+    font-size: 9px;
+    color: var(--cyan);
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+
+  /* Serial steps */
+  .serial-steps {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin: 14px 0;
+  }
+
+  .serial-step {
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+    padding: 10px 14px;
+    border: 1px solid #ffffff0d;
+    background: #06060f;
+  }
+
+  .serial-step-num {
+    font-family: 'VT323', monospace;
+    font-size: 22px;
+    color: #ff9933;
+    min-width: 28px;
+  }
+
+  .serial-step-text {
+    font-size: 12px;
+    color: var(--muted);
+    line-height: 1.8;
+  }
+
+  /* ── BOTTOM LINE ───────────────────────────────────────── */
+  .bottom-line {
+    margin-top: 64px;
+    padding: 28px 32px;
+    border: 1px solid #ff993344;
+    background: #ff993308;
+    position: relative;
+  }
+
+  .bottom-line::before {
+    content: 'THE BOTTOM LINE';
+    position: absolute;
+    top: -10px;
+    left: 24px;
+    background: var(--bg);
+    padding: 0 10px;
+    font-size: 9px;
+    color: #ff9933;
+    letter-spacing: 4px;
+  }
+
+  .bottom-line p {
+    font-size: 13px;
+    line-height: 2;
+    color: var(--text);
+  }
+
+  /* ── MOBILE TWEAKS ─────────────────────────────────────── */
+  @media (max-width: 720px) {
+    .theory-article { padding: 24px 24px 60px; }
+    .mode-grid { grid-template-columns: 1fr; }
+    .ratio-table td:first-child { width: 100px; }
+  }
+</style>
