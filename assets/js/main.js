@@ -117,37 +117,97 @@
       })();
     }
 
-        // ── Theory Dropdown Trigger — Click and Touch Handling ──
-    const theoryDropdown = document.querySelector('.theory-dropdown');
+ // ── Theory Dropdown — Portal Pattern ───────────────────────
+    //
+    // ROOT CAUSE OF THE ORIGINAL BUG:
+    // .nav-links has overflow-x:auto. CSS forces overflow-y to compute
+    // as "auto" too (spec §overflow-x/y interaction), which clips every
+    // absolutely-positioned child — including the dropdown — regardless
+    // of z-index or the "overflow-y: visible" declaration that was there
+    // before (that value is silently ignored in this context).
+    //
+    // FIX: Detach the menu element from the nav and re-attach it directly
+    // on <body>. Use position:fixed with coordinates recalculated from
+    // getBoundingClientRect() on open. This escapes every overflow context
+    // on the page and works identically on desktop (hover) and mobile
+    // (tap-to-toggle).
+    //
+    (function () {
+      var theoryLi   = document.querySelector('li.theory-dropdown');
+      var theoryLink = document.getElementById('nav-theory');
+      var theoryMenu = document.getElementById('theory-dropdown-menu');
 
-    if (theoryDropdown) {
-      // Listen to the entire container rather than an isolated link ID
-      theoryDropdown.addEventListener('click', function (e) {
-        const toggleLink = e.target.closest('#nav-theory');
-        
-        // If the user specifically clicked the "Theory" tab link
-        if (toggleLink) {
-          e.preventDefault(); // STOPS the '#' from appending to your URL
-          e.stopPropagation(); // Stops the click from bubbling out immediately
-          
-          this.classList.toggle('open');
-          
-          // Toggle standard accessibility tags
-          const isExpanded = this.classList.contains('open');
-          toggleLink.setAttribute('aria-expanded', isExpanded);
-        }
+      if (!theoryLi || !theoryLink || !theoryMenu) { return; }
+
+      // 1. Pull the menu out of the clipped nav and attach it to <body>
+      document.body.appendChild(theoryMenu);
+
+      // 2. Base styles — JS controls position and visibility from here on
+      theoryMenu.style.position = 'fixed';
+      theoryMenu.style.display  = 'none';
+
+      // ── Helpers ──────────────────────────────────────────────
+      function isOpen() {
+        return theoryMenu.style.display === 'block';
+      }
+
+      function openMenu() {
+        var r = theoryLink.getBoundingClientRect();
+        theoryMenu.style.top  = r.bottom + 'px';
+        theoryMenu.style.left = r.left   + 'px';
+        theoryMenu.style.display = 'block';
+        theoryLink.setAttribute('aria-expanded', 'true');
+        theoryLi.classList.add('open');
+      }
+
+      function closeMenu() {
+        theoryMenu.style.display = 'none';
+        theoryLink.setAttribute('aria-expanded', 'false');
+        theoryLi.classList.remove('open');
+      }
+
+      // ── Desktop hover ─────────────────────────────────────────
+      // Use the li for enter (cursor approaching from outside) and
+      // both the li AND the detached menu for leave (cursor moving
+      // between the two elements must not close the menu).
+      theoryLi.addEventListener('mouseenter', openMenu);
+
+      theoryLi.addEventListener('mouseleave', function (e) {
+        // Keep open if the cursor moved onto the detached menu panel
+        if (theoryMenu.contains(e.relatedTarget)) { return; }
+        closeMenu();
       });
 
-      // Close the menu if a user clicks anywhere else on the screen
+      theoryMenu.addEventListener('mouseleave', function (e) {
+        // Keep open if the cursor moved back onto the nav li
+        if (theoryLi.contains(e.relatedTarget)) { return; }
+        closeMenu();
+      });
+
+      // ── Click / touch toggle ──────────────────────────────────
+      theoryLink.addEventListener('click', function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+        isOpen() ? closeMenu() : openMenu();
+      });
+
+      // ── Close on outside interaction ──────────────────────────
       document.addEventListener('click', function (e) {
-        if (!theoryDropdown.contains(e.target)) {
-          theoryDropdown.classList.remove('open');
-          const toggleLink = document.getElementById('nav-theory');
-          if (toggleLink) toggleLink.setAttribute('aria-expanded', 'false');
+        if (!theoryLi.contains(e.target) && !theoryMenu.contains(e.target)) {
+          closeMenu();
         }
       });
-    }
 
+      // Reposition on scroll/resize so the panel tracks the button
+      // (relevant if user resizes window or the page scrolls while open)
+      window.addEventListener('resize', function () {
+        if (isOpen()) { openMenu(); }
+      });
+
+      document.addEventListener('scroll', function () {
+        if (isOpen()) { openMenu(); }
+      }, { passive: true });
+    })();
 
   }
 
