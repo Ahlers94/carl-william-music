@@ -102,7 +102,7 @@ header {
   position: sticky;
   top: 0;
   z-index: 10;
-  overflow: hidden;   /* Change to hidden so the overlay doesn't cause overflow */
+  overflow: visible;  
   position: relative; /* Add this! */
 }
 #site-nav ul {
