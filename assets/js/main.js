@@ -112,26 +112,37 @@
       })();
     }
 
-    // ── Theory Dropdown — hover on desktop, tap to toggle on mobile ──
+        // ── Theory Dropdown Trigger — Click and Touch Handling ──
     const theoryDropdown = document.querySelector('.theory-dropdown');
-    const theoryTab      = document.getElementById('nav-theory');
 
-    if (theoryDropdown && theoryTab) {
-      // Mobile: tap the Theory tab to open/close the dropdown
-      theoryTab.addEventListener('click', function (e) {
-        if (window.matchMedia('(hover: none)').matches) {
-          e.preventDefault();
-          theoryDropdown.classList.toggle('open');
+    if (theoryDropdown) {
+      // Listen to the entire container rather than an isolated link ID
+      theoryDropdown.addEventListener('click', function (e) {
+        const toggleLink = e.target.closest('#nav-theory');
+        
+        // If the user specifically clicked the "Theory" tab link
+        if (toggleLink) {
+          e.preventDefault(); // STOPS the '#' from appending to your URL
+          e.stopPropagation(); // Stops the click from bubbling out immediately
+          
+          this.classList.toggle('open');
+          
+          // Toggle standard accessibility tags
+          const isExpanded = this.classList.contains('open');
+          toggleLink.setAttribute('aria-expanded', isExpanded);
         }
       });
 
-      // Tap anywhere outside the dropdown to close it
+      // Close the menu if a user clicks anywhere else on the screen
       document.addEventListener('click', function (e) {
         if (!theoryDropdown.contains(e.target)) {
           theoryDropdown.classList.remove('open');
+          const toggleLink = document.getElementById('nav-theory');
+          if (toggleLink) toggleLink.setAttribute('aria-expanded', 'false');
         }
       });
     }
+
 
   }
 
