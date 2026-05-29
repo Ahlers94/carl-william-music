@@ -65,11 +65,10 @@
       }
     });
 
-        // ── Text Decryption Sequence Engine ────────────────────
+    // ── Text Decryption Sequence Engine ────────────────────
     const bioEl = document.getElementById('bio-decrypt');
     if (bioEl) {
       (function decryptBio() {
-        // FIX: If the element exists but text is empty, exit gracefully
         const target = bioEl.textContent ? bioEl.textContent.trim() : '';
         if (!target) return; 
 
@@ -79,8 +78,6 @@
         let resolved = 0;
         let lastTime = 0;
         const msPerChar = 55;
-        
-        /* ... rest of your ticker and animation loop text ... */
 
         function isSpecial(ch) {
           return ch.trim() === '' || /[^\x00-\x7F]/.test(ch);
@@ -117,89 +114,68 @@
       })();
     }
 
- // ── Theory Dropdown — Portal Pattern ───────────────────────
-    //
-    // ROOT CAUSE OF THE ORIGINAL BUG:
-    // .nav-links has overflow-x:auto. CSS forces overflow-y to compute
-    // as "auto" too (spec §overflow-x/y interaction), which clips every
-    // absolutely-positioned child — including the dropdown — regardless
-    // of z-index or the "overflow-y: visible" declaration that was there
-    // before (that value is silently ignored in this context).
-    //
-    // FIX: Detach the menu element from the nav and re-attach it directly
-    // on <body>. Use position:fixed with coordinates recalculated from
-    // getBoundingClientRect() on open. This escapes every overflow context
-    // on the page and works identically on desktop (hover) and mobile
-    // (tap-to-toggle).
-    //
-    (function () {
-      var theoryLi   = document.querySelector('li.theory-dropdown');
-      var theoryLink = document.getElementById('nav-theory');
-      var theoryMenu = document.querySelector('.theory-dropdown-menu')
+    // ── Navigation Dropdown Portal Pattern Engine ───────────────
+    // Escalates menus outside of the .nav-links overflow-x context
+    // by appending directly to the <body> at runtime.
+    function initPortalDropdown(selectors) {
+      var li   = document.querySelector(selectors.li);
+      var link = document.getElementById(selectors.link);
+      var menu = document.querySelector(selectors.menu);
 
-      if (!theoryLi || !theoryLink || !theoryMenu) { return; }
+      if (!li || !link || !menu) { return; }
 
-      // 1. Pull the menu out of the clipped nav and attach it to <body>
-      document.body.appendChild(theoryMenu);
+      // Detach menu and anchor to body context
+      document.body.appendChild(menu);
+      menu.style.position = 'fixed';
+      menu.style.display  = 'none';
 
-      // 2. Base styles — JS controls position and visibility from here on
-      theoryMenu.style.position = 'fixed';
-      theoryMenu.style.display  = 'none';
-
-      // ── Helpers ──────────────────────────────────────────────
       function isOpen() {
-        return theoryMenu.style.display === 'block';
+        return menu.style.display === 'block';
       }
 
       function openMenu() {
-        var r = theoryLink.getBoundingClientRect();
-        theoryMenu.style.top  = r.bottom + 'px';
-        theoryMenu.style.left = r.left   + 'px';
-        theoryMenu.style.display = 'block';
-        theoryLink.setAttribute('aria-expanded', 'true');
-        theoryLi.classList.add('open');
+        var r = link.getBoundingClientRect();
+        menu.style.top  = r.bottom + 'px';
+        menu.style.left = r.left   + 'px';
+        menu.style.display = 'block';
+        link.setAttribute('aria-expanded', 'true');
+        li.classList.add('open');
       }
 
       function closeMenu() {
-        theoryMenu.style.display = 'none';
-        theoryLink.setAttribute('aria-expanded', 'false');
-        theoryLi.classList.remove('open');
+        menu.style.display = 'none';
+        link.setAttribute('aria-expanded', 'false');
+        li.classList.remove('open');
       }
 
-      // ── Desktop hover ─────────────────────────────────────────
-      // Use the li for enter (cursor approaching from outside) and
-      // both the li AND the detached menu for leave (cursor moving
-      // between the two elements must not close the menu).
-      theoryLi.addEventListener('mouseenter', openMenu);
+      // Mouse Trackers (Desktop Hover Mechanics)
+      li.addEventListener('mouseenter', openMenu);
 
-      theoryLi.addEventListener('mouseleave', function (e) {
-        // Keep open if the cursor moved onto the detached menu panel
-        if (theoryMenu.contains(e.relatedTarget)) { return; }
+      li.addEventListener('mouseleave', function (e) {
+        if (menu.contains(e.relatedTarget)) { return; }
         closeMenu();
       });
 
-      theoryMenu.addEventListener('mouseleave', function (e) {
-        // Keep open if the cursor moved back onto the nav li
-        if (theoryLi.contains(e.relatedTarget)) { return; }
+      menu.addEventListener('mouseleave', function (e) {
+        if (li.contains(e.relatedTarget)) { return; }
         closeMenu();
       });
 
-      // ── Click / touch toggle ──────────────────────────────────
-      theoryLink.addEventListener('click', function (e) {
+      // Tap-to-Toggle Mechanics (Mobile Execution Block)
+      link.addEventListener('click', function (e) {
         e.preventDefault();
         e.stopPropagation();
         isOpen() ? closeMenu() : openMenu();
       });
 
-      // ── Close on outside interaction ──────────────────────────
+      // Outside Context Dismissal
       document.addEventListener('click', function (e) {
-        if (!theoryLi.contains(e.target) && !theoryMenu.contains(e.target)) {
+        if (!li.contains(e.target) && !menu.contains(e.target)) {
           closeMenu();
         }
       });
 
-      // Reposition on scroll/resize so the panel tracks the button
-      // (relevant if user resizes window or the page scrolls while open)
+      // Recalculate Fixed Coordinates on Layout Flux
       window.addEventListener('resize', function () {
         if (isOpen()) { openMenu(); }
       });
@@ -207,7 +183,20 @@
       document.addEventListener('scroll', function () {
         if (isOpen()) { openMenu(); }
       }, { passive: true });
-    })();
+    }
+
+    // Initialize Portals
+    initPortalDropdown({
+      li: 'li.theory-dropdown',
+      link: 'nav-theory',
+      menu: '.theory-dropdown-menu'
+    });
+
+    initPortalDropdown({
+      li: 'li.instruments-dropdown',
+      link: 'nav-instruments',
+      menu: '.instruments-dropdown-menu'
+    });
 
   }
 
