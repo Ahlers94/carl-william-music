@@ -1,1990 +1,1726 @@
+---
+layout: none
+permalink: /sampler.html
+nav: sampler
+---
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>MINISYNTH-1 // CARL WILLIAM</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=VT323&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
-<style>
-/* ── SITE PALETTE (matches main.css) ─────────────────────── */
-:root {
-  --bg:      #0a0a12;
-  --surface: #0d0d1a;
-  --pink:    #ff2d78;
-  --cyan:    #00f5ff;
-  --gold:    #ffd700;
-  --purple:  #b06aff;
-  --green:   #99cc77;
-  --text:    #e0d8f0;
-  --muted:   #9988aa;
-  --dim:     #443355;
-  /* Synth-specific */
-  --chassis: #0b0b18;
-  --panel:   #09091500;
-  --knob-bg: #0e0e1e;
-  --knob-rim: #1e1e3a;
-}
-
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-body {
-  background: var(--bg);
-  color: var(--text);
-  font-family: 'Space Mono', monospace;
-  min-height: 100vh;
-}
-
-/* CRT scanline overlay — matches site */
-body::before {
-  content: '';
-  position: fixed;
-  inset: 0;
-  background: repeating-linear-gradient(
-    0deg,
-    transparent, transparent 3px,
-    rgba(0,245,255,0.015) 3px, rgba(0,245,255,0.015) 4px
-  );
-  pointer-events: none;
-  z-index: 999;
-}
-
-/* ── HEADER — matches site header ───────────────────────── */
-header {
-  border-bottom: 2px solid var(--cyan);
-  padding: 24px 48px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-}
-
-.site-brand {
-  font-family: 'VT323', monospace;
-  font-size: 40px;
-  color: #00ff41;
-  letter-spacing: 5px;
-  line-height: 1;
-  text-shadow: 2px 2px 0 #003d10, 0 0 30px #00ff4155;
-}
-
-.header-right { text-align: right; }
-
-.page-subtitle {
-  font-size: 9px;
-  color: var(--cyan);
-  letter-spacing: 4px;
-  text-transform: uppercase;
-  opacity: 0.7;
-  margin-top: 4px;
-}
-
-.build-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  margin-top: 6px;
-  font-size: 8px;
-  color: var(--dim);
-  letter-spacing: 2px;
-  text-transform: uppercase;
-  border: 1px solid var(--dim);
-  padding: 3px 8px;
-}
-
-.build-badge::before {
-  content: '';
-  width: 6px; height: 6px;
-  border-radius: 50%;
-  background: var(--gold);
-  box-shadow: 0 0 6px var(--gold);
-}
-
-/* ── MAIN PAGE WRAPPER ──────────────────────────────────── */
-.synth-page {
-  padding: 28px 48px 48px;
-}
-
-.section-label {
-  font-size: 10px;
-  color: var(--cyan);
-  letter-spacing: 3px;
-  text-transform: uppercase;
-  margin-bottom: 12px;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-.section-label::after {
-  content: '';
-  flex: 1;
-  height: 1px;
-  background: #00f5ff33;
-}
-
-/* ── OSCILLOSCOPE ─────────────────────────────────────── */
-.scope-section { margin-bottom: 24px; }
-
-.scope-wrapper {
-  position: relative;
-  height: 140px;
-  background: #030308;
-  border: 1px solid #00f5ff2a;
-  overflow: hidden;
-}
-
-.scope-wrapper::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background:
-    linear-gradient(rgba(0,245,255,0.035) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(0,245,255,0.035) 1px, transparent 1px);
-  background-size: 50px 35px;
-  pointer-events: none;
-  z-index: 1;
-}
-
-.scope-wrapper::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background:
-    linear-gradient(rgba(0,245,255,0.07) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(0,245,255,0.07) 1px, transparent 1px);
-  background-size: 200px 70px;
-  pointer-events: none;
-  z-index: 1;
-}
-
-#scope-canvas {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  z-index: 2;
-}
-
-.scope-corner {
-  position: absolute;
-  font-family: 'VT323', monospace;
-  font-size: 14px;
-  letter-spacing: 2px;
-  z-index: 3;
-  pointer-events: none;
-}
-
-.scope-corner--tl { top: 8px; left: 12px; color: #00f5ff55; }
-.scope-corner--tr { top: 8px; right: 12px; color: #00f5ff44; text-align: right; }
-.scope-corner--bl { bottom: 8px; left: 12px; color: #ff2d7833; font-size: 11px; }
-
-/* ── SYNTH FACEPLATE ─────────────────────────────────── */
-.faceplate {
-  background: var(--chassis);
-  border: 1px solid #ffffff0a;
-  border-bottom: none;
-  padding: 12px 20px 10px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.model-name {
-  font-family: 'VT323', monospace;
-  font-size: 26px;
-  color: #443355;
-  letter-spacing: 5px;
-  text-transform: uppercase;
-}
-
-.power-cluster {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.power-led {
-  width: 10px; height: 10px;
-  border-radius: 50%;
-  background: #1a0505;
-  box-shadow: inset 0 1px 1px rgba(0,0,0,0.8);
-  transition: all 0.2s;
-}
-
-.power-led.on {
-  background: #ff3b30;
-  box-shadow: 0 0 8px #ff3b30, 0 0 16px #ff3b3066, inset 0 1px 0 rgba(255,255,255,0.3);
-}
-
-.power-btn {
-  font-family: 'Space Mono', monospace;
-  font-size: 8px;
-  letter-spacing: 2px;
-  text-transform: uppercase;
-}
-
-.power-btn {
-  font-family: 'Space Mono', monospace;
-  font-size: 8px;
-  letter-spacing: 2px;
-  text-transform: uppercase;
-  color: var(--dim);
-  background: #0e0e1e;
-  border: 1px solid #222244;
-  padding: 4px 12px;
-  cursor: pointer;
-  transition: all 0.15s;
-  outline: none;
-}
-.power-btn:hover { border-color: var(--purple); color: var(--purple); }
-
-/* ── CONTROL PANEL CHASSIS ───────────────────────────── */
-.control-panel {
-  display: grid;
-  grid-template-columns: 88px 1fr 172px 172px;
-  border: 1px solid #ffffff0a;
-  border-top: none;
-  background: var(--chassis);
-  min-height: 280px;
-}
-
-/* ── PERFORMANCE SECTION ─────────────────────────────── */
-.perf-section {
-  padding: 16px 12px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 16px;
-  border-right: 1px solid #b06aff1a;
-  background: #08080e;
-}
-
-.perf-header {
-  font-size: 7px;
-  color: #b06aff55;
-  letter-spacing: 3px;
-  text-transform: uppercase;
-}
-
-.wheel-group {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 5px;
-  flex: 1;
-}
-
-.wheel-label {
-  font-size: 7px;
-  color: var(--purple);
-  letter-spacing: 2px;
-  text-transform: uppercase;
-  opacity: 0.8;
-}
-
-.wheel-slot {
-  width: 32px;
-  height: 100px;
-  background: #05050b;
-  border: 1px solid #b06aff2a;
-  border-radius: 16px;
-  position: relative;
-  overflow: visible;
-  box-shadow: inset 0 3px 10px rgba(0,0,0,0.7);
-}
-
-/* center line */
-.wheel-slot::after {
-  content: '';
-  position: absolute;
-  left: 0; right: 0;
-  top: 50%;
-  height: 1px;
-  background: #b06aff33;
-  pointer-events: none;
-}
-
-.wheel-thumb {
-  position: absolute;
-  left: 3px; right: 3px;
-  height: 26px;
-  background: linear-gradient(180deg, #281a40 0%, #160e28 100%);
-  border: 1px solid #b06aff55;
-  border-radius: 3px;
-  top: 50%;
-  transform: translateY(-50%);
-  pointer-events: none;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.06);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 3px;
-}
-
-.wheel-thumb-line {
-  width: 60%;
-  height: 1px;
-  background: #b06aff66;
-}
-
-/* invisible range over the slot */
-.wheel-input {
-  position: absolute;
-  top: -8px; bottom: -8px;
-  left: -24px; right: -24px;
-  width: 80px;
-  height: calc(100% + 16px);
-  opacity: 0;
-  cursor: ns-resize;
-  writing-mode: vertical-lr;
-  direction: rtl;
-  z-index: 4;
-}
-
-.wheel-readout {
-  font-family: 'VT323', monospace;
-  font-size: 15px;
-  color: var(--dim);
-  letter-spacing: 1px;
-  min-width: 36px;
-  text-align: center;
-}
-
-/* ── OSC SECTION ────────────────────────────────────── */
-.osc-section {
-  padding: 16px 20px 16px 24px;
-  border-right: 1px solid #ff2d7818;
-  display: flex;
-  flex-direction: column;
-  gap: 0;
-}
-
-.panel-section-header {
-  font-size: 8px;
-  letter-spacing: 4px;
-  text-transform: uppercase;
-  margin-bottom: 12px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-.panel-section-header::after {
-  content: '';
-  flex: 1;
-  height: 1px;
-}
-
-.osc-section .panel-section-header { color: var(--pink); }
-.osc-section .panel-section-header::after { background: #ff2d7822; }
-
-.osc-row {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  padding: 10px 0;
-  border-bottom: 1px solid #ffffff05;
-}
-.osc-row:last-child { border-bottom: none; padding-bottom: 0; }
-.osc-row:first-of-type { padding-top: 0; }
-
-.osc-number {
-  font-family: 'VT323', monospace;
-  font-size: 30px;
-  color: var(--pink);
-  text-shadow: 0 0 12px #ff2d7844;
-  line-height: 1;
-  min-width: 22px;
-}
-
-/* ── WAVE SHAPE SELECTOR ────────────────────────────── */
-.wave-selector {
-  display: flex;
-  gap: 2px;
-  flex-shrink: 0;
-}
-
-.wave-selector input[type="radio"] { display: none; }
-
-.wave-selector label {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 30px;
-  height: 26px;
-  background: #060610;
-  border: 1px solid #ff2d781a;
-  cursor: pointer;
-  font-size: 14px;
-  color: #2a1a30;
-  transition: all 0.12s;
-  user-select: none;
-  line-height: 1;
-}
-
-.wave-selector input[type="radio"]:checked + label {
-  background: #ff2d780c;
-  border-color: var(--pink);
-  color: var(--pink);
-  text-shadow: 0 0 8px #ff2d7888;
-}
-
-.wave-selector label:hover {
-  border-color: #ff2d7840;
-  color: #6a3050;
-}
-
-/* ── KNOB SYSTEM ─────────────────────────────────────── */
-.knob-group {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 4px;
-}
-
-.knob-label {
-  font-size: 7px;
-  color: var(--muted);
-  letter-spacing: 2px;
-  text-transform: uppercase;
-  text-align: center;
-}
-
-.knob-wrap {
-  position: relative;
-  width: 46px;
-  height: 46px;
-  flex-shrink: 0;
-}
-
-.knob-face {
-  position: absolute;
-  inset: 0;
-  border-radius: 50%;
-  background: radial-gradient(circle at 36% 36%, #221a38 0%, #100c20 55%, #080610 100%);
-  border: 1px solid var(--knob-rim);
-  box-shadow:
-    0 4px 10px rgba(0,0,0,0.7),
-    inset 0 1px 2px rgba(255,255,255,0.07),
-    inset 0 -1px 2px rgba(0,0,0,0.5);
-  pointer-events: none;
-  z-index: 1;
-}
-
-/* outer arc decoration */
-.knob-arc-outer {
-  position: absolute;
-  inset: -5px;
-  border-radius: 50%;
-  border: 1px solid transparent;
-  border-top-color: #ff2d7820;
-  border-right-color: #ff2d7820;
-  transform: rotate(-45deg);
-  pointer-events: none;
-  z-index: 0;
-}
-
-/* tick = full-size container rotated around center */
-.knob-tick-container {
-  position: absolute;
-  inset: 0;
-  border-radius: 50%;
-  pointer-events: none;
-  z-index: 2;
-  transform-origin: center center;
-}
-
-.knob-tick-container::before {
-  content: '';
-  position: absolute;
-  top: 5px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 2px;
-  height: 9px;
-  background: var(--pink);
-  border-radius: 1px;
-  box-shadow: 0 0 5px #ff2d7899;
-}
-
-/* cyan override for filter knobs */
-.filter-section .knob-tick-container::before {
-  background: var(--cyan);
-  box-shadow: 0 0 5px #00f5ff99;
-}
-
-.filter-section .knob-arc-outer {
-  border-top-color: #00f5ff20;
-  border-right-color: #00f5ff20;
-}
-
-.filter-section .knob-face {
-  background: radial-gradient(circle at 36% 36%, #0e2428 0%, #06141a 55%, #030c10 100%);
-}
-
-.knob-input-range {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  opacity: 0;
-  cursor: pointer;
-  z-index: 5;
-  border-radius: 50%;
-  -webkit-appearance: none;
-}
-
-.knob-value {
-  font-family: 'VT323', monospace;
-  font-size: 13px;
-  color: var(--dim);
-  letter-spacing: 1px;
-  text-align: center;
-  min-width: 30px;
-}
-
-/* ── DETUNE SLIDER ───────────────────────────────────── */
-.detune-group {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: stretch;
-  gap: 4px;
-  min-width: 0;
-}
-
-.detune-range-labels {
-  display: flex;
-  justify-content: space-between;
-  font-size: 7px;
-  color: #2a1a30;
-  letter-spacing: 1px;
-}
-
-.detune-center-label {
-  font-size: 7px;
-  color: var(--muted);
-  letter-spacing: 2px;
-  text-transform: uppercase;
-  text-align: center;
-  flex: 1;
-}
-
-input.detune-input {
-  width: 100%;
-  -webkit-appearance: none;
-  appearance: none;
-  height: 3px;
-  background: #0a0a16;
-  border: 1px solid #ff2d7818;
-  outline: none;
-  cursor: ew-resize;
-}
-
-input.detune-input::-webkit-slider-thumb {
-  -webkit-appearance: none;
-  width: 10px;
-  height: 22px;
-  background: linear-gradient(180deg, #2e1844 0%, #180e28 100%);
-  border: 1px solid #ff2d7866;
-  border-radius: 2px;
-  cursor: ew-resize;
-  box-shadow: 0 0 8px #ff2d7844;
-  transition: box-shadow 0.1s;
-}
-
-input.detune-input::-webkit-slider-thumb:hover {
-  box-shadow: 0 0 12px #ff2d78aa;
-}
-
-input.detune-input::-moz-range-thumb {
-  width: 10px; height: 22px;
-  background: linear-gradient(180deg, #2e1844 0%, #180e28 100%);
-  border: 1px solid #ff2d7866;
-  border-radius: 2px;
-  cursor: ew-resize;
-}
-
-.detune-readout {
-  font-family: 'VT323', monospace;
-  font-size: 14px;
-  color: var(--dim);
-  letter-spacing: 1px;
-  text-align: center;
-}
-
-/* ── FILTER SECTION ─────────────────────────────────── */
-.filter-section {
-  padding: 16px 16px;
-  border-right: 1px solid #00f5ff18;
-  display: flex;
-  flex-direction: column;
-}
-
-.filter-section .panel-section-header { color: var(--cyan); }
-.filter-section .panel-section-header::after { background: #00f5ff22; }
-
-.filter-knobs-grid {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 18px;
-  align-items: center;
-  justify-content: center;
-}
-
-/* Large filter knobs */
-.filter-knob-wrap {
-  width: 64px;
-  height: 64px;
-}
-
-.filter-knob-face {
-  background: radial-gradient(circle at 36% 36%, #0e2428 0%, #06141a 55%, #030c10 100%) !important;
-}
-
-.filter-value {
-  font-family: 'VT323', monospace;
-  font-size: 14px;
-  color: var(--cyan);
-  text-shadow: 0 0 6px #00f5ff44;
-  letter-spacing: 1px;
-  text-align: center;
-  min-width: 54px;
-}
-
-/* ── ENV SECTION ─────────────────────────────────────── */
-.env-section {
-  padding: 16px 16px;
-  display: flex;
-  flex-direction: column;
-}
-
-.env-section .panel-section-header { color: var(--gold); }
-.env-section .panel-section-header::after { background: #ffd70022; }
-
-.env-faders-row {
-  flex: 1;
-  display: flex;
-  align-items: flex-end;
-  justify-content: center;
-  gap: 28px;
-}
-
-.env-fader-group {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 6px;
-}
-
-.env-fader-label {
-  font-size: 7px;
-  color: var(--muted);
-  letter-spacing: 2px;
-  text-transform: uppercase;
-}
-
-.fader-track {
-  width: 14px;
-  height: 110px;
-  background: #05050b;
-  border: 1px solid #ffd70018;
-  border-radius: 7px;
-  position: relative;
-  box-shadow: inset 0 3px 8px rgba(0,0,0,0.6);
-}
-
-/* tick marks on fader track */
-.fader-track::before {
-  content: '';
-  position: absolute;
-  left: 50%; top: 10%;
-  width: 6px; height: 1px;
-  background: #ffd70018;
-  transform: translateX(-50%);
-  box-shadow:
-    0 calc(0.3 * 90px) 0 #ffd70018,
-    0 calc(0.6 * 90px) 0 #ffd70018,
-    0 calc(0.9 * 90px) 0 #ffd70018;
-}
-
-.fader-thumb {
-  position: absolute;
-  left: 2px; right: 2px;
-  height: 22px;
-  background: linear-gradient(180deg, #2a2008 0%, #151004 100%);
-  border: 1px solid #ffd70055;
-  border-radius: 3px;
-  pointer-events: none;
-  bottom: 8%;
-  box-shadow: 0 0 8px #ffd70022, 0 2px 4px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.06);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.fader-thumb::after {
-  content: '';
-  display: block;
-  width: 60%;
-  height: 1px;
-  background: #ffd70055;
-}
-
-/* invisible range over the fader track */
-.fader-input {
-  position: absolute;
-  top: -8px; bottom: -8px;
-  left: -16px; right: -16px;
-  width: calc(100% + 32px);
-  height: calc(100% + 16px);
-  opacity: 0;
-  cursor: ns-resize;
-  writing-mode: vertical-lr;
-  direction: rtl;
-  z-index: 4;
-}
-
-.env-fader-value {
-  font-family: 'VT323', monospace;
-  font-size: 16px;
-  color: var(--gold);
-  text-shadow: 0 0 6px #ffd70044;
-  letter-spacing: 1px;
-  text-align: center;
-  min-width: 46px;
-}
-
-/* ── PIANO KEYBOARD ──────────────────────────────────── */
-.keyboard-section {
-  border: 1px solid #99cc7718;
-  border-top: none;
-  background: #06060f;
-}
-
-.keyboard-header {
-  padding: 10px 20px 0;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.keyboard-header-label {
-  font-size: 8px;
-  color: #99cc7755;
-  letter-spacing: 3px;
-  text-transform: uppercase;
-}
-
-.keyboard-controls {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.octave-btn {
-  background: #0e0e1e;
-  border: 1px solid #222244;
-  color: var(--green);
-  font-family: 'Space Mono', monospace;
-  font-weight: bold;
-  font-size: 14px;
-  width: 24px;
-  height: 24px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  outline: none;
-  transition: all 0.15s;
-}
-
-.octave-btn:hover {
-  border-color: var(--green);
-  box-shadow: 0 0 6px rgba(153, 204, 119, 0.3);
-}
-
-.keyboard-octave-badge {
-  font-family: 'VT323', monospace;
-  font-size: 18px;
-  color: #99cc77aa;
-  letter-spacing: 2px;
-}
-
-.piano-outer {
-  padding: 14px 20px 0;
-  position: relative;
-  height: 128px;
-  user-select: none;
-}
-
-.piano {
-  position: relative;
-  height: 112px;
-  display: flex;
-}
-
-/* ── WHITE KEYS ─────────────────────────────────────── */
-.white-key {
-  flex: 1;
-  height: 100%;
-  background: linear-gradient(180deg, #e8e8e8 0%, #f2f2f2 30%, #ffffff 100%);
-  border-left: 1px solid #c0c0c0;
-  border-right: 1px solid #c8c8c8;
-  border-bottom: 4px solid #aaaaaa;
-  border-radius: 0 0 4px 4px;
-  position: relative;
-  cursor: pointer;
-  transition: background 0.04s, border-bottom-width 0.04s, transform 0.04s;
-  z-index: 1;
-  box-shadow: 2px 3px 6px rgba(0,0,0,0.4), inset 0 -3px 4px rgba(0,0,0,0.08);
-  
-  /* Flexbox container layouts inside key face */
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  align-items: center;
-  padding: 8px 0 6px 0;
-}
-
-.white-key:first-child { border-left: 1px solid #b8b8b8; }
-
-.white-key:active, .white-key.key-active {
-  background: linear-gradient(180deg, #ccf0cc 0%, #d8f5d8 30%, #e4ffe4 100%);
-  border-bottom-width: 1px;
-  transform: translateY(3px);
-  box-shadow: 1px 1px 3px rgba(0,0,0,0.4), 0 0 12px #99cc7744;
-}
-
-/* High contrast label overrides - Black on White background */
-.white-key .key-note-label {
-  font-family: 'Space Mono', monospace;
-  font-size: 8px;
-  font-weight: 700;
-  color: #000000;
-  pointer-events: none;
-  white-space: nowrap;
-  letter-spacing: 0;
-}
-
-.white-key .key-shortcut {
-  font-size: 9px;
-  font-weight: 700;
-  color: #000000;
-  pointer-events: none;
-  letter-spacing: 0;
-}
-
-/* ── BLACK KEYS ─────────────────────────────────────── */
-.black-keys-layer {
-  position: absolute;
-  top: 0; left: 0; right: 0;
-  height: 68px;
-  pointer-events: none;
-  z-index: 2;
-}
-
-.black-key {
-  position: absolute;
-  height: 100%;
-  background: linear-gradient(180deg, #303030 0%, #181818 70%, #0a0a0a 100%);
-  border-left: 1px solid #050505;
-  border-right: 1px solid #050505;
-  border-bottom: 3px solid #000;
-  border-radius: 0 0 3px 3px;
-  cursor: pointer;
-  pointer-events: all;
-  box-shadow: 2px 4px 8px rgba(0,0,0,0.8), inset 0 1px 0 rgba(255,255,255,0.08);
-  transition: background 0.04s, border-bottom-width 0.04s, transform 0.04s;
-  
-  /* Layout inside black keys */
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  align-items: center;
-  padding: 6px 0 5px 0;
-}
-
-.black-key:active, .black-key.key-active {
-  background: linear-gradient(180deg, #1a3020 0%, #0c1c10 70%, #061008 100%);
-  border-bottom-width: 1px;
-  transform: translateY(2px);
-  box-shadow: 1px 2px 4px rgba(0,0,0,0.8), 0 0 10px #99cc7755;
-}
-
-/* High contrast label overrides - Yellow on Black background */
-.black-key .key-note-label {
-  font-family: 'Space Mono', monospace;
-  font-size: 7px;
-  font-weight: 700;
-  color: var(--gold);
-  pointer-events: none;
-  white-space: nowrap;
-  letter-spacing: 0;
-}
-
-.black-key .key-shortcut {
-  font-size: 8px;
-  font-weight: 700;
-  color: var(--gold);
-  pointer-events: none;
-  letter-spacing: 0;
-}
-
-/* Desktop absolute alignments for 15 white keys (Each white key column width = 100% / 15 = 6.6666%) */
-/* Perfect seams: calculation anchors directly over seams (1st seam = 6.6666%, 2nd = 13.3333%, etc.) minus half width */
-.black-key[data-note-offset="1"]  { left: calc(1 * 6.6666% - 2.2%); width: 4.4%; }
-.black-key[data-note-offset="2"]  { left: calc(2 * 6.6666% - 2.2%); width: 4.4%; }
-.black-key[data-note-offset="4"]  { left: calc(4 * 6.6666% - 2.2%); width: 4.4%; }
-.black-key[data-note-offset="5"]  { left: calc(5 * 6.6666% - 2.2%); width: 4.4%; }
-.black-key[data-note-offset="6"]  { left: calc(6 * 6.6666% - 2.2%); width: 4.4%; }
-.black-key[data-note-offset="8"]  { left: calc(8 * 6.6666% - 2.2%); width: 4.4%; }
-.black-key[data-note-offset="9"]  { left: calc(9 * 6.6666% - 2.2%); width: 4.4%; }
-.black-key[data-note-offset="11"] { left: calc(11 * 6.6666% - 2.2%); width: 4.4%; }
-.black-key[data-note-offset="12"] { left: calc(12 * 6.6666% - 2.2%); width: 4.4%; }
-.black-key[data-note-offset="13"] { left: calc(13 * 6.6666% - 2.2%); width: 4.4%; }
-
-/* Responsive Media Queries for adaptive 2-Octave to 1-Octave systems */
-@media (min-width: 769px) {
-  .oct-upper { display: flex !important; }
-}
-
-@media (max-width: 768px) {
-  /* Hide the entire secondary octave elements */
-  .oct-upper { display: none !important; }
-  
-  /* Scale remaining 8 white keys to fill layout space broadly (Each white key column = 100% / 8 = 12.5%) */
-  /* Perfect seam calculation for 8 keys width grid layout */
-  .black-key[data-note-offset="1"] { left: calc(1 * 12.5% - 4.125%); width: 8.25%; }
-  .black-key[data-note-offset="2"] { left: calc(2 * 12.5% - 4.125%); width: 8.25%; }
-  .black-key[data-note-offset="4"] { left: calc(4 * 12.5% - 4.125%); width: 8.25%; }
-  .black-key[data-note-offset="5"] { left: calc(5 * 12.5% - 4.125%); width: 8.25%; }
-  .black-key[data-note-offset="6"] { left: calc(6 * 12.5% - 4.125%); width: 8.25%; }
-}
-
-/* ── FOOTER — matches site ───────────────────────────── */
-footer {
-  border-top: 1px solid #00f5ff22;
-  padding: 14px 48px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  background: #07070f;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-
-footer span {
-  font-size: 10px;
-  color: var(--dim);
-  letter-spacing: 2px;
-  text-transform: uppercase;
-}
-
-.blink { animation: blink 1.2s step-end infinite; }
-@keyframes blink { 50% { opacity: 0; } }
-
-/* ── RESPONSIVE ─────────────────────────────────────── */
-@media (max-width: 960px) {
-  .synth-page { padding: 20px; }
-  header { padding: 20px 24px; }
-  footer { padding: 14px 24px; }
-  .control-panel {
-    grid-template-columns: 72px 1fr;
-    grid-template-rows: auto auto;
-  }
-  .filter-section {
-    grid-column: 1;
-    grid-row: 2;
-    border-right: none;
-    border-top: 1px solid #00f5ff18;
-    flex-direction: row;
-    align-items: flex-start;
-    gap: 20px;
-  }
-  .filter-knobs-grid { flex-direction: row; gap: 24px; }
-  .env-section {
-    grid-column: 2;
-    grid-row: 2;
-    border-top: 1px solid #ffd70018;
-  }
-}
-
-@media (max-width: 640px) {
-  .control-panel { grid-template-columns: 1fr; }
-  .perf-section {
-    flex-direction: row;
-    justify-content: center;
-    border-right: none;
-    border-bottom: 1px solid #b06aff18;
-    padding: 12px 20px;
-    gap: 24px;
-  }
-  .wheel-group { flex-direction: row; align-items: center; gap: 10px; }
-  .wheel-slot { width: 80px; height: 28px; border-radius: 14px; }
-  .wheel-slot::after { top: 50%; left: 0; right: 0; width: auto; height: 1px; }
-  .wheel-input { writing-mode: horizontal-tb; direction: ltr; top: 0; bottom: 0; left: -8px; right: -8px; width: auto; height: 100%; cursor: ew-resize; }
-  .osc-section { border-right: none; }
-  .filter-section { grid-row: auto; grid-column: auto; }
-  .env-section { grid-row: auto; grid-column: auto; }
-  .osc-row { flex-wrap: wrap; }
-}
-
-/* ── iOS 6 USER-INTERACTION GATE OVERLAY ─────────────────── */
-#start-gate {
-  position: fixed;
-  top: 0; left: 0; right: 0; bottom: 0;
-  background: rgba(10, 10, 18, 0.96);
-  display: -webkit-box;
-  display: -webkit-flex;
-  display: flex;
-  -webkit-box-orient: vertical;
-  -webkit-box-direction: normal;
-  -webkit-flex-direction: column;
-  flex-direction: column;
-  -webkit-box-align: center;
-  -webkit-align-items: center;
-  align-items: center;
-  -webkit-box-pack: center;
-  -webkit-justify-content: center;
-  justify-content: center;
-  z-index: 2000;
-  gap: 20px;
-}
-#start-gate.hidden {
-  display: none;
-}
-.start-gate-title {
-  font-family: 'VT323', monospace;
-  font-size: 38px;
-  color: #00f5ff;
-  letter-spacing: 6px;
-  text-transform: uppercase;
-  text-shadow: 0 0 24px #00f5ff55;
-  text-align: center;
-  margin-bottom: 8px;
-}
-.start-gate-sub {
-  font-family: 'Space Mono', monospace;
-  font-size: 9px;
-  color: #443355;
-  letter-spacing: 4px;
-  text-transform: uppercase;
-  text-align: center;
-  margin-bottom: 16px;
-}
-.start-gate-btn {
-  font-family: 'Space Mono', monospace;
-  font-size: 13px;
-  letter-spacing: 5px;
-  text-transform: uppercase;
-  color: #00f5ff;
-  background: transparent;
-  border: 2px solid #00f5ff;
-  padding: 16px 52px;
-  cursor: pointer;
-  outline: none;
-  -webkit-tap-highlight-color: transparent;
-  box-shadow: 0 0 24px #00f5ff22, inset 0 0 24px #00f5ff08;
-  -webkit-transition: all 0.2s;
-  transition: all 0.2s;
-}
-.start-gate-btn:hover,
-.start-gate-btn:active {
-  background: #00f5ff14;
-  box-shadow: 0 0 40px #00f5ff55, inset 0 0 24px #00f5ff14;
-  color: #ffffff;
-}
-.start-gate-note {
-  font-family: 'Space Mono', monospace;
-  font-size: 8px;
-  color: #2a1a30;
-  letter-spacing: 3px;
-  text-transform: uppercase;
-  text-align: center;
-  margin-top: 10px;
-}
-.start-gate-scanline {
-  position: absolute;
-  top: 0; left: 0; right: 0; bottom: 0;
-  background: repeating-linear-gradient(
-    0deg,
-    transparent, transparent 3px,
-    rgba(0,245,255,0.012) 3px, rgba(0,245,255,0.012) 4px
-  );
-  pointer-events: none;
-}
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MICROSAMPLER // CARL WILLIAM</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=VT323&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    /* ── SITE PALETTE (matches main.css) ─────────────────────── */
+    :root {
+      --bg:      #0a0a12;
+      --surface: #0d0d1a;
+      --pink:    #ff2d78;
+      --cyan:    #00f5ff;
+      --gold:    #ffd700;
+      --purple:  #b06aff;
+      --green:   #99cc77;
+      --text:    #e0d8f0;
+      --muted:   #9988aa;
+      --dim:     #443355;
+      /* Sampler-specific amber tones preserved */
+      --amber:        #ffb700;
+      --amber-lo:     rgba(255,183,0,0.3);
+      --amber-dim:    #402a00;
+      --amber-mid:    #8a5c00;
+      --amber-bright: #ffb700;
+      --red:          #ff3300;
+      --red-lo:       rgba(255,51,0,0.35);
+      --border:       #1a1a2e;
+      --border-hi:    #252540;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Space Mono', monospace;
+      min-height: 100vh;
+    }
+
+    /* CRT scanline overlay — matches site */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background: repeating-linear-gradient(
+        0deg,
+        transparent, transparent 3px,
+        rgba(0,245,255,0.015) 3px, rgba(0,245,255,0.015) 4px
+      );
+      pointer-events: none;
+      z-index: 999;
+    }
+
+    /* ── HEADER — matches site ───────────────────────── */
+    header {
+      border-bottom: 2px solid var(--cyan);
+      padding: 24px 48px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .site-brand {
+      font-family: 'VT323', monospace;
+      font-size: 40px;
+      color: #00ff41;
+      letter-spacing: 5px;
+      line-height: 1;
+      text-shadow: 2px 2px 0 #003d10, 0 0 30px #00ff4155;
+    }
+
+    .header-right { text-align: right; }
+
+    .page-subtitle {
+      font-size: 9px;
+      color: var(--cyan);
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      opacity: 0.7;
+      margin-top: 4px;
+    }
+
+    .build-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 6px;
+      font-size: 8px;
+      color: var(--dim);
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      border: 1px solid var(--dim);
+      padding: 3px 8px;
+    }
+
+    .build-badge::before {
+      content: '';
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--amber);
+      box-shadow: 0 0 6px var(--amber);
+    }
+
+    /* ── PAGE WRAPPER ─────────────────────────────────── */
+    .sampler-page {
+      padding: 28px 48px 48px;
+      max-width: 720px;
+    }
+
+    .section-label {
+      font-size: 10px;
+      color: var(--cyan);
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .section-label::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: #00f5ff33;
+    }
+
+    /* ── VU METER ──────────────────────────────────────── */
+    .vu { display: flex; align-items: center; gap: 3px; }
+    .vu-seg {
+      width: 7px; height: 7px;
+      border-radius: 1px;
+      background: #1a1a2e;
+      transition: background 60ms, box-shadow 60ms;
+    }
+    .vu-seg.lit-green { background: var(--green); box-shadow: 0 0 8px var(--green); }
+    .vu-seg.lit-amber { background: var(--amber); box-shadow: 0 0 8px var(--amber); }
+    .vu-seg.lit-red   { background: var(--red);   box-shadow: 0 0 8px var(--red); }
+
+    /* ── MIDI INDICATOR ─────────────────────────────────── */
+    .midi-indicator { display: flex; align-items: center; gap: 5px; }
+    .midi-led {
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      background: #1a1a2e;
+      border: 1px solid #2a2a44;
+      transition: all 0.1s;
+      flex-shrink: 0;
+    }
+    .midi-led.connected { background: var(--green); border-color: var(--green); box-shadow: 0 0 8px rgba(153,204,119,0.75); }
+    .midi-led.active    { background: var(--amber) !important; border-color: var(--amber) !important; box-shadow: 0 0 12px rgba(255,183,0,0.9) !important; }
+    .midi-led.unsupported { background: #1a0a1a; border-color: #2a1a2a; }
+    .midi-text { font-size: 8px; letter-spacing: 0.15em; color: var(--dim); white-space: nowrap; }
+    .midi-text.connected { color: var(--green); }
+    .midi-text.error     { color: #3a1a2a; }
+
+    /* ── INSTRUMENT FACEPLATE ───────────────────────────── */
+    .faceplate {
+      background: #09090f;
+      border: 1px solid var(--border-hi);
+      border-bottom: none;
+      padding: 10px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .model-name {
+      font-family: 'VT323', monospace;
+      font-size: 22px;
+      color: var(--dim);
+      letter-spacing: 5px;
+    }
+
+    /* ── SAMPLE PADS ────────────────────────────────────── */
+    .pads-outer {
+      border: 1px solid var(--border-hi);
+      background: #07070e;
+      padding: 16px;
+      border-bottom: none;
+    }
+
+    .pads-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+    }
+
+    .pad {
+      aspect-ratio: 1 / 1;
+      border-radius: 4px;
+      background: #0a0a16;
+      border: 1px solid #1e1e36;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      cursor: pointer;
+      user-select: none;
+      transition: transform 80ms, box-shadow 80ms;
+      position: relative;
+      overflow: hidden;
+      box-shadow: inset 0 2px 6px rgba(0,0,0,0.8), 0 2px 4px rgba(0,0,0,0.4);
+    }
+
+    .pad-canvas {
+      position: absolute; top: 0; left: 0;
+      width: 100%; height: 100%;
+      z-index: 0; pointer-events: none;
+    }
+
+    .pad-content {
+      position: relative; z-index: 1;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      padding-top: 8px;
+    }
+
+    .pad-num {
+      font-family: 'VT323', monospace;
+      font-size: 28px;
+      line-height: 1;
+      color: #2a2a44;
+      transition: color 0.15s;
+      pointer-events: none;
+    }
+
+    .pad-status {
+      font-size: 6.5px;
+      letter-spacing: 0.2em;
+      color: #2a2a44;
+      margin-top: 3px;
+      transition: color 0.15s;
+      pointer-events: none;
+    }
+
+    .pad-filter-section {
+      position: absolute; bottom: 6px; left: 50%;
+      transform: translateX(-50%);
+      z-index: 2;
+      display: flex; flex-direction: column;
+      align-items: center; gap: 2px;
+      pointer-events: auto;
+    }
+
+    .filter-knob {
+      width: 28px; height: 28px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 35% 30%, #151525 0%, #0a0a18 50%, #060610 100%);
+      border: 1px solid #252545;
+      cursor: pointer;
+      position: relative;
+      box-shadow: inset 0 2px 4px rgba(0,0,0,0.8), 0 2px 6px rgba(0,0,0,0.5);
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+    .filter-knob:hover {
+      border-color: var(--cyan);
+      box-shadow: inset 0 2px 4px rgba(0,0,0,0.8), 0 0 8px rgba(0,245,255,0.2);
+    }
+    .filter-knob::after {
+      content: '';
+      position: absolute; top: 4px; left: 50%;
+      transform: translateX(-50%);
+      width: 2px; height: 7px;
+      background: var(--cyan);
+      border-radius: 1px;
+      box-shadow: 0 0 4px rgba(0,245,255,0.5);
+    }
+    .filter-knob-label { font-size: 6px; letter-spacing: 0.08em; color: var(--dim); }
+    .filter-knob-value { font-size: 6px; color: var(--cyan); font-family: 'Space Mono', monospace; }
+
+    /* PAD STATES */
+    .pad.state-loaded {
+      background: #08081a;
+      border-color: #1a1a40;
+      box-shadow: inset 0 2px 6px rgba(0,0,0,0.75), 0 0 10px rgba(0,245,255,0.05), 0 2px 4px rgba(0,0,0,0.4);
+    }
+    .pad.state-loaded .pad-num    { color: #2a3a5a; }
+    .pad.state-loaded .pad-status { color: #1e2e44; }
+
+    .pad.state-armed {
+      background: #08081e;
+      border-color: var(--cyan);
+      animation: pad-blink-cyan 0.75s ease-in-out infinite;
+    }
+    .pad.state-armed .pad-num    { color: var(--cyan); text-shadow: 0 0 12px var(--cyan); }
+    .pad.state-armed .pad-status { color: var(--cyan); }
+
+    @keyframes pad-blink-cyan {
+      0%, 100% { box-shadow: inset 0 2px 6px rgba(0,0,0,0.75), 0 0 20px rgba(0,245,255,0.3), 0 0 8px rgba(0,245,255,0.15); }
+      50%       { box-shadow: inset 0 2px 6px rgba(0,0,0,0.75), 0 0 4px rgba(0,245,255,0.03); }
+    }
+
+    .pad:active { transform: scale(0.94); }
+
+    /* ── TRIM EDITOR PANEL ─────────────────────────────── */
+    .trim-panel {
+      background: #07070e;
+      border: 1px solid var(--border-hi);
+      border-top: none;
+      overflow: hidden;
+      max-height: 0;
+      opacity: 0;
+      transition: max-height 0.35s ease-out, opacity 0.25s ease-out, padding 0.35s ease-out;
+      padding: 0 14px;
+    }
+    .trim-panel.open {
+      max-height: 340px;
+      opacity: 1;
+      padding: 14px;
+    }
+
+    .trim-header {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-bottom: 12px;
+    }
+    .trim-title {
+      font-family: 'VT323', monospace; font-size: 20px;
+      letter-spacing: 0.1em; color: var(--cyan);
+    }
+    .trim-pad-label { font-size: 9px; color: var(--dim); letter-spacing: 0.1em; margin-left: 8px; }
+    .trim-close-btn {
+      width: 24px; height: 24px; border-radius: 3px;
+      background: #0a0a16; border: 1px solid var(--border-hi);
+      color: var(--dim); cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 14px; transition: all 0.15s;
+    }
+    .trim-close-btn:hover { border-color: var(--cyan); color: var(--cyan); }
+
+    .trim-waveform-container {
+      position: relative; background: #050508;
+      border: 1px solid var(--border);
+      border-radius: 3px; height: 120px;
+      margin-bottom: 12px; overflow: hidden;
+    }
+    .trim-waveform-canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
+    .trim-region-overlay {
+      position: absolute; top: 0; height: 100%;
+      background: rgba(0,245,255,0.06);
+      border-left: 2px solid var(--cyan);
+      border-right: 2px solid var(--cyan);
+      pointer-events: none;
+    }
+    .trim-handle {
+      position: absolute; top: 0; width: 14px; height: 100%;
+      cursor: ew-resize; z-index: 10;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+    }
+    .trim-handle::before {
+      content: '';
+      width: 4px; height: 60%;
+      background: var(--cyan); border-radius: 2px;
+      box-shadow: 0 0 8px rgba(0,245,255,0.5);
+    }
+    .trim-handle:hover::before, .trim-handle.dragging::before {
+      background: #fff; box-shadow: 0 0 12px rgba(0,245,255,0.9);
+    }
+    .trim-handle-start { left: -7px; }
+    .trim-handle-end   { right: -7px; }
+
+    .trim-info {
+      display: flex; justify-content: space-between;
+      align-items: center; gap: 12px;
+      font-size: 9px; color: var(--dim); letter-spacing: 0.08em;
+    }
+    .trim-point { display: flex; align-items: center; gap: 6px; }
+    .trim-point-label { color: #2a2a40; }
+    .trim-point-value { color: var(--cyan); font-family: 'Space Mono', monospace; min-width: 50px; }
+    .trim-duration-value { color: var(--muted); margin-left: 4px; }
+
+    /* ── CONTROL PANEL ─────────────────────────────────── */
+    .control-panel {
+      background: #07070e;
+      border: 1px solid var(--border-hi);
+      border-top: none;
+    }
+
+    /* ── DELAY SECTION ─────────────────────────────────── */
+    .delay-section {
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border);
+    }
+    .delay-header {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-bottom: 10px;
+    }
+    .delay-title {
+      font-family: 'VT323', monospace; font-size: 18px;
+      letter-spacing: 0.18em; color: var(--purple);
+      text-shadow: 0 0 10px rgba(176,106,255,0.3);
+    }
+    .delay-toggle {
+      width: 28px; height: 16px;
+      background: #0a0a16; border: 1px solid var(--border-hi);
+      border-radius: 8px; cursor: pointer; position: relative;
+      transition: background 0.2s, border-color 0.2s;
+    }
+    .delay-toggle::after {
+      content: '';
+      position: absolute; top: 2px; left: 2px;
+      width: 10px; height: 10px;
+      background: #2a2a44; border-radius: 50%;
+      transition: left 0.2s, background 0.2s;
+    }
+    .delay-toggle.active { background: #0a1a0a; border-color: #1a4a1a; }
+    .delay-toggle.active::after { left: 14px; background: var(--green); box-shadow: 0 0 6px var(--green); }
+
+    .delay-controls { display: flex; gap: 12px; }
+    .delay-control { flex: 1; display: flex; flex-direction: column; gap: 4px; }
+    .delay-control-label { font-size: 7.5px; letter-spacing: 0.15em; color: var(--dim); text-transform: uppercase; }
+    .delay-control-row { display: flex; align-items: center; gap: 8px; }
+    .delay-slider-track {
+      flex: 1; position: relative; height: 3px;
+      background: #0f0f20; border-radius: 2px; border: 1px solid var(--border);
+    }
+    .delay-slider-fill {
+      position: absolute; left: 0; top: 0; bottom: 0;
+      background: linear-gradient(to right, #1a1a40, var(--purple));
+      border-radius: 2px; pointer-events: none;
+    }
+    .delay-slider {
+      position: absolute; inset: 0; width: 100%; height: 100%;
+      opacity: 0; cursor: pointer;
+    }
+    .delay-value { font-size: 8px; color: var(--purple); min-width: 36px; text-align: right; font-family: 'Space Mono', monospace; }
+
+    /* ── CONTROLS ROW ─────────────────────────────────── */
+    .controls-row {
+      display: flex; gap: 10px; padding: 12px 16px;
+      align-items: stretch; border-bottom: 1px solid var(--border);
+    }
+
+    .rec-btn {
+      flex: 0 0 auto; min-width: 96px;
+      background: #0e0608; border: 1px solid #1e0810;
+      border-radius: 4px; padding: 0 14px;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      gap: 7px; cursor: pointer; user-select: none;
+      transition: all 80ms; touch-action: none;
+    }
+    .rec-circle {
+      width: 20px; height: 20px; border-radius: 50%;
+      background: radial-gradient(circle at 40% 35%, #300808, #0e0202);
+      border: 1.5px solid #220508;
+      box-shadow: 0 0 5px rgba(255,51,0,0.1), inset 0 1px 3px rgba(0,0,0,0.85);
+      transition: all 0.12s;
+    }
+    .rec-label {
+      font-family: 'VT323', monospace; font-size: 14px;
+      letter-spacing: 0.15em; color: #2a0808; transition: color 0.12s;
+    }
+    .rec-btn.recording { background: #120202; border-color: var(--red); box-shadow: 0 0 16px rgba(255,51,0,0.15); }
+    .rec-btn.recording .rec-circle {
+      background: radial-gradient(circle at 40% 35%, #ff4400, #b80d00);
+      border-color: var(--red);
+      box-shadow: 0 0 12px rgba(255,51,0,0.65), 0 0 5px rgba(255,51,0,0.35);
+      animation: rec-pulse 0.5s ease-in-out infinite;
+    }
+    .rec-btn.recording .rec-label { color: var(--red); }
+    @keyframes rec-pulse {
+      0%, 100% { transform: scale(1); opacity: 1; }
+      50%       { transform: scale(0.88); opacity: 0.55; }
+    }
+    .rec-btn:active { transform: scale(0.96); }
+
+    .fx-section { flex: 1; display: flex; flex-direction: column; }
+    .fx-section .section-label { margin-bottom: 6px; }
+    .fx-row { display: flex; gap: 8px; flex: 1; }
+
+    .fx-toggle {
+      flex: 1; background: #0a0a16; border: 1px solid var(--border-hi);
+      border-radius: 4px; display: flex; flex-direction: column;
+      align-items: center; justify-content: center; gap: 6px;
+      cursor: pointer; user-select: none; padding: 10px 6px;
+      transition: all 0.1s;
+    }
+    .fx-toggle input { display: none; }
+    .fx-led {
+      width: 7px; height: 7px; border-radius: 50%;
+      background: #1a1a2e; border: 1px solid #2a2a44;
+      box-shadow: inset 0 1px 2px rgba(0,0,0,0.65);
+      transition: all 0.1s;
+    }
+    .fx-name {
+      font-family: 'VT323', monospace; font-size: 14px;
+      letter-spacing: 0.1em; color: var(--dim); transition: color 0.1s;
+    }
+    .fx-toggle.on { background: #060e08; border-color: #0e3a18; box-shadow: 0 0 10px rgba(153,204,119,0.1); }
+    .fx-toggle.on .fx-led { background: var(--green); border-color: var(--green); box-shadow: 0 0 8px rgba(153,204,119,0.75); }
+    .fx-toggle.on .fx-name { color: var(--green); }
+
+    /* ── MASTER VOLUME ─────────────────────────────────── */
+    .vol-section {
+      display: flex; align-items: center; gap: 12px;
+      padding: 10px 16px; border-bottom: 1px solid var(--border);
+    }
+    .vol-label { font-size: 8.5px; letter-spacing: 0.24em; color: var(--dim); white-space: nowrap; flex-shrink: 0; text-transform: uppercase; }
+    .vol-track { flex: 1; position: relative; height: 3px; background: #0f0f20; border-radius: 2px; border: 1px solid var(--border); }
+    .vol-fill {
+      position: absolute; left: 0; top: 0; bottom: 0;
+      background: linear-gradient(to right, #1a1a40, var(--cyan));
+      border-radius: 2px; pointer-events: none;
+    }
+    input[type="range"].master-vol {
+      position: absolute; inset: 0; width: 100%; height: 100%;
+      opacity: 0; cursor: pointer; margin: 0;
+      padding: 8px 0; box-sizing: content-box; top: -8px;
+    }
+    .vol-value { font-size: 9px; color: var(--cyan); flex-shrink: 0; min-width: 28px; text-align: right; }
+
+    /* ── KEYBOARD SECTION ──────────────────────────────── */
+    .keyboard-header-row {
+      display: flex; align-items: center;
+      justify-content: space-between;
+      padding: 10px 16px 0;
+    }
+
+    .octave-controls { display: flex; align-items: center; gap: 6px; }
+    .oct-btn {
+      width: 24px; height: 24px; border-radius: 3px;
+      background: #0a0a16; border: 1px solid var(--border-hi);
+      color: var(--dim); font-family: 'Space Mono', monospace;
+      font-size: 14px; font-weight: 700;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; user-select: none; transition: all 80ms;
+    }
+    .oct-btn:hover { border-color: var(--green); color: var(--green); box-shadow: 0 0 6px rgba(153,204,119,0.3); }
+    .oct-btn:active { transform: scale(0.88); }
+    .oct-btn:disabled { opacity: 0.25; cursor: not-allowed; pointer-events: none; }
+
+    .oct-display {
+      background: #0a0a16; border: 1px solid var(--border-hi);
+      border-radius: 3px; padding: 3px 10px; min-width: 56px; text-align: center;
+    }
+    .oct-display-label { font-size: 7px; letter-spacing: 0.2em; color: var(--dim); display: block; margin-bottom: 1px; text-transform: uppercase; }
+    .oct-display-value {
+      font-family: 'VT323', monospace; font-size: 18px;
+      color: var(--cyan); text-shadow: 0 0 8px rgba(0,245,255,0.4);
+      display: block; line-height: 1; transition: color 0.15s;
+    }
+    .oct-display-value.up   { color: var(--green); text-shadow: 0 0 8px rgba(153,204,119,0.5); }
+    .oct-display-value.down { color: var(--pink);  text-shadow: 0 0 8px rgba(255,45,120,0.5); }
+
+    /* ── KEYBOARD PIANO ────────────────────────────────── */
+    .keyboard-section {
+      border: 1px solid var(--border-hi);
+      border-top: none;
+      background: #06060f;
+      padding-bottom: 0;
+    }
+
+    .keyboard-hint {
+      font-size: 8px; letter-spacing: 0.2em; color: var(--dim);
+      padding: 8px 16px; display: flex; gap: 12px; flex-wrap: wrap;
+    }
+    .keyboard-hint span { color: var(--muted); }
+
+    .keyboard-scroll {
+      overflow-x: auto; overflow-y: hidden; padding: 0 16px 14px;
+      scrollbar-width: none;
+    }
+    .keyboard-scroll::-webkit-scrollbar { display: none; }
+
+    #keyboard-bed { position: relative; height: 82px; flex-shrink: 0; margin: 0 auto; }
+
+    .key.white {
+      position: absolute;
+      background: linear-gradient(to bottom, #c4beaf 0%, #d6ceba 100%);
+      border: 1px solid #8f8677; border-top: none;
+      border-radius: 0 0 3px 3px;
+      cursor: pointer; user-select: none; bottom: 0;
+      box-shadow: inset 0 -4px 8px rgba(0,0,0,0.28), 2px 0 4px rgba(0,0,0,0.35), 0 4px 8px rgba(0,0,0,0.55);
+      transition: background 50ms;
+    }
+    .key.white:hover { background: linear-gradient(to bottom, #cdc6b5 0%, #ded7c2 100%); }
+    .key.white.active, .key.white:active {
+      background: linear-gradient(to bottom, var(--cyan) 0%, #0099bb 100%);
+      box-shadow: inset 0 2px 4px rgba(0,0,0,0.35);
+    }
+    .key.white.root-note::after {
+      content: '';
+      position: absolute; bottom: 6px; left: 50%;
+      transform: translateX(-50%);
+      width: 5px; height: 5px; border-radius: 50%;
+      background: var(--pink); box-shadow: 0 0 6px var(--pink);
+    }
+    .key-lbl {
+      position: absolute; bottom: 5px; left: 0; right: 0;
+      text-align: center; font-family: 'Space Mono', monospace;
+      font-size: 7.5px; color: #7a7365;
+      pointer-events: none; user-select: none;
+    }
+    .key.white.root-note .key-lbl { bottom: 16px; color: #aa0044; }
+
+    .key.black {
+      position: absolute; top: 0;
+      background: linear-gradient(to bottom, #1a1a1a 0%, #0d0d0d 60%, #121212 100%);
+      border: 1px solid #333333; border-top: none;
+      border-radius: 0 0 2px 2px;
+      cursor: pointer; user-select: none; z-index: 2;
+      box-shadow: inset 0 -3px 6px rgba(255,255,255,0.03), 2px 4px 10px rgba(0,0,0,0.75), -1px 0 2px rgba(0,0,0,0.45);
+      transition: background 50ms;
+    }
+    .key.black:hover { background: linear-gradient(to bottom, #242424 0%, #121212 100%); }
+    .key.black.active, .key.black:active {
+      background: linear-gradient(to bottom, #0099bb 0%, #006688 100%);
+    }
+    .key.black .key-lbl { font-size: 6.5px; color: #4f4b42; bottom: 4px; }
+
+    /* ── STATUS BAR ────────────────────────────────────── */
+    .status-bar {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 10px 16px; border-top: 1px solid var(--border);
+      background: #07070e;
+    }
+    .status-msg {
+      font-size: 8.5px; letter-spacing: 0.2em; color: var(--dim);
+      min-height: 12px; transition: color 0.2s; text-transform: uppercase;
+    }
+    .status-msg.active { color: var(--cyan); }
+    .status-msg.rec    { color: var(--red); animation: msg-blink 0.6s ease-in-out infinite; }
+    @keyframes msg-blink { 50% { opacity: 0.35; } }
+    .poly-count { font-size: 8px; color: var(--dim); letter-spacing: 0.12em; }
+
+    /* ── FOOTER — matches site ─────────────────────────── */
+    footer {
+      border-top: 1px solid #00f5ff22;
+      padding: 14px 48px;
+      display: flex; justify-content: space-between; align-items: center;
+      background: #07070f; flex-wrap: wrap; gap: 8px;
+    }
+    footer span { font-size: 10px; color: var(--dim); letter-spacing: 2px; text-transform: uppercase; }
+
+    .blink { animation: blink 1.2s step-end infinite; }
+    @keyframes blink { 50% { opacity: 0; } }
+
+    @media (max-width: 720px) {
+      header { padding: 16px 20px; }
+      footer { padding: 14px 20px; }
+      .sampler-page { padding: 16px 20px 40px; }
+      .controls-row { flex-wrap: wrap; }
+      .rec-btn { min-width: 100%; flex-direction: row; padding: 10px 16px; gap: 10px; }
+      .fx-section { width: 100%; }
+      .delay-controls { flex-wrap: wrap; }
+      .delay-control { min-width: 45%; }
+    }
+  </style>
 </head>
 <body>
 
 <header>
   <div>
     <div class="site-brand">CARL WILLIAM</div>
-    <div class="page-subtitle">MINISYNTH-1 &nbsp;·&nbsp; MONOPHONIC SUBTRACTIVE SYNTHESIZER</div>
+    <div class="page-subtitle">MICROSAMPLER &nbsp;·&nbsp; SMPL-4 WEB AUDIO ENGINE</div>
   </div>
   <div class="header-right">
-    <div class="build-badge">PHASE 2 &nbsp;/&nbsp; ENGINE ACTIVE</div>
+    <div style="display:flex;align-items:center;gap:12px;justify-content:flex-end;">
+      <div class="midi-indicator">
+        <div class="midi-led" id="midi-led"></div>
+        <span class="midi-text" id="midi-text">MIDI…</span>
+      </div>
+      <div class="vu" id="vu-meter">
+        <div class="vu-seg"></div><div class="vu-seg"></div>
+        <div class="vu-seg"></div><div class="vu-seg"></div>
+        <div class="vu-seg"></div><div class="vu-seg"></div>
+        <div class="vu-seg"></div><div class="vu-seg"></div>
+      </div>
+    </div>
+    <div class="build-badge" style="margin-top:8px;">SMPL-4 &nbsp;/&nbsp; ENGINE READY</div>
   </div>
 </header>
 
-<main class="synth-page">
-  <section class="scope-section">
-    <div class="section-label">OSCILLOSCOPE</div>
-    <div class="scope-wrapper" id="scope-wrapper">
-      <canvas id="scope-canvas"></canvas>
-      <div class="scope-corner scope-corner--tl">OSC ▸</div>
-      <div class="scope-corner scope-corner--tr" id="scope-readout">--- Hz &nbsp;·&nbsp; IDLE<span class="blink"> _</span></div>
-      <div class="scope-corner scope-corner--bl">TIME/DIV: 1ms</div>
-    </div>
-  </section>
+<main class="sampler-page">
 
   <div class="faceplate">
-    <div class="model-name">MINISYNTH&ndash;1 &nbsp;&nbsp; MONOPHONIC</div>
-    <div class="power-cluster">
-      <div class="power-led" id="power-led"></div>
+    <div class="model-name">MICROSAMPLER&ndash;4 &nbsp;&nbsp; POLYPHONIC</div>
+  </div>
+
+  <!-- PADS -->
+  <div class="pads-outer">
+    <div class="section-label" style="margin-bottom:10px;">SAMPLE PADS — CLICK TO ARM &nbsp;·&nbsp; HOLD REC TO RECORD</div>
+    <div class="pads-grid" id="pads-grid"></div>
+  </div>
+
+  <!-- TRIM PANEL -->
+  <div class="trim-panel" id="trim-panel">
+    <div class="trim-header">
+      <div>
+        <span class="trim-title">TRIM EDITOR</span>
+        <span class="trim-pad-label" id="trim-pad-label">PAD 1</span>
+      </div>
+      <button class="trim-close-btn" id="trim-close-btn" aria-label="Close trim editor">×</button>
+    </div>
+    <div class="trim-waveform-container" id="trim-waveform-container">
+      <canvas class="trim-waveform-canvas" id="trim-waveform-canvas"></canvas>
+      <div class="trim-region-overlay" id="trim-region-overlay"></div>
+      <div class="trim-handle trim-handle-start" id="trim-handle-start"></div>
+      <div class="trim-handle trim-handle-end" id="trim-handle-end"></div>
+    </div>
+    <div class="trim-info">
+      <div class="trim-point">
+        <span class="trim-point-label">START:</span>
+        <span class="trim-point-value" id="trim-start-value">0.000s</span>
+      </div>
+      <div class="trim-duration">
+        <span style="color:var(--dim);">LENGTH:</span>
+        <span class="trim-duration-value" id="trim-duration-value">0.000s</span>
+      </div>
+      <div class="trim-point">
+        <span class="trim-point-label">END:</span>
+        <span class="trim-point-value" id="trim-end-value">0.000s</span>
+      </div>
     </div>
   </div>
 
-  <div class="control-panel" id="control-panel">
-    <section class="perf-section" id="perf-section" aria-label="Performance controllers">
-      <div class="perf-header">PERF</div>
-      <div class="wheel-group" id="pitch-wheel-group">
-        <div class="wheel-label">PITCH</div>
-        <div class="wheel-slot" id="pitch-wheel-slot">
-          <div class="wheel-thumb" id="pitch-wheel-thumb">
-            <div class="wheel-thumb-line"></div>
-          </div>
-          <input type="range" class="wheel-input" id="pitch-wheel" min="-2" max="2" value="0" step="1" aria-label="Pitch bend wheel">
-        </div>
-        <div class="wheel-readout" id="pitch-wheel-val">0</div>
+  <!-- CONTROL PANEL -->
+  <div class="control-panel">
+
+    <!-- DELAY -->
+    <div class="delay-section">
+      <div class="delay-header">
+        <span class="delay-title">DELAY / ECHO</span>
+        <div class="delay-toggle" id="delay-toggle" role="button" aria-label="Toggle delay"></div>
       </div>
-      <div class="wheel-group" id="mod-wheel-group">
-        <div class="wheel-label">MOD</div>
-        <div class="wheel-slot" id="mod-wheel-slot">
-          <div class="wheel-thumb" id="mod-wheel-thumb">
-            <div class="wheel-thumb-line"></div>
+      <div class="delay-controls">
+        <div class="delay-control">
+          <span class="delay-control-label">Time (ms)</span>
+          <div class="delay-control-row">
+            <div class="delay-slider-track">
+              <div class="delay-slider-fill" id="delay-time-fill" style="width:30%"></div>
+              <input type="range" class="delay-slider" id="delay-time" min="0" max="1000" step="1" value="300">
+            </div>
+            <span class="delay-value" id="delay-time-value">300 ms</span>
           </div>
-          <input type="range" class="wheel-input" id="mod-wheel" min="0" max="100" value="0" step="1" aria-label="Modulation wheel">
         </div>
-        <div class="wheel-readout" id="mod-wheel-val">0</div>
-      </div>
-    </section>
-
-    <section class="osc-section" aria-label="Oscillators control panel grid">
-      <div class="panel-section-header">OSCILLATORS</div>
-      
-      <div class="osc-row" id="osc1-row">
-        <div class="osc-number">1</div>
-        <div class="wave-selector" id="osc1-wave-selector" role="radiogroup" aria-label="OSC 1 waveform">
-          <input type="radio" name="osc1-wave" id="osc1-wave-sine" value="sine">
-          <label for="osc1-wave-sine" title="Sine">∿</label>
-          <input type="radio" name="osc1-wave" id="osc1-wave-square" value="square">
-          <label for="osc1-wave-square" title="Square">⊓</label>
-          <input type="radio" name="osc1-wave" id="osc1-wave-sawtooth" value="sawtooth" checked>
-          <label for="osc1-wave-sawtooth" title="Sawtooth">⊿</label>
-          <input type="radio" name="osc1-wave" id="osc1-wave-triangle" value="triangle">
-          <label for="osc1-wave-triangle" title="Triangle">△</label>
-        </div>
-        <div class="knob-group">
-          <div class="knob-label">VOL</div>
-          <div class="knob-wrap" id="osc1-vol-knob-wrap">
-            <div class="knob-arc-outer"></div>
-            <div class="knob-face"></div>
-            <div class="knob-tick-container" id="osc1-vol-tick"></div>
-            <input type="range" class="knob-input-range" id="osc1-volume" min="0" max="100" value="75" step="1" aria-label="OSC 1 Volume">
+        <div class="delay-control">
+          <span class="delay-control-label">Feedback</span>
+          <div class="delay-control-row">
+            <div class="delay-slider-track">
+              <div class="delay-slider-fill" id="delay-feedback-fill" style="width:44%"></div>
+              <input type="range" class="delay-slider" id="delay-feedback" min="0" max="0.9" step="0.01" value="0.4">
+            </div>
+            <span class="delay-value" id="delay-feedback-value">40%</span>
           </div>
-          <div class="knob-value" id="osc1-vol-val">75</div>
         </div>
-        <div class="detune-group">
-          <div class="detune-range-labels">
-            <span>-50¢</span>
-            <span class="detune-center-label">DETUNE</span>
-            <span>+50¢</span>
-          </div>
-          <input type="range" class="detune-input" id="osc1-detune" min="-50" max="50" value="0" step="1" aria-label="OSC 1 Detune">
-          <div class="detune-readout" id="osc1-detune-val">±0¢</div>
-        </div>
-      </div>
-
-      <div class="osc-row" id="osc2-row">
-        <div class="osc-number">2</div>
-        <div class="wave-selector" id="osc2-wave-selector" role="radiogroup" aria-label="OSC 2 waveform">
-          <input type="radio" name="osc2-wave" id="osc2-wave-sine" value="sine">
-          <label for="osc2-wave-sine" title="Sine">∿</label>
-          <input type="radio" name="osc2-wave" id="osc2-wave-square" value="square" checked>
-          <label for="osc2-wave-square" title="Square">⊓</label>
-          <input type="radio" name="osc2-wave" id="osc2-wave-sawtooth" value="sawtooth">
-          <label for="osc2-wave-sawtooth" title="Sawtooth">⊿</label>
-          <input type="radio" name="osc2-wave" id="osc2-wave-triangle" value="triangle">
-          <label for="osc2-wave-triangle" title="Triangle">△</label>
-        </div>
-        <div class="knob-group">
-          <div class="knob-label">VOL</div>
-          <div class="knob-wrap" id="osc2-vol-knob-wrap">
-            <div class="knob-arc-outer"></div>
-            <div class="knob-face"></div>
-            <div class="knob-tick-container" id="osc2-vol-tick"></div>
-            <input type="range" class="knob-input-range" id="osc2-volume" min="0" max="100" value="60" step="1" aria-label="OSC 2 Volume">
-          </div>
-          <div class="knob-value" id="osc2-vol-val">60</div>
-        </div>
-        <div class="detune-group">
-          <div class="detune-range-labels">
-            <span>-50¢</span>
-            <span class="detune-center-label">DETUNE</span>
-            <span>+50¢</span>
-          </div>
-          <input type="range" class="detune-input" id="osc2-detune" min="-50" max="50" value="-7" step="1" aria-label="OSC 2 Detune">
-          <div class="detune-readout" id="osc2-detune-val">-7¢</div>
-        </div>
-      </div>
-
-      <div class="osc-row" id="osc3-row">
-        <div class="osc-number">3</div>
-        <div class="wave-selector" id="osc3-wave-selector" role="radiogroup" aria-label="OSC 3 waveform">
-          <input type="radio" name="osc3-wave" id="osc3-wave-sine" value="sine">
-          <label for="osc3-wave-sine" title="Sine">∿</label>
-          <input type="radio" name="osc3-wave" id="osc3-wave-square" value="square">
-          <label for="osc3-wave-square" title="Square">⊓</label>
-          <input type="radio" name="osc3-wave" id="osc3-wave-sawtooth" value="sawtooth" checked>
-          <label for="osc3-wave-sawtooth" title="Sawtooth">⊿</label>
-          <input type="radio" name="osc3-wave" id="osc3-wave-triangle" value="triangle">
-          <label for="osc3-wave-triangle" title="Triangle">△</label>
-        </div>
-        <div class="knob-group">
-          <div class="knob-label">VOL</div>
-          <div class="knob-wrap" id="osc3-vol-knob-wrap">
-            <div class="knob-arc-outer"></div>
-            <div class="knob-face"></div>
-            <div class="knob-tick-container" id="osc3-vol-tick"></div>
-            <input type="range" class="knob-input-range" id="osc3-volume" min="0" max="100" value="45" step="1" aria-label="OSC 3 Volume">
-          </div>
-          <div class="knob-value" id="osc3-vol-val">45</div>
-        </div>
-        <div class="detune-group">
-          <div class="detune-range-labels">
-            <span>-50¢</span>
-            <span class="detune-center-label">DETUNE</span>
-            <span>+50¢</span>
-          </div>
-          <input type="range" class="detune-input" id="osc3-detune" min="-50" max="50" value="12" step="1" aria-label="OSC 3 Detune">
-          <div class="detune-readout" id="osc3-detune-val">+12¢</div>
-        </div>
-      </div>
-    </section>
-
-    <section class="filter-section" aria-label="Lowpass filter block parameters">
-      <div class="panel-section-header">VCF FILTER</div>
-      <div class="filter-knobs-grid">
-        <div class="knob-group">
-          <div class="knob-label">CUTOFF</div>
-          <div class="knob-wrap filter-knob-wrap" id="filter-cut-knob-wrap">
-            <div class="knob-arc-outer"></div>
-            <div class="knob-face filter-knob-face"></div>
-            <div class="knob-tick-container" id="filter-cut-tick"></div>
-            <input type="range" class="knob-input-range" id="filter-cutoff" min="60" max="8000" value="1200" step="1" aria-label="Filter Cutoff Frequency">
-          </div>
-          <div class="filter-value" id="filter-cut-val">1200Hz</div>
-        </div>
-        <div class="knob-group">
-          <div class="knob-label">RESONANCE</div>
-          <div class="knob-wrap filter-knob-wrap" id="filter-res-knob-wrap">
-            <div class="knob-arc-outer"></div>
-            <div class="knob-face filter-knob-face"></div>
-            <div class="knob-tick-container" id="filter-res-tick"></div>
-            <input type="range" class="knob-input-range" id="filter-reso" min="0.5" max="20" value="4.5" step="0.1" aria-label="Filter Resonance Amount">
-          </div>
-          <div class="filter-value" id="filter-res-val">4.5</div>
-        </div>
-      </div>
-    </section>
-
-    <section class="env-section" aria-label="Contour envelope generator faders">
-      <div class="panel-section-header">CONTOUR ENV</div>
-      <div class="env-faders-row">
-        <div class="env-fader-group">
-          <div class="env-fader-label">ATTACK</div>
-          <div class="fader-track">
-            <div class="fader-thumb" id="attack-thumb"></div>
-            <input type="range" class="fader-input" id="env-attack" min="0" max="100" value="15" step="1" aria-label="Contour Attack Time">
-          </div>
-          <div class="env-fader-value" id="env-attack-val">150ms</div>
-        </div>
-        <div class="env-fader-group">
-          <div class="env-fader-label">RELEASE</div>
-          <div class="fader-track">
-            <div class="fader-thumb" id="release-thumb"></div>
-            <input type="range" class="fader-input" id="env-release" min="0" max="100" value="40" step="1" aria-label="Contour Release Time">
-          </div>
-          <div class="env-fader-value" id="env-release-val">1.2s</div>
-        </div>
-      </div>
-    </section>
-  </div>
-
-  <section class="keyboard-section" aria-label="Piano keyboard area">
-    <div class="keyboard-header">
-      <span class="keyboard-header-label" id="keyboard-bounds-label">KEYBOARD &nbsp;·&nbsp; C3 — C5 &nbsp;·&nbsp; adaptive</span>
-      <div class="keyboard-controls">
-        <button class="octave-btn" id="oct-down-btn" aria-label="Octave Down">-</button>
-        <span class="keyboard-octave-badge" id="octave-display">OCT 3-5 <span class="blink">▮</span></span>
-        <button class="octave-btn" id="oct-up-btn" aria-label="Octave Up">+</button>
-      </div>
-    </div>
-
-    <div class="piano-outer">
-      <div class="piano" id="piano">
-        <div class="white-key oct-lower" id="key-c3" data-note="C" data-base-oct="3" role="button" tabindex="0" aria-label="C3">
-          <span class="key-shortcut">Z</span><span class="key-note-label">C3</span>
-        </div>
-        <div class="white-key oct-lower" id="key-d3" data-note="D" data-base-oct="3" role="button" tabindex="0" aria-label="D3">
-          <span class="key-shortcut">X</span><span class="key-note-label">D</span>
-        </div>
-        <div class="white-key oct-lower" id="key-e3" data-note="E" data-base-oct="3" role="button" tabindex="0" aria-label="E3">
-          <span class="key-shortcut">C</span><span class="key-note-label">E</span>
-        </div>
-        <div class="white-key oct-lower" id="key-f3" data-note="F" data-base-oct="3" role="button" tabindex="0" aria-label="F3">
-          <span class="key-shortcut">V</span><span class="key-note-label">F</span>
-        </div>
-        <div class="white-key oct-lower" id="key-g3" data-note="G" data-base-oct="3" role="button" tabindex="0" aria-label="G3">
-          <span class="key-shortcut">B</span><span class="key-note-label">G</span>
-        </div>
-        <div class="white-key oct-lower" id="key-a3" data-note="A" data-base-oct="3" role="button" tabindex="0" aria-label="A3">
-          <span class="key-shortcut">N</span><span class="key-note-label">A</span>
-        </div>
-        <div class="white-key oct-lower" id="key-b3" data-note="B" data-base-oct="3" role="button" tabindex="0" aria-label="B3">
-          <span class="key-shortcut">M</span><span class="key-note-label">B</span>
-        </div>
-
-        <div class="white-key oct-upper" id="key-c4" data-note="C" data-base-oct="4" role="button" tabindex="0" aria-label="C4">
-          <span class="key-shortcut">Q</span><span class="key-note-label">C4</span>
-        </div>
-        <div class="white-key oct-upper" id="key-d4" data-note="D" data-base-oct="4" role="button" tabindex="0" aria-label="D4">
-          <span class="key-shortcut">W</span><span class="key-note-label">D</span>
-        </div>
-        <div class="white-key oct-upper" id="key-e4" data-note="E" data-base-oct="4" role="button" tabindex="0" aria-label="E4">
-          <span class="key-shortcut">E</span><span class="key-note-label">E</span>
-        </div>
-        <div class="white-key oct-upper" id="key-f4" data-note="F" data-base-oct="4" role="button" tabindex="0" aria-label="F4">
-          <span class="key-shortcut">R</span><span class="key-note-label">F</span>
-        </div>
-        <div class="white-key oct-upper" id="key-g4" data-note="G" data-base-oct="4" role="button" tabindex="0" aria-label="G4">
-          <span class="key-shortcut">T</span><span class="key-note-label">G</span>
-        </div>
-        <div class="white-key oct-upper" id="key-a4" data-note="A" data-base-oct="4" role="button" tabindex="0" aria-label="A4">
-          <span class="key-shortcut">Y</span><span class="key-note-label">A</span>
-        </div>
-        <div class="white-key oct-upper" id="key-b4" data-note="B" data-base-oct="4" role="button" tabindex="0" aria-label="B4">
-          <span class="key-shortcut">U</span><span class="key-note-label">B</span>
-        </div>
-        <div class="white-key oct-upper" id="key-c5" data-note="C" data-base-oct="5" role="button" tabindex="0" aria-label="C5">
-          <span class="key-shortcut">I</span><span class="key-note-label">C5</span>
-        </div>
-
-        <div class="black-keys-layer">
-          <div class="black-key oct-lower" id="key-cs3" data-note="Cs" data-base-oct="3" data-note-offset="1" role="button" tabindex="0" aria-label="C sharp 3">
-            <span class="key-shortcut">S</span><span class="key-note-label">C#3</span>
-          </div>
-          <div class="black-key oct-lower" id="key-ds3" data-note="Ds" data-base-oct="3" data-note-offset="2" role="button" tabindex="0" aria-label="D sharp 3">
-            <span class="key-shortcut">D</span><span class="key-note-label">D#</span>
-          </div>
-          <div class="black-key oct-lower" id="key-fs3" data-note="Fs" data-base-oct="3" data-note-offset="4" role="button" tabindex="0" aria-label="F sharp 3">
-            <span class="key-shortcut">G</span><span class="key-note-label">F#</span>
-          </div>
-          <div class="black-key oct-lower" id="key-gs3" data-note="Gs" data-base-oct="3" data-note-offset="5" role="button" tabindex="0" aria-label="G sharp 3">
-            <span class="key-shortcut">H</span><span class="key-note-label">G#</span>
-          </div>
-          <div class="black-key oct-lower" id="key-as3" data-note="As" data-base-oct="3" data-note-offset="6" role="button" tabindex="0" aria-label="A sharp 3">
-            <span class="key-shortcut">J</span><span class="key-note-label">A#</span>
-          </div>
-
-          <div class="black-key oct-upper" id="key-cs4" data-note="Cs" data-base-oct="4" data-note-offset="8" role="button" tabindex="0" aria-label="C sharp 4">
-            <span class="key-shortcut">2</span><span class="key-note-label">C#4</span>
-          </div>
-          <div class="black-key oct-upper" id="key-ds4" data-note="Ds" data-base-oct="4" data-note-offset="9" role="button" tabindex="0" aria-label="D sharp 4">
-            <span class="key-shortcut">3</span><span class="key-note-label">D#</span>
-          </div>
-          <div class="black-key oct-upper" id="key-fs4" data-note="Fs" data-base-oct="4" data-note-offset="11" role="button" tabindex="0" aria-label="F sharp 4">
-            <span class="key-shortcut">5</span><span class="key-note-label">F#</span>
-          </div>
-          <div class="black-key oct-upper" id="key-gs4" data-note="Gs" data-base-oct="4" data-note-offset="12" role="button" tabindex="0" aria-label="G sharp 4">
-            <span class="key-shortcut">6</span><span class="key-note-label">G#</span>
-          </div>
-          <div class="black-key oct-upper" id="key-as4" data-note="As" data-base-oct="4" data-note-offset="13" role="button" tabindex="0" aria-label="A sharp 4">
-            <span class="key-shortcut">7</span><span class="key-note-label">A#</span>
+        <div class="delay-control">
+          <span class="delay-control-label">Mix</span>
+          <div class="delay-control-row">
+            <div class="delay-slider-track">
+              <div class="delay-slider-fill" id="delay-mix-fill" style="width:30%"></div>
+              <input type="range" class="delay-slider" id="delay-mix" min="0" max="1" step="0.01" value="0.3">
+            </div>
+            <span class="delay-value" id="delay-mix-value">30%</span>
           </div>
         </div>
       </div>
     </div>
-  </section>
+
+    <!-- REC + FX -->
+    <div class="controls-row">
+      <button class="rec-btn" id="rec-btn" aria-label="Hold to record">
+        <div class="rec-circle"></div>
+        <div class="rec-label">HOLD REC</div>
+      </button>
+      <div class="fx-section">
+        <div class="section-label" style="margin-bottom:6px;">EFFECTS</div>
+        <div class="fx-row">
+          <label class="fx-toggle" id="fx-reverse-wrap">
+            <input type="checkbox" id="fx-reverse">
+            <div class="fx-led"></div>
+            <span class="fx-name">REVERSE</span>
+          </label>
+          <label class="fx-toggle" id="fx-loop-wrap">
+            <input type="checkbox" id="fx-loop">
+            <div class="fx-led"></div>
+            <span class="fx-name">LOOP</span>
+          </label>
+          <label class="fx-toggle" id="fx-lofi-wrap">
+            <input type="checkbox" id="fx-lofi">
+            <div class="fx-led"></div>
+            <span class="fx-name">LO-FI</span>
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <!-- MASTER VOL -->
+    <div class="vol-section">
+      <span class="vol-label">Master Vol</span>
+      <div class="vol-track">
+        <div class="vol-fill" id="vol-fill" style="width:70%"></div>
+        <input type="range" class="master-vol" id="master-vol" min="0" max="1" step="0.01" value="0.7">
+      </div>
+      <span class="vol-value" id="vol-value">70%</span>
+    </div>
+
+    <!-- KEYBOARD -->
+    <div class="keyboard-header-row">
+      <div class="section-label" style="margin-bottom:0;flex:1;">KEYBOARD — ROOT: A4 <span style="color:var(--pink)">●</span></div>
+      <div class="octave-controls">
+        <button class="oct-btn" id="oct-down" aria-label="Octave down">−</button>
+        <div class="oct-display">
+          <span class="oct-display-label">Octave</span>
+          <span class="oct-display-value" id="oct-value">0</span>
+        </div>
+        <button class="oct-btn" id="oct-up" aria-label="Octave up">+</button>
+      </div>
+    </div>
+
+    <div class="keyboard-section">
+      <div class="keyboard-hint">
+        <span>WHITE:</span> Z X C V B N M / Q W E R T Y U I &nbsp;&nbsp;
+        <span>BLACK:</span> S D G H J / 2 3 5 6 7
+      </div>
+      <div class="keyboard-scroll">
+        <div id="keyboard-bed"></div>
+      </div>
+    </div>
+
+    <div class="status-bar">
+      <div class="status-msg" id="status-msg">SELECT A PAD TO BEGIN</div>
+      <div class="poly-count" id="poly-count">VOICES: 0/6</div>
+    </div>
+
+  </div><!-- end .control-panel -->
+
 </main>
-
-<!-- ── iOS 6 USER-INTERACTION GATE (must click/tap before audio can start) ── -->
-<div id="start-gate" role="dialog" aria-modal="true" aria-label="Start audio engine">
-  <div class="start-gate-scanline"></div>
-  <div class="start-gate-title">MINISYNTH&#8211;1</div>
-  <div class="start-gate-sub">MONOPHONIC SUBTRACTIVE SYNTHESIZER</div>
-  <button class="start-gate-btn" id="start-gate-btn">&#9654;&nbsp;&nbsp;INITIALIZE ENGINE</button>
-  <div class="start-gate-note">TAP OR CLICK TO ACTIVATE AUDIO &nbsp;&middot;&nbsp; REQUIRED FOR iOS SAFARI</div>
-</div>
 
 <footer>
   <span>STATUS: ENGINE ONLINE</span>
-  <span>DESIGN BY CARL WILLIAM // 2026</span>
+  <span>DESIGN BY CARL WILLIAM // 2026 <span class="blink">_</span></span>
 </footer>
 
 <script>
-/* ── iOS 6 / Safari 6 COMPATIBILITY LAYER ─────────────────────────────────
-   1. AudioContext normalization  — webkit-prefixed fallback
-   2. OscillatorNode method shims — noteOn()/noteOff() → start()/stop()
-   3. Frame-rate throttle         — draw() executes only every 2nd rAF tick
-   4. User-interaction gate       — audioCtx only created on explicit tap/click
-   ───────────────────────────────────────────────────────────────────────── */
+    /* ════════════════════════════════════════════════════════
+       MicroSampler — root A4 (MIDI 69)
+       All audio logic preserved exactly from original.
+       ════════════════════════════════════════════════════════ */
 
-// 1. Normalise AudioContext constructor for webkit-prefixed Safari / iOS 6
-window.AudioContext = window.AudioContext || window.webkitAudioContext;
+    class MicroSampler {
+      constructor() {
+        this.audioCtx = null;
+        this.masterGain = null;
+        this.limiter = null;
 
-// 2. Shim start()/stop() → noteOn()/noteOff() on legacy WebKit AudioNodes
-(function shimAudioNodeMethods() {
-  var protosToShim = [];
-  if (window.OscillatorNode)       protosToShim.push(window.OscillatorNode.prototype);
-  if (window.AudioBufferSourceNode) protosToShim.push(window.AudioBufferSourceNode.prototype);
-  for (var i = 0; i < protosToShim.length; i++) {
-    var p = protosToShim[i];
-    if (p && !p.start  && typeof p.noteOn  === 'function') p.start  = p.noteOn;
-    if (p && !p.stop   && typeof p.noteOff === 'function') p.stop   = p.noteOff;
-  }
-})();
+        this.delayNode = null;
+        this.delayFeedbackNode = null;
+        this.delayWetGain = null;
+        this.delayDryGain = null;
 
-let audioCtx = null;
-let powered = false;   // stays false until the Start-gate button is tapped
+        this.POLY_LIMIT = 6;
+        this.ROOT_MIDI = 69;
+        this.VISUAL_START_MIDI = 48;
+        this.VISUAL_END_MIDI = 72;
 
-// Audio Node Routing References
-let osc1 = null, osc2 = null, osc3 = null;
-let osc1Gain = null, osc2Gain = null, osc3Gain = null;
-let envelopeGain = null;
-let filterNode = null;
-let analyserNode = null;
-let compressorNode = null;
-let modLFO = null, modLFOGain = null;
+        this.slots = [null, null, null, null];
+        this.activePad = -1;
+        this.padStates = ['empty', 'empty', 'empty', 'empty'];
 
-// Core State Process Variables
-let currentOctaveShift = 0;
-let activeVoices = {};
-let noteStack = [];
-const oscDetunes = [0, -7, 12];
-let attackTime = 0.15;
-let releaseTime = 1.2;
+        this.padFilterCutoffs = [0.5, 0.5, 0.5, 0.5];
+        this.padReverseStates = [false, false, false, false];
+        this.padLoopStates    = [false, false, false, false];
+        this.padLofiStates    = [false, false, false, false];
 
-// Base equal temperament mathematical map configuration references
-const NOTE_FREQS = {
-  "C": 16.35, "Cs": 17.32, "D": 18.35, "Ds": 19.45, "E": 20.60, "F": 21.83,
-  "Fs": 23.12, "G": 24.50, "Gs": 25.96, "A": 27.50, "As": 29.14, "B": 30.87
-};
+        this.padTrimStart = [0, 0, 0, 0];
+        this.padTrimEnd   = [0, 0, 0, 0];
 
-/* ── INTERACTIVE WEB AUDIO ENGINE CORE ───────────────── */
-function initAudioEngine() {
-  if (audioCtx) return;
-  const AudioContextClass = window.AudioContext || window.webkitAudioContext;
-  audioCtx = new AudioContextClass();
-  
-  // Node Component Initializations
-  analyserNode   = audioCtx.createAnalyser();
-  filterNode     = audioCtx.createBiquadFilter();
-  envelopeGain   = audioCtx.createGain();
-  compressorNode = audioCtx.createDynamicsCompressor();
-  
-  osc1     = audioCtx.createOscillator();
-  osc2     = audioCtx.createOscillator();
-  osc3     = audioCtx.createOscillator();
-  osc1Gain = audioCtx.createGain();
-  osc2Gain = audioCtx.createGain();
-  osc3Gain = audioCtx.createGain();
-  
-  modLFO     = audioCtx.createOscillator();
-  modLFOGain = audioCtx.createGain();
-  
-  // Set Core Topology Properties
-  analyserNode.fftSize = 2048;
-  filterNode.type = 'lowpass';
-  envelopeGain.gain.setValueAtTime(0, audioCtx.currentTime);
-  
-  modLFO.type = 'sine';
-  modLFO.frequency.setValueAtTime(6.0, audioCtx.currentTime); // LFO Speed at 6Hz
-  modLFOGain.gain.setValueAtTime(0, audioCtx.currentTime); // controlled by wheel
-  
-  // Routing Interconnections
-  osc1.connect(osc1Gain);
-  osc2.connect(osc2Gain);
-  osc3.connect(osc3Gain);
-  
-  osc1Gain.connect(envelopeGain);
-  osc2Gain.connect(envelopeGain);
-  osc3Gain.connect(envelopeGain);
-  
-  envelopeGain.connect(filterNode);
-  
-  modLFO.connect(modLFOGain);
-  modLFOGain.connect(filterNode.frequency);
-  
-  filterNode.connect(analyserNode);
-  analyserNode.connect(compressorNode);
-  compressorNode.connect(audioCtx.destination);
-  
-  // Start continuous running sound engine oscillators
-  osc1.start(0);
-  osc2.start(0);
-  osc3.start(0);
-  modLFO.start(0);
-  
-  // Push existing DOM UI parameter settings dynamically into the core
-  syncAllParameters();
-}
+        this.octaveOffset = 0;
+        this.masterVolumeValue = 0.7;
+        this.delayEnabled = false;
+        this.delayTimeValue = 300;
+        this.delayFeedbackValue = 0.4;
+        this.delayMixValue = 0.3;
 
-/* ── VOICING MIXER & PARAMETER SYNCHRONIZATION ─────────── */
-function syncAllParameters() {
-  if (!audioCtx) return;
-  const now = audioCtx.currentTime;
-  
-  // Mixer Gain Mappings
-  osc1Gain.gain.setValueAtTime(parseFloat(document.getElementById('osc1-volume').value) / 100, now);
-  osc2Gain.gain.setValueAtTime(parseFloat(document.getElementById('osc2-volume').value) / 100, now);
-  osc3Gain.gain.setValueAtTime(parseFloat(document.getElementById('osc3-volume').value) / 100, now);
-  
-  // Waveform Toggles Selection
-  ['osc1', 'osc2', 'osc3'].forEach((prefix, idx) => {
-    const oscs = [osc1, osc2, osc3];
-    const checkedWave = document.querySelector(`input[name="${prefix}-wave"]:checked`);
-    if (checkedWave && oscs[idx]) oscs[idx].type = checkedWave.value;
-  });
-  
-  // Detuning & Tracking Calibration
-  oscDetunes[0] = parseInt(document.getElementById('osc1-detune').value);
-  oscDetunes[1] = parseInt(document.getElementById('osc2-detune').value);
-  oscDetunes[2] = parseInt(document.getElementById('osc3-detune').value);
-  
-  // Filter Matrix Settings
-  updateFilterFrequencies();
-  filterNode.Q.setValueAtTime(parseFloat(document.getElementById('filter-reso').value), now);
-}
+        this.activeNotes = new Map();
 
-function updateFilterFrequencies() {
-  if (!audioCtx || !filterNode) return;
-  const sliderVal = parseFloat(document.getElementById('filter-cutoff').value);
-  filterNode.frequency.setValueAtTime(sliderVal, audioCtx.currentTime);
-}
+        this.mediaRecorder = null;
+        this.audioChunks = [];
+        this.isRecording = false;
 
-/* ── VOICE FREQUENCY TRACKER SYSTEM ─────────────────── */
-function updateSynthVoice() {
-  if (!audioCtx) return;
-  const now = audioCtx.currentTime;
-  
-  if (noteStack.length === 0) {
-    // Monophonic Gate Closure Contour Release Phase Trigger
-    envelopeGain.gain.cancelScheduledValues(now);
-    envelopeGain.gain.setValueAtTime(envelopeGain.gain.value, now);
-    envelopeGain.gain.linearRampToValueAtTime(0, now + Math.max(0.002, releaseTime));
-    document.getElementById('scope-readout').innerHTML = `--- Hz &nbsp;·&nbsp; IDLE<span class="blink"> _</span>`;
-  } else {
-    // Monophonic Priority Voicing Selection Block (Last Note Priority Core)
-    const primaryNote = noteStack[noteStack.length - 1];
-    
-    // Extract base performance wheel bend offset calibrations
-    const pitchWheelValue = parseFloat(document.getElementById('pitch-wheel').value);
-    const semitoneOffset = pitchWheelValue * 2; // Each tick shifts +/-2 semitones
-    const scaleFactor = Math.pow(2, semitoneOffset / 12);
-    
-    const calibratedFreq = primaryNote.freq * scaleFactor;
-    
-    // Smoothly glide/assign oscillator tracking frequencies
-    if (osc1) osc1.frequency.setTargetAtTime(calibratedFreq * Math.pow(2, oscDetunes[0]/1200), now, 0.008);
-    if (osc2) osc2.frequency.setTargetAtTime(calibratedFreq * Math.pow(2, oscDetunes[1]/1200), now, 0.008);
-    if (osc3) osc3.frequency.setTargetAtTime(calibratedFreq * Math.pow(2, oscDetunes[2]/1200), now, 0.008);
-    
-    // Monophonic Gate Open Contour Attack Phase Trigger
-    envelopeGain.gain.cancelScheduledValues(now);
-    envelopeGain.gain.setValueAtTime(envelopeGain.gain.value, now);
-    envelopeGain.gain.linearRampToValueAtTime(1.0, now + Math.max(0.002, attackTime));
-    
-    document.getElementById('scope-readout').textContent = `${calibratedFreq.toFixed(1)} Hz · ACTIVE`;
-  }
-}
+        this.vuLevel = 0;
+        this.vuTargetLv = 0;
 
-/* ── DOM MOUSE/TOUCH PLAYBACK HANDLERS ─────────────────── */
-function initKeyboardLayoutInteractions() {
-  const p = document.getElementById('piano');
-  
-  const pressAction = (e) => {
-    // Attempt audio engine startup context validation check on direct user interaction
-    if (audioCtx && audioCtx.state === 'suspended') {
-      audioCtx.resume();
-    } else {
-      initAudioEngine();
+        this.isMouseDown = false;
+        this.isDraggingStart = false;
+        this.isDraggingEnd = false;
+      }
+
+      initAudio() {
+        if (this.audioCtx) return;
+        const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+        this.audioCtx = new AudioContextClass();
+
+        this.limiter = this.audioCtx.createDynamicsCompressor();
+        this.limiter.threshold.setValueAtTime(-1.0, this.audioCtx.currentTime);
+        this.limiter.knee.setValueAtTime(0, this.audioCtx.currentTime);
+        this.limiter.ratio.setValueAtTime(20, this.audioCtx.currentTime);
+        this.limiter.attack.setValueAtTime(0.002, this.audioCtx.currentTime);
+        this.limiter.release.setValueAtTime(0.1, this.audioCtx.currentTime);
+        this.limiter.connect(this.audioCtx.destination);
+
+        this.masterGain = this.audioCtx.createGain();
+        this.masterGain.gain.setValueAtTime(this.masterVolumeValue, this.audioCtx.currentTime);
+
+        this.delayNode = this.audioCtx.createDelay(1.0);
+        this.delayFeedbackNode = this.audioCtx.createGain();
+        this.delayWetGain = this.audioCtx.createGain();
+        this.delayDryGain = this.audioCtx.createGain();
+
+        this.delayNode.delayTime.setValueAtTime(this.delayTimeValue / 1000, this.audioCtx.currentTime);
+        this.delayFeedbackNode.gain.setValueAtTime(this.delayFeedbackValue, this.audioCtx.currentTime);
+
+        const wetVal = this.delayEnabled ? this.delayMixValue : 0;
+        const dryVal = this.delayEnabled ? (1 - this.delayMixValue) : 1;
+        this.delayWetGain.gain.setValueAtTime(wetVal, this.audioCtx.currentTime);
+        this.delayDryGain.gain.setValueAtTime(dryVal, this.audioCtx.currentTime);
+
+        this.delayNode.connect(this.delayFeedbackNode);
+        this.delayFeedbackNode.connect(this.delayNode);
+
+        this.masterGain.connect(this.delayDryGain);
+        this.masterGain.connect(this.delayNode);
+        this.delayNode.connect(this.delayWetGain);
+
+        this.delayDryGain.connect(this.limiter);
+        this.delayWetGain.connect(this.limiter);
+
+        this.startVuLoop();
+      }
+
+      render() {
+        this.renderPadsGrid();
+        this.renderKeyboardBed();
+        this.attachControlListeners();
+        this.initMidi();
+      }
+
+      renderPadsGrid() {
+        const grid = document.getElementById('pads-grid');
+        grid.innerHTML = '';
+        for (let i = 0; i < 4; i++) {
+          const pad = document.createElement('div');
+          pad.className = 'pad state-empty';
+          pad.dataset.index = i;
+          pad.id = `pad-${i}`;
+          pad.innerHTML = `
+            <canvas class="pad-canvas" id="pad-canvas-${i}"></canvas>
+            <div class="pad-content">
+              <span class="pad-num">${i + 1}</span>
+              <span class="pad-status" id="pad-status-${i}">EMPTY</span>
+            </div>
+            <div class="pad-filter-section" data-index="${i}">
+              <span class="filter-knob-label">CUTOFF</span>
+              <div class="filter-knob" id="filter-knob-${i}" role="slider" aria-valuemin="0" aria-valuemax="100"></div>
+              <span class="filter-knob-value" id="filter-val-${i}">100%</span>
+            </div>
+          `;
+          grid.appendChild(pad);
+        }
+      }
+
+      renderKeyboardBed() {
+        const bed = document.getElementById('keyboard-bed');
+        bed.innerHTML = '';
+
+        const totalWhiteKeys = 15;
+        const whiteWidth = 36;
+        const gap = 1;
+        const totalBedWidth = totalWhiteKeys * whiteWidth + (totalWhiteKeys - 1) * gap;
+        bed.style.width = `${totalBedWidth}px`;
+
+        const notesStructure = [
+          { visualMidi: 48, isBlack: false, label: 'C3' },
+          { visualMidi: 49, isBlack: true,  label: 'C#3' },
+          { visualMidi: 50, isBlack: false, label: 'D3' },
+          { visualMidi: 51, isBlack: true,  label: 'D#3' },
+          { visualMidi: 52, isBlack: false, label: 'E3' },
+          { visualMidi: 53, isBlack: false, label: 'F3' },
+          { visualMidi: 54, isBlack: true,  label: 'F#3' },
+          { visualMidi: 55, isBlack: false, label: 'G3' },
+          { visualMidi: 56, isBlack: true,  label: 'G#3' },
+          { visualMidi: 57, isBlack: false, label: 'A3' },
+          { visualMidi: 58, isBlack: true,  label: 'A#3' },
+          { visualMidi: 59, isBlack: false, label: 'B3' },
+          { visualMidi: 60, isBlack: false, label: 'C4' },
+          { visualMidi: 61, isBlack: true,  label: 'C#4' },
+          { visualMidi: 62, isBlack: false, label: 'D4' },
+          { visualMidi: 63, isBlack: true,  label: 'D#4' },
+          { visualMidi: 64, isBlack: false, label: 'E4' },
+          { visualMidi: 65, isBlack: false, label: 'F4' },
+          { visualMidi: 66, isBlack: true,  label: 'F#4' },
+          { visualMidi: 67, isBlack: false, label: 'G4' },
+          { visualMidi: 68, isBlack: true,  label: 'G#4' },
+          { visualMidi: 69, isBlack: false, label: 'A4' },
+          { visualMidi: 70, isBlack: true,  label: 'A#4' },
+          { visualMidi: 71, isBlack: false, label: 'B4' },
+          { visualMidi: 72, isBlack: false, label: 'C5' }
+        ];
+
+        let whiteIndex = 0;
+        const blackKeysToRender = [];
+
+        notesStructure.forEach(n => {
+          const keyEl = document.createElement('div');
+          keyEl.dataset.midi = n.visualMidi;
+
+          if (!n.isBlack) {
+            keyEl.className = 'key white';
+            if (n.visualMidi === this.ROOT_MIDI) keyEl.classList.add('root-note');
+            const leftPos = whiteIndex * (whiteWidth + gap);
+            keyEl.style.left = `${leftPos}px`;
+            keyEl.style.width = `${whiteWidth}px`;
+            keyEl.style.height = '100%';
+            keyEl.innerHTML = `<span class="key-lbl">${n.label}</span>`;
+            bed.appendChild(keyEl);
+            whiteIndex++;
+          } else {
+            blackKeysToRender.push({ note: n, associatedWhiteIndex: whiteIndex - 1 });
+          }
+        });
+
+        const blackWidth = 22;
+        const blackHeight = 50;
+
+        blackKeysToRender.forEach(bk => {
+          const keyEl = document.createElement('div');
+          keyEl.className = 'key black';
+          keyEl.dataset.midi = bk.note.visualMidi;
+          const associatedLeft = bk.associatedWhiteIndex * (whiteWidth + gap);
+          const leftPos = associatedLeft + whiteWidth - (blackWidth / 2);
+          keyEl.style.left = `${leftPos}px`;
+          keyEl.style.width = `${blackWidth}px`;
+          keyEl.style.height = `${blackHeight}px`;
+          keyEl.innerHTML = `<span class="key-lbl">${bk.note.label}</span>`;
+          bed.appendChild(keyEl);
+        });
+      }
+
+      attachControlListeners() {
+        document.getElementById('pads-grid').addEventListener('click', (e) => {
+          const filterSec = e.target.closest('.pad-filter-section');
+          if (filterSec) return;
+          const padEl = e.target.closest('.pad');
+          if (!padEl) return;
+          const idx = parseInt(padEl.dataset.index, 10);
+          this.setActivePad(idx);
+        });
+
+        for (let i = 0; i < 4; i++) {
+          const knob = document.getElementById(`filter-knob-${i}`);
+          this.attachKnobPointerTracking(knob, i);
+        }
+
+        const recBtn = document.getElementById('rec-btn');
+        recBtn.addEventListener('pointerdown', (e) => {
+          e.preventDefault();
+          recBtn.setPointerCapture(e.pointerId);
+          this.startRecordingAction();
+        });
+        recBtn.addEventListener('pointerup', (e) => {
+          e.preventDefault();
+          this.stopRecordingAction();
+        });
+
+        document.getElementById('fx-reverse').addEventListener('change', (e) => {
+          if (this.activePad !== -1) {
+            this.padReverseStates[this.activePad] = e.target.checked;
+            this.toggleFxWrapperActiveState('fx-reverse-wrap', e.target.checked);
+          }
+        });
+        document.getElementById('fx-loop').addEventListener('change', (e) => {
+          if (this.activePad !== -1) {
+            this.padLoopStates[this.activePad] = e.target.checked;
+            this.toggleFxWrapperActiveState('fx-loop-wrap', e.target.checked);
+          }
+        });
+        document.getElementById('fx-lofi').addEventListener('change', (e) => {
+          if (this.activePad !== -1) {
+            this.padLofiStates[this.activePad] = e.target.checked;
+            this.toggleFxWrapperActiveState('fx-lofi-wrap', e.target.checked);
+          }
+        });
+
+        const dToggle = document.getElementById('delay-toggle');
+        dToggle.addEventListener('click', () => {
+          this.delayEnabled = !this.delayEnabled;
+          dToggle.classList.toggle('active', this.delayEnabled);
+          this.updateDelayDspGraph();
+        });
+
+        this.attachSliderEngine('delay-time', 'delay-time-fill', 'delay-time-value', ' ms', (val) => {
+          this.delayTimeValue = val;
+          this.updateDelayDspGraph();
+        });
+        this.attachSliderEngine('delay-feedback', 'delay-feedback-fill', 'delay-feedback-value', '%', (val) => {
+          this.delayFeedbackValue = val;
+          this.updateDelayDspGraph();
+        }, true);
+        this.attachSliderEngine('delay-mix', 'delay-mix-fill', 'delay-mix-value', '%', (val) => {
+          this.delayMixValue = val;
+          this.updateDelayDspGraph();
+        }, true);
+
+        this.attachSliderEngine('master-vol', 'vol-fill', 'vol-value', '%', (val) => {
+          this.masterVolumeValue = val;
+          if (this.masterGain && this.audioCtx) {
+            this.masterGain.gain.setValueAtTime(this.masterVolumeValue, this.audioCtx.currentTime);
+          }
+        }, true);
+
+        document.getElementById('oct-down').addEventListener('click', () => this.shiftOctaveOffset(-1));
+        document.getElementById('oct-up').addEventListener('click', () => this.shiftOctaveOffset(1));
+
+        const bed = document.getElementById('keyboard-bed');
+        bed.addEventListener('pointerdown', (e) => {
+          const key = e.target.closest('.key');
+          if (!key) return;
+          this.isMouseDown = true;
+          bed.setPointerCapture(e.pointerId);
+          const mid = parseInt(key.dataset.midi, 10);
+          this.noteOnAction(mid);
+        });
+
+        bed.addEventListener('pointermove', (e) => {
+          if (!this.isMouseDown) return;
+          const key = document.elementFromPoint(e.clientX, e.clientY)?.closest('.key');
+          if (!key || !bed.contains(key)) return;
+          const mid = parseInt(key.dataset.midi, 10);
+          if (!this.activeNotes.has(mid)) {
+            this.allNotesOffAction();
+            this.noteOnAction(mid);
+          }
+        });
+
+        const releasePointerHandler = () => {
+          if (!this.isMouseDown) return;
+          this.isMouseDown = false;
+          this.allNotesOffAction();
+        };
+        bed.addEventListener('pointerup', releasePointerHandler);
+        bed.addEventListener('pointercancel', releasePointerHandler);
+
+        this.attachKeyboardMatrixHooks();
+        this.attachTrimHandleInteractionEngine();
+        document.getElementById('trim-close-btn').addEventListener('click', () => {
+          document.getElementById('trim-panel').classList.remove('open');
+        });
+      }
+
+      attachSliderEngine(sliderId, fillId, valId, unit, callback, isPercent = false) {
+        const slider = document.getElementById(sliderId);
+        const fill = document.getElementById(fillId);
+        const label = document.getElementById(valId);
+
+        slider.addEventListener('input', (e) => {
+          const val = parseFloat(e.target.value);
+          const max = parseFloat(e.target.max) || 1;
+          const min = parseFloat(e.target.min) || 0;
+          const percent = ((val - min) / (max - min)) * 100;
+          fill.style.width = `${percent}%`;
+          if (isPercent) label.textContent = `${Math.round(val * 100)}${unit}`;
+          else label.textContent = `${val}${unit}`;
+          callback(val);
+        });
+      }
+
+      attachKnobPointerTracking(knob, index) {
+        let startY = 0;
+        let startCutoff = 0;
+
+        const onPointerMove = (e) => {
+          const deltaY = startY - e.clientY;
+          let nextCutoff = startCutoff + (deltaY * 0.006);
+          nextCutoff = Math.max(0, Math.min(1, nextCutoff));
+          this.padFilterCutoffs[index] = nextCutoff;
+          this.updateFilterKnobDisplay(index);
+        };
+
+        const onPointerUp = (e) => {
+          knob.releasePointerCapture(e.pointerId);
+          knob.removeEventListener('pointermove', onPointerMove);
+          knob.removeEventListener('pointerup', onPointerUp);
+        };
+
+        knob.addEventListener('pointerdown', (e) => {
+          e.preventDefault();
+          this.initAudio();
+          knob.setPointerCapture(e.pointerId);
+          startY = e.clientY;
+          startCutoff = this.padFilterCutoffs[index];
+          knob.addEventListener('pointermove', onPointerMove);
+          knob.addEventListener('pointerup', onPointerUp);
+        });
+      }
+
+      updateFilterKnobDisplay(index) {
+        const knob = document.getElementById(`filter-knob-${index}`);
+        const label = document.getElementById(`filter-val-${index}`);
+        const normVal = this.padFilterCutoffs[index];
+        const degrees = (normVal * 270) - 135;
+        knob.style.transform = `rotate(${degrees}deg)`;
+        label.textContent = `${Math.round(normVal * 100)}%`;
+      }
+
+      toggleFxWrapperActiveState(elementId, status) {
+        const wrapper = document.getElementById(elementId);
+        if (wrapper) wrapper.classList.toggle('on', status);
+      }
+
+      shiftOctaveOffset(dir) {
+        const nextOct = this.octaveOffset + dir;
+        if (nextOct >= -2 && nextOct <= 2) {
+          this.octaveOffset = nextOct;
+          const disp = document.getElementById('oct-value');
+          disp.textContent = (this.octaveOffset >= 0 ? '+' : '') + this.octaveOffset;
+          disp.className = 'oct-display-value' + (this.octaveOffset > 0 ? ' up' : this.octaveOffset < 0 ? ' down' : '');
+        }
+      }
+
+      setActivePad(idx) {
+        this.initAudio();
+        this.activePad = idx;
+
+        for (let i = 0; i < 4; i++) {
+          const pad = document.getElementById(`pad-${i}`);
+          pad.classList.remove('state-armed');
+          pad.className = 'pad ' + (this.padStates[i] === 'loaded' ? 'state-loaded' : 'state-empty');
+        }
+
+        const selectedPad = document.getElementById(`pad-${idx}`);
+        selectedPad.classList.remove('state-loaded', 'state-empty');
+        selectedPad.classList.add('state-armed');
+
+        document.getElementById('fx-reverse').checked = this.padReverseStates[idx];
+        this.toggleFxWrapperActiveState('fx-reverse-wrap', this.padReverseStates[idx]);
+        document.getElementById('fx-loop').checked = this.padLoopStates[idx];
+        this.toggleFxWrapperActiveState('fx-loop-wrap', this.padLoopStates[idx]);
+        document.getElementById('fx-lofi').checked = this.padLofiStates[idx];
+        this.toggleFxWrapperActiveState('fx-lofi-wrap', this.padLofiStates[idx]);
+
+        this.setStatus(`PAD ${idx + 1} ARMED AND READY`);
+
+        if (this.slots[idx]) {
+          this.openTrimEditorPanel(idx);
+        } else {
+          document.getElementById('trim-panel').classList.remove('open');
+        }
+      }
+
+      openTrimEditorPanel(idx) {
+        const buffer = this.slots[idx];
+        if (!buffer) return;
+        document.getElementById('trim-pad-label').textContent = `PAD ${idx + 1}`;
+        document.getElementById('trim-panel').classList.add('open');
+        this.drawWaveformIntoCanvas('trim-waveform-canvas', buffer);
+        this.updateTrimEditorUiMarkers();
+      }
+
+      drawWaveformIntoCanvas(canvasId, buffer) {
+        const canvas = document.getElementById(canvasId);
+        const ctx = canvas.getContext('2d');
+        const dpr = window.devicePixelRatio || 1;
+        const rect = canvas.parentElement.getBoundingClientRect();
+        canvas.width = rect.width * dpr;
+        canvas.height = rect.height * dpr;
+        ctx.scale(dpr, dpr);
+
+        const w = rect.width;
+        const h = rect.height;
+        ctx.clearRect(0, 0, w, h);
+        ctx.fillStyle = '#050508';
+        ctx.fillRect(0, 0, w, h);
+
+        const data = buffer.getChannelData(0);
+        const step = Math.ceil(data.length / w);
+        const amp = h / 2;
+
+        ctx.lineWidth = 1.5;
+        ctx.strokeStyle = '#1a3a5a';
+        ctx.beginPath();
+        ctx.moveTo(0, amp);
+
+        for (let i = 0; i < w; i++) {
+          let min = 1.0, max = -1.0;
+          for (let j = 0; j < step; j++) {
+            const datum = data[(i * step) + j];
+            if (datum < min) min = datum;
+            if (datum > max) max = datum;
+          }
+          ctx.lineTo(i, amp + (max * amp));
+          ctx.lineTo(i, amp + (min * amp));
+        }
+
+        ctx.stroke();
+      }
+
+      updateTrimEditorUiMarkers() {
+        if (this.activePad === -1 || !this.slots[this.activePad]) return;
+        const idx = this.activePad;
+        const duration = this.slots[idx].duration;
+        const startSec = this.padTrimStart[idx];
+        const endSec = this.padTrimEnd[idx];
+        const startPct = (startSec / duration) * 100;
+        const endPct = (endSec / duration) * 100;
+
+        const overlay = document.getElementById('trim-region-overlay');
+        overlay.style.left = `${startPct}%`;
+        overlay.style.width = `${endPct - startPct}%`;
+        document.getElementById('trim-handle-start').style.left = `${startPct}%`;
+        document.getElementById('trim-handle-end').style.left = `${endPct}%`;
+        document.getElementById('trim-start-value').textContent = `${startSec.toFixed(3)}s`;
+        document.getElementById('trim-end-value').textContent = `${endSec.toFixed(3)}s`;
+        document.getElementById('trim-duration-value').textContent = `${(endSec - startSec).toFixed(3)}s`;
+      }
+
+      attachTrimHandleInteractionEngine() {
+        const container = document.getElementById('trim-waveform-container');
+        const hStart = document.getElementById('trim-handle-start');
+        const hEnd = document.getElementById('trim-handle-end');
+
+        const processDragAction = (clientX, targetType) => {
+          if (this.activePad === -1 || !this.slots[this.activePad]) return;
+          const idx = this.activePad;
+          const duration = this.slots[idx].duration;
+          const rect = container.getBoundingClientRect();
+          let currentPct = (clientX - rect.left) / rect.width;
+          currentPct = Math.max(0, Math.min(1, currentPct));
+          const targetSec = currentPct * duration;
+          const minSliceLen = 0.05;
+
+          if (targetType === 'start') {
+            if (targetSec < this.padTrimEnd[idx] - minSliceLen) this.padTrimStart[idx] = targetSec;
+          } else if (targetType === 'end') {
+            if (targetSec > this.padTrimStart[idx] + minSliceLen) this.padTrimEnd[idx] = targetSec;
+          }
+          this.updateTrimEditorUiMarkers();
+          this.drawStaticPadThumbnailWaveforms(idx);
+        };
+
+        const attachHandlePointerHooks = (handle, type) => {
+          const onMove = (e) => processDragAction(e.clientX, type);
+          const onUp = (e) => {
+            handle.releasePointerCapture(e.pointerId);
+            handle.classList.remove('dragging');
+            window.removeEventListener('pointermove', onMove);
+            window.removeEventListener('pointerup', onUp);
+          };
+          handle.addEventListener('pointerdown', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            handle.setPointerCapture(e.pointerId);
+            handle.classList.add('dragging');
+            window.addEventListener('pointermove', onMove);
+            window.addEventListener('pointerup', onUp);
+          });
+        };
+
+        attachHandlePointerHooks(hStart, 'start');
+        attachHandlePointerHooks(hEnd, 'end');
+      }
+
+      async startRecordingAction() {
+        this.initAudio();
+        if (this.activePad === -1) {
+          this.setStatus("CHOOSE TARGET ARMED PAD FIRST", false, "error");
+          return;
+        }
+        if (this.isRecording) return;
+        this.isRecording = true;
+        this.audioChunks = [];
+
+        this.setStatus("RECORDING AUDIO STREAM INPUT…", true, "rec");
+        const recBtn = document.getElementById('rec-btn');
+        recBtn.classList.add('recording');
+
+        try {
+          const stream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: false, noiseSuppression: false } });
+          this.mediaRecorder = new MediaRecorder(stream);
+
+          this.mediaRecorder.ondataavailable = (e) => {
+            if (e.data.size > 0) this.audioChunks.push(e.data);
+          };
+
+          this.mediaRecorder.onstop = async () => {
+            const audioBlob = new Blob(this.audioChunks, { type: 'audio/wav' });
+            const arrayArr = await audioBlob.arrayBuffer();
+
+            this.audioCtx.decodeAudioData(arrayArr, (decodedBuffer) => {
+              const idx = this.activePad;
+              this.slots[idx] = decodedBuffer;
+              this.padTrimStart[idx] = 0;
+              this.padTrimEnd[idx] = decodedBuffer.duration;
+              this.padStates[idx] = 'loaded';
+
+              document.getElementById(`pad-status-${idx}`).textContent = `READY (${decodedBuffer.duration.toFixed(1)}s)`;
+              document.getElementById(`pad-${idx}`).className = 'pad state-armed';
+
+              this.drawStaticPadThumbnailWaveforms(idx);
+              this.openTrimEditorPanel(idx);
+              this.setStatus(`PAD ${idx + 1} WRITE COMPLETE`);
+              recBtn.classList.remove('recording');
+            }, (err) => {
+              this.setStatus("DECODE FAILURE DETECTED", false, "error");
+              recBtn.classList.remove('recording');
+              console.error(err);
+            });
+
+            stream.getTracks().forEach(t => t.stop());
+          };
+
+          this.mediaRecorder.start();
+        } catch (err) {
+          console.error(err);
+          this.setStatus("MIC ACCESS DENIED", false, "error");
+          this.isRecording = false;
+          recBtn.classList.remove('recording');
+        }
+      }
+
+      stopRecordingAction() {
+        if (!this.isRecording) return;
+        if (this.mediaRecorder && this.mediaRecorder.state !== 'inactive') {
+          this.mediaRecorder.stop();
+        }
+        this.isRecording = false;
+      }
+
+      drawStaticPadThumbnailWaveforms(idx) {
+        const buffer = this.slots[idx];
+        if (!buffer) return;
+        const canvas = document.getElementById(`pad-canvas-${idx}`);
+        const ctx = canvas.getContext('2d');
+        const w = canvas.width = canvas.offsetWidth;
+        const h = canvas.height = canvas.offsetHeight;
+
+        ctx.clearRect(0, 0, w, h);
+        ctx.fillStyle = 'rgba(0,245,255,0.01)';
+        ctx.fillRect(0, 0, w, h);
+
+        const data = buffer.getChannelData(0);
+        const startIdx = Math.floor((this.padTrimStart[idx] / buffer.duration) * data.length);
+        const endIdx = Math.floor((this.padTrimEnd[idx] / buffer.duration) * data.length);
+        const rangeLen = endIdx - startIdx;
+        const step = Math.ceil(rangeLen / w) || 1;
+        const amp = h / 2;
+
+        ctx.lineWidth = 1;
+        ctx.strokeStyle = 'rgba(0,245,255,0.15)';
+        ctx.beginPath();
+        ctx.moveTo(0, amp);
+
+        for (let i = 0; i < w; i++) {
+          let max = 0;
+          for (let j = 0; j < step; j++) {
+            const targetPointer = startIdx + (i * step) + j;
+            if (targetPointer >= endIdx) break;
+            const val = Math.abs(data[targetPointer]);
+            if (val > max) max = val;
+          }
+          ctx.lineTo(i, amp - (max * amp));
+          ctx.lineTo(i, amp + (max * amp));
+        }
+        ctx.stroke();
+      }
+
+      updateDelayDspGraph() {
+        if (!this.audioCtx || !this.delayNode) return;
+        const now = this.audioCtx.currentTime;
+        this.delayNode.delayTime.setTargetAtTime(this.delayTimeValue / 1000, now, 0.02);
+        this.delayFeedbackNode.gain.setTargetAtTime(this.delayFeedbackValue, now, 0.02);
+        const wetVal = this.delayEnabled ? this.delayMixValue : 0;
+        const dryVal = this.delayEnabled ? (1 - this.delayMixValue) : 1;
+        this.delayWetGain.gain.setTargetAtTime(wetVal, now, 0.01);
+        this.delayDryGain.gain.setTargetAtTime(dryVal, now, 0.01);
+      }
+
+      noteOnAction(visualMidi) {
+        this.initAudio();
+        if (this.activePad === -1 || !this.slots[this.activePad]) {
+          this.highlightKey(visualMidi, true);
+          return;
+        }
+
+        const idx = this.activePad;
+        const origBuffer = this.slots[idx];
+
+        if (this.activeNotes.size >= this.POLY_LIMIT) {
+          const oldestVisualKey = this.activeNotes.keys().next().value;
+          this.noteOffAction(oldestVisualKey);
+        }
+
+        const playedMidi = visualMidi + (this.octaveOffset * 12);
+        const pitchSemiShift = playedMidi - this.ROOT_MIDI;
+        let playbackRateValue = Math.pow(2, pitchSemiShift / 12);
+
+        let activeTrimStart = this.padTrimStart[idx];
+        let activeTrimEnd = this.padTrimEnd[idx];
+        let sliceDuration = activeTrimEnd - activeTrimStart;
+        if (sliceDuration <= 0) return;
+
+        const sampleRate = origBuffer.sampleRate;
+        const startFrame = Math.floor(activeTrimStart * sampleRate);
+        const endFrame = Math.floor(activeTrimEnd * sampleRate);
+        const frameCount = endFrame - startFrame;
+        if (frameCount <= 0) return;
+
+        const sliceBuffer = this.audioCtx.createBuffer(origBuffer.numberOfChannels, frameCount, sampleRate);
+
+        for (let ch = 0; ch < origBuffer.numberOfChannels; ch++) {
+          const origData = origBuffer.getChannelData(ch);
+          const sliceData = sliceBuffer.getChannelData(ch);
+          for (let f = 0; f < frameCount; f++) sliceData[f] = origData[startFrame + f];
+
+          if (this.padReverseStates[idx]) Array.prototype.reverse.call(sliceData);
+
+          if (this.padLofiStates[idx]) {
+            const bitDepth = 4;
+            const steps = Math.pow(2, bitDepth);
+            const downsampleFactor = 6;
+            for (let f = 0; f < frameCount; f++) {
+              if (f % downsampleFactor !== 0) sliceData[f] = sliceData[f - (f % downsampleFactor)];
+              sliceData[f] = Math.round(sliceData[f] * steps) / steps;
+            }
+          }
+        }
+
+        const voiceSrc = this.audioCtx.createBufferSource();
+        voiceSrc.buffer = sliceBuffer;
+        voiceSrc.playbackRate.setValueAtTime(playbackRateValue, this.audioCtx.currentTime);
+        voiceSrc.loop = this.padLoopStates[idx];
+
+        const lowpassNode = this.audioCtx.createBiquadFilter();
+        lowpassNode.type = 'lowpass';
+        const normCutoff = this.padFilterCutoffs[idx];
+        const targetHz = 200 + (normCutoff * normCutoff * 19800);
+        lowpassNode.frequency.setValueAtTime(targetHz, this.audioCtx.currentTime);
+
+        const voiceGainNode = this.audioCtx.createGain();
+        voiceGainNode.gain.setValueAtTime(1.0, this.audioCtx.currentTime);
+
+        voiceSrc.connect(lowpassNode);
+        lowpassNode.connect(voiceGainNode);
+        voiceGainNode.connect(this.masterGain);
+
+        const voiceInstance = { source: voiceSrc, gainNode: voiceGainNode, filterNode: lowpassNode };
+
+        if (!this.activeNotes.has(visualMidi)) this.activeNotes.set(visualMidi, new Set());
+        this.activeNotes.get(visualMidi).add(voiceInstance);
+
+        voiceSrc.onended = () => {
+          const voiceSet = this.activeNotes.get(visualMidi);
+          if (voiceSet) {
+            voiceSet.delete(voiceInstance);
+            if (voiceSet.size === 0) {
+              this.activeNotes.delete(visualMidi);
+              this.highlightKey(visualMidi, false);
+            }
+            this.updatePolyCount();
+          }
+        };
+
+        voiceSrc.start(0);
+        this.highlightKey(visualMidi, true);
+        this.updatePolyCount();
+        this.vuTargetLv = Math.max(this.vuTargetLv, 0.75);
+      }
+
+      noteOffAction(visualMidi) {
+        const voiceSet = this.activeNotes.get(visualMidi);
+        if (!voiceSet) { this.highlightKey(visualMidi, false); return; }
+
+        const now = this.audioCtx.currentTime;
+        const releaseTimeSec = 0.06;
+
+        for (const voice of voiceSet) {
+          try {
+            voice.gainNode.gain.cancelScheduledValues(now);
+            voice.gainNode.gain.setValueAtTime(voice.gainNode.gain.value, now);
+            voice.gainNode.gain.exponentialRampToValueAtTime(0.001, now + releaseTimeSec);
+            voice.source.stop(now + releaseTimeSec);
+          } catch (e) {}
+        }
+      }
+
+      allNotesOffAction() {
+        const keys = Array.from(this.activeNotes.keys());
+        keys.forEach(k => this.noteOffAction(k));
+      }
+
+      highlightKey(visualMidi, on) {
+        const el = document.querySelector(`[data-midi="${visualMidi}"]`);
+        if (el) el.classList.toggle('active', on);
+      }
+
+      setStatus(msg, blink = false, cls = '') {
+        const el = document.getElementById('status-msg');
+        el.textContent = msg;
+        el.className = 'status-msg' + (cls ? ` ${cls}` : '');
+        if (blink) el.classList.add('rec');
+      }
+
+      updatePolyCount() {
+        document.getElementById('poly-count').textContent = `VOICES: ${this.activeNotes.size}/${this.POLY_LIMIT}`;
+      }
+
+      startVuLoop() {
+        const segs = document.querySelectorAll('.vu-seg');
+        const tick = () => {
+          this.vuLevel += (this.vuTargetLv - this.vuLevel) * 0.18;
+          if (this.vuTargetLv > 0) this.vuTargetLv *= 0.88;
+          const lit = Math.round(this.vuLevel * 8);
+          segs.forEach((s, i) => {
+            if (i < lit) {
+              s.classList.add(i >= 7 ? 'lit-red' : i >= 5 ? 'lit-amber' : 'lit-green');
+              s.classList.remove(i >= 7 ? 'lit-green' : 'lit-red');
+            } else {
+              s.classList.remove('lit-green', 'lit-amber', 'lit-red');
+            }
+          });
+          requestAnimationFrame(tick);
+        };
+        requestAnimationFrame(tick);
+      }
+
+      attachKeyboardMatrixHooks() {
+        const asciiMap = {
+          'z': 48, 'x': 50, 'c': 52, 'v': 53, 'b': 55, 'n': 57, 'm': 59, ',': 60,
+          'q': 60, 'w': 62, 'e': 64, 'r': 65, 't': 67, 'y': 69, 'u': 71, 'i': 72,
+          's': 49, 'd': 51, 'g': 54, 'h': 56, 'j': 58,
+          '2': 61, '3': 63, '5': 66, '6': 68, '7': 70
+        };
+        const activePcKeys = new Set();
+        window.addEventListener('keydown', (e) => {
+          if (e.repeat || e.ctrlKey || e.metaKey || e.altKey) return;
+          const key = e.key.toLowerCase();
+          if (asciiMap[key] !== undefined) {
+            activePcKeys.add(key);
+            this.noteOnAction(asciiMap[key]);
+          }
+        });
+        window.addEventListener('keyup', (e) => {
+          const key = e.key.toLowerCase();
+          if (asciiMap[key] !== undefined) {
+            activePcKeys.delete(key);
+            this.noteOffAction(asciiMap[key]);
+          }
+        });
+      }
+
+      initMidi() {
+        const led = document.getElementById('midi-led');
+        const text = document.getElementById('midi-text');
+
+        if (!navigator.requestMIDIAccess) {
+          led.className = 'midi-led unsupported';
+          text.textContent = 'NO MIDI';
+          return;
+        }
+
+        navigator.requestMIDIAccess()
+          .then((midi) => {
+            const scanPorts = () => {
+              const inputs = Array.from(midi.inputs.values());
+              if (inputs.length > 0) {
+                led.className = 'midi-led connected';
+                text.className = 'midi-text connected';
+                text.textContent = `MIDI: ${inputs[0].name.slice(0, 8).toUpperCase()}`;
+                inputs.forEach(input => {
+                  input.onmidimessage = (msg) => this.handleMidiInputMessage(msg);
+                });
+              } else {
+                led.className = 'midi-led';
+                text.textContent = 'MIDI READY';
+              }
+            };
+            midi.onstatechange = () => scanPorts();
+            scanPorts();
+          })
+          .catch((err) => {
+            console.error(err);
+            led.className = 'midi-led unsupported';
+            text.textContent = 'MIDI ERR';
+          });
+      }
+
+      handleMidiInputMessage(msg) {
+        const [status, data1, data2] = msg.data;
+        const cmd = status & 0xf0;
+
+        if (cmd === 0x90 && data2 > 0) {
+          const playedMidi = data1;
+          const visualMidi = playedMidi - (this.octaveOffset * 12);
+          if (visualMidi >= this.VISUAL_START_MIDI && visualMidi <= this.VISUAL_END_MIDI) {
+            const led = document.getElementById('midi-led');
+            led.classList.add('active');
+            setTimeout(() => led.classList.remove('active'), 40);
+            this.noteOnAction(visualMidi);
+          }
+        } else if (cmd === 0x80 || (cmd === 0x90 && data2 === 0)) {
+          const playedMidi = data1;
+          const visualMidi = playedMidi - (this.octaveOffset * 12);
+          if (visualMidi >= this.VISUAL_START_MIDI && visualMidi <= this.VISUAL_END_MIDI) {
+            this.noteOffAction(visualMidi);
+          }
+        }
+      }
     }
-    const keyEl = e.target.closest('.white-key, .black-key');
-    if (keyEl) pressKey(keyEl);
-  };
-  
-  const releaseAction = (e) => {
-    const keyEl = e.target.closest('.white-key, .black-key');
-    if (keyEl) releaseKey(keyEl);
-  };
-  
-  p.addEventListener('mousedown', pressAction);
-  p.addEventListener('mouseup', releaseAction);
-  p.addEventListener('mouseleave', () => {
-    if (noteStack.length > 0) {
-      noteStack = [];
-      document.querySelectorAll('.white-key, .black-key').forEach(k => k.classList.remove('key-active'));
-      updateSynthVoice();
-    }
-  });
-  
-  // Touch support mapping definitions
-  p.addEventListener('touchstart', (e) => { e.preventDefault(); pressAction(e.touches[0]); }, { passive: false });
-  p.addEventListener('touchend', (e) => { e.preventDefault(); releaseAction(e.changedTouches[0]); }, { passive: false });
-}
 
-/* ── UI KNOB CONTROL ASSIGNMENTS ───────────────────────── */
-function initKnob(rangeId, tickId, valId, formatter, audioCallback) {
-  const range = document.getElementById(rangeId);
-  const tick = document.getElementById(tickId);
-  const val = document.getElementById(valId);
-  if (!range || !tick) return;
-  
-  function update() {
-    const pct = (range.value - range.min) / (range.max - range.min);
-    const deg = -135 + pct * 270;
-    tick.style.transform = `rotate(${deg}deg)`;
-    
-    if (val && formatter) val.textContent = formatter(range.value);
-    else if (val) val.textContent = range.value;
-    
-    if (audioCallback) audioCallback(parseFloat(range.value));
-  }
-  
-  range.addEventListener('input', update);
-  update();
-}
-
-initKnob('osc1-volume', 'osc1-vol-tick', 'osc1-vol-val', null, v => {
-  if (osc1Gain && audioCtx) osc1Gain.gain.setValueAtTime(v / 100, audioCtx.currentTime);
-});
-initKnob('osc2-volume', 'osc2-vol-tick', 'osc2-vol-val', null, v => {
-  if (osc2Gain && audioCtx) osc2Gain.gain.setValueAtTime(v / 100, audioCtx.currentTime);
-});
-initKnob('osc3-volume', 'osc3-vol-tick', 'osc3-vol-val', null, v => {
-  if (osc3Gain && audioCtx) osc3Gain.gain.setValueAtTime(v / 100, audioCtx.currentTime);
-});
-
-initKnob('filter-cutoff', 'filter-cut-tick', 'filter-cut-val', v => v + 'Hz', () => {
-  updateFilterFrequencies();
-});
-initKnob('filter-reso', 'filter-res-tick', 'filter-res-val', v => parseFloat(v).toFixed(1), v => {
-  if (filterNode && audioCtx) filterNode.Q.setValueAtTime(v, audioCtx.currentTime);
-});
-
-// Sync radio selectors on wave forms changes directly
-document.querySelectorAll('.wave-selector input').forEach(input => {
-  input.addEventListener('change', () => {
-    if (!audioCtx) return;
-    if (input.name === 'osc1-wave' && osc1) osc1.type = input.value;
-    if (input.name === 'osc2-wave' && osc2) osc2.type = input.value;
-    if (input.name === 'osc3-wave' && osc3) osc3.type = input.value;
-  });
-});
-
-// Sync linear detuning sliders directly
-['osc1', 'osc2', 'osc3'].forEach((prefix, idx) => {
-  const input = document.getElementById(`${prefix}-detune`);
-  const readout = document.getElementById(`${prefix}-detune-val`);
-  if (!input) return;
-  input.addEventListener('input', () => {
-    const val = parseInt(input.value);
-    if (readout) readout.textContent = val === 0 ? "±0¢" : (val > 0 ? "+" : "") + val + "¢";
-    oscDetunes[idx] = val;
-    updateSynthVoice();
-  });
-});
-
-/* ── UI FADER SYSTEM CONTROLLERS ──────────────────────── */
-function initFader(rangeId, thumbId, valId, multiplier, audioCallback) {
-  const range = document.getElementById(rangeId);
-  const thumb = document.getElementById(thumbId);
-  const val = document.getElementById(valId);
-  if (!range || !thumb) return;
-  
-  const TRACK_H = 110, THUMB_H = 22;
-  const travel = TRACK_H - THUMB_H;
-  
-  function update() {
-    const pct = (range.value - range.min) / (range.max - range.min);
-    const bottomPx = pct * travel;
-    thumb.style.bottom = bottomPx + 'px';
-    
-    const ms = parseFloat(range.value) * multiplier;
-    if (val) {
-      if (ms >= 1000) val.textContent = (ms / 1000).toFixed(1) + 's';
-      else val.textContent = Math.round(ms) + 'ms';
-    }
-    if (audioCallback) audioCallback(ms / 1000);
-  }
-  
-  range.addEventListener('input', update);
-  update();
-}
-
-initFader('env-attack', 'attack-thumb', 'env-attack-val', 10, v => { attackTime = v; });
-initFader('env-release', 'release-thumb', 'env-release-val', 50, v => { releaseTime = v; });
-
-/* ── PERFORMANCE CONTROLLERS (WHEELS) ──────────────────── */
-function initWheel(id, snapToCenter, audioCallback) {
-  const range = document.getElementById(id + '-wheel');
-  const thumb = document.getElementById(id + '-wheel-thumb');
-  const readout = document.getElementById(id + '-wheel-val');
-  if (!range) return;
-  
-  const SLOT_H = 100, THUMB_H = 26;
-  const travel = SLOT_H - THUMB_H;
-  
-  function update() {
-    const pct = (range.value - range.min) / (range.max - range.min);
-    const topPx = (1 - pct) * travel;
-    if (thumb) thumb.style.top = topPx + 'px';
-    
-    if (readout) {
-      const val = parseInt(range.value);
-      if (snapToCenter) readout.textContent = (val >= 0 ? "+" : "") + val;
-      else readout.textContent = val;
-    }
-    if (audioCallback) audioCallback(parseFloat(range.value));
-  }
-  
-  range.addEventListener('input', update);
-  if (snapToCenter) {
-    range.addEventListener('change', () => {
-      range.value = 0;
-      update();
+    window.addEventListener('DOMContentLoaded', () => {
+      const samplerApp = new MicroSampler();
+      samplerApp.render();
     });
-  }
-  update();
-}
-
-initWheel('pitch', true, () => { updateSynthVoice(); });
-initWheel('mod', false, v => {
-  if (modLFOGain && audioCtx) modLFOGain.gain.setValueAtTime(v * 3.5, audioCtx.currentTime);
-});
-
-/* ── PIANO INTERACTION CONTROLLER ──────────────────────── */
-function pressKey(el) {
-  if (!powered || !el) return;
-  const baseNote = el.getAttribute('data-note');
-  const baseOct = parseInt(el.getAttribute('data-base-oct'));
-  const finalOct = baseOct + currentOctaveShift;
-  const noteId = `${baseNote}-${finalOct}`;
-  const computedFreq = NOTE_FREQS[baseNote] * Math.pow(2, finalOct);
-  
-  el.classList.add('key-active');
-  
-  // Guard against duplicate values inside last-note polyphonic stack arrays
-  noteStack = noteStack.filter(v => v.id !== noteId);
-  noteStack.push({ id: noteId, freq: computedFreq, noteName: baseNote, octave: finalOct });
-  activeVoices[noteId] = true;
-  
-  updateSynthVoice();
-}
-
-function releaseKey(el) {
-  if (!el) return;
-  const baseNote = el.getAttribute('data-note');
-  const baseOct = parseInt(el.getAttribute('data-base-oct'));
-  const finalOct = baseOct + currentOctaveShift;
-  const noteId = `${baseNote}-${finalOct}`;
-  
-  el.classList.remove('key-active');
-  
-  noteStack = noteStack.filter(v => v.id !== noteId);
-  delete activeVoices[noteId];
-  
-  updateSynthVoice();
-}
-
-/* ── HARDWARE COMPUTER QWERTY MAP KEYBOARD ─────────────── */
-const KB_MAP = {
-  // Lower Octave Mapping Configuration
-  z: 'c3', s: 'cs3', x: 'd3', d: 'ds3', c: 'e3', v: 'f3', g: 'fs3', b: 'g3', h: 'gs3', n: 'a3', j: 'as3', m: 'b3',
-  // Upper Octave Mapping Configuration
-  q: 'c4', '2': 'cs4', w: 'd4', '3': 'ds4', e: 'e4', r: 'f4', '5': 'fs4', t: 'g4', '6': 'gs4', y: 'a4', '7': 'as4', u: 'b4', i: 'c5'
-};
-
-document.addEventListener('keydown', e => {
-  if (e.repeat || e.metaKey || e.ctrlKey) return;
-  if (audioCtx && audioCtx.state === 'suspended') {
-    audioCtx.resume();
-  } else {
-    initAudioEngine();
-  }
-  const note = KB_MAP[e.key.toLowerCase()];
-  if (note) {
-    const keyEl = document.getElementById('key-' + note);
-    // Ignore trigger attempt if structural state sets key hidden on mobile viewport
-    if (keyEl && window.getComputedStyle(keyEl).display !== 'none') {
-      pressKey(keyEl);
-    }
-  }
-});
-
-document.addEventListener('keyup', e => {
-  const note = KB_MAP[e.key.toLowerCase()];
-  if (note) {
-    const keyEl = document.getElementById('key-' + note);
-    if (keyEl) releaseKey(keyEl);
-  }
-});
-
-/* ── ADAPTIVE RUNTIME LAYOUT SCALE CONTROLLER ───────────── */
-function updateOctaveUI() {
-  const badge = document.getElementById('octave-display');
-  const label = document.getElementById('keyboard-bounds-label');
-  const startOct = 3 + currentOctaveShift;
-  const endOct = 5 + currentOctaveShift;
-  const isMobile = window.innerWidth <= 768;
-  
-  if (isMobile) {
-    label.innerHTML = `KEYBOARD &nbsp;·&nbsp; C${startOct} — C${startOct+1} &nbsp;·&nbsp; mobile`;
-    badge.innerHTML = `OCT ${startOct}-${startOct+1} <span class="blink">▮</span>`;
-  } else {
-    label.innerHTML = `KEYBOARD &nbsp;·&nbsp; C${startOct} — C${endOct} &nbsp;·&nbsp; desktop`;
-    badge.innerHTML = `OCT ${startOct}-${endOct} <span class="blink">▮</span>`;
-  }
-}
-
-document.getElementById('oct-down-btn').addEventListener('click', () => {
-  if (currentOctaveShift > -2) { currentOctaveShift--; updateOctaveUI(); }
-});
-document.getElementById('oct-up-btn').addEventListener('click', () => {
-  if (currentOctaveShift < 2) { currentOctaveShift++; updateOctaveUI(); }
-});
-
-window.addEventListener('resize', updateOctaveUI);
-updateOctaveUI();
-
-/* ── REALTIME CRT CANVAS ANIMATION MONITOR SYSTEM ─────── */
-const canvas = document.getElementById('scope-canvas');
-const ctx = canvas.getContext('2d');
-let t = 0;
-
-function resizeCanvas() {
-  const dpr = window.devicePixelRatio || 1;
-  const rect = canvas.parentElement.getBoundingClientRect();
-  canvas.width = rect.width * dpr;
-  canvas.height = rect.height * dpr;
-  ctx.scale(dpr, dpr);
-}
-
-window.addEventListener('resize', resizeCanvas);
-resizeCanvas();
-
-const dataArray = new Uint8Array(1024);
-
-/* ── FRAME-RATE THROTTLE (iOS 6 / legacy CPU protection) ──
-   Only execute the canvas draw body every second rAF frame (~30 fps).
-   Modern browsers run the full loop at 60 fps; on older hardware the
-   skipped frame prevents the JS thread from becoming the bottleneck.   */
-let _drawFrameCount = 0;
-
-function draw() {
-  requestAnimationFrame(draw);
-
-  // Throttle: skip odd-numbered frames — execute on every 2nd frame only
-  _drawFrameCount++;
-  if (_drawFrameCount % 2 !== 0) return;
-
-  t += 0.03;
-  
-  const W = canvas.width / window.devicePixelRatio;
-  const H = canvas.height / window.devicePixelRatio;
-  
-  ctx.clearRect(0, 0, W, H);
-  
-  if (powered && analyserNode && noteStack.length > 0) {
-    analyserNode.getByteTimeDomainData(dataArray);
-    
-    ctx.save();
-    ctx.strokeStyle = '#00f5ff';
-    ctx.lineWidth   = 2.0;
-    ctx.shadowColor = '#00f5ff';
-    ctx.shadowBlur  = 6;
-    ctx.beginPath();
-    
-    const sliceWidth = W / 1024;
-    let x = 0;
-    
-    for (let i = 0; i < 1024; i++) {
-      const v = dataArray[i] / 128.0;
-      const y = (v * H) / 2 + Math.sin(i * 0.04) * 1.5; 
-      if (x === 0) ctx.moveTo(x, y);
-      else ctx.lineTo(x, y);
-      x += sliceWidth;
-      if (x > W) break;
-    }
-    ctx.stroke();
-    ctx.restore();
-    
-  } else {
-    ctx.save();
-    ctx.strokeStyle = '#00f5ff';
-    ctx.lineWidth   = 1.5;
-    ctx.opacity     = 0.4;
-    ctx.beginPath();
-    ctx.moveTo(0, H / 2);
-    ctx.lineTo(W, H / 2);
-    ctx.stroke();
-    ctx.restore();
-  }
-}
-
-// Set power LED styling layout active permanently on load setup 
-document.getElementById('power-led').classList.add('on');
-initKeyboardLayoutInteractions();
-draw();
-
-/* ── START-GATE: user-interaction gate required by iOS 6 auto-play policy ──
-   The AudioContext is constructed *inside* the direct click/touchend handler
-   so that legacy Safari accepts it as a valid user-gesture unlock.          */
-(function initStartGate() {
-  var gate = document.getElementById('start-gate');
-  var btn  = document.getElementById('start-gate-btn');
-  if (!gate || !btn) return;
-
-  function onStartTap(e) {
-    // Prevent ghost mouse event on touch devices
-    if (e && e.preventDefault) e.preventDefault();
-
-    // --- Core unlock: create AudioContext inside the gesture handler ---
-    initAudioEngine();
-
-    // Resume a pre-existing suspended context (iOS Safari sometimes suspends on first creation)
-    if (audioCtx && audioCtx.state === 'suspended') {
-      audioCtx.resume();
-    }
-
-    // Activate the synth engine state
-    powered = true;
-
-    // Dismiss the gate overlay
-    gate.className = gate.className + ' hidden';   // avoid classList for IE/iOS 6 compat
-
-    // Remove listeners — gate is one-shot
-    btn.removeEventListener('click',      onStartTap);
-    btn.removeEventListener('touchend',   onStartTap);
-  }
-
-  btn.addEventListener('touchend', onStartTap);   // touchend fires before click; handles iOS 6
-  btn.addEventListener('click',    onStartTap);   // fallback for desktop / modern browsers
-})();
 </script>
 </body>
 </html>
