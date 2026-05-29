@@ -1030,19 +1030,22 @@ function onMIDIFailure() {
 function handleMIDIMessage(message) {
   const [command, note, velocity] = message.data;
 
-  // Command 144 is Note On. We also check velocity > 0 
-  // (some controllers send Note On with 0 velocity instead of a Note Off command)
-  if (command === 144 && velocity > 0) {
+  // Mask off the lower 4 bits (the channel) to get just the message type.
+  // 0x90 (144 in decimal) is the base command for Note On across all channels.
+  // 0x80 (128 in decimal) is the base command for Note Off.
+  const messageType = command & 0xF0;
+
+  // Note On
+  if (messageType === 144 && velocity > 0) {
     startAudio(); 
     noteOn(note);
     
-    // Highlight the corresponding on-screen key if it's within the visible range
     const keyEl = document.querySelector(`[data-midi="${note}"]`);
     if (keyEl) keyEl.classList.add('pressed');
   }
   
-  // Command 128 is Note Off, or Note On with 0 velocity
-  if (command === 128 || (command === 144 && velocity === 0)) {
+  // Note Off (or Note On with 0 velocity)
+  if (messageType === 128 || (messageType === 144 && velocity === 0)) {
     noteOff(note);
     
     const keyEl = document.querySelector(`[data-midi="${note}"]`);
