@@ -433,6 +433,78 @@ nav: sampler
     }
     .delay-value { font-size: 8px; color: var(--purple); min-width: 36px; text-align: right; font-family: 'Space Mono', monospace; }
 
+    /* ── COMPRESSOR SECTION ────────────────────────────── */
+    .comp-section {
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border);
+    }
+    .comp-header {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-bottom: 10px;
+    }
+    .comp-title {
+      font-family: 'VT323', monospace; font-size: 18px;
+      letter-spacing: 0.18em; color: var(--pink);
+      text-shadow: 0 0 10px rgba(255,45,120,0.3);
+    }
+    .comp-header-right { display: flex; align-items: center; gap: 10px; }
+
+    /* GR meter */
+    .gr-meter-wrap {
+      display: flex; align-items: center; gap: 6px;
+    }
+    .gr-meter-label { font-size: 7px; letter-spacing: 0.15em; color: var(--dim); text-transform: uppercase; }
+    .gr-meter-track {
+      width: 80px; height: 6px;
+      background: #0f0f20; border: 1px solid var(--border-hi);
+      border-radius: 3px; overflow: hidden; position: relative;
+    }
+    .gr-meter-fill {
+      position: absolute; right: 0; top: 0; bottom: 0; width: 0%;
+      border-radius: 3px;
+      background: linear-gradient(to left, var(--pink), #ff8800);
+      transition: width 60ms linear;
+    }
+    .gr-meter-value {
+      font-size: 8px; color: var(--pink); min-width: 38px;
+      text-align: right; font-family: 'Space Mono', monospace;
+    }
+
+    .comp-toggle {
+      width: 28px; height: 16px;
+      background: #0a0a16; border: 1px solid var(--border-hi);
+      border-radius: 8px; cursor: pointer; position: relative;
+      transition: background 0.2s, border-color 0.2s;
+    }
+    .comp-toggle::after {
+      content: '';
+      position: absolute; top: 2px; left: 2px;
+      width: 10px; height: 10px;
+      background: #2a2a44; border-radius: 50%;
+      transition: left 0.2s, background 0.2s;
+    }
+    .comp-toggle.active { background: #1a060e; border-color: #4a1030; }
+    .comp-toggle.active::after { left: 14px; background: var(--pink); box-shadow: 0 0 6px var(--pink); }
+
+    .comp-controls { display: flex; gap: 12px; flex-wrap: wrap; }
+    .comp-control { flex: 1; min-width: 100px; display: flex; flex-direction: column; gap: 4px; }
+    .comp-control-label { font-size: 7.5px; letter-spacing: 0.15em; color: var(--dim); text-transform: uppercase; }
+    .comp-control-row { display: flex; align-items: center; gap: 8px; }
+    .comp-slider-track {
+      flex: 1; position: relative; height: 3px;
+      background: #0f0f20; border-radius: 2px; border: 1px solid var(--border);
+    }
+    .comp-slider-fill {
+      position: absolute; left: 0; top: 0; bottom: 0;
+      background: linear-gradient(to right, #3a1020, var(--pink));
+      border-radius: 2px; pointer-events: none;
+    }
+    .comp-slider {
+      position: absolute; inset: 0; width: 100%; height: 100%;
+      opacity: 0; cursor: pointer;
+    }
+    .comp-value { font-size: 8px; color: var(--pink); min-width: 40px; text-align: right; font-family: 'Space Mono', monospace; }
+
     /* ── CONTROLS ROW ─────────────────────────────────── */
     .controls-row {
       display: flex; gap: 10px; padding: 12px 16px;
@@ -766,6 +838,65 @@ nav: sampler
       </div>
     </div>
 
+    <!-- COMPRESSOR -->
+    <div class="comp-section">
+      <div class="comp-header">
+        <span class="comp-title">COMPRESSOR</span>
+        <div class="comp-header-right">
+          <div class="gr-meter-wrap">
+            <span class="gr-meter-label">GR</span>
+            <div class="gr-meter-track">
+              <div class="gr-meter-fill" id="gr-meter-fill"></div>
+            </div>
+            <span class="gr-meter-value" id="gr-meter-value">0.0 dB</span>
+          </div>
+          <div class="comp-toggle active" id="comp-toggle" role="button" aria-label="Toggle compressor"></div>
+        </div>
+      </div>
+      <div class="comp-controls">
+        <div class="comp-control">
+          <span class="comp-control-label">Threshold</span>
+          <div class="comp-control-row">
+            <div class="comp-slider-track">
+              <div class="comp-slider-fill" id="comp-threshold-fill" style="width:55%"></div>
+              <input type="range" class="comp-slider" id="comp-threshold" min="-60" max="0" step="1" value="-18">
+            </div>
+            <span class="comp-value" id="comp-threshold-value">-18 dB</span>
+          </div>
+        </div>
+        <div class="comp-control">
+          <span class="comp-control-label">Ratio</span>
+          <div class="comp-control-row">
+            <div class="comp-slider-track">
+              <div class="comp-slider-fill" id="comp-ratio-fill" style="width:15%"></div>
+              <input type="range" class="comp-slider" id="comp-ratio" min="1" max="20" step="0.5" value="4">
+            </div>
+            <span class="comp-value" id="comp-ratio-value">4:1</span>
+          </div>
+        </div>
+        <div class="comp-control">
+          <span class="comp-control-label">Attack</span>
+          <div class="comp-control-row">
+            <div class="comp-slider-track">
+              <div class="comp-slider-fill" id="comp-attack-fill" style="width:6%"></div>
+              <input type="range" class="comp-slider" id="comp-attack" min="0" max="1" step="0.001" value="0.003">
+            </div>
+            <span class="comp-value" id="comp-attack-value">3 ms</span>
+          </div>
+        </div>
+        <div class="comp-control">
+          <span class="comp-control-label">Release</span>
+          <div class="comp-control-row">
+            <div class="comp-slider-track">
+              <div class="comp-slider-fill" id="comp-release-fill" style="width:24%"></div>
+              <input type="range" class="comp-slider" id="comp-release" min="0.01" max="1" step="0.01" value="0.25">
+            </div>
+            <span class="comp-value" id="comp-release-value">250 ms</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- REC + FX -->
     <div class="controls-row">
       <button class="rec-btn" id="rec-btn" aria-label="Hold to record">
@@ -858,6 +989,14 @@ nav: sampler
         this.delayWetGain = null;
         this.delayDryGain = null;
 
+        // Compressor
+        this.compressorNode = null;
+        this.compEnabled = true;
+        this.compThreshold = -18;  // dB
+        this.compRatio = 4;
+        this.compAttack = 0.003;   // seconds
+        this.compRelease = 0.25;   // seconds
+
         this.POLY_LIMIT = 6;
         this.ROOT_MIDI = 69;
         this.VISUAL_START_MIDI = 48;
@@ -912,6 +1051,14 @@ nav: sampler
         this.masterGain = this.audioCtx.createGain();
         this.masterGain.gain.setValueAtTime(this.masterVolumeValue, this.audioCtx.currentTime);
 
+        // Musical compressor — sits between masterGain and the delay/limiter chain
+        this.compressorNode = this.audioCtx.createDynamicsCompressor();
+        this.compressorNode.threshold.setValueAtTime(this.compThreshold, this.audioCtx.currentTime);
+        this.compressorNode.knee.setValueAtTime(6, this.audioCtx.currentTime);
+        this.compressorNode.ratio.setValueAtTime(this.compRatio, this.audioCtx.currentTime);
+        this.compressorNode.attack.setValueAtTime(this.compAttack, this.audioCtx.currentTime);
+        this.compressorNode.release.setValueAtTime(this.compRelease, this.audioCtx.currentTime);
+
         this.delayNode = this.audioCtx.createDelay(1.0);
         this.delayFeedbackNode = this.audioCtx.createGain();
         this.delayWetGain = this.audioCtx.createGain();
@@ -928,8 +1075,10 @@ nav: sampler
         this.delayNode.connect(this.delayFeedbackNode);
         this.delayFeedbackNode.connect(this.delayNode);
 
-        this.masterGain.connect(this.delayDryGain);
-        this.masterGain.connect(this.delayNode);
+        // masterGain → compressor → delay split → limiter
+        this.masterGain.connect(this.compressorNode);
+        this.compressorNode.connect(this.delayDryGain);
+        this.compressorNode.connect(this.delayNode);
         this.delayNode.connect(this.delayWetGain);
 
         this.delayDryGain.connect(this.limiter);
@@ -1105,6 +1254,49 @@ nav: sampler
           this.delayEnabled = !this.delayEnabled;
           dToggle.classList.toggle('active', this.delayEnabled);
           this.updateDelayDspGraph();
+        });
+
+        // --- Compressor Controls ---
+        const cToggle = document.getElementById('comp-toggle');
+        cToggle.addEventListener('click', () => {
+          this.compEnabled = !this.compEnabled;
+          cToggle.classList.toggle('active', this.compEnabled);
+          this.updateCompressorDspGraph();
+        });
+
+        const compSliderDefs = [
+          { id: 'comp-threshold', fillId: 'comp-threshold-fill', valId: 'comp-threshold-value',
+            fmt: v => `${Math.round(v)} dB`,
+            pct: v => ((parseFloat(v) - (-60)) / 60) * 100,
+            cb: v => { this.compThreshold = v; this.updateCompressorDspGraph(); }
+          },
+          { id: 'comp-ratio', fillId: 'comp-ratio-fill', valId: 'comp-ratio-value',
+            fmt: v => `${parseFloat(v).toFixed(1)}:1`,
+            pct: v => ((parseFloat(v) - 1) / 19) * 100,
+            cb: v => { this.compRatio = v; this.updateCompressorDspGraph(); }
+          },
+          { id: 'comp-attack', fillId: 'comp-attack-fill', valId: 'comp-attack-value',
+            fmt: v => parseFloat(v) < 0.01 ? `${Math.round(parseFloat(v)*1000)} ms` : `${(parseFloat(v)*1000).toFixed(0)} ms`,
+            pct: v => (parseFloat(v) / 1) * 100,
+            cb: v => { this.compAttack = v; this.updateCompressorDspGraph(); }
+          },
+          { id: 'comp-release', fillId: 'comp-release-fill', valId: 'comp-release-value',
+            fmt: v => `${Math.round(parseFloat(v)*1000)} ms`,
+            pct: v => ((parseFloat(v) - 0.01) / 0.99) * 100,
+            cb: v => { this.compRelease = v; this.updateCompressorDspGraph(); }
+          }
+        ];
+
+        compSliderDefs.forEach(({ id, fillId, valId, fmt, pct, cb }) => {
+          const slider = document.getElementById(id);
+          const fill   = document.getElementById(fillId);
+          const label  = document.getElementById(valId);
+          slider.addEventListener('input', () => {
+            const v = parseFloat(slider.value);
+            fill.style.width = `${Math.max(0, Math.min(100, pct(v)))}%`;
+            label.textContent = fmt(v);
+            cb(v);
+          });
         });
 
         this.attachSliderEngine('delay-time', 'delay-time-fill', 'delay-time-value', ' ms', (val) => {
@@ -1509,6 +1701,21 @@ nav: sampler
         this.delayDryGain.gain.setTargetAtTime(dryVal, now, 0.01);
       }
 
+      updateCompressorDspGraph() {
+        if (!this.audioCtx || !this.compressorNode) return;
+        const now = this.audioCtx.currentTime;
+        if (this.compEnabled) {
+          this.compressorNode.threshold.setTargetAtTime(this.compThreshold, now, 0.01);
+          this.compressorNode.ratio.setTargetAtTime(this.compRatio, now, 0.01);
+          this.compressorNode.attack.setTargetAtTime(this.compAttack, now, 0.01);
+          this.compressorNode.release.setTargetAtTime(this.compRelease, now, 0.01);
+        } else {
+          // Bypass: set threshold to 0dB, ratio to 1:1 — passes signal unchanged
+          this.compressorNode.threshold.setTargetAtTime(0, now, 0.01);
+          this.compressorNode.ratio.setTargetAtTime(1, now, 0.01);
+        }
+      }
+
       noteOnAction(visualMidi) {
         this.initAudio();
         if (this.activePad === -1 || !this.slots[this.activePad]) {
@@ -1640,7 +1847,13 @@ nav: sampler
 
       startVuLoop() {
         const segs = document.querySelectorAll('.vu-seg');
+        const grFill  = document.getElementById('gr-meter-fill');
+        const grValue = document.getElementById('gr-meter-value');
+        // Smoothed GR display value
+        let grSmoothed = 0;
+
         const tick = () => {
+          // VU meter
           this.vuLevel += (this.vuTargetLv - this.vuLevel) * 0.18;
           if (this.vuTargetLv > 0) this.vuTargetLv *= 0.88;
           const lit = Math.round(this.vuLevel * 8);
@@ -1652,6 +1865,25 @@ nav: sampler
               s.classList.remove('lit-green', 'lit-amber', 'lit-red');
             }
           });
+
+          // GR meter — compressor.reduction is a negative dB value (e.g. -6 = 6dB of gain reduction)
+          if (this.compressorNode && this.compEnabled && grFill && grValue) {
+            const rawGR = this.compressorNode.reduction; // negative or 0
+            // Smooth: fast attack, slow release
+            const target = Math.abs(rawGR);
+            grSmoothed += target > grSmoothed
+              ? (target - grSmoothed) * 0.5     // fast attack
+              : (target - grSmoothed) * 0.06;   // slow release
+            // Map 0–20dB reduction to 0–100% bar width
+            const pct = Math.min(100, (grSmoothed / 20) * 100);
+            grFill.style.width = `${pct}%`;
+            grValue.textContent = `-${grSmoothed.toFixed(1)} dB`;
+          } else if (grFill && grValue) {
+            grSmoothed *= 0.85;
+            grFill.style.width = `${Math.min(100, (grSmoothed / 20) * 100)}%`;
+            grValue.textContent = `-${grSmoothed.toFixed(1)} dB`;
+          }
+
           requestAnimationFrame(tick);
         };
         requestAnimationFrame(tick);
