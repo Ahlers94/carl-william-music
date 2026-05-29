@@ -56,26 +56,13 @@
          The Matrix
       </a>
     </li>
-    <li>
-      <a href="{{ '/sampler.html' | relative_url }}" 
-         id="nav-sampler" 
-         {% if page.nav == 'sampler' or page.url == '/sampler.html' %}aria-current="page"{% endif %}>
-         <span class="nav-icon">■</span> Sampler
-      </a>
-    </li>
-   <li>
-      <a href="{{ '/synth.html' | relative_url }}" 
-         id="nav-synth" 
-         {% if page.nav == 'synth' or page.url == '/synth.html' %}aria-current="page"{% endif %}>
-         <span class="nav-icon">■</span> Synth
-      </a>
-    </li>
-     <li>
-      <a href="{{ '/drum-machine.html' | relative_url }}" 
-         id="nav-drum-machine" 
-         {% if page.nav == 'drum-machine' or page.url == '/drum-machine.html' %}aria-current="page"{% endif %}>
-         <span class="nav-icon">■</span> Drums
-      </a>
-    </li>
+<li class="instruments-dropdown">
+  <a href="#" id="nav-instruments" aria-haspopup="true" aria-expanded="false">Instruments ▾</a>
+  <div class="instruments-dropdown-menu">
+    <a href="{{ '/sampler.html' | relative_url }}" id="sub-sampler">Sampler</a>
+    <a href="{{ '/synth.html' | relative_url }}" id="sub-synth">Synth</a>
+    <a href="{{ '/drum-machine.html' | relative_url }}" id="sub-drums">Drums</a>
+  </div>
+</li>
   </ul>
 </nav>
