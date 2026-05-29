@@ -305,12 +305,6 @@
     overflow: visible;
   }
 
-  /* 17 white keys = F3 to B5 + C6 (but VL-1 is F to F, 2.5 octaves = 17 white keys) */
-  /* Keys: F G A B C D E F G A B C D E F G A B (no, we need exactly the VL-1 layout) */
-  /* VL-1 actual: 29 total keys (17 white + 12 black) from F to F (3 octaves - 1 key) */
-  /* Actually F3 to F5 = 2 octaves = 14 white + 10 black, but listed as 17+12 */
-  /* The original 29-key layout: F3 to B5 (17 white) + 12 black = correct */
-
   .keybed {
     position: relative;
     display: flex;
@@ -342,16 +336,7 @@
     background: #e8e5de;
     box-shadow: inset 0 2px 4px rgba(0,0,0,.15), inset 0 -1px 0 #bbb;
   }
-  .wkey .note-label {
-    position: absolute;
-    bottom: 4px;
-    left: 50%;
-    transform: translateX(-50%);
-    font-size: clamp(5px, 1vw, 8px);
-    color: #aaa;
-    pointer-events: none;
-  }
-
+  
   /* Black keys overlay */
   .black-keys {
     position: absolute;
@@ -364,7 +349,6 @@
 
   .bkey {
     position: absolute;
-    width: calc(100% / 17 * 0.6);
     height: 100%;
     background: var(--key-black);
     border-radius: 0 0 3px 3px;
@@ -377,6 +361,31 @@
   .bkey.pressed {
     background: #111;
     box-shadow: inset 0 2px 3px rgba(0,0,0,.5);
+  }
+
+  /* Desktop key labels */
+  .note-label {
+    position: absolute;
+    bottom: 4px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: clamp(6px, 1.2vw, 10px);
+    font-family: Arial, sans-serif;
+    font-weight: bold;
+    pointer-events: none;
+  }
+  
+  .wkey .note-label {
+    color: #111;
+  }
+
+  .bkey .note-label {
+    color: #eee;
+  }
+
+  /* Hide labels on mobile/smaller screens */
+  @media (max-width: 768px) {
+    .note-label { display: none !important; }
   }
 
   /* Pedal/rhythm strip */
@@ -444,7 +453,7 @@
   @media (max-width: 500px) {
     .voice-btn { padding: 3px 0; }
     .panel { grid-template-columns: auto 1fr; }
-    .lcd-panel { display: none; } /* hide lcd on tiny screens, show it inline */
+    .lcd-panel { display: none; }
   }
 </style>
 </head>
@@ -453,22 +462,18 @@
 <div id="vl1">
   <div class="top-stripe"></div>
 
-  <!-- screws -->
   <div class="screw" style="top:20px;left:10px"></div>
   <div class="screw" style="top:20px;right:10px"></div>
 
   <div class="panel">
-    <!-- Branding -->
     <div class="branding">
       <span class="brand-casio">CASIO</span>
       <span class="brand-vltone">VL-TONE</span>
       <span class="brand-badge">VL-1</span>
     </div>
 
-    <!-- Center controls -->
     <div class="center-controls">
 
-      <!-- Voice selector -->
       <div class="ctrl-module">
         <label>Voice Select</label>
         <div class="voice-grid" id="voiceGrid">
@@ -490,7 +495,6 @@
         </div>
       </div>
 
-      <!-- Volume slider -->
       <div class="ctrl-module">
         <label>Volume</label>
         <div class="slider-row">
@@ -498,7 +502,6 @@
         </div>
       </div>
 
-      <!-- Octave switch -->
       <div class="ctrl-module">
         <label>Octave</label>
         <div class="oct-switch">
@@ -510,14 +513,12 @@
 
     </div>
 
-    <!-- LCD + octave indicator -->
     <div class="lcd-panel">
       <div class="lcd" id="lcd">PIANO</div>
       <div class="octave-indicator" id="octLabel">OCT: MID</div>
     </div>
   </div>
 
-  <!-- Keyboard -->
   <div class="keyboard-section">
     <div class="keyboard-outer">
       <div class="keybed" id="keybed">
@@ -530,21 +531,18 @@
   <div class="bottom-strip"></div>
 </div>
 
-<!-- Config panel -->
 <div class="config-panel">
   <div class="config-toggle" id="configToggle">
     <span>⚙ SAMPLE CONFIGURATION</span>
     <span id="configArrow">▼</span>
   </div>
   <div class="config-body" id="configBody">
-    <!-- populated by JS -->
-  </div>
+    </div>
 </div>
 
 <script>
 // ═══════════════════════════════════════════════════════════════════
-// SAMPLE LIBRARY — all 12 dspreset banks with full lo/hi mapping
-// Each sample: { path, root (MIDI), lo (MIDI), hi (MIDI) }
+// SAMPLE LIBRARY
 // ═══════════════════════════════════════════════════════════════════
 const SAMPLE_BANKS = {
   'Piano (Acoustic)': [
@@ -666,11 +664,26 @@ const SAMPLE_BANKS = {
 };
 
 // ═══════════════════════════════════════════════════════════════════
-// VOICE DEFINITIONS — 5 slots, each can be assigned any bank
+// KEYBOARD SHORTCUTS & MAPPING
+// ═══════════════════════════════════════════════════════════════════
+const QWERTY_MAP = {
+  // Lower Octave
+  'z': 55, 's': 56, 'x': 57, 'd': 58, 'c': 59, 'v': 60, 'g': 61, 'b': 62, 'h': 63, 'n': 64, 'm': 65, 'k': 66,
+  // Upper Octave
+  'q': 67, '2': 68, 'w': 69, '3': 70, 'e': 71, 'r': 72, '5': 73, 't': 74, '6': 75, 'y': 76, 'u': 77, '8': 78, 'i': 79, '9': 80, 'o': 81, '0': 82, 'p': 83
+};
+
+// Reverse map for printing labels on keys
+const MIDI_TO_KEY = {};
+for (let [key, midi] of Object.entries(QWERTY_MAP)) {
+  MIDI_TO_KEY[midi] = key.toUpperCase();
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// VOICE DEFINITIONS
 // ═══════════════════════════════════════════════════════════════════
 const VOICE_NAMES = ['PIANO', 'FANTASY', 'VIOLIN', 'FLUTE', 'GUITAR'];
 const LCD_NAMES   = ['PIANO', 'FNTASY', 'VIOLIN', 'FLUTE', 'GUITAR'];
-// Default bank assignment per voice
 const defaultBanks = [
   'Piano (Acoustic)',
   'Fantasy',
@@ -679,7 +692,6 @@ const defaultBanks = [
   'Guitar (Acoustic)',
 ];
 
-// Which bank is currently assigned to each voice slot
 const voiceBankAssignment = [...defaultBanks];
 
 // ═══════════════════════════════════════════════════════════════════
@@ -690,9 +702,7 @@ let octaveOffset = 0; // -1, 0, +1
 let masterVolume = 0.8;
 let audioStarted = false;
 
-// Sampler cache: key = bankName
 const samplerCache = {};
-// Track which notes are active per sampler
 const activeNotes = {}; // midi -> { sampler, toneNote }
 
 // ═══════════════════════════════════════════════════════════════════
@@ -706,13 +716,10 @@ function midiToTone(midi) {
   return name + oct;
 }
 
-// Find best sample from bank for a given MIDI note (with lo/hi range lookup)
 function findSample(bank, midi) {
   const samples = SAMPLE_BANKS[bank];
-  // First: exact range match
   let match = samples.find(s => midi >= s.lo && midi <= s.hi);
   if (match) return match;
-  // Fallback: nearest root
   let best = samples[0];
   let bestDist = Math.abs(samples[0].root - midi);
   for (const s of samples) {
@@ -722,7 +729,6 @@ function findSample(bank, midi) {
   return best;
 }
 
-// Build a Tone.js Sampler URL map from a bank
 function buildSamplerUrls(bank) {
   const samples = SAMPLE_BANKS[bank];
   const urls = {};
@@ -732,7 +738,6 @@ function buildSamplerUrls(bank) {
   return urls;
 }
 
-// Get or create a Tone.Sampler for a bank
 function getSampler(bankName) {
   if (samplerCache[bankName]) return samplerCache[bankName];
   const urls = buildSamplerUrls(bankName);
@@ -746,7 +751,6 @@ function getSampler(bankName) {
   return samplerCache[bankName];
 }
 
-// Update all sampler volumes
 function setMasterVolume(v) {
   masterVolume = v;
   const db = Tone.gainToDb(Math.max(0.001, v));
@@ -756,56 +760,24 @@ function setMasterVolume(v) {
 }
 
 // ═══════════════════════════════════════════════════════════════════
-// KEYBOARD LAYOUT
-// VL-1: 29 keys total. White: F G A B C D E × 2 + F G A B = 17
-// Black: F# G# A# | C# D# | F# G# A# | C# D# = 12
-// Starting at F3 (MIDI 53), middle octave, with octave shift
+// KEYBOARD LAYOUT (Updated to start at G3)
 // ═══════════════════════════════════════════════════════════════════
-
-// White key note offsets from F (semitones): F=0 G=2 A=4 B=5 C=7 D=9 E=11
-const WHITE_OFFSETS = [0, 2, 4, 5, 7, 9, 11]; // F G A B C D E
-// Note labels for white keys
-const WHITE_LABELS  = ['F','G','A','B','C','D','E'];
-
-// Build 17 white keys starting at F3 (MIDI 53)
-// F3 G3 A3 B3 C4 D4 E4 | F4 G4 A4 B4 C5 D5 E5 | F5 G5 A5 (B5 for 17th is actually skipped on VL-1)
-// Actually VL-1 is F3 to F5 = 25 keys? No — let's go with standard 29-key layout:
-// 17 white keys: F3..B3 (4 white), C4..B4 (7 white), C5..B5 (7 white) — that's 18. 
-// The real VL-1 has 29 keys total from F to F spanning ~2.5 octaves
-// White count: F G A B  C D E F  G A B C  D E F G  A = 17 keys
-// That's F3,G3,A3,B3, C4,D4,E4,F4, G4,A4,B4,C5, D5,E5,F5,G5, A5 = 17 white keys
-
 const WHITE_KEY_NOTES = [
-  // F3 group
-  { midi: 53, label: 'F3' },
-  { midi: 55, label: 'G3' },
-  { midi: 57, label: 'A3' },
-  { midi: 59, label: 'B3' },
+  // G3 group
+  { midi: 55 }, { midi: 57 }, { midi: 59 },
   // C4 group
-  { midi: 60, label: 'C4' },
-  { midi: 62, label: 'D4' },
-  { midi: 64, label: 'E4' },
-  { midi: 65, label: 'F4' },
-  { midi: 67, label: 'G4' },
-  { midi: 69, label: 'A4' },
-  { midi: 71, label: 'B4' },
+  { midi: 60 }, { midi: 62 }, { midi: 64 }, { midi: 65 }, { midi: 67 }, { midi: 69 }, { midi: 71 },
   // C5 group
-  { midi: 72, label: 'C5' },
-  { midi: 74, label: 'D5' },
-  { midi: 76, label: 'E5' },
-  { midi: 77, label: 'F5' },
-  { midi: 79, label: 'G5' },
-  { midi: 81, label: 'A5' },
+  { midi: 72 }, { midi: 74 }, { midi: 76 }, { midi: 77 }, { midi: 79 }, { midi: 81 }, { midi: 83 },
 ];
 
-// Black keys: position as fraction of white key index, MIDI note
-// Between white key index i and i+1 if the interval is 2 semitones
 const BLACK_KEY_DEFS = [];
 for (let i = 0; i < WHITE_KEY_NOTES.length - 1; i++) {
   const curr = WHITE_KEY_NOTES[i].midi;
   const next = WHITE_KEY_NOTES[i + 1].midi;
   if (next - curr === 2) {
-    BLACK_KEY_DEFS.push({ midi: curr + 1, wIdx: i + 0.5, label: midiToTone(curr + 1) });
+    // There is a black key on the boundary right after white key `i`
+    BLACK_KEY_DEFS.push({ midi: curr + 1, boundaryIdx: i + 1 });
   }
 }
 
@@ -820,25 +792,37 @@ WHITE_KEY_NOTES.forEach((n, i) => {
   div.className = 'wkey';
   div.dataset.midi = n.midi;
   div.dataset.idx = i;
-  const lbl = document.createElement('span');
-  lbl.className = 'note-label';
-  lbl.textContent = n.label;
-  div.appendChild(lbl);
+  
+  if (MIDI_TO_KEY[n.midi]) {
+    const lbl = document.createElement('span');
+    lbl.className = 'note-label';
+    lbl.textContent = MIDI_TO_KEY[n.midi];
+    div.appendChild(lbl);
+  }
+  
   whiteKeysEl.appendChild(div);
 });
 
-// Black keys need percentage positions
 const N_WHITE = WHITE_KEY_NOTES.length; // 17
 BLACK_KEY_DEFS.forEach(b => {
   const div = document.createElement('div');
   div.className = 'bkey';
   div.dataset.midi = b.midi;
-  // Position: center on the gap between white keys
-  // Each white key = 100/17 % wide. Black key center at wIdx * (100/17) + (100/17)/2
-  const leftPct = (b.wIdx / N_WHITE) * 100;
-  const bkeyWidthPct = 60 / N_WHITE;
-  div.style.left = `calc(${leftPct}% - ${bkeyWidthPct / 2}%)`;
+  
+  // Calculate position precisely on the boundary line between the white keys
+  const boundaryPct = (b.boundaryIdx / N_WHITE) * 100;
+  const bkeyWidthPct = 60 / N_WHITE; // Scales black key width relative to white keys
+  
+  div.style.left = `calc(${boundaryPct}% - ${bkeyWidthPct / 2}%)`;
   div.style.width = `${bkeyWidthPct}%`;
+
+  if (MIDI_TO_KEY[b.midi]) {
+    const lbl = document.createElement('span');
+    lbl.className = 'note-label';
+    lbl.textContent = MIDI_TO_KEY[b.midi];
+    div.appendChild(lbl);
+  }
+
   blackKeysEl.appendChild(div);
 });
 
@@ -861,7 +845,6 @@ function noteOn(rawMidi) {
   const bank = getCurrentBank();
   const { sampler } = getSampler(bank);
   const toneNote = midiToTone(midi);
-  // Stop if already playing
   if (activeNotes[rawMidi]) {
     try { activeNotes[rawMidi].sampler.triggerRelease(activeNotes[rawMidi].toneNote, Tone.now()); } catch(e) {}
   }
@@ -915,7 +898,6 @@ document.querySelectorAll('.voice-btn').forEach(btn => {
     btn.classList.add('active');
     currentVoice = parseInt(btn.dataset.voice);
     document.getElementById('lcd').textContent = LCD_NAMES[currentVoice];
-    // Pre-warm sampler
     getSampler(voiceBankAssignment[currentVoice]);
   });
 });
@@ -926,7 +908,6 @@ document.querySelectorAll('.voice-btn').forEach(btn => {
 const octLabels = { '-1': 'LOW', '0': 'MID', '1': 'HIGH' };
 document.querySelectorAll('.oct-btn').forEach(btn => {
   btn.addEventListener('click', () => {
-    // Release all active notes before shifting
     Object.keys(activeNotes).forEach(m => noteOff(parseInt(m)));
     document.querySelectorAll('.oct-btn').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
@@ -970,7 +951,6 @@ VOICE_NAMES.forEach((name, idx) => {
 
   sel.addEventListener('change', () => {
     voiceBankAssignment[idx] = sel.value;
-    // Pre-warm the new sampler
     getSampler(sel.value);
   });
 
@@ -987,19 +967,8 @@ document.getElementById('configToggle').addEventListener('click', () => {
 });
 
 // ═══════════════════════════════════════════════════════════════════
-// KEYBOARD SHORTCUTS (for desktop testing)
+// DESKTOP KEYBOARD LISTENERS
 // ═══════════════════════════════════════════════════════════════════
-const KEY_MAP = {
-  'a': 53, 'w': 54, 's': 55, 'e': 56, 'd': 57, 'f': 59,
-  't': 60, 'g': 60, 'y': 61, 'h': 62, 'u': 63, 'j': 64,
-  'k': 65, 'o': 66, 'l': 67, 'p': 68,
-};
-// Simple chromatic map: a=F3, s=G3, d=A3, f=B3, g=C4, h=D4, j=E4, k=F4, l=G4 etc.
-const QWERTY_MAP = {
-  'z': 53, 'x': 55, 'c': 57, 'v': 59, 'b': 60, 'n': 62,
-  'm': 64, ',': 65, '.': 67, '/': 69,
-  'a': 54, 's': 56, 'd': 58, 'f': 61, 'g': 63, 'h': 66, 'j': 68,
-};
 const heldKeys = new Set();
 
 document.addEventListener('keydown', async e => {
@@ -1007,9 +976,10 @@ document.addEventListener('keydown', async e => {
   const midi = QWERTY_MAP[e.key.toLowerCase()];
   if (midi == null) return;
   if (heldKeys.has(e.key)) return;
+  
   heldKeys.add(e.key);
   await startAudio();
-  // Highlight key
+  
   const keyEl = document.querySelector(`[data-midi="${midi}"]`);
   if (keyEl) keyEl.classList.add('pressed');
   noteOn(midi);
@@ -1018,6 +988,7 @@ document.addEventListener('keydown', async e => {
 document.addEventListener('keyup', e => {
   const midi = QWERTY_MAP[e.key.toLowerCase()];
   if (midi == null) return;
+  
   heldKeys.delete(e.key);
   const keyEl = document.querySelector(`[data-midi="${midi}"]`);
   if (keyEl) keyEl.classList.remove('pressed');
@@ -1026,7 +997,7 @@ document.addEventListener('keyup', e => {
 
 // Pre-warm default voice
 window.addEventListener('load', () => {
-  // Don't start audio yet (browser policy), but we can pre-build the sampler structure
+  // Sampler loads gracefully on init
 });
 </script>
 </body>
