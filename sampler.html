@@ -8,160 +8,197 @@ nav: sampler
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>MicroSampler</title>
+  <title>MICROSAMPLER // CARL WILLIAM</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=VT323&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
   <style>
+    /* ── SITE PALETTE (matches main.css) ─────────────────────── */
+    :root {
+      --bg:      #0a0a12;
+      --surface: #0d0d1a;
+      --pink:    #ff2d78;
+      --cyan:    #00f5ff;
+      --gold:    #ffd700;
+      --purple:  #b06aff;
+      --green:   #99cc77;
+      --text:    #e0d8f0;
+      --muted:   #9988aa;
+      --dim:     #443355;
+      /* Sampler-specific amber tones preserved */
+      --amber:        #ffb700;
+      --amber-lo:     rgba(255,183,0,0.3);
+      --amber-dim:    #402a00;
+      --amber-mid:    #8a5c00;
+      --amber-bright: #ffb700;
+      --red:          #ff3300;
+      --red-lo:       rgba(255,51,0,0.35);
+      --border:       #1a1a2e;
+      --border-hi:    #252540;
+    }
+
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-    :root {
-      --bg:          #0b0b0b;
-      --chassis:     #141414;
-      --panel:       #1a1a1a;
-      --panel-deep:  #0f0f0f;
-      --border:      #262626;
-      --border-hi:   #333333;
-      --amber:       #ffb700;
-      --amber-lo:    rgba(255,183,0,0.3);
-      --amber-dim:   #402a00;
-      --amber-mid:   #8a5c00;
-      --amber-bright:#ffb700;
-      --green:       #26e66b;
-      --green-lo:    rgba(38,230,107,0.25);
-      --red:         #ff3300;
-      --red-lo:      rgba(255,51,0,0.35);
-      --text:        #d49200;
-      --text-hi:     #ffcb47;
-      --text-lo:     #523400;
-      --text-dim:    #664200;
-      --white-key:   #e8e2d5;
-      --white-key-border: #a39b8c;
-      --black-key:   #121212;
-    }
-
-    html, body {
+    body {
       background: var(--bg);
       color: var(--text);
-      font-family: 'Share Tech Mono', monospace;
+      font-family: 'Space Mono', monospace;
       min-height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: flex-start;
-      padding: 32px 16px 48px;
     }
 
-    .sampler {
-      position: relative;
-      background: linear-gradient(160deg, #1a1a1a 0%, #121212 50%, #0d0d0d 100%);
-      border: 1px solid var(--border-hi);
-      border-radius: 12px;
-      padding: 26px 22px 22px;
-      width: 100%;
-      max-width: 596px;
-      box-shadow:
-        0 0 0 1px #050505,
-        0 30px 90px rgba(0,0,0,0.9),
-        0 10px 30px rgba(0,0,0,0.75),
-        inset 0 1px 0 rgba(255,255,255,0.05),
-        inset 0 -1px 0 rgba(0,0,0,0.7);
-    }
-
-    .sampler::before {
+    /* CRT scanline overlay — matches site */
+    body::before {
       content: '';
-      position: absolute;
+      position: fixed;
       inset: 0;
-      border-radius: 12px;
-      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.025'/%3E%3C/svg%3E");
+      background: repeating-linear-gradient(
+        0deg,
+        transparent, transparent 3px,
+        rgba(0,245,255,0.015) 3px, rgba(0,245,255,0.015) 4px
+      );
       pointer-events: none;
-      opacity: 0.55;
-      z-index: 0;
+      z-index: 999;
     }
 
-    .sampler > * { position: relative; z-index: 1; }
-
-    .screw {
-      position: absolute;
-      width: 11px; height: 11px;
-      border-radius: 50%;
-      background: radial-gradient(circle at 38% 32%, #404040 0%, #181818 60%, #0d0d0d 100%);
-      box-shadow: inset 0 1px 2px rgba(0,0,0,0.95), 0 1px 0 rgba(255,255,255,0.03);
-      z-index: 10;
-    }
-    .screw::after {
-      content: '';
-      position: absolute;
-      width: 7px; height: 1.5px;
-      background: rgba(0,0,0,0.75);
-      top: 50%; left: 50%;
-      transform: translate(-50%,-50%) rotate(42deg);
-      border-radius: 1px;
-    }
-    .screw.tl { top: 9px; left: 9px; }
-    .screw.tr { top: 9px; right: 9px; }
-    .screw.bl { bottom: 9px; left: 9px; }
-    .screw.br { bottom: 9px; right: 9px; }
-
-    /* ── HEADER ── */
-    .header {
+    /* ── HEADER — matches site ───────────────────────── */
+    header {
+      border-bottom: 2px solid var(--cyan);
+      padding: 24px 48px;
       display: flex;
-      justify-content: space-between;
       align-items: center;
-      margin-bottom: 22px;
-      padding-bottom: 16px;
-      border-bottom: 1px solid var(--border);
+      justify-content: space-between;
+      gap: 16px;
     }
 
-    .brand { display: flex; align-items: baseline; gap: 10px; }
-
-    .brand-name {
-      font-family: 'Orbitron', sans-serif;
-      font-weight: 900;
-      font-size: 17px;
-      letter-spacing: 0.2em;
-      color: var(--text-hi);
-      text-shadow: 0 0 20px rgba(255,183,0,0.4), 0 0 8px rgba(255,183,0,0.15);
+    .site-brand {
+      font-family: 'VT323', monospace;
+      font-size: 40px;
+      color: #00ff41;
+      letter-spacing: 5px;
+      line-height: 1;
+      text-shadow: 2px 2px 0 #003d10, 0 0 30px #00ff4155;
     }
 
-    .brand-tag {
-      font-size: 8.5px;
-      letter-spacing: 0.24em;
-      color: var(--text-dim);
+    .header-right { text-align: right; }
+
+    .page-subtitle {
+      font-size: 9px;
+      color: var(--cyan);
+      letter-spacing: 4px;
       text-transform: uppercase;
+      opacity: 0.7;
+      margin-top: 4px;
     }
 
-    .vu { display: flex; align-items: center; gap: 3px; }
+    .build-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 6px;
+      font-size: 8px;
+      color: var(--dim);
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      border: 1px solid var(--dim);
+      padding: 3px 8px;
+    }
 
+    .build-badge::before {
+      content: '';
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--amber);
+      box-shadow: 0 0 6px var(--amber);
+    }
+
+    /* ── PAGE WRAPPER ─────────────────────────────────── */
+    .sampler-page {
+      padding: 28px 48px 48px;
+      max-width: 720px;
+    }
+
+    .section-label {
+      font-size: 10px;
+      color: var(--cyan);
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .section-label::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: #00f5ff33;
+    }
+
+    /* ── VU METER ──────────────────────────────────────── */
+    .vu { display: flex; align-items: center; gap: 3px; }
     .vu-seg {
       width: 7px; height: 7px;
       border-radius: 1px;
-      background: var(--text-lo);
+      background: #1a1a2e;
       transition: background 60ms, box-shadow 60ms;
     }
     .vu-seg.lit-green { background: var(--green); box-shadow: 0 0 8px var(--green); }
     .vu-seg.lit-amber { background: var(--amber); box-shadow: 0 0 8px var(--amber); }
     .vu-seg.lit-red   { background: var(--red);   box-shadow: 0 0 8px var(--red); }
 
-    .section-label {
-      font-size: 8.5px;
-      letter-spacing: 0.3em;
-      color: var(--text-dim);
-      text-transform: uppercase;
-      margin-bottom: 9px;
+    /* ── MIDI INDICATOR ─────────────────────────────────── */
+    .midi-indicator { display: flex; align-items: center; gap: 5px; }
+    .midi-led {
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      background: #1a1a2e;
+      border: 1px solid #2a2a44;
+      transition: all 0.1s;
+      flex-shrink: 0;
+    }
+    .midi-led.connected { background: var(--green); border-color: var(--green); box-shadow: 0 0 8px rgba(153,204,119,0.75); }
+    .midi-led.active    { background: var(--amber) !important; border-color: var(--amber) !important; box-shadow: 0 0 12px rgba(255,183,0,0.9) !important; }
+    .midi-led.unsupported { background: #1a0a1a; border-color: #2a1a2a; }
+    .midi-text { font-size: 8px; letter-spacing: 0.15em; color: var(--dim); white-space: nowrap; }
+    .midi-text.connected { color: var(--green); }
+    .midi-text.error     { color: #3a1a2a; }
+
+    /* ── INSTRUMENT FACEPLATE ───────────────────────────── */
+    .faceplate {
+      background: #09090f;
+      border: 1px solid var(--border-hi);
+      border-bottom: none;
+      padding: 10px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
     }
 
-    /* ── PADS ── */
+    .model-name {
+      font-family: 'VT323', monospace;
+      font-size: 22px;
+      color: var(--dim);
+      letter-spacing: 5px;
+    }
+
+    /* ── SAMPLE PADS ────────────────────────────────────── */
+    .pads-outer {
+      border: 1px solid var(--border-hi);
+      background: #07070e;
+      padding: 16px;
+      border-bottom: none;
+    }
+
     .pads-grid {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
       gap: 10px;
-      margin-bottom: 18px;
     }
 
     .pad {
       aspect-ratio: 1 / 1;
-      border-radius: 6px;
-      background: radial-gradient(ellipse at 42% 30%, rgba(255,255,255,0.03) 0%, transparent 65%), #0a0a0a;
-      border: 1px solid #222222;
+      border-radius: 4px;
+      background: #0a0a16;
+      border: 1px solid #1e1e36;
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -171,38 +208,27 @@ nav: sampler
       transition: transform 80ms, box-shadow 80ms;
       position: relative;
       overflow: hidden;
-      box-shadow:
-        inset 0 2px 6px rgba(0,0,0,0.85),
-        inset 0 -1px 0 rgba(255,255,255,0.02),
-        0 2px 4px rgba(0,0,0,0.55);
+      box-shadow: inset 0 2px 6px rgba(0,0,0,0.8), 0 2px 4px rgba(0,0,0,0.4);
     }
 
     .pad-canvas {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      z-index: 0;
-      pointer-events: none;
+      position: absolute; top: 0; left: 0;
+      width: 100%; height: 100%;
+      z-index: 0; pointer-events: none;
     }
 
     .pad-content {
-      position: relative;
-      z-index: 1;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
+      position: relative; z-index: 1;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
       padding-top: 8px;
     }
 
     .pad-num {
-      font-family: 'Orbitron', sans-serif;
-      font-weight: 700;
-      font-size: 20px;
+      font-family: 'VT323', monospace;
+      font-size: 28px;
       line-height: 1;
-      color: #242424;
+      color: #2a2a44;
       transition: color 0.15s;
       pointer-events: none;
     }
@@ -210,115 +236,82 @@ nav: sampler
     .pad-status {
       font-size: 6.5px;
       letter-spacing: 0.2em;
-      color: #242424;
+      color: #2a2a44;
       margin-top: 3px;
       transition: color 0.15s;
       pointer-events: none;
     }
 
     .pad-filter-section {
-      position: absolute;
-      bottom: 6px;
-      left: 50%;
+      position: absolute; bottom: 6px; left: 50%;
       transform: translateX(-50%);
       z-index: 2;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 2px;
+      display: flex; flex-direction: column;
+      align-items: center; gap: 2px;
       pointer-events: auto;
     }
 
     .filter-knob {
-      width: 32px;
-      height: 32px;
+      width: 28px; height: 28px;
       border-radius: 50%;
-      background: radial-gradient(circle at 35% 30%, #2a2a2a 0%, #1a1a1a 50%, #0f0f0f 100%);
-      border: 1px solid #333;
+      background: radial-gradient(circle at 35% 30%, #151525 0%, #0a0a18 50%, #060610 100%);
+      border: 1px solid #252545;
       cursor: pointer;
       position: relative;
-      box-shadow:
-        inset 0 2px 4px rgba(0,0,0,0.8),
-        inset 0 -1px 2px rgba(255,255,255,0.05),
-        0 2px 6px rgba(0,0,0,0.6);
+      box-shadow: inset 0 2px 4px rgba(0,0,0,0.8), 0 2px 6px rgba(0,0,0,0.5);
       transition: border-color 0.15s, box-shadow 0.15s;
     }
-
     .filter-knob:hover {
-      border-color: var(--amber-mid);
-      box-shadow:
-        inset 0 2px 4px rgba(0,0,0,0.8),
-        0 0 8px rgba(255,183,0,0.2);
+      border-color: var(--cyan);
+      box-shadow: inset 0 2px 4px rgba(0,0,0,0.8), 0 0 8px rgba(0,245,255,0.2);
     }
-
     .filter-knob::after {
       content: '';
-      position: absolute;
-      top: 4px;
-      left: 50%;
+      position: absolute; top: 4px; left: 50%;
       transform: translateX(-50%);
-      width: 2px;
-      height: 8px;
-      background: var(--amber);
+      width: 2px; height: 7px;
+      background: var(--cyan);
       border-radius: 1px;
-      box-shadow: 0 0 4px rgba(255,183,0,0.4);
+      box-shadow: 0 0 4px rgba(0,245,255,0.5);
     }
+    .filter-knob-label { font-size: 6px; letter-spacing: 0.08em; color: var(--dim); }
+    .filter-knob-value { font-size: 6px; color: var(--cyan); font-family: 'Space Mono', monospace; }
 
-    .filter-knob-label {
-      font-size: 6px;
-      letter-spacing: 0.08em;
-      color: var(--text-dim);
-    }
-
-    .filter-knob-value {
-      font-size: 6px;
-      color: var(--amber);
-      font-family: 'Share Tech Mono', monospace;
-    }
-
+    /* PAD STATES */
     .pad.state-loaded {
-      background: radial-gradient(ellipse at 42% 30%, rgba(255,183,0,0.05) 0%, transparent 60%), #0f0a00;
-      border-color: var(--amber-dim);
-      box-shadow:
-        inset 0 2px 6px rgba(0,0,0,0.75),
-        0 0 10px rgba(255,183,0,0.08),
-        0 2px 4px rgba(0,0,0,0.55);
+      background: #08081a;
+      border-color: #1a1a40;
+      box-shadow: inset 0 2px 6px rgba(0,0,0,0.75), 0 0 10px rgba(0,245,255,0.05), 0 2px 4px rgba(0,0,0,0.4);
     }
-    .pad.state-loaded .pad-num    { color: var(--amber-mid); }
-    .pad.state-loaded .pad-status { color: var(--amber-dim); }
+    .pad.state-loaded .pad-num    { color: #2a3a5a; }
+    .pad.state-loaded .pad-status { color: #1e2e44; }
 
     .pad.state-armed {
-      background: radial-gradient(ellipse at 42% 30%, rgba(255,183,0,0.1) 0%, transparent 60%), #140d00;
-      border-color: var(--amber);
-      animation: pad-blink 0.75s ease-in-out infinite;
+      background: #08081e;
+      border-color: var(--cyan);
+      animation: pad-blink-cyan 0.75s ease-in-out infinite;
     }
-    .pad.state-armed .pad-num    { color: var(--amber); text-shadow: 0 0 12px var(--amber); }
-    .pad.state-armed .pad-status { color: var(--amber); }
+    .pad.state-armed .pad-num    { color: var(--cyan); text-shadow: 0 0 12px var(--cyan); }
+    .pad.state-armed .pad-status { color: var(--cyan); }
 
-    @keyframes pad-blink {
-      0%, 100% {
-        box-shadow: inset 0 2px 6px rgba(0,0,0,0.75), 0 0 20px rgba(255,183,0,0.35), 0 0 8px rgba(255,183,0,0.2);
-      }
-      50% {
-        box-shadow: inset 0 2px 6px rgba(0,0,0,0.75), 0 0 4px rgba(255,183,0,0.05);
-      }
+    @keyframes pad-blink-cyan {
+      0%, 100% { box-shadow: inset 0 2px 6px rgba(0,0,0,0.75), 0 0 20px rgba(0,245,255,0.3), 0 0 8px rgba(0,245,255,0.15); }
+      50%       { box-shadow: inset 0 2px 6px rgba(0,0,0,0.75), 0 0 4px rgba(0,245,255,0.03); }
     }
 
     .pad:active { transform: scale(0.94); }
 
-    /* ── TRIM EDITOR PANEL ── */
+    /* ── TRIM EDITOR PANEL ─────────────────────────────── */
     .trim-panel {
-      background: var(--panel-deep);
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      margin-bottom: 18px;
+      background: #07070e;
+      border: 1px solid var(--border-hi);
+      border-top: none;
       overflow: hidden;
       max-height: 0;
       opacity: 0;
       transition: max-height 0.35s ease-out, opacity 0.25s ease-out, padding 0.35s ease-out;
       padding: 0 14px;
     }
-
     .trim-panel.open {
       max-height: 340px;
       opacity: 1;
@@ -326,303 +319,147 @@ nav: sampler
     }
 
     .trim-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
+      display: flex; justify-content: space-between; align-items: center;
       margin-bottom: 12px;
     }
-
     .trim-title {
-      font-family: 'Orbitron', sans-serif;
-      font-size: 11px;
-      font-weight: 700;
-      letter-spacing: 0.15em;
-      color: var(--amber);
+      font-family: 'VT323', monospace; font-size: 20px;
+      letter-spacing: 0.1em; color: var(--cyan);
     }
-
-    .trim-pad-label {
-      font-size: 9px;
-      color: var(--text-dim);
-      letter-spacing: 0.1em;
-      margin-left: 8px;
-    }
-
+    .trim-pad-label { font-size: 9px; color: var(--dim); letter-spacing: 0.1em; margin-left: 8px; }
     .trim-close-btn {
-      width: 24px;
-      height: 24px;
-      border-radius: 4px;
-      background: var(--bg);
-      border: 1px solid var(--border);
-      color: var(--text-dim);
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 14px;
-      transition: all 0.15s;
+      width: 24px; height: 24px; border-radius: 3px;
+      background: #0a0a16; border: 1px solid var(--border-hi);
+      color: var(--dim); cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 14px; transition: all 0.15s;
     }
-
-    .trim-close-btn:hover {
-      border-color: var(--amber);
-      color: var(--amber);
-    }
+    .trim-close-btn:hover { border-color: var(--cyan); color: var(--cyan); }
 
     .trim-waveform-container {
-      position: relative;
-      background: #050505;
+      position: relative; background: #050508;
       border: 1px solid var(--border);
-      border-radius: 4px;
-      height: 140px;
-      margin-bottom: 12px;
-      overflow: hidden;
+      border-radius: 3px; height: 120px;
+      margin-bottom: 12px; overflow: hidden;
     }
-
-    .trim-waveform-canvas {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-    }
-
+    .trim-waveform-canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
     .trim-region-overlay {
-      position: absolute;
-      top: 0;
-      height: 100%;
-      background: rgba(255, 183, 0, 0.08);
-      border-left: 2px solid var(--amber);
-      border-right: 2px solid var(--amber);
+      position: absolute; top: 0; height: 100%;
+      background: rgba(0,245,255,0.06);
+      border-left: 2px solid var(--cyan);
+      border-right: 2px solid var(--cyan);
       pointer-events: none;
     }
-
     .trim-handle {
-      position: absolute;
-      top: 0;
-      width: 14px;
-      height: 100%;
-      cursor: ew-resize;
-      z-index: 10;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
+      position: absolute; top: 0; width: 14px; height: 100%;
+      cursor: ew-resize; z-index: 10;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      transform: translateX(-50%);
     }
-
     .trim-handle::before {
       content: '';
-      width: 4px;
-      height: 60%;
-      background: var(--amber);
-      border-radius: 2px;
-      box-shadow: 0 0 8px rgba(255, 183, 0, 0.5);
+      width: 4px; height: 60%;
+      background: var(--cyan); border-radius: 2px;
+      box-shadow: 0 0 8px rgba(0,245,255,0.5);
     }
-
-    .trim-handle:hover::before,
-    .trim-handle.dragging::before {
-      background: var(--amber-bright);
-      box-shadow: 0 0 12px rgba(255, 183, 0, 0.8);
+    .trim-handle:hover::before, .trim-handle.dragging::before {
+      background: #fff; box-shadow: 0 0 12px rgba(0,245,255,0.9);
     }
-
-    .trim-handle-start { left: -7px; }
-    .trim-handle-end { right: -7px; }
 
     .trim-info {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 12px;
-      font-size: 9px;
-      color: var(--text-dim);
-      letter-spacing: 0.08em;
+      display: flex; justify-content: space-between;
+      align-items: center; gap: 12px;
+      font-size: 9px; color: var(--dim); letter-spacing: 0.08em;
+    }
+    .trim-point { display: flex; align-items: center; gap: 6px; }
+    .trim-point-label { color: #2a2a40; }
+    .trim-point-value { color: var(--cyan); font-family: 'Space Mono', monospace; min-width: 50px; }
+    .trim-duration-value { color: var(--muted); margin-left: 4px; }
+
+    /* ── CONTROL PANEL ─────────────────────────────────── */
+    .control-panel {
+      background: #07070e;
+      border: 1px solid var(--border-hi);
+      border-top: none;
     }
 
-    .trim-point {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .trim-point-label {
-      color: var(--text-lo);
-    }
-
-    .trim-point-value {
-      color: var(--amber);
-      font-family: 'Share Tech Mono', monospace;
-      min-width: 50px;
-    }
-
-    .trim-duration {
-      text-align: center;
-    }
-
-    .trim-duration-value {
-      color: var(--text);
-      margin-left: 4px;
-    }
-
-    /* ── DELAY EFFECT SECTION ── */
+    /* ── DELAY SECTION ─────────────────────────────────── */
     .delay-section {
-      background: var(--panel-deep);
-      border: 1px solid var(--border);
-      border-radius: 5px;
-      padding: 10px 14px;
-      margin-bottom: 18px;
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border);
     }
-
     .delay-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
+      display: flex; justify-content: space-between; align-items: center;
       margin-bottom: 10px;
     }
-
     .delay-title {
-      font-family: 'Orbitron', sans-serif;
-      font-size: 10px;
-      font-weight: 700;
-      letter-spacing: 0.2em;
-      color: var(--text-dim);
+      font-family: 'VT323', monospace; font-size: 18px;
+      letter-spacing: 0.18em; color: var(--purple);
+      text-shadow: 0 0 10px rgba(176,106,255,0.3);
     }
-
     .delay-toggle {
-      width: 28px;
-      height: 16px;
-      background: #1a1a1a;
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      cursor: pointer;
-      position: relative;
+      width: 28px; height: 16px;
+      background: #0a0a16; border: 1px solid var(--border-hi);
+      border-radius: 8px; cursor: pointer; position: relative;
       transition: background 0.2s, border-color 0.2s;
     }
-
     .delay-toggle::after {
       content: '';
-      position: absolute;
-      top: 2px;
-      left: 2px;
-      width: 10px;
-      height: 10px;
-      background: #333;
-      border-radius: 50%;
+      position: absolute; top: 2px; left: 2px;
+      width: 10px; height: 10px;
+      background: #2a2a44; border-radius: 50%;
       transition: left 0.2s, background 0.2s;
     }
+    .delay-toggle.active { background: #0a1a0a; border-color: #1a4a1a; }
+    .delay-toggle.active::after { left: 14px; background: var(--green); box-shadow: 0 0 6px var(--green); }
 
-    .delay-toggle.active {
-      background: #0a2a0a;
-      border-color: #1a5a1a;
-    }
-
-    .delay-toggle.active::after {
-      left: 14px;
-      background: var(--green);
-      box-shadow: 0 0 6px var(--green);
-    }
-
-    .delay-controls {
-      display: flex;
-      gap: 12px;
-    }
-
-    .delay-control {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-    }
-
-    .delay-control-label {
-      font-size: 7.5px;
-      letter-spacing: 0.15em;
-      color: var(--text-lo);
-    }
-
-    .delay-control-row {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
+    .delay-controls { display: flex; gap: 12px; }
+    .delay-control { flex: 1; display: flex; flex-direction: column; gap: 4px; }
+    .delay-control-label { font-size: 7.5px; letter-spacing: 0.15em; color: var(--dim); text-transform: uppercase; }
+    .delay-control-row { display: flex; align-items: center; gap: 8px; }
     .delay-slider-track {
-      flex: 1;
-      position: relative;
-      height: 4px;
-      background: #1a1a1a;
-      border-radius: 2px;
+      flex: 1; position: relative; height: 3px;
+      background: #0f0f20; border-radius: 2px; border: 1px solid var(--border);
     }
-
     .delay-slider-fill {
-      position: absolute;
-      left: 0;
-      top: 0;
-      bottom: 0;
-      background: linear-gradient(to right, var(--amber-dim), var(--amber-mid));
-      border-radius: 2px;
-      pointer-events: none;
+      position: absolute; left: 0; top: 0; bottom: 0;
+      background: linear-gradient(to right, #1a1a40, var(--purple));
+      border-radius: 2px; pointer-events: none;
     }
-
     .delay-slider {
-      position: absolute;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-      opacity: 0;
-      cursor: pointer;
+      position: absolute; inset: 0; width: 100%; height: 100%;
+      opacity: 0; cursor: pointer;
     }
+    .delay-value { font-size: 8px; color: var(--purple); min-width: 36px; text-align: right; font-family: 'Space Mono', monospace; }
 
-    .delay-value {
-      font-size: 8px;
-      color: var(--amber);
-      min-width: 36px;
-      text-align: right;
-      font-family: 'Share Tech Mono', monospace;
-    }
-
-    /* ── CONTROLS ROW ── */
+    /* ── CONTROLS ROW ─────────────────────────────────── */
     .controls-row {
-      display: flex;
-      gap: 10px;
-      margin-bottom: 18px;
-      align-items: stretch;
+      display: flex; gap: 10px; padding: 12px 16px;
+      align-items: stretch; border-bottom: 1px solid var(--border);
     }
 
     .rec-btn {
-      flex: 0 0 auto;
-      min-width: 100px;
-      background: #0f0300;
-      border: 1px solid #240500;
-      border-radius: 6px;
-      padding: 0 16px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 7px;
-      cursor: pointer;
-      user-select: none;
-      transition: all 80ms;
-      touch-action: none;
+      flex: 0 0 auto; min-width: 96px;
+      background: #0e0608; border: 1px solid #1e0810;
+      border-radius: 4px; padding: 0 14px;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      gap: 7px; cursor: pointer; user-select: none;
+      transition: all 80ms; touch-action: none;
     }
-
     .rec-circle {
-      width: 22px; height: 22px;
-      border-radius: 50%;
-      background: radial-gradient(circle at 40% 35%, #400e00, #140200);
-      border: 1.5px solid #330800;
-      box-shadow: 0 0 5px rgba(255,51,0,0.15), inset 0 1px 3px rgba(0,0,0,0.85);
+      width: 20px; height: 20px; border-radius: 50%;
+      background: radial-gradient(circle at 40% 35%, #300808, #0e0202);
+      border: 1.5px solid #220508;
+      box-shadow: 0 0 5px rgba(255,51,0,0.1), inset 0 1px 3px rgba(0,0,0,0.85);
       transition: all 0.12s;
     }
-
     .rec-label {
-      font-family: 'Orbitron', sans-serif;
-      font-size: 8.5px;
-      font-weight: 700;
-      letter-spacing: 0.2em;
-      color: #3b0a00;
-      transition: color 0.12s;
+      font-family: 'VT323', monospace; font-size: 14px;
+      letter-spacing: 0.15em; color: #2a0808; transition: color 0.12s;
     }
-
-    .rec-btn.recording { background: #170200; border-color: var(--red); box-shadow: 0 0 16px rgba(255,51,0,0.2); }
+    .rec-btn.recording { background: #120202; border-color: var(--red); box-shadow: 0 0 16px rgba(255,51,0,0.15); }
     .rec-btn.recording .rec-circle {
       background: radial-gradient(circle at 40% 35%, #ff4400, #b80d00);
       border-color: var(--red);
@@ -630,222 +467,106 @@ nav: sampler
       animation: rec-pulse 0.5s ease-in-out infinite;
     }
     .rec-btn.recording .rec-label { color: var(--red); }
-
     @keyframes rec-pulse {
-      0%, 100% { transform: scale(1);    opacity: 1;   }
+      0%, 100% { transform: scale(1); opacity: 1; }
       50%       { transform: scale(0.88); opacity: 0.55; }
     }
-
     .rec-btn:active { transform: scale(0.96); }
 
     .fx-section { flex: 1; display: flex; flex-direction: column; }
+    .fx-section .section-label { margin-bottom: 6px; }
     .fx-row { display: flex; gap: 8px; flex: 1; }
 
     .fx-toggle {
-      flex: 1;
-      background: var(--panel-deep);
-      border: 1px solid var(--border);
-      border-radius: 5px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 6px;
-      cursor: pointer;
-      user-select: none;
-      padding: 10px 6px;
+      flex: 1; background: #0a0a16; border: 1px solid var(--border-hi);
+      border-radius: 4px; display: flex; flex-direction: column;
+      align-items: center; justify-content: center; gap: 6px;
+      cursor: pointer; user-select: none; padding: 10px 6px;
       transition: all 0.1s;
     }
-
     .fx-toggle input { display: none; }
-
     .fx-led {
-      width: 8px; height: 8px;
-      border-radius: 50%;
-      background: #141414;
-      border: 1px solid #242424;
+      width: 7px; height: 7px; border-radius: 50%;
+      background: #1a1a2e; border: 1px solid #2a2a44;
       box-shadow: inset 0 1px 2px rgba(0,0,0,0.65);
       transition: all 0.1s;
     }
-
     .fx-name {
-      font-family: 'Orbitron', sans-serif;
-      font-size: 7.5px;
-      font-weight: 600;
-      letter-spacing: 0.16em;
-      color: var(--text-dim);
-      transition: color 0.1s;
+      font-family: 'VT323', monospace; font-size: 14px;
+      letter-spacing: 0.1em; color: var(--dim); transition: color 0.1s;
     }
-
-    .fx-toggle.on { background: #040f06; border-color: #134224; box-shadow: 0 0 10px rgba(38,230,107,0.1); }
-    .fx-toggle.on .fx-led { background: var(--green); border-color: var(--green); box-shadow: 0 0 8px rgba(38,230,107,0.75), 0 0 3px rgba(38,230,107,0.4); }
+    .fx-toggle.on { background: #060e08; border-color: #0e3a18; box-shadow: 0 0 10px rgba(153,204,119,0.1); }
+    .fx-toggle.on .fx-led { background: var(--green); border-color: var(--green); box-shadow: 0 0 8px rgba(153,204,119,0.75); }
     .fx-toggle.on .fx-name { color: var(--green); }
 
-    /* ── VOLUME ── */
+    /* ── MASTER VOLUME ─────────────────────────────────── */
     .vol-section {
-      background: var(--panel-deep);
-      border: 1px solid var(--border);
-      border-radius: 5px;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      padding: 10px 14px;
-      margin-bottom: 18px;
+      display: flex; align-items: center; gap: 12px;
+      padding: 10px 16px; border-bottom: 1px solid var(--border);
     }
-
-    .vol-label { font-size: 8.5px; letter-spacing: 0.24em; color: var(--text-dim); white-space: nowrap; flex-shrink: 0; }
-
-    .vol-track { flex: 1; position: relative; height: 3px; background: #181818; border-radius: 2px; }
-
+    .vol-label { font-size: 8.5px; letter-spacing: 0.24em; color: var(--dim); white-space: nowrap; flex-shrink: 0; text-transform: uppercase; }
+    .vol-track { flex: 1; position: relative; height: 3px; background: #0f0f20; border-radius: 2px; border: 1px solid var(--border); }
     .vol-fill {
       position: absolute; left: 0; top: 0; bottom: 0;
-      background: linear-gradient(to right, var(--amber-dim), var(--amber));
+      background: linear-gradient(to right, #1a1a40, var(--cyan));
       border-radius: 2px; pointer-events: none;
     }
-
     input[type="range"].master-vol {
       position: absolute; inset: 0; width: 100%; height: 100%;
       opacity: 0; cursor: pointer; margin: 0;
       padding: 8px 0; box-sizing: content-box; top: -8px;
     }
+    .vol-value { font-size: 9px; color: var(--cyan); flex-shrink: 0; min-width: 28px; text-align: right; }
 
-    .vol-value { font-size: 9px; color: var(--text-dim); flex-shrink: 0; min-width: 28px; text-align: right; }
-
-    /* ── KEYBOARD HEADER with octave controls ── */
-    .keyboard-header {
-      display: flex;
-      align-items: center;
+    /* ── KEYBOARD SECTION ──────────────────────────────── */
+    .keyboard-header-row {
+      display: flex; align-items: center;
       justify-content: space-between;
-      margin-bottom: 9px;
+      padding: 10px 16px 0;
     }
 
     .octave-controls { display: flex; align-items: center; gap: 6px; }
-
     .oct-btn {
-      width: 26px; height: 26px;
-      border-radius: 4px;
-      background: var(--panel-deep);
-      border: 1px solid var(--border);
-      color: var(--text-dim);
-      font-family: 'Orbitron', sans-serif;
-      font-size: 15px;
-      font-weight: 700;
-      line-height: 1;
+      width: 24px; height: 24px; border-radius: 3px;
+      background: #0a0a16; border: 1px solid var(--border-hi);
+      color: var(--dim); font-family: 'Space Mono', monospace;
+      font-size: 14px; font-weight: 700;
       display: flex; align-items: center; justify-content: center;
-      cursor: pointer;
-      user-select: none;
-      transition: all 80ms;
+      cursor: pointer; user-select: none; transition: all 80ms;
     }
-
-    .oct-btn:hover {
-      border-color: var(--amber-mid);
-      color: var(--amber);
-      box-shadow: 0 0 8px rgba(255,183,0,0.15);
-    }
-
-    .oct-btn:active { transform: scale(0.88); background: #0f0a00; }
-
-    .oct-btn:disabled {
-      opacity: 0.25;
-      cursor: not-allowed;
-      pointer-events: none;
-    }
+    .oct-btn:hover { border-color: var(--green); color: var(--green); box-shadow: 0 0 6px rgba(153,204,119,0.3); }
+    .oct-btn:active { transform: scale(0.88); }
+    .oct-btn:disabled { opacity: 0.25; cursor: not-allowed; pointer-events: none; }
 
     .oct-display {
-      background: var(--panel-deep);
-      border: 1px solid var(--border);
-      border-radius: 4px;
-      padding: 3px 10px;
-      min-width: 56px;
-      text-align: center;
+      background: #0a0a16; border: 1px solid var(--border-hi);
+      border-radius: 3px; padding: 3px 10px; min-width: 56px; text-align: center;
     }
-
-    .oct-display-label {
-      font-size: 7px;
-      letter-spacing: 0.2em;
-      color: var(--text-lo);
-      display: block;
-      margin-bottom: 1px;
-    }
-
+    .oct-display-label { font-size: 7px; letter-spacing: 0.2em; color: var(--dim); display: block; margin-bottom: 1px; text-transform: uppercase; }
     .oct-display-value {
-      font-family: 'Orbitron', sans-serif;
-      font-size: 13px;
-      font-weight: 700;
-      color: var(--amber);
-      text-shadow: 0 0 8px rgba(255,183,0,0.4);
-      display: block;
-      line-height: 1;
-      transition: color 0.15s, text-shadow 0.15s;
+      font-family: 'VT323', monospace; font-size: 18px;
+      color: var(--cyan); text-shadow: 0 0 8px rgba(0,245,255,0.4);
+      display: block; line-height: 1; transition: color 0.15s;
     }
+    .oct-display-value.up   { color: var(--green); text-shadow: 0 0 8px rgba(153,204,119,0.5); }
+    .oct-display-value.down { color: var(--pink);  text-shadow: 0 0 8px rgba(255,45,120,0.5); }
 
-    .oct-display-value.up   { color: var(--green); text-shadow: 0 0 8px rgba(38,230,107,0.5); }
-    .oct-display-value.down { color: var(--red);   text-shadow: 0 0 8px rgba(255,51,0,0.5); }
-
-    /* ── MIDI INDICATOR ── */
-    .midi-indicator { display: flex; align-items: center; gap: 5px; }
-
-    .midi-led {
-      width: 7px; height: 7px;
-      border-radius: 50%;
-      background: #141414;
-      border: 1px solid #242424;
-      box-shadow: inset 0 1px 2px rgba(0,0,0,0.65);
-      flex-shrink: 0;
-      transition: background 0.1s, box-shadow 0.1s, border-color 0.1s;
-    }
-
-    .midi-led.connected {
-      background: var(--green);
-      border-color: var(--green);
-      box-shadow: 0 0 8px rgba(38,230,107,0.75);
-    }
-
-    .midi-led.active {
-      background: var(--amber) !important;
-      border-color: var(--amber) !important;
-      box-shadow: 0 0 12px rgba(255,183,0,0.9) !important;
-    }
-
-    .midi-led.unsupported {
-      background: #2a1500;
-      border-color: #3a1a00;
-    }
-
-    .midi-text {
-      font-size: 8px;
-      letter-spacing: 0.15em;
-      color: var(--text-lo);
-      transition: color 0.15s;
-      white-space: nowrap;
-    }
-    .midi-text.connected  { color: var(--green); }
-    .midi-text.error      { color: #5a2200; }
-
-    /* ── KEYBOARD SECTION ── */
+    /* ── KEYBOARD PIANO ────────────────────────────────── */
     .keyboard-section {
-      background: #050505;
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      padding: 14px 14px 0;
-      margin-bottom: 14px;
+      border: 1px solid var(--border-hi);
+      border-top: none;
+      background: #06060f;
+      padding-bottom: 0;
     }
 
     .keyboard-hint {
-      font-size: 8px;
-      letter-spacing: 0.2em;
-      color: var(--text-lo);
-      margin-bottom: 8px;
-      display: flex;
-      gap: 12px;
-      flex-wrap: wrap;
+      font-size: 8px; letter-spacing: 0.2em; color: var(--dim);
+      padding: 8px 16px; display: flex; gap: 12px; flex-wrap: wrap;
     }
-    .keyboard-hint span { color: var(--text-dim); }
+    .keyboard-hint span { color: var(--muted); }
 
     .keyboard-scroll {
-      overflow-x: auto;
-      overflow-y: hidden;
-      padding-bottom: 14px;
+      overflow-x: auto; overflow-y: hidden; padding: 0 16px 14px;
       scrollbar-width: none;
     }
     .keyboard-scroll::-webkit-scrollbar { display: none; }
@@ -854,9 +575,8 @@ nav: sampler
 
     .key.white {
       position: absolute;
-      background: linear-gradient(to bottom, #c4beaf 0%, #d4ceba 50%, #d6ceba 100%);
-      border: 1px solid #8f8677;
-      border-top: none;
+      background: linear-gradient(to bottom, #c4beaf 0%, #d6ceba 100%);
+      border: 1px solid #8f8677; border-top: none;
       border-radius: 0 0 3px 3px;
       cursor: pointer; user-select: none; bottom: 0;
       box-shadow: inset 0 -4px 8px rgba(0,0,0,0.28), 2px 0 4px rgba(0,0,0,0.35), 0 4px 8px rgba(0,0,0,0.55);
@@ -864,28 +584,23 @@ nav: sampler
     }
     .key.white:hover { background: linear-gradient(to bottom, #cdc6b5 0%, #ded7c2 100%); }
     .key.white.active, .key.white:active {
-      background: linear-gradient(to bottom, var(--amber) 0%, #b88300 100%);
+      background: linear-gradient(to bottom, var(--cyan) 0%, #0099bb 100%);
       box-shadow: inset 0 2px 4px rgba(0,0,0,0.35);
     }
-
     .key.white.root-note::after {
       content: '';
       position: absolute; bottom: 6px; left: 50%;
       transform: translateX(-50%);
-      width: 5px; height: 5px;
-      border-radius: 50%;
-      background: var(--amber);
-      box-shadow: 0 0 6px var(--amber);
+      width: 5px; height: 5px; border-radius: 50%;
+      background: var(--pink); box-shadow: 0 0 6px var(--pink);
     }
-
     .key-lbl {
       position: absolute; bottom: 5px; left: 0; right: 0;
-      text-align: center;
-      font-family: 'Share Tech Mono', monospace;
+      text-align: center; font-family: 'Space Mono', monospace;
       font-size: 7.5px; color: #7a7365;
       pointer-events: none; user-select: none;
     }
-    .key.white.root-note .key-lbl { bottom: 16px; color: #996e00; }
+    .key.white.root-note .key-lbl { bottom: 16px; color: #aa0044; }
 
     .key.black {
       position: absolute; top: 0;
@@ -898,30 +613,41 @@ nav: sampler
     }
     .key.black:hover { background: linear-gradient(to bottom, #242424 0%, #121212 100%); }
     .key.black.active, .key.black:active {
-      background: linear-gradient(to bottom, #b88300 0%, #946900 100%);
+      background: linear-gradient(to bottom, #0099bb 0%, #006688 100%);
     }
     .key.black .key-lbl { font-size: 6.5px; color: #4f4b42; bottom: 4px; }
 
-    /* ── STATUS BAR ── */
+    /* ── STATUS BAR ────────────────────────────────────── */
     .status-bar {
       display: flex; align-items: center; justify-content: space-between;
-      padding-top: 12px; border-top: 1px solid var(--border);
+      padding: 10px 16px; border-top: 1px solid var(--border);
+      background: #07070e;
     }
-
     .status-msg {
-      font-size: 8.5px; letter-spacing: 0.2em;
-      color: var(--text-dim); min-height: 12px; transition: color 0.2s;
+      font-size: 8.5px; letter-spacing: 0.2em; color: var(--dim);
+      min-height: 12px; transition: color 0.2s; text-transform: uppercase;
     }
-    .status-msg.active { color: var(--amber); }
+    .status-msg.active { color: var(--cyan); }
     .status-msg.rec    { color: var(--red); animation: msg-blink 0.6s ease-in-out infinite; }
     @keyframes msg-blink { 50% { opacity: 0.35; } }
+    .poly-count { font-size: 8px; color: var(--dim); letter-spacing: 0.12em; }
 
-    .poly-count { font-size: 8px; color: var(--text-lo); letter-spacing: 0.12em; }
+    /* ── FOOTER — matches site ─────────────────────────── */
+    footer {
+      border-top: 1px solid #00f5ff22;
+      padding: 14px 48px;
+      display: flex; justify-content: space-between; align-items: center;
+      background: #07070f; flex-wrap: wrap; gap: 8px;
+    }
+    footer span { font-size: 10px; color: var(--dim); letter-spacing: 2px; text-transform: uppercase; }
 
-    @media (max-width: 480px) {
-      html, body { padding: 12px 10px 32px; }
-      .sampler { padding: 20px 14px 16px; }
-      .brand-name { font-size: 14px; }
+    .blink { animation: blink 1.2s step-end infinite; }
+    @keyframes blink { 50% { opacity: 0; } }
+
+    @media (max-width: 720px) {
+      header { padding: 16px 20px; }
+      footer { padding: 14px 20px; }
+      .sampler-page { padding: 16px 20px 40px; }
       .controls-row { flex-wrap: wrap; }
       .rec-btn { min-width: 100%; flex-direction: row; padding: 10px 16px; gap: 10px; }
       .fx-section { width: 100%; }
@@ -931,64 +657,76 @@ nav: sampler
   </style>
 </head>
 <body>
-  <div class="sampler">
-    <div class="screw tl"></div>
-    <div class="screw tr"></div>
-    <div class="screw bl"></div>
-    <div class="screw br"></div>
 
-    <div class="header">
-      <div class="brand">
-        <span class="brand-name">MICROSAMPLER</span>
-        <span class="brand-tag">SMPL-4 / WEB AUDIO</span>
+<header>
+  <div>
+    <div class="site-brand">CARL WILLIAM</div>
+    <div class="page-subtitle">MICROSAMPLER &nbsp;·&nbsp; SMPL-4 WEB AUDIO ENGINE</div>
+  </div>
+  <div class="header-right">
+    <div style="display:flex;align-items:center;gap:12px;justify-content:flex-end;">
+      <div class="midi-indicator">
+        <div class="midi-led" id="midi-led"></div>
+        <span class="midi-text" id="midi-text">MIDI…</span>
       </div>
-      <div style="display:flex;align-items:center;gap:12px;">
-        <div class="midi-indicator">
-          <div class="midi-led" id="midi-led"></div>
-          <span class="midi-text" id="midi-text">MIDI…</span>
-        </div>
-        <div class="vu" id="vu-meter">
-          <div class="vu-seg"></div><div class="vu-seg"></div>
-          <div class="vu-seg"></div><div class="vu-seg"></div>
-          <div class="vu-seg"></div><div class="vu-seg"></div>
-          <div class="vu-seg"></div><div class="vu-seg"></div>
-        </div>
+      <div class="vu" id="vu-meter">
+        <div class="vu-seg"></div><div class="vu-seg"></div>
+        <div class="vu-seg"></div><div class="vu-seg"></div>
+        <div class="vu-seg"></div><div class="vu-seg"></div>
+        <div class="vu-seg"></div><div class="vu-seg"></div>
       </div>
     </div>
+    <div class="build-badge" style="margin-top:8px;">SMPL-4 &nbsp;/&nbsp; ENGINE READY</div>
+  </div>
+</header>
 
-    <div class="section-label">SAMPLE PADS — CLICK TO ARM, HOLD REC TO RECORD</div>
+<main class="sampler-page">
+
+  <div class="faceplate">
+    <div class="model-name">MICROSAMPLER&ndash;4 &nbsp;&nbsp; POLYPHONIC</div>
+  </div>
+
+  <!-- PADS -->
+  <div class="pads-outer">
+    <div class="section-label" style="margin-bottom:10px;">SAMPLE PADS — CLICK TO ARM &nbsp;·&nbsp; HOLD REC TO RECORD</div>
     <div class="pads-grid" id="pads-grid"></div>
+  </div>
 
-    <div class="trim-panel" id="trim-panel">
-      <div class="trim-header">
-        <div>
-          <span class="trim-title">TRIM EDITOR</span>
-          <span class="trim-pad-label" id="trim-pad-label">PAD 1</span>
-        </div>
-        <button class="trim-close-btn" id="trim-close-btn" aria-label="Close trim editor">×</button>
+  <!-- TRIM PANEL -->
+  <div class="trim-panel" id="trim-panel">
+    <div class="trim-header">
+      <div>
+        <span class="trim-title">TRIM EDITOR</span>
+        <span class="trim-pad-label" id="trim-pad-label">PAD 1</span>
       </div>
-      <div class="trim-waveform-container" id="trim-waveform-container">
-        <canvas class="trim-waveform-canvas" id="trim-waveform-canvas"></canvas>
-        <div class="trim-region-overlay" id="trim-region-overlay"></div>
-        <div class="trim-handle trim-handle-start" id="trim-handle-start"></div>
-        <div class="trim-handle trim-handle-end" id="trim-handle-end"></div>
+      <button class="trim-close-btn" id="trim-close-btn" aria-label="Close trim editor">×</button>
+    </div>
+    <div class="trim-waveform-container" id="trim-waveform-container">
+      <canvas class="trim-waveform-canvas" id="trim-waveform-canvas"></canvas>
+      <div class="trim-region-overlay" id="trim-region-overlay"></div>
+      <div class="trim-handle trim-handle-start" id="trim-handle-start"></div>
+      <div class="trim-handle trim-handle-end" id="trim-handle-end"></div>
+    </div>
+    <div class="trim-info">
+      <div class="trim-point">
+        <span class="trim-point-label">START:</span>
+        <span class="trim-point-value" id="trim-start-value">0.000s</span>
       </div>
-      <div class="trim-info">
-        <div class="trim-point">
-          <span class="trim-point-label">START:</span>
-          <span class="trim-point-value" id="trim-start-value">0.000s</span>
-        </div>
-        <div class="trim-duration">
-          <span>LENGTH:</span>
-          <span class="trim-duration-value" id="trim-duration-value">0.000s</span>
-        </div>
-        <div class="trim-point">
-          <span class="trim-point-label">END:</span>
-          <span class="trim-point-value" id="trim-end-value">0.000s</span>
-        </div>
+      <div class="trim-duration">
+        <span style="color:var(--dim);">LENGTH:</span>
+        <span class="trim-duration-value" id="trim-duration-value">0.000s</span>
+      </div>
+      <div class="trim-point">
+        <span class="trim-point-label">END:</span>
+        <span class="trim-point-value" id="trim-end-value">0.000s</span>
       </div>
     </div>
+  </div>
 
+  <!-- CONTROL PANEL -->
+  <div class="control-panel">
+
+    <!-- DELAY -->
     <div class="delay-section">
       <div class="delay-header">
         <span class="delay-title">DELAY / ECHO</span>
@@ -996,7 +734,7 @@ nav: sampler
       </div>
       <div class="delay-controls">
         <div class="delay-control">
-          <span class="delay-control-label">TIME (MS)</span>
+          <span class="delay-control-label">Time (ms)</span>
           <div class="delay-control-row">
             <div class="delay-slider-track">
               <div class="delay-slider-fill" id="delay-time-fill" style="width:30%"></div>
@@ -1006,7 +744,7 @@ nav: sampler
           </div>
         </div>
         <div class="delay-control">
-          <span class="delay-control-label">FEEDBACK</span>
+          <span class="delay-control-label">Feedback</span>
           <div class="delay-control-row">
             <div class="delay-slider-track">
               <div class="delay-slider-fill" id="delay-feedback-fill" style="width:44%"></div>
@@ -1016,7 +754,7 @@ nav: sampler
           </div>
         </div>
         <div class="delay-control">
-          <span class="delay-control-label">MIX</span>
+          <span class="delay-control-label">Mix</span>
           <div class="delay-control-row">
             <div class="delay-slider-track">
               <div class="delay-slider-fill" id="delay-mix-fill" style="width:30%"></div>
@@ -1028,14 +766,14 @@ nav: sampler
       </div>
     </div>
 
+    <!-- REC + FX -->
     <div class="controls-row">
       <button class="rec-btn" id="rec-btn" aria-label="Hold to record">
         <div class="rec-circle"></div>
         <div class="rec-label">HOLD REC</div>
       </button>
-
       <div class="fx-section">
-        <div class="section-label">EFFECTS</div>
+        <div class="section-label" style="margin-bottom:6px;">EFFECTS</div>
         <div class="fx-row">
           <label class="fx-toggle" id="fx-reverse-wrap">
             <input type="checkbox" id="fx-reverse">
@@ -1056,8 +794,9 @@ nav: sampler
       </div>
     </div>
 
+    <!-- MASTER VOL -->
     <div class="vol-section">
-      <span class="vol-label">MASTER VOL</span>
+      <span class="vol-label">Master Vol</span>
       <div class="vol-track">
         <div class="vol-fill" id="vol-fill" style="width:70%"></div>
         <input type="range" class="master-vol" id="master-vol" min="0" max="1" step="0.01" value="0.7">
@@ -1065,12 +804,13 @@ nav: sampler
       <span class="vol-value" id="vol-value">70%</span>
     </div>
 
-    <div class="keyboard-header">
-      <div class="section-label" style="margin-bottom:0;">KEYBOARD — ROOT: A4 (●)</div>
+    <!-- KEYBOARD -->
+    <div class="keyboard-header-row">
+      <div class="section-label" style="margin-bottom:0;flex:1;">KEYBOARD — ROOT: A4 <span style="color:var(--pink)">●</span></div>
       <div class="octave-controls">
         <button class="oct-btn" id="oct-down" aria-label="Octave down">−</button>
         <div class="oct-display">
-          <span class="oct-display-label">OCTAVE</span>
+          <span class="oct-display-label">Octave</span>
           <span class="oct-display-value" id="oct-value">0</span>
         </div>
         <button class="oct-btn" id="oct-up" aria-label="Octave up">+</button>
@@ -1079,7 +819,7 @@ nav: sampler
 
     <div class="keyboard-section">
       <div class="keyboard-hint">
-        <span>WHITE:</span> Z X C V B N M / Q W E R T Y U I &nbsp;&nbsp;&nbsp;
+        <span>WHITE:</span> Z X C V B N M / Q W E R T Y U I &nbsp;&nbsp;
         <span>BLACK:</span> S D G H J / 2 3 5 6 7
       </div>
       <div class="keyboard-scroll">
@@ -1091,13 +831,20 @@ nav: sampler
       <div class="status-msg" id="status-msg">SELECT A PAD TO BEGIN</div>
       <div class="poly-count" id="poly-count">VOICES: 0/6</div>
     </div>
-  </div>
 
-  <script>
+  </div><!-- end .control-panel -->
+
+</main>
+
+<footer>
+  <span>STATUS: ENGINE ONLINE</span>
+  <span>DESIGN BY CARL WILLIAM // 2026 <span class="blink">_</span></span>
+</footer>
+
+<script>
     /* ════════════════════════════════════════════════════════
        MicroSampler — root A4 (MIDI 69)
-       Keyboard visual range: C3 (48) → C5 (72) [fixed on screen]
-       Octave offset shifts playback pitch only; visual stays put.
+       All audio logic preserved exactly from original.
        ════════════════════════════════════════════════════════ */
 
     class MicroSampler {
@@ -1106,130 +853,115 @@ nav: sampler
         this.masterGain = null;
         this.limiter = null;
 
-        // Effect Nodes
         this.delayNode = null;
         this.delayFeedbackNode = null;
         this.delayWetGain = null;
         this.delayDryGain = null;
 
-        // Core State Constants
         this.POLY_LIMIT = 6;
-        this.ROOT_MIDI = 69; // A4
-        this.VISUAL_START_MIDI = 48; // C3
-        this.VISUAL_END_MIDI = 72;   // C5
+        this.ROOT_MIDI = 69;
+        this.VISUAL_START_MIDI = 48;
+        this.VISUAL_END_MIDI = 72;
 
-        // Slots Management
         this.slots = [null, null, null, null];
         this.activePad = -1;
         this.padStates = ['empty', 'empty', 'empty', 'empty'];
 
-        // Per-pad DSP Parameters
-        this.padFilterCutoffs = [0.5, 0.5, 0.5, 0.5]; // Normalized values ( maps to 200Hz - 20kHz )
+        this.padFilterCutoffs = [0.5, 0.5, 0.5, 0.5];
         this.padReverseStates = [false, false, false, false];
         this.padLoopStates    = [false, false, false, false];
         this.padLofiStates    = [false, false, false, false];
 
-        // Per-pad Trim Metadata
         this.padTrimStart = [0, 0, 0, 0];
         this.padTrimEnd   = [0, 0, 0, 0];
 
-        // Global Parameters
         this.octaveOffset = 0;
-        this.masterVolumeValue = 0.7;
+        this.masterVolumeValue = /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent) ? 1.0 : 0.7;
         this.delayEnabled = false;
-        this.delayTimeValue = 300;     // ms
-        this.delayFeedbackValue = 0.4; // 0.0 -> 0.9
-        this.delayMixValue = 0.3;      // 0.0 -> 1.0
+        this.delayTimeValue = 300;
+        this.delayFeedbackValue = 0.4;
+        this.delayMixValue = 0.3;
 
-        // Voice Engine Tracking
-        this.activeNotes = new Map(); // key: visualMidi, value: Set of active voice data objects
+        this.activeNotes = new Map();
 
-        // Recording System Engine
         this.mediaRecorder = null;
         this.audioChunks = [];
         this.isRecording = false;
 
-        // Visual VU Meter Loop Tracking
         this.vuLevel = 0;
         this.vuTargetLv = 0;
 
-        // Mouse/Touch Tracking for Key Beds
         this.isMouseDown = false;
-
-        // Dragging states for Trim Windows
         this.isDraggingStart = false;
         this.isDraggingEnd = false;
       }
 
-      /* ── DSP Audio Architecture Init ── */
       initAudio() {
         if (this.audioCtx) return;
-        
         const AudioContextClass = window.AudioContext || window.webkitAudioContext;
         this.audioCtx = new AudioContextClass();
 
-        // 1. Output Limiter Node Protection
         this.limiter = this.audioCtx.createDynamicsCompressor();
-        this.limiter.threshold.setValueAtTime(-1.0, this.audioCtx.currentTime);
+        this.limiter.threshold.setValueAtTime(-3.0, this.audioCtx.currentTime);
         this.limiter.knee.setValueAtTime(0, this.audioCtx.currentTime);
         this.limiter.ratio.setValueAtTime(20, this.audioCtx.currentTime);
         this.limiter.attack.setValueAtTime(0.002, this.audioCtx.currentTime);
         this.limiter.release.setValueAtTime(0.1, this.audioCtx.currentTime);
         this.limiter.connect(this.audioCtx.destination);
 
-        // 2. Main Terminal Post Master Gain Node
         this.masterGain = this.audioCtx.createGain();
         this.masterGain.gain.setValueAtTime(this.masterVolumeValue, this.audioCtx.currentTime);
 
-        // 3. Delay Pipeline Setup
         this.delayNode = this.audioCtx.createDelay(1.0);
         this.delayFeedbackNode = this.audioCtx.createGain();
         this.delayWetGain = this.audioCtx.createGain();
         this.delayDryGain = this.audioCtx.createGain();
 
-        // Configure initial delay values
         this.delayNode.delayTime.setValueAtTime(this.delayTimeValue / 1000, this.audioCtx.currentTime);
         this.delayFeedbackNode.gain.setValueAtTime(this.delayFeedbackValue, this.audioCtx.currentTime);
-        
+
         const wetVal = this.delayEnabled ? this.delayMixValue : 0;
         const dryVal = this.delayEnabled ? (1 - this.delayMixValue) : 1;
         this.delayWetGain.gain.setValueAtTime(wetVal, this.audioCtx.currentTime);
         this.delayDryGain.gain.setValueAtTime(dryVal, this.audioCtx.currentTime);
 
-        // Delay internal loop routing
         this.delayNode.connect(this.delayFeedbackNode);
         this.delayFeedbackNode.connect(this.delayNode);
 
-        // Router topology splitter connection
         this.masterGain.connect(this.delayDryGain);
         this.masterGain.connect(this.delayNode);
         this.delayNode.connect(this.delayWetGain);
 
-        // Terminate split signal legs on Master Limiter strip
         this.delayDryGain.connect(this.limiter);
         this.delayWetGain.connect(this.limiter);
 
         this.startVuLoop();
       }
 
-      /* ── User Interface Setup & DOM Rendering ── */
       render() {
         this.renderPadsGrid();
         this.renderKeyboardBed();
         this.attachControlListeners();
         this.initMidi();
+        // Sync master vol slider/fill to the actual initial value (may be boosted on mobile)
+        const volSlider = document.getElementById('master-vol');
+        const volFill = document.getElementById('vol-fill');
+        const volLabel = document.getElementById('vol-value');
+        if (volSlider) {
+          volSlider.value = this.masterVolumeValue;
+          volFill.style.width = `${this.masterVolumeValue * 100}%`;
+          volLabel.textContent = `${Math.round(this.masterVolumeValue * 100)}%`;
+        }
       }
 
       renderPadsGrid() {
         const grid = document.getElementById('pads-grid');
         grid.innerHTML = '';
-        
         for (let i = 0; i < 4; i++) {
           const pad = document.createElement('div');
-          pad.className = `pad state-empty`;
+          pad.className = 'pad state-empty';
           pad.dataset.index = i;
           pad.id = `pad-${i}`;
-
           pad.innerHTML = `
             <canvas class="pad-canvas" id="pad-canvas-${i}"></canvas>
             <div class="pad-content">
@@ -1250,9 +982,9 @@ nav: sampler
         const bed = document.getElementById('keyboard-bed');
         bed.innerHTML = '';
 
-        const totalWhiteKeys = 15; 
-        const whiteWidth = 36;    
-        const gap = 1;            
+        const totalWhiteKeys = 15;
+        const whiteWidth = 36;
+        const gap = 1;
         const totalBedWidth = totalWhiteKeys * whiteWidth + (totalWhiteKeys - 1) * gap;
         bed.style.width = `${totalBedWidth}px`;
 
@@ -1278,7 +1010,7 @@ nav: sampler
           { visualMidi: 66, isBlack: true,  label: 'F#4' },
           { visualMidi: 67, isBlack: false, label: 'G4' },
           { visualMidi: 68, isBlack: true,  label: 'G#4' },
-          { visualMidi: 69, isBlack: false, label: 'A4' }, // Root Note Reference Marker Indicator
+          { visualMidi: 69, isBlack: false, label: 'A4' },
           { visualMidi: 70, isBlack: true,  label: 'A#4' },
           { visualMidi: 71, isBlack: false, label: 'B4' },
           { visualMidi: 72, isBlack: false, label: 'C5' }
@@ -1294,12 +1026,10 @@ nav: sampler
           if (!n.isBlack) {
             keyEl.className = 'key white';
             if (n.visualMidi === this.ROOT_MIDI) keyEl.classList.add('root-note');
-            
             const leftPos = whiteIndex * (whiteWidth + gap);
             keyEl.style.left = `${leftPos}px`;
             keyEl.style.width = `${whiteWidth}px`;
             keyEl.style.height = '100%';
-
             keyEl.innerHTML = `<span class="key-lbl">${n.label}</span>`;
             bed.appendChild(keyEl);
             whiteIndex++;
@@ -1315,39 +1045,31 @@ nav: sampler
           const keyEl = document.createElement('div');
           keyEl.className = 'key black';
           keyEl.dataset.midi = bk.note.visualMidi;
-
           const associatedLeft = bk.associatedWhiteIndex * (whiteWidth + gap);
           const leftPos = associatedLeft + whiteWidth - (blackWidth / 2);
-          
           keyEl.style.left = `${leftPos}px`;
           keyEl.style.width = `${blackWidth}px`;
           keyEl.style.height = `${blackHeight}px`;
-
           keyEl.innerHTML = `<span class="key-lbl">${bk.note.label}</span>`;
           bed.appendChild(keyEl);
         });
       }
 
       attachControlListeners() {
-        // --- Pad Management Selection System ---
         document.getElementById('pads-grid').addEventListener('click', (e) => {
           const filterSec = e.target.closest('.pad-filter-section');
-          if (filterSec) return; // Allow separate execution path for rotary dials
-          
+          if (filterSec) return;
           const padEl = e.target.closest('.pad');
           if (!padEl) return;
-
           const idx = parseInt(padEl.dataset.index, 10);
           this.setActivePad(idx);
         });
 
-        // --- Filter Knob Control Interaction Loop (Rotary System Mapping) ---
         for (let i = 0; i < 4; i++) {
           const knob = document.getElementById(`filter-knob-${i}`);
           this.attachKnobPointerTracking(knob, i);
         }
 
-        // --- Hardware Master Voice Loop Controls Trigger Handling ---
         const recBtn = document.getElementById('rec-btn');
         recBtn.addEventListener('pointerdown', (e) => {
           e.preventDefault();
@@ -1359,7 +1081,6 @@ nav: sampler
           this.stopRecordingAction();
         });
 
-        // --- Global Effect State Binding Registrars ---
         document.getElementById('fx-reverse').addEventListener('change', (e) => {
           if (this.activePad !== -1) {
             this.padReverseStates[this.activePad] = e.target.checked;
@@ -1379,7 +1100,6 @@ nav: sampler
           }
         });
 
-        // --- Delay UI Elements State Binding Registrars ---
         const dToggle = document.getElementById('delay-toggle');
         dToggle.addEventListener('click', () => {
           this.delayEnabled = !this.delayEnabled;
@@ -1400,7 +1120,6 @@ nav: sampler
           this.updateDelayDspGraph();
         }, true);
 
-        // --- Master Volume Potentiometer Control Strips ---
         this.attachSliderEngine('master-vol', 'vol-fill', 'vol-value', '%', (val) => {
           this.masterVolumeValue = val;
           if (this.masterGain && this.audioCtx) {
@@ -1408,11 +1127,9 @@ nav: sampler
           }
         }, true);
 
-        // --- Pitch Octave Shifter Control Blocks ---
         document.getElementById('oct-down').addEventListener('click', () => this.shiftOctaveOffset(-1));
         document.getElementById('oct-up').addEventListener('click', () => this.shiftOctaveOffset(1));
 
-        // --- Virtual Note Key Bed Trigger Routers ---
         const bed = document.getElementById('keyboard-bed');
         bed.addEventListener('pointerdown', (e) => {
           const key = e.target.closest('.key');
@@ -1428,26 +1145,36 @@ nav: sampler
           const key = document.elementFromPoint(e.clientX, e.clientY)?.closest('.key');
           if (!key || !bed.contains(key)) return;
           const mid = parseInt(key.dataset.midi, 10);
-          
-          // Mono sliding logic across physical UI bounds
           if (!this.activeNotes.has(mid)) {
             this.allNotesOffAction();
             this.noteOnAction(mid);
           }
         });
 
-        const releasePointerHandler = (e) => {
+        const releasePointerHandler = () => {
           if (!this.isMouseDown) return;
           this.isMouseDown = false;
           this.allNotesOffAction();
         };
         bed.addEventListener('pointerup', releasePointerHandler);
         bed.addEventListener('pointercancel', releasePointerHandler);
+        bed.addEventListener('lostpointercapture', releasePointerHandler);
+        // Touch fallback for browsers where pointer events don't fire reliably on scroll/cancel
+        bed.addEventListener('touchend', (e) => {
+          e.preventDefault();
+          if (this.isMouseDown) {
+            this.isMouseDown = false;
+            this.allNotesOffAction();
+          }
+        }, { passive: false });
+        bed.addEventListener('touchcancel', () => {
+          if (this.isMouseDown) {
+            this.isMouseDown = false;
+            this.allNotesOffAction();
+          }
+        });
 
-        // --- Physical Computer ASCII QWERTY Matrix Hooks ---
         this.attachKeyboardMatrixHooks();
-
-        // --- Dynamic Non-Destructive Interactive Trim Handle Listeners ---
         this.attachTrimHandleInteractionEngine();
         document.getElementById('trim-close-btn').addEventListener('click', () => {
           document.getElementById('trim-panel').classList.remove('open');
@@ -1464,13 +1191,9 @@ nav: sampler
           const max = parseFloat(e.target.max) || 1;
           const min = parseFloat(e.target.min) || 0;
           const percent = ((val - min) / (max - min)) * 100;
-          
           fill.style.width = `${percent}%`;
-          if (isPercent) {
-            label.textContent = `${Math.round(val * 100)}${unit}`;
-          } else {
-            label.textContent = `${val}${unit}`;
-          }
+          if (isPercent) label.textContent = `${Math.round(val * 100)}${unit}`;
+          else label.textContent = `${val}${unit}`;
           callback(val);
         });
       }
@@ -1481,9 +1204,8 @@ nav: sampler
 
         const onPointerMove = (e) => {
           const deltaY = startY - e.clientY;
-          let nextCutoff = startCutoff + (deltaY * 0.006); // Tuning Sensitivity Coefficient Range
+          let nextCutoff = startCutoff + (deltaY * 0.006);
           nextCutoff = Math.max(0, Math.min(1, nextCutoff));
-          
           this.padFilterCutoffs[index] = nextCutoff;
           this.updateFilterKnobDisplay(index);
         };
@@ -1500,7 +1222,6 @@ nav: sampler
           knob.setPointerCapture(e.pointerId);
           startY = e.clientY;
           startCutoff = this.padFilterCutoffs[index];
-          
           knob.addEventListener('pointermove', onPointerMove);
           knob.addEventListener('pointerup', onPointerUp);
         });
@@ -1510,8 +1231,6 @@ nav: sampler
         const knob = document.getElementById(`filter-knob-${index}`);
         const label = document.getElementById(`filter-val-${index}`);
         const normVal = this.padFilterCutoffs[index];
-        
-        // Rotation degrees mapping standard radial arcs (-135 to +135 deg)
         const degrees = (normVal * 270) - 135;
         knob.style.transform = `rotate(${degrees}deg)`;
         label.textContent = `${Math.round(normVal * 100)}%`;
@@ -1536,34 +1255,25 @@ nav: sampler
         this.initAudio();
         this.activePad = idx;
 
-        // Visual Class Selection Matrix Updating
         for (let i = 0; i < 4; i++) {
           const pad = document.getElementById(`pad-${i}`);
           pad.classList.remove('state-armed');
-          if (this.padStates[i] === 'loaded') {
-            pad.className = 'pad state-loaded';
-          } else {
-            pad.className = 'pad state-empty';
-          }
+          pad.className = 'pad ' + (this.padStates[i] === 'loaded' ? 'state-loaded' : 'state-empty');
         }
 
         const selectedPad = document.getElementById(`pad-${idx}`);
-        selectedPad.classList.remove('state-loaded','state-empty');
+        selectedPad.classList.remove('state-loaded', 'state-empty');
         selectedPad.classList.add('state-armed');
 
-        // Sync Global Effect Toggle Switches to Selected Pad Values
         document.getElementById('fx-reverse').checked = this.padReverseStates[idx];
         this.toggleFxWrapperActiveState('fx-reverse-wrap', this.padReverseStates[idx]);
-
         document.getElementById('fx-loop').checked = this.padLoopStates[idx];
         this.toggleFxWrapperActiveState('fx-loop-wrap', this.padLoopStates[idx]);
-
         document.getElementById('fx-lofi').checked = this.padLofiStates[idx];
         this.toggleFxWrapperActiveState('fx-lofi-wrap', this.padLofiStates[idx]);
 
         this.setStatus(`PAD ${idx + 1} ARMED AND READY`);
-        
-        // Open/Update Trim Window if buffer populated
+
         if (this.slots[idx]) {
           this.openTrimEditorPanel(idx);
         } else {
@@ -1571,15 +1281,11 @@ nav: sampler
         }
       }
 
-      /* ── Non-Destructive Precision Trim Editor Implementation ── */
       openTrimEditorPanel(idx) {
         const buffer = this.slots[idx];
         if (!buffer) return;
-
         document.getElementById('trim-pad-label').textContent = `PAD ${idx + 1}`;
         document.getElementById('trim-panel').classList.add('open');
-
-        // Render waveform representation inside canvas view bounds
         this.drawWaveformIntoCanvas('trim-waveform-canvas', buffer);
         this.updateTrimEditorUiMarkers();
       }
@@ -1587,8 +1293,6 @@ nav: sampler
       drawWaveformIntoCanvas(canvasId, buffer) {
         const canvas = document.getElementById(canvasId);
         const ctx = canvas.getContext('2d');
-        
-        // Device pixel ratio resizing mechanics initialization
         const dpr = window.devicePixelRatio || 1;
         const rect = canvas.parentElement.getBoundingClientRect();
         canvas.width = rect.width * dpr;
@@ -1597,24 +1301,21 @@ nav: sampler
 
         const w = rect.width;
         const h = rect.height;
-
         ctx.clearRect(0, 0, w, h);
-        ctx.fillStyle = '#050505';
+        ctx.fillStyle = '#050508';
         ctx.fillRect(0, 0, w, h);
 
-        // Sub-sample draw resolution optimizations for large buffers
         const data = buffer.getChannelData(0);
         const step = Math.ceil(data.length / w);
         const amp = h / 2;
 
         ctx.lineWidth = 1.5;
-        ctx.strokeStyle = '#8a5c00'; // Var Dim Amber
+        ctx.strokeStyle = '#1a3a5a';
         ctx.beginPath();
         ctx.moveTo(0, amp);
 
         for (let i = 0; i < w; i++) {
-          let min = 1.0;
-          let max = -1.0;
+          let min = 1.0, max = -1.0;
           for (let j = 0; j < step; j++) {
             const datum = data[(i * step) + j];
             if (datum < min) min = datum;
@@ -1624,31 +1325,24 @@ nav: sampler
           ctx.lineTo(i, amp + (min * amp));
         }
 
-        ctx.lineTo(w, amp);
         ctx.stroke();
       }
 
       updateTrimEditorUiMarkers() {
         if (this.activePad === -1 || !this.slots[this.activePad]) return;
-        
         const idx = this.activePad;
         const duration = this.slots[idx].duration;
-        
         const startSec = this.padTrimStart[idx];
         const endSec = this.padTrimEnd[idx];
-
         const startPct = (startSec / duration) * 100;
         const endPct = (endSec / duration) * 100;
 
-        // UI bounding structures updates via overlays
         const overlay = document.getElementById('trim-region-overlay');
         overlay.style.left = `${startPct}%`;
         overlay.style.width = `${endPct - startPct}%`;
-
+        // Both handles use left% — CSS transform: translateX(-50%) centers them on the boundary
         document.getElementById('trim-handle-start').style.left = `${startPct}%`;
         document.getElementById('trim-handle-end').style.left = `${endPct}%`;
-
-        // Text value precision displays updates
         document.getElementById('trim-start-value').textContent = `${startSec.toFixed(3)}s`;
         document.getElementById('trim-end-value').textContent = `${endSec.toFixed(3)}s`;
         document.getElementById('trim-duration-value').textContent = `${(endSec - startSec).toFixed(3)}s`;
@@ -1663,22 +1357,16 @@ nav: sampler
           if (this.activePad === -1 || !this.slots[this.activePad]) return;
           const idx = this.activePad;
           const duration = this.slots[idx].duration;
-          
           const rect = container.getBoundingClientRect();
           let currentPct = (clientX - rect.left) / rect.width;
           currentPct = Math.max(0, Math.min(1, currentPct));
           const targetSec = currentPct * duration;
-
-          const minSliceLen = 0.05; // 50 milliseconds safety slice resolution threshold guard
+          const minSliceLen = 0.05;
 
           if (targetType === 'start') {
-            if (targetSec < this.padTrimEnd[idx] - minSliceLen) {
-              this.padTrimStart[idx] = targetSec;
-            }
+            if (targetSec < this.padTrimEnd[idx] - minSliceLen) this.padTrimStart[idx] = targetSec;
           } else if (targetType === 'end') {
-            if (targetSec > this.padTrimStart[idx] + minSliceLen) {
-              this.padTrimEnd[idx] = targetSec;
-            }
+            if (targetSec > this.padTrimStart[idx] + minSliceLen) this.padTrimEnd[idx] = targetSec;
           }
           this.updateTrimEditorUiMarkers();
           this.drawStaticPadThumbnailWaveforms(idx);
@@ -1692,7 +1380,6 @@ nav: sampler
             window.removeEventListener('pointermove', onMove);
             window.removeEventListener('pointerup', onUp);
           };
-
           handle.addEventListener('pointerdown', (e) => {
             e.preventDefault();
             e.stopPropagation();
@@ -1707,26 +1394,24 @@ nav: sampler
         attachHandlePointerHooks(hEnd, 'end');
       }
 
-      /* ── Recording Infrastructure Operations Subsystem ── */
       async startRecordingAction() {
         this.initAudio();
         if (this.activePad === -1) {
-          this.setStatus("CHOOSE TARGET ARMED PAD COMPARTMENT FIRST", false, "error");
+          this.setStatus("CHOOSE TARGET ARMED PAD FIRST", false, "error");
           return;
         }
-
         if (this.isRecording) return;
         this.isRecording = true;
         this.audioChunks = [];
 
         this.setStatus("RECORDING AUDIO STREAM INPUT…", true, "rec");
-        const padEl = document.getElementById(`pad-${this.activePad}`);
-        padEl.className = 'pad state-armed';
+        const recBtn = document.getElementById('rec-btn');
+        recBtn.classList.add('recording');
 
         try {
           const stream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: false, noiseSuppression: false } });
           this.mediaRecorder = new MediaRecorder(stream);
-          
+
           this.mediaRecorder.ondataavailable = (e) => {
             if (e.data.size > 0) this.audioChunks.push(e.data);
           };
@@ -1734,40 +1419,36 @@ nav: sampler
           this.mediaRecorder.onstop = async () => {
             const audioBlob = new Blob(this.audioChunks, { type: 'audio/wav' });
             const arrayArr = await audioBlob.arrayBuffer();
-            
+
             this.audioCtx.decodeAudioData(arrayArr, (decodedBuffer) => {
               const idx = this.activePad;
               this.slots[idx] = decodedBuffer;
-              
-              // Non-destructive initialization offsets mapping sequence defaults
               this.padTrimStart[idx] = 0;
               this.padTrimEnd[idx] = decodedBuffer.duration;
-
               this.padStates[idx] = 'loaded';
-              
-              const statusLabel = document.getElementById(`pad-status-${idx}`);
-              statusLabel.textContent = `READY (${decodedBuffer.duration.toFixed(1)}s)`;
-              
-              const activePadEl = document.getElementById(`pad-${idx}`);
-              activePadEl.className = 'pad state-armed'; // Retain structural lighting assignment patterns
+
+              document.getElementById(`pad-status-${idx}`).textContent = `READY (${decodedBuffer.duration.toFixed(1)}s)`;
+              document.getElementById(`pad-${idx}`).className = 'pad state-armed';
 
               this.drawStaticPadThumbnailWaveforms(idx);
               this.openTrimEditorPanel(idx);
-              this.setStatus(`COMPARTMENT SLICER ${idx + 1} WRITE COMPLETE`);
+              this.setStatus(`PAD ${idx + 1} WRITE COMPLETE`);
+              recBtn.classList.remove('recording');
             }, (err) => {
-              this.setStatus("DECODE EXECUTION FAILURE DETECTED", false, "error");
+              this.setStatus("DECODE FAILURE DETECTED", false, "error");
+              recBtn.classList.remove('recording');
               console.error(err);
             });
 
-            // Stop hardware capturing pipeline sources cleanly
             stream.getTracks().forEach(t => t.stop());
           };
 
           this.mediaRecorder.start();
         } catch (err) {
           console.error(err);
-          this.setStatus("HARDWARE CAPTURE SYSTEM REJECTED Access", false, "error");
+          this.setStatus("MIC ACCESS DENIED", false, "error");
           this.isRecording = false;
+          recBtn.classList.remove('recording');
         }
       }
 
@@ -1782,28 +1463,24 @@ nav: sampler
       drawStaticPadThumbnailWaveforms(idx) {
         const buffer = this.slots[idx];
         if (!buffer) return;
-
         const canvas = document.getElementById(`pad-canvas-${idx}`);
         const ctx = canvas.getContext('2d');
         const w = canvas.width = canvas.offsetWidth;
         const h = canvas.height = canvas.offsetHeight;
 
-        ctx.clearRect(0,0,w,h);
-        ctx.fillStyle = 'rgba(255, 183, 0, 0.015)';
-        ctx.fillRect(0,0,w,h);
+        ctx.clearRect(0, 0, w, h);
+        ctx.fillStyle = 'rgba(0,245,255,0.01)';
+        ctx.fillRect(0, 0, w, h);
 
         const data = buffer.getChannelData(0);
-        
-        // Match slice indexing visualization strictly to edited range constraints
         const startIdx = Math.floor((this.padTrimStart[idx] / buffer.duration) * data.length);
         const endIdx = Math.floor((this.padTrimEnd[idx] / buffer.duration) * data.length);
         const rangeLen = endIdx - startIdx;
-
         const step = Math.ceil(rangeLen / w) || 1;
         const amp = h / 2;
 
         ctx.lineWidth = 1;
-        ctx.strokeStyle = 'rgba(255, 183, 0, 0.18)'; // Dim interior micro plots
+        ctx.strokeStyle = 'rgba(0,245,255,0.15)';
         ctx.beginPath();
         ctx.moveTo(0, amp);
 
@@ -1821,22 +1498,17 @@ nav: sampler
         ctx.stroke();
       }
 
-      /* ── DSP Audio Signal Graph Control Routines ── */
       updateDelayDspGraph() {
         if (!this.audioCtx || !this.delayNode) return;
-
         const now = this.audioCtx.currentTime;
         this.delayNode.delayTime.setTargetAtTime(this.delayTimeValue / 1000, now, 0.02);
         this.delayFeedbackNode.gain.setTargetAtTime(this.delayFeedbackValue, now, 0.02);
-
         const wetVal = this.delayEnabled ? this.delayMixValue : 0;
         const dryVal = this.delayEnabled ? (1 - this.delayMixValue) : 1;
-
         this.delayWetGain.gain.setTargetAtTime(wetVal, now, 0.01);
         this.delayDryGain.gain.setTargetAtTime(dryVal, now, 0.01);
       }
 
-      /* ── Core Monophonic / Polyphonic Voice Engine ── */
       noteOnAction(visualMidi) {
         this.initAudio();
         if (this.activePad === -1 || !this.slots[this.activePad]) {
@@ -1847,80 +1519,53 @@ nav: sampler
         const idx = this.activePad;
         const origBuffer = this.slots[idx];
 
-        // 1. Enforce polyphony assignment rules constraints
         if (this.activeNotes.size >= this.POLY_LIMIT) {
-          // Push out oldest visual key signature allocations
           const oldestVisualKey = this.activeNotes.keys().next().value;
           this.noteOffAction(oldestVisualKey);
         }
 
-        // 2. Transposition processing math calculations
         const playedMidi = visualMidi + (this.octaveOffset * 12);
         const pitchSemiShift = playedMidi - this.ROOT_MIDI;
         let playbackRateValue = Math.pow(2, pitchSemiShift / 12);
 
-        // 3. Audio Extraction & Custom Channel Buffer Synthesis Execution Block
         let activeTrimStart = this.padTrimStart[idx];
         let activeTrimEnd = this.padTrimEnd[idx];
         let sliceDuration = activeTrimEnd - activeTrimStart;
-
         if (sliceDuration <= 0) return;
 
-        // Perform programmatic sample level extraction conversions inside allocation sequences
         const sampleRate = origBuffer.sampleRate;
         const startFrame = Math.floor(activeTrimStart * sampleRate);
         const endFrame = Math.floor(activeTrimEnd * sampleRate);
         const frameCount = endFrame - startFrame;
-
         if (frameCount <= 0) return;
 
-        // Construct customized target sub-slice sound staging buffers
-        const sliceBuffer = this.audioCtx.createBuffer(
-          origBuffer.numberOfChannels,
-          frameCount,
-          sampleRate
-        );
+        const sliceBuffer = this.audioCtx.createBuffer(origBuffer.numberOfChannels, frameCount, sampleRate);
 
         for (let ch = 0; ch < origBuffer.numberOfChannels; ch++) {
           const origData = origBuffer.getChannelData(ch);
           const sliceData = sliceBuffer.getChannelData(ch);
-          
-          for (let f = 0; f < frameCount; f++) {
-            sliceData[f] = origData[startFrame + f];
-          }
+          for (let f = 0; f < frameCount; f++) sliceData[f] = origData[startFrame + f];
 
-          // DSP FX Stage: In-place array data modifications
-          if (this.padReverseStates[idx]) {
-            Array.prototype.reverse.call(sliceData);
-          }
+          if (this.padReverseStates[idx]) Array.prototype.reverse.call(sliceData);
 
           if (this.padLofiStates[idx]) {
-            // Apply severe bitcrushing sample reductions algorithms
-            const bitDepth = 4; 
+            const bitDepth = 4;
             const steps = Math.pow(2, bitDepth);
-            const downsampleFactor = 6; 
-            
+            const downsampleFactor = 6;
             for (let f = 0; f < frameCount; f++) {
-              if (f % downsampleFactor !== 0) {
-                sliceData[f] = sliceData[f - (f % downsampleFactor)];
-              }
-              // Amplitude quantization step normalization
+              if (f % downsampleFactor !== 0) sliceData[f] = sliceData[f - (f % downsampleFactor)];
               sliceData[f] = Math.round(sliceData[f] * steps) / steps;
             }
           }
         }
 
-        // 4. Build execution nodes path linkages
         const voiceSrc = this.audioCtx.createBufferSource();
         voiceSrc.buffer = sliceBuffer;
         voiceSrc.playbackRate.setValueAtTime(playbackRateValue, this.audioCtx.currentTime);
         voiceSrc.loop = this.padLoopStates[idx];
 
-        // Local dynamic voice dynamic low-pass ladder topologies initialization
         const lowpassNode = this.audioCtx.createBiquadFilter();
         lowpassNode.type = 'lowpass';
-        
-        // Apply exponential mappings distributions across the standard scale bounds
         const normCutoff = this.padFilterCutoffs[idx];
         const targetHz = 200 + (normCutoff * normCutoff * 19800);
         lowpassNode.frequency.setValueAtTime(targetHz, this.audioCtx.currentTime);
@@ -1928,24 +1573,15 @@ nav: sampler
         const voiceGainNode = this.audioCtx.createGain();
         voiceGainNode.gain.setValueAtTime(1.0, this.audioCtx.currentTime);
 
-        // Terminate pipeline pathways across primary output paths
         voiceSrc.connect(lowpassNode);
         lowpassNode.connect(voiceGainNode);
         voiceGainNode.connect(this.masterGain);
 
-        // 5. Track operational run state data structures
-        const voiceInstance = {
-          source: voiceSrc,
-          gainNode: voiceGainNode,
-          filterNode: lowpassNode
-        };
+        const voiceInstance = { source: voiceSrc, gainNode: voiceGainNode, filterNode: lowpassNode };
 
-        if (!this.activeNotes.has(visualMidi)) {
-          this.activeNotes.set(visualMidi, new Set());
-        }
+        if (!this.activeNotes.has(visualMidi)) this.activeNotes.set(visualMidi, new Set());
         this.activeNotes.get(visualMidi).add(voiceInstance);
 
-        // Handle structural voice killing parameters gracefully at playback termination posts
         voiceSrc.onended = () => {
           const voiceSet = this.activeNotes.get(visualMidi);
           if (voiceSet) {
@@ -1958,24 +1594,18 @@ nav: sampler
           }
         };
 
-        // Fire physical terminal triggers
         voiceSrc.start(0);
         this.highlightKey(visualMidi, true);
         this.updatePolyCount();
-
-        // Feed monitoring system structures values directly
         this.vuTargetLv = Math.max(this.vuTargetLv, 0.75);
       }
 
       noteOffAction(visualMidi) {
         const voiceSet = this.activeNotes.get(visualMidi);
-        if (!voiceSet) {
-          this.highlightKey(visualMidi, false);
-          return;
-        }
+        if (!voiceSet) { this.highlightKey(visualMidi, false); return; }
 
         const now = this.audioCtx.currentTime;
-        const releaseTimeSec = 0.06; // Soft release envelope decay window sizing parameters
+        const releaseTimeSec = 0.06;
 
         for (const voice of voiceSet) {
           try {
@@ -1983,11 +1613,8 @@ nav: sampler
             voice.gainNode.gain.setValueAtTime(voice.gainNode.gain.value, now);
             voice.gainNode.gain.exponentialRampToValueAtTime(0.001, now + releaseTimeSec);
             voice.source.stop(now + releaseTimeSec);
-          } catch (e) {
-            // Context component exceptions protection
-          }
+          } catch (e) {}
         }
-        // UI visual toggles are dropped dynamically by voice termination listeners asynchronously
       }
 
       allNotesOffAction() {
@@ -1995,7 +1622,6 @@ nav: sampler
         keys.forEach(k => this.noteOffAction(k));
       }
 
-      /* ── Visual UI Animation and MIDI Pipeline Subsystems ── */
       highlightKey(visualMidi, on) {
         const el = document.querySelector(`[data-midi="${visualMidi}"]`);
         if (el) el.classList.toggle('active', on);
@@ -2009,8 +1635,7 @@ nav: sampler
       }
 
       updatePolyCount() {
-        document.getElementById('poly-count').textContent =
-          `VOICES: ${this.activeNotes.size}/${this.POLY_LIMIT}`;
+        document.getElementById('poly-count').textContent = `VOICES: ${this.activeNotes.size}/${this.POLY_LIMIT}`;
       }
 
       startVuLoop() {
@@ -2018,7 +1643,6 @@ nav: sampler
         const tick = () => {
           this.vuLevel += (this.vuTargetLv - this.vuLevel) * 0.18;
           if (this.vuTargetLv > 0) this.vuTargetLv *= 0.88;
-          
           const lit = Math.round(this.vuLevel * 8);
           segs.forEach((s, i) => {
             if (i < lit) {
@@ -2033,43 +1657,31 @@ nav: sampler
         requestAnimationFrame(tick);
       }
 
-      /* ── Computer Keyboard Matrix Key Map Transposition Decoders ── */
       attachKeyboardMatrixHooks() {
         const asciiMap = {
-          // Lower White Keys Tier Row Assignments Mapping
           'z': 48, 'x': 50, 'c': 52, 'v': 53, 'b': 55, 'n': 57, 'm': 59, ',': 60,
-          // Upper White Keys Tier Row Assignments Mapping
           'q': 60, 'w': 62, 'e': 64, 'r': 65, 't': 67, 'y': 69, 'u': 71, 'i': 72,
-          // Lower Tier Black Keys Set Assignments Map
           's': 49, 'd': 51, 'g': 54, 'h': 56, 'j': 58,
-          // Upper Tier Black Keys Set Assignments Map
           '2': 61, '3': 63, '5': 66, '6': 68, '7': 70
         };
-
         const activePcKeys = new Set();
-
         window.addEventListener('keydown', (e) => {
           if (e.repeat || e.ctrlKey || e.metaKey || e.altKey) return;
           const key = e.key.toLowerCase();
-          
           if (asciiMap[key] !== undefined) {
-            const visualMidi = asciiMap[key];
             activePcKeys.add(key);
-            this.noteOnAction(visualMidi);
+            this.noteOnAction(asciiMap[key]);
           }
         });
-
         window.addEventListener('keyup', (e) => {
           const key = e.key.toLowerCase();
           if (asciiMap[key] !== undefined) {
             activePcKeys.delete(key);
-            const visualMidi = asciiMap[key];
-            this.noteOffAction(visualMidi);
+            this.noteOffAction(asciiMap[key]);
           }
         });
       }
 
-      /* ── Web MIDI Native API Controller Interfaces Subsystem ── */
       initMidi() {
         const led = document.getElementById('midi-led');
         const text = document.getElementById('midi-text');
@@ -2086,8 +1698,8 @@ nav: sampler
               const inputs = Array.from(midi.inputs.values());
               if (inputs.length > 0) {
                 led.className = 'midi-led connected';
+                text.className = 'midi-text connected';
                 text.textContent = `MIDI: ${inputs[0].name.slice(0, 8).toUpperCase()}`;
-                
                 inputs.forEach(input => {
                   input.onmidimessage = (msg) => this.handleMidiInputMessage(msg);
                 });
@@ -2096,7 +1708,6 @@ nav: sampler
                 text.textContent = 'MIDI READY';
               }
             };
-
             midi.onstatechange = () => scanPorts();
             scanPorts();
           })
@@ -2110,28 +1721,19 @@ nav: sampler
       handleMidiInputMessage(msg) {
         const [status, data1, data2] = msg.data;
         const cmd = status & 0xf0;
-        
-        // Parse execution channels properties data packages
+
         if (cmd === 0x90 && data2 > 0) {
-          // Midi Note On command format validation
           const playedMidi = data1;
-          
-          // Reverse-transpose calculations to map physical key beds visual scopes correctly
           const visualMidi = playedMidi - (this.octaveOffset * 12);
-          
           if (visualMidi >= this.VISUAL_START_MIDI && visualMidi <= this.VISUAL_END_MIDI) {
-            // Flash indicator flash parameters asynchronously
             const led = document.getElementById('midi-led');
             led.classList.add('active');
             setTimeout(() => led.classList.remove('active'), 40);
-            
             this.noteOnAction(visualMidi);
           }
         } else if (cmd === 0x80 || (cmd === 0x90 && data2 === 0)) {
-          // Midi Note Off command format validation
           const playedMidi = data1;
           const visualMidi = playedMidi - (this.octaveOffset * 12);
-          
           if (visualMidi >= this.VISUAL_START_MIDI && visualMidi <= this.VISUAL_END_MIDI) {
             this.noteOffAction(visualMidi);
           }
@@ -2139,11 +1741,10 @@ nav: sampler
       }
     }
 
-    // Instantiation entry post execution point
     window.addEventListener('DOMContentLoaded', () => {
       const samplerApp = new MicroSampler();
       samplerApp.render();
     });
-  </script>
+</script>
 </body>
 </html>
