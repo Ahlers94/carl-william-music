@@ -1,311 +1,1033 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Casio VL-Tone VL-1 Web Clone</title>
-  
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Casio VL-Tone VL-1</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;700&display=swap');
 
-  <style>
-    :root {
-      --vl1-bg: #ece9e4;
-      --vl1-dark-gray: #4a4947;
-      --vl1-lcd-green: #a3b899;
-    }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-    .vl1-wrapper {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      padding: 20px;
-      font-family: Arial, sans-serif;
-    }
+  :root {
+    --chassis: #d8d4cc;
+    --chassis-dark: #b8b4ac;
+    --stripe: #3a3835;
+    --lcd-bg: #8aaa7a;
+    --lcd-text: #1e2e18;
+    --key-white: #f5f3ee;
+    --key-black: #2a2825;
+    --key-border: #aaa89f;
+    --btn-bg: #c8c4bc;
+    --btn-active: #e8e400;
+    --accent: #c8200c;
+    --screw: #888;
+    --label: #3a3835;
+  }
 
-    /* Enclosure dimensions matching standard UI skin ratios */
-    #vl1-chassis {
-      width: 812px;
-      height: 375px;
-      background-color: var(--vl1-bg);
-      border-radius: 8px;
-      box-shadow: 0 12px 35px rgba(0,0,0,0.4), inset 0 2px 3px #fff;
-      position: relative;
-      user-select: none;
-      border: 1px solid #d4d0c8;
-      overflow: hidden;
-    }
+  body {
+    background: #1a1a18;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 20px;
+    font-family: Arial, sans-serif;
+  }
 
-    /* Top Panel Decorative Strip */
-    #vl1-chassis::before {
-      content: "";
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 12px;
-      background: linear-gradient(to bottom, #888, #555);
-    }
+  /* ── CHASSIS ── */
+  #vl1 {
+    width: min(812px, 100%);
+    background: var(--chassis);
+    border-radius: 10px 10px 6px 6px;
+    box-shadow:
+      0 20px 60px rgba(0,0,0,.7),
+      inset 0 1px 0 #f0ede6,
+      inset 0 -2px 0 #a09c94;
+    position: relative;
+    user-select: none;
+    -webkit-user-select: none;
+    touch-action: none;
+  }
 
-    /* Original Branding Typography */
-    .branding {
-      position: absolute;
-      top: 25px;
-      left: 35px;
-      font-style: italic;
-      font-weight: bold;
-      color: #1a1a1a;
-      font-size: 18px;
-      letter-spacing: 1px;
-    }
-    .branding span {
-      font-size: 12px;
-      font-style: normal;
-      font-weight: normal;
-      margin-left: 5px;
-      background: #c00;
-      color: #fff;
-      padding: 1px 4px;
-      border-radius: 2px;
-    }
+  /* top stripe */
+  .top-stripe {
+    height: 14px;
+    background: linear-gradient(180deg, #444 0%, #222 100%);
+    border-radius: 10px 10px 0 0;
+  }
 
-    /* Vintage Liquid Crystal Display */
-    .lcd-screen {
-      position: absolute;
-      top: 25px;
-      right: 35px;
-      width: 140px;
-      height: 40px;
-      background-color: var(--vl1-lcd-green);
-      border: 3px solid #333;
-      box-shadow: inset 0 2px 5px rgba(0,0,0,0.3);
-      font-family: 'Courier New', monospace;
-      font-weight: bold;
-      font-size: 20px;
-      color: #2b3326;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      letter-spacing: 2px;
-    }
+  /* ── PANEL ── */
+  .panel {
+    padding: 12px 18px 10px;
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    gap: 10px;
+    align-items: start;
+  }
 
-    /* Real 5-Way Mode Switch Rails */
-    .slider-deck {
-      position: absolute;
-      top: 90px;
-      left: 35px;
-      background: #d8d4cd;
-      padding: 10px 15px;
-      border-radius: 4px;
-      border: 1px solid #bcba16;
-      box-shadow: inset 0 1px 3px rgba(0,0,0,0.15);
-    }
+  /* Branding */
+  .branding {
+    display: flex;
+    flex-direction: column;
+    line-height: 1;
+  }
+  .brand-casio {
+    font-family: 'Orbitron', sans-serif;
+    font-size: clamp(13px, 2.2vw, 20px);
+    font-weight: 700;
+    letter-spacing: 3px;
+    color: #1a1a18;
+  }
+  .brand-vltone {
+    font-size: clamp(8px, 1.2vw, 11px);
+    letter-spacing: 2px;
+    color: #555;
+    margin-top: 2px;
+  }
+  .brand-badge {
+    display: inline-block;
+    background: var(--accent);
+    color: #fff;
+    font-size: clamp(7px, 1vw, 9px);
+    font-weight: bold;
+    letter-spacing: 1px;
+    padding: 1px 5px;
+    border-radius: 2px;
+    margin-top: 4px;
+    width: fit-content;
+  }
 
-    .slider-deck label {
-      display: block;
-      font-size: 9px;
-      font-weight: bold;
-      color: var(--vl1-dark-gray);
-      margin-bottom: 5px;
-      text-align: center;
-      letter-spacing: 0.5px;
-    }
+  /* ── CENTER CONTROLS ── */
+  .center-controls {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
 
-    .voice-slider {
-      -webkit-appearance: none;
-      appearance: none;
-      width: 160px;
-      height: 8px;
-      background: #999;
-      border-radius: 4px;
-      outline: none;
-      box-shadow: inset 0 1px 2px rgba(0,0,0,0.4);
-    }
+  /* control modules */
+  .ctrl-module {
+    background: #c8c4bb;
+    border-radius: 4px;
+    padding: 6px 8px 5px;
+    border: 1px solid #aaa8a0;
+    box-shadow: inset 0 1px 0 #ddd9d0, 0 1px 2px rgba(0,0,0,.2);
+  }
+  .ctrl-module label {
+    display: block;
+    font-size: 8px;
+    font-weight: bold;
+    letter-spacing: 0.8px;
+    color: var(--label);
+    text-align: center;
+    margin-bottom: 5px;
+    text-transform: uppercase;
+  }
 
-    /* The iconic calculator-style slider cap */
-    .voice-slider::-webkit-slider-thumb {
-      -webkit-appearance: none;
-      appearance: none;
-      width: 24px;
-      height: 18px;
-      background: #fafafa;
-      border: 2px solid #444;
-      border-radius: 3px;
-      cursor: pointer;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.3);
-    }
+  /* voice selector */
+  .voice-grid {
+    display: flex;
+    gap: 4px;
+  }
+  .voice-btn {
+    cursor: pointer;
+    background: var(--btn-bg);
+    border: 1px solid #999;
+    border-radius: 3px;
+    padding: 4px 0;
+    width: clamp(42px, 8vw, 58px);
+    font-size: clamp(7px, 1.1vw, 9px);
+    font-weight: bold;
+    letter-spacing: 0.5px;
+    color: var(--label);
+    text-align: center;
+    box-shadow: inset 0 1px 0 #ddd, 0 2px 0 #888;
+    transition: background .1s, box-shadow .05s, transform .05s;
+    text-transform: uppercase;
+    line-height: 1.2;
+  }
+  .voice-btn:active, .voice-btn.active {
+    background: var(--btn-active);
+    color: #222;
+    box-shadow: inset 0 1px 3px rgba(0,0,0,.3), 0 0px 0 #888;
+    transform: translateY(1px);
+  }
+  .voice-btn .v-icon { font-size: 11px; display: block; }
 
-    .voice-slider::-moz-range-thumb {
-      width: 24px;
-      height: 18px;
-      background: #fafafa;
-      border: 2px solid #444;
-      border-radius: 3px;
-      cursor: pointer;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.3);
-    }
+  /* sample selector under each voice */
+  .sample-select {
+    width: 100%;
+    font-size: 7px;
+    background: #1a1a18;
+    color: #8aaa7a;
+    border: 1px solid #555;
+    border-radius: 2px;
+    padding: 1px 2px;
+    margin-top: 3px;
+    font-family: 'Share Tech Mono', monospace;
+    cursor: pointer;
+    appearance: none;
+    -webkit-appearance: none;
+    text-align: center;
+  }
 
-    /* Physical 29-Key Mechanical Matrix Layout */
-    .keyboard-matrix {
-      position: absolute;
-      bottom: 0;
-      left: 0;
-      width: 100%;
-      height: 190px;
-      background: #dad6cf;
-      box-shadow: inset 0 4px 6px rgba(0,0,0,0.15);
-      display: flex;
-      padding-left: 14px;
-      box-sizing: border-box;
-    }
+  /* Sliders */
+  .slider-row {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+  }
 
-    .v-key {
-      position: relative;
-      width: 26px;
-      height: 175px;
-      background: #faf9f5;
-      border: 1px solid #b8b5ae;
-      border-radius: 0 0 4px 4px;
-      cursor: pointer;
-      margin-right: 1px;
-      box-shadow: inset 0 -4px 0 #d1cdc6, 0 2px 3px rgba(0,0,0,0.1);
-      z-index: 1;
-    }
+  input[type=range].vl-slider {
+    -webkit-appearance: none;
+    appearance: none;
+    writing-mode: vertical-lr;
+    direction: rtl;
+    width: 14px;
+    height: 60px;
+    background: #888;
+    border-radius: 3px;
+    outline: none;
+    box-shadow: inset 0 1px 3px rgba(0,0,0,.4);
+    cursor: pointer;
+  }
+  input[type=range].vl-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 20px;
+    height: 14px;
+    background: #f0ede6;
+    border: 2px solid #444;
+    border-radius: 2px;
+    cursor: pointer;
+    box-shadow: 0 2px 4px rgba(0,0,0,.3);
+  }
+  input[type=range].vl-slider::-moz-range-thumb {
+    width: 20px;
+    height: 14px;
+    background: #f0ede6;
+    border: 2px solid #444;
+    border-radius: 2px;
+    cursor: pointer;
+    box-shadow: 0 2px 4px rgba(0,0,0,.3);
+  }
 
-    .v-key.sharp {
-      position: absolute;
-      width: 16px;
-      height: 110px;
-      background: var(--vl1-dark-gray);
-      border: 1px solid #222;
-      box-shadow: inset 0 -3px 0 #111, 0 2px 3px rgba(0,0,0,0.3);
-      z-index: 10;
-      margin-left: -9px;
-    }
+  /* octave switch */
+  .oct-switch {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+  }
+  .oct-btn {
+    cursor: pointer;
+    background: var(--btn-bg);
+    border: 1px solid #999;
+    border-radius: 3px;
+    padding: 3px 8px;
+    font-size: 8px;
+    font-weight: bold;
+    letter-spacing: 0.5px;
+    color: var(--label);
+    text-align: center;
+    box-shadow: inset 0 1px 0 #ddd, 0 2px 0 #888;
+    transition: background .1s, box-shadow .05s, transform .05s;
+    min-width: 36px;
+  }
+  .oct-btn:active, .oct-btn.active {
+    background: var(--btn-active);
+    color: #222;
+    box-shadow: inset 0 1px 3px rgba(0,0,0,.3), 0 0px 0 #888;
+    transform: translateY(1px);
+  }
 
-    /* Mechanical key-press simulation */
-    .v-key:active {
-      height: 173px;
-      margin-top: 2px;
-      background: #f0ede6;
-      box-shadow: inset 0 2px 4px rgba(0,0,0,0.15), inset 0 -1px 0 #c8c4bc;
-    }
+  /* ── LCD ── */
+  .lcd-panel {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 5px;
+  }
+  .lcd {
+    background: var(--lcd-bg);
+    border: 2px solid #2a3a22;
+    border-radius: 3px;
+    box-shadow: inset 0 2px 6px rgba(0,0,0,.35), 0 1px 0 #fff2;
+    padding: 4px 10px;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: clamp(14px, 2.5vw, 22px);
+    font-weight: bold;
+    color: var(--lcd-text);
+    letter-spacing: 3px;
+    min-width: 110px;
+    text-align: center;
+    white-space: nowrap;
+  }
+  .octave-indicator {
+    font-size: 8px;
+    font-weight: bold;
+    color: #555;
+    letter-spacing: 1px;
+    text-align: right;
+  }
 
-    .v-key.sharp:active {
-      height: 108px;
-      margin-top: 2px;
-      background: #1a1a1a;
-      box-shadow: inset 0 2px 3px rgba(0,0,0,0.4);
-    }
-  </style>
+  /* screws */
+  .screw {
+    width: 8px; height: 8px;
+    background: radial-gradient(circle at 35% 35%, #bbb, #888);
+    border-radius: 50%;
+    position: absolute;
+  }
+  .screw::after {
+    content: '';
+    position: absolute;
+    top: 50%; left: 50%;
+    width: 70%; height: 1.5px;
+    background: #555;
+    transform: translate(-50%,-50%) rotate(45deg);
+  }
+
+  /* ── KEYBOARD SECTION ── */
+  .keyboard-section {
+    background: #c8c4bc;
+    border-top: 2px solid #aaa9a0;
+    padding: 8px 12px 0;
+  }
+
+  .keyboard-outer {
+    background: #1a1a18;
+    border-radius: 4px 4px 0 0;
+    padding: 8px 6px 0;
+    box-shadow: inset 0 4px 8px rgba(0,0,0,.5);
+    overflow: visible;
+  }
+
+  /* 17 white keys = F3 to B5 + C6 (but VL-1 is F to F, 2.5 octaves = 17 white keys) */
+  /* Keys: F G A B C D E F G A B C D E F G A B (no, we need exactly the VL-1 layout) */
+  /* VL-1 actual: 29 total keys (17 white + 12 black) from F to F (3 octaves - 1 key) */
+  /* Actually F3 to F5 = 2 octaves = 14 white + 10 black, but listed as 17+12 */
+  /* The original 29-key layout: F3 to B5 (17 white) + 12 black = correct */
+
+  .keybed {
+    position: relative;
+    display: flex;
+    height: clamp(110px, 22vw, 165px);
+    width: 100%;
+  }
+
+  /* White keys container */
+  .white-keys {
+    display: flex;
+    width: 100%;
+    height: 100%;
+    gap: 1px;
+  }
+
+  .wkey {
+    flex: 1;
+    background: var(--key-white);
+    border: 1px solid var(--key-border);
+    border-top: none;
+    border-radius: 0 0 4px 4px;
+    cursor: pointer;
+    position: relative;
+    box-shadow: inset 0 -4px 0 #ccc9c0, 0 2px 3px rgba(0,0,0,.15);
+    transition: background .05s;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .wkey.pressed {
+    background: #e8e5de;
+    box-shadow: inset 0 2px 4px rgba(0,0,0,.15), inset 0 -1px 0 #bbb;
+  }
+  .wkey .note-label {
+    position: absolute;
+    bottom: 4px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: clamp(5px, 1vw, 8px);
+    color: #aaa;
+    pointer-events: none;
+  }
+
+  /* Black keys overlay */
+  .black-keys {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 62%;
+    pointer-events: none;
+  }
+
+  .bkey {
+    position: absolute;
+    width: calc(100% / 17 * 0.6);
+    height: 100%;
+    background: var(--key-black);
+    border-radius: 0 0 3px 3px;
+    cursor: pointer;
+    pointer-events: all;
+    box-shadow: inset 0 -3px 0 #111, 0 3px 4px rgba(0,0,0,.5);
+    transition: background .05s;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .bkey.pressed {
+    background: #111;
+    box-shadow: inset 0 2px 3px rgba(0,0,0,.5);
+  }
+
+  /* Pedal/rhythm strip */
+  .bottom-strip {
+    background: var(--stripe);
+    height: 10px;
+    border-radius: 0 0 6px 6px;
+  }
+
+  /* ── CONFIG PANEL (collapsible) ── */
+  .config-panel {
+    background: #1e1e1c;
+    border-radius: 6px;
+    margin-top: 12px;
+    width: min(812px, 100%);
+    overflow: hidden;
+  }
+  .config-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 14px;
+    cursor: pointer;
+    color: #8aaa7a;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 1px;
+  }
+  .config-toggle:hover { background: #252523; }
+  .config-body {
+    display: none;
+    padding: 12px 14px;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 10px;
+  }
+  .config-body.open { display: grid; }
+
+  .cfg-voice {
+    background: #2a2a28;
+    border-radius: 4px;
+    padding: 8px;
+    border: 1px solid #3a3a38;
+  }
+  .cfg-voice-name {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 9px;
+    color: #8aaa7a;
+    letter-spacing: 1px;
+    margin-bottom: 5px;
+    text-transform: uppercase;
+  }
+  .cfg-select {
+    width: 100%;
+    background: #1a1a18;
+    color: #c8c4bc;
+    border: 1px solid #444;
+    border-radius: 3px;
+    padding: 3px 4px;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 8px;
+    cursor: pointer;
+  }
+
+  /* mobile tweaks */
+  @media (max-width: 500px) {
+    .voice-btn { padding: 3px 0; }
+    .panel { grid-template-columns: auto 1fr; }
+    .lcd-panel { display: none; } /* hide lcd on tiny screens, show it inline */
+  }
+</style>
 </head>
 <body>
 
-<div class="vl1-wrapper">
-  <div id="vl1-chassis">
-    
-    <div class="branding">Casio <span>VL-TONE</span></div>
-    
-    <div class="lcd-screen" id="display-matrix">PIANO</div>
+<div id="vl1">
+  <div class="top-stripe"></div>
 
-    <div class="slider-deck">
-      <label>PIANO · FANTASY · VIOLIN · FLUTE · GUITAR</label>
-      <input type="range" id="modeSelector" class="voice-slider" min="0" max="4" value="0" step="1">
+  <!-- screws -->
+  <div class="screw" style="top:20px;left:10px"></div>
+  <div class="screw" style="top:20px;right:10px"></div>
+
+  <div class="panel">
+    <!-- Branding -->
+    <div class="branding">
+      <span class="brand-casio">CASIO</span>
+      <span class="brand-vltone">VL-TONE</span>
+      <span class="brand-badge">VL-1</span>
     </div>
 
-    <div class="keyboard-matrix" id="keybed">
-      <div class="v-key" data-note="F3"></div>
-      <div class="v-key sharp" data-note="F#3" style="left: 32px;"></div>
-      <div class="v-key" data-note="G3" style="margin-left: 17px;"></div>
-      <div class="v-key sharp" data-note="G#3" style="left: 59px;"></div>
-      <div class="v-key" data-note="A3" style="margin-left: 17px;"></div>
-      <div class="v-key sharp" data-note="A#3" style="left: 86px;"></div>
-      <div class="v-key" data-note="B3" style="margin-left: 17px;"></div>
-      
-      <div class="v-key" data-note="C4"></div>
-      <div class="v-key sharp" data-note="C#4" style="left: 140px;"></div>
-      <div class="v-key" data-note="D4" style="margin-left: 17px;"></div>
-      <div class="v-key sharp" data-note="D#4" style="left: 167px;"></div>
-      <div class="v-key" data-note="E4" style="margin-left: 17px;"></div>
-      <div class="v-key" data-note="F4"></div>
-      <div class="v-key sharp" data-note="F#4" style="left: 221px;"></div>
-      <div class="v-key" data-note="G4" style="margin-left: 17px;"></div>
-      <div class="v-key sharp" data-note="G#4" style="left: 248px;"></div>
-      <div class="v-key" data-note="A4" style="margin-left: 17px;"></div>
-      <div class="v-key sharp" data-note="A#4" style="left: 275px;"></div>
-      <div class="v-key" data-note="B4" style="margin-left: 17px;"></div>
+    <!-- Center controls -->
+    <div class="center-controls">
 
-      <div class="v-key" data-note="C5"></div>
-      <div class="v-key sharp" data-note="C#5" style="left: 329px;"></div>
-      <div class="v-key" data-note="D5" style="margin-left: 17px;"></div>
-      <div class="v-key sharp" data-note="D#5" style="left: 356px;"></div>
-      <div class="v-key" data-note="E5" style="margin-left: 17px;"></div>
-      <div class="v-key" data-note="F5"></div>
-      <div class="v-key sharp" data-note="F#5" style="left: 410px;"></div>
-      <div class="v-key" data-note="G5" style="margin-left: 17px;"></div>
-      <div class="v-key sharp" data-note="G#5" style="left: 437px;"></div>
-      <div class="v-key" data-note="A5" style="margin-left: 17px;"></div>
-      <div class="v-key sharp" data-note="A#5" style="left: 464px;"></div>
-      <div class="v-key" data-note="B5" style="margin-left: 17px;"></div>
+      <!-- Voice selector -->
+      <div class="ctrl-module">
+        <label>Voice Select</label>
+        <div class="voice-grid" id="voiceGrid">
+          <div style="display:flex;flex-direction:column;align-items:center;gap:2px">
+            <button class="voice-btn active" data-voice="0"><span class="v-icon">🎹</span>PIANO</button>
+          </div>
+          <div style="display:flex;flex-direction:column;align-items:center;gap:2px">
+            <button class="voice-btn" data-voice="1"><span class="v-icon">✨</span>FANTSAY</button>
+          </div>
+          <div style="display:flex;flex-direction:column;align-items:center;gap:2px">
+            <button class="voice-btn" data-voice="2"><span class="v-icon">🎻</span>VIOLIN</button>
+          </div>
+          <div style="display:flex;flex-direction:column;align-items:center;gap:2px">
+            <button class="voice-btn" data-voice="3"><span class="v-icon">🎵</span>FLUTE</button>
+          </div>
+          <div style="display:flex;flex-direction:column;align-items:center;gap:2px">
+            <button class="voice-btn" data-voice="4"><span class="v-icon">🎸</span>GUITAR</button>
+          </div>
+        </div>
+      </div>
 
-      <div class="v-key" data-note="C6"></div>
+      <!-- Volume slider -->
+      <div class="ctrl-module">
+        <label>Volume</label>
+        <div class="slider-row">
+          <input type="range" class="vl-slider" id="volumeSlider" min="0" max="100" value="80">
+        </div>
+      </div>
+
+      <!-- Octave switch -->
+      <div class="ctrl-module">
+        <label>Octave</label>
+        <div class="oct-switch">
+          <button class="oct-btn" data-oct="-1">LOW</button>
+          <button class="oct-btn active" data-oct="0">MID</button>
+          <button class="oct-btn" data-oct="1">HIGH</button>
+        </div>
+      </div>
+
     </div>
 
+    <!-- LCD + octave indicator -->
+    <div class="lcd-panel">
+      <div class="lcd" id="lcd">PIANO</div>
+      <div class="octave-indicator" id="octLabel">OCT: MID</div>
+    </div>
+  </div>
+
+  <!-- Keyboard -->
+  <div class="keyboard-section">
+    <div class="keyboard-outer">
+      <div class="keybed" id="keybed">
+        <div class="white-keys" id="whiteKeys"></div>
+        <div class="black-keys" id="blackKeys"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="bottom-strip"></div>
+</div>
+
+<!-- Config panel -->
+<div class="config-panel">
+  <div class="config-toggle" id="configToggle">
+    <span>⚙ SAMPLE CONFIGURATION</span>
+    <span id="configArrow">▼</span>
+  </div>
+  <div class="config-body" id="configBody">
+    <!-- populated by JS -->
   </div>
 </div>
 
 <script>
-  // Text tracking arrays for our LCD panel display
-  const voiceNames = ["PIANO", "FANTASY", "VIOLIN", "FLUTE", "GUITAR"];
+// ═══════════════════════════════════════════════════════════════════
+// SAMPLE LIBRARY — all 12 dspreset banks with full lo/hi mapping
+// Each sample: { path, root (MIDI), lo (MIDI), hi (MIDI) }
+// ═══════════════════════════════════════════════════════════════════
+const SAMPLE_BANKS = {
+  'Piano (Acoustic)': [
+    { path: 'Samples/Piano_77_RR1.wav', root: 77, lo: 75, hi: 80 },
+    { path: 'Samples/Piano_84_RR1.wav', root: 84, lo: 81, hi: 86 },
+    { path: 'Samples/Piano_43_RR1.wav', root: 43, lo: 24, hi: 45 },
+    { path: 'Samples/Piano_60_RR1.wav', root: 60, lo: 57, hi: 62 },
+    { path: 'Samples/Piano_53_RR1.wav', root: 53, lo: 51, hi: 56 },
+    { path: 'Samples/Piano_72_RR1.wav', root: 72, lo: 69, hi: 74 },
+    { path: 'Samples/Piano_89_RR1.wav', root: 89, lo: 87, hi: 96 },
+    { path: 'Samples/Piano_65_RR1.wav', root: 65, lo: 63, hi: 68 },
+    { path: 'Samples/Piano_48_RR1.wav', root: 48, lo: 46, hi: 50 },
+  ],
+  'Piano (Wave 0)': [
+    { path: 'Samples/00099000_DI_77.wav', root: 77, lo: 75, hi: 80 },
+    { path: 'Samples/00099000_DI_89.wav', root: 89, lo: 87, hi: 127 },
+    { path: 'Samples/00099000_DI_43.wav', root: 43, lo: 0,  hi: 45 },
+    { path: 'Samples/00099000_DI_48.wav', root: 48, lo: 46, hi: 50 },
+    { path: 'Samples/00099000_DI_53.wav', root: 53, lo: 51, hi: 56 },
+    { path: 'Samples/00099000_DI_84.wav', root: 84, lo: 81, hi: 86 },
+    { path: 'Samples/00099000_DI_72.wav', root: 72, lo: 69, hi: 74 },
+    { path: 'Samples/00099000_DI_65.wav', root: 65, lo: 63, hi: 68 },
+    { path: 'Samples/00099000_DI_60.wav', root: 60, lo: 57, hi: 62 },
+  ],
+  'Fantasy': [
+    { path: 'Samples/Fantasy_60.wav',  root: 60, lo: 58, hi: 62 },
+    { path: 'Samples/Fantasy_55.wav',  root: 55, lo: 36, hi: 57 },
+    { path: 'Samples/Fantasy_96.wav',  root: 96, lo: 90, hi: 96 },
+    { path: 'Samples/Fantasy_77.wav',  root: 77, lo: 75, hi: 80 },
+    { path: 'Samples/Fantasy_89_.wav', root: 89, lo: 81, hi: 89 },
+    { path: 'Samples/Fantasy_72.wav',  root: 72, lo: 69, hi: 74 },
+    { path: 'Samples/Fantasy_65.wav',  root: 65, lo: 63, hi: 68 },
+  ],
+  'Fantasy (Wave 1)': [
+    { path: 'Samples/10099000_DI_55.wav', root: 55, lo: 36, hi: 57 },
+    { path: 'Samples/10099000_DI_65.wav', root: 65, lo: 63, hi: 68 },
+    { path: 'Samples/10099000_DI_89.wav', root: 89, lo: 87, hi: 96 },
+    { path: 'Samples/10099000_DI_84.wav', root: 84, lo: 81, hi: 86 },
+    { path: 'Samples/10099000_DI_72.wav', root: 72, lo: 69, hi: 74 },
+    { path: 'Samples/10099000_DI_77.wav', root: 77, lo: 75, hi: 80 },
+    { path: 'Samples/10099000_DI_60.wav', root: 60, lo: 58, hi: 62 },
+  ],
+  'Violin': [
+    { path: 'Samples/Violin_89.wav', root: 89, lo: 87, hi: 92 },
+    { path: 'Samples/Violin_83.wav', root: 83, lo: 81, hi: 86 },
+    { path: 'Samples/Violin_77.wav', root: 77, lo: 75, hi: 80 },
+    { path: 'Samples/Violin_53.wav', root: 53, lo: 51, hi: 56 },
+    { path: 'Samples/Violin_95.wav', root: 95, lo: 93, hi: 96 },
+    { path: 'Samples/Violin_65.wav', root: 65, lo: 63, hi: 68 },
+    { path: 'Samples/Violin_71.wav', root: 71, lo: 69, hi: 74 },
+    { path: 'Samples/Violin_60.wav', root: 60, lo: 57, hi: 62 },
+    { path: 'Samples/Violin_48.wav', root: 48, lo: 46, hi: 50 },
+    { path: 'Samples/Violin_43.wav', root: 43, lo: 24, hi: 45 },
+  ],
+  'Violin (Wave 2)': [
+    { path: 'Samples/20099000_DI_43.wav', root: 43, lo: 24, hi: 45 },
+    { path: 'Samples/20099000_DI_53.wav', root: 53, lo: 51, hi: 56 },
+    { path: 'Samples/20099000_DI_65.wav', root: 65, lo: 63, hi: 68 },
+    { path: 'Samples/20099000_DI_84.wav', root: 84, lo: 81, hi: 86 },
+    { path: 'Samples/20099000_DI_77.wav', root: 77, lo: 75, hi: 80 },
+    { path: 'Samples/20099000_DI_60.wav', root: 60, lo: 57, hi: 62 },
+    { path: 'Samples/20099000_DI_48.wav', root: 48, lo: 46, hi: 50 },
+    { path: 'Samples/20099000_DI_89.wav', root: 89, lo: 87, hi: 96 },
+    { path: 'Samples/20099000_DI_72.wav', root: 72, lo: 69, hi: 74 },
+  ],
+  'Flute': [
+    { path: 'Samples/30099000_DI_84.wav', root: 84, lo: 81, hi: 86 },
+    { path: 'Samples/30099000_DI_72.wav', root: 72, lo: 69, hi: 74 },
+    { path: 'Samples/30099000_DI_89.wav', root: 89, lo: 87, hi: 96 },
+    { path: 'Samples/30099000_DI_43.wav', root: 43, lo: 24, hi: 45 },
+    { path: 'Samples/30099000_DI_60.wav', root: 60, lo: 57, hi: 62 },
+    { path: 'Samples/30099000_DI_65.wav', root: 65, lo: 63, hi: 68 },
+    { path: 'Samples/30099000_DI_48.wav', root: 48, lo: 46, hi: 50 },
+    { path: 'Samples/30099000_DI_77.wav', root: 77, lo: 75, hi: 80 },
+    { path: 'Samples/30099000_DI_53.wav', root: 53, lo: 51, hi: 56 },
+  ],
+  'Guitar (Acoustic)': [
+    { path: 'Samples/Guitar_36_RR1.wav', root: 36, lo: 34, hi: 38 },
+    { path: 'Samples/Guitar_53_RR1.wav', root: 53, lo: 51, hi: 56 },
+    { path: 'Samples/Guitar_48_RR1.wav', root: 48, lo: 45, hi: 50 },
+    { path: 'Samples/Guitar_60_RR1.wav', root: 60, lo: 57, hi: 62 },
+    { path: 'Samples/Guitar_31_RR1.wav', root: 31, lo: 12, hi: 33 },
+    { path: 'Samples/Guitar_65_RR1.wav', root: 65, lo: 63, hi: 72 },
+    { path: 'Samples/Guitar_41_RR1.wav', root: 41, lo: 39, hi: 44 },
+  ],
+  'Guitar 1 (Wave 4)': [
+    { path: 'Samples/40099000_DI_77.wav', root: 77, lo: 75, hi: 84 },
+    { path: 'Samples/40099000_DI_72.wav', root: 72, lo: 69, hi: 74 },
+    { path: 'Samples/40099000_DI_36.wav', root: 36, lo: 34, hi: 38 },
+    { path: 'Samples/40099000_DI_48.wav', root: 48, lo: 45, hi: 50 },
+    { path: 'Samples/40099000_DI_31.wav', root: 31, lo: 24, hi: 33 },
+    { path: 'Samples/40099000_DI_53.wav', root: 53, lo: 51, hi: 56 },
+    { path: 'Samples/40099000_DI_65.wav', root: 65, lo: 63, hi: 68 },
+    { path: 'Samples/40099000_DI_41.wav', root: 41, lo: 39, hi: 44 },
+    { path: 'Samples/40099000_DI_60.wav', root: 60, lo: 57, hi: 62 },
+  ],
+  'Guitar 2 (Wave 5)': [
+    { path: 'Samples/50099000_DI_53.wav', root: 53, lo: 51, hi: 56 },
+    { path: 'Samples/50099000_DI_31.wav', root: 31, lo: 12, hi: 33 },
+    { path: 'Samples/50099000_DI_36.wav', root: 36, lo: 34, hi: 38 },
+    { path: 'Samples/50099000_DI_65.wav', root: 65, lo: 63, hi: 68 },
+    { path: 'Samples/50099000_DI_48.wav', root: 48, lo: 45, hi: 50 },
+    { path: 'Samples/50099000_DI_77.wav', root: 77, lo: 75, hi: 84 },
+    { path: 'Samples/50099000_DI_41.wav', root: 41, lo: 39, hi: 44 },
+    { path: 'Samples/50099000_DI_72.wav', root: 72, lo: 69, hi: 74 },
+    { path: 'Samples/50099000_DI_60.wav', root: 60, lo: 57, hi: 62 },
+  ],
+  'English Horn (Wave 6)': [
+    { path: 'Samples/60099000_DI_36.wav', root: 36, lo: 34, hi: 38 },
+    { path: 'Samples/60099000_DI_31.wav', root: 31, lo: 12, hi: 33 },
+    { path: 'Samples/60099000_DI_65.wav', root: 65, lo: 63, hi: 68 },
+    { path: 'Samples/60099000_DI_72.wav', root: 72, lo: 69, hi: 74 },
+    { path: 'Samples/60099000_DI_60.wav', root: 60, lo: 57, hi: 62 },
+    { path: 'Samples/60099000_DI_53.wav', root: 53, lo: 51, hi: 56 },
+    { path: 'Samples/60099000_DI_77.wav', root: 77, lo: 75, hi: 84 },
+    { path: 'Samples/60099000_DI_41.wav', root: 41, lo: 39, hi: 44 },
+    { path: 'Samples/60099000_DI_48.wav', root: 48, lo: 45, hi: 50 },
+  ],
+};
 
-  // Exact anchor paths referenced directly from your individual instrument presets
-  const sampleDefinitions = {
-    0: { "G3": "Samples/00099000_DI_43.wav", "C4": "Samples/00099000_DI_60.wav", "C5": "Samples/00099000_DI_72.wav", "C6": "Samples/00099000_DI_84.wav" }, // Waveform 0 Piano
-    1: { "G3": "Samples/Fantasy_55.wav", "C4": "Samples/Fantasy_60.wav", "C5": "Samples/Fantasy_72.wav", "C7": "Samples/Fantasy_96.wav" },                // Fantasy
-    2: { "C4": "Samples/Violin_48.wav", "C5": "Samples/Violin_71.wav", "A5": "Samples/Violin_84.wav" },                                              // Violin
-    3: { "C4": "Samples/30099000_DI_48.wav", "C5": "Samples/30099000_DI_72.wav", "A5": "Samples/30099000_DI_84.wav" },                               // Flute
-    4: { "G2": "Samples/40099000_DI_31.wav", "C4": "Samples/40099000_DI_60.wav", "C5": "Samples/40099000_DI_72.wav" }                                // Guitar
+// ═══════════════════════════════════════════════════════════════════
+// VOICE DEFINITIONS — 5 slots, each can be assigned any bank
+// ═══════════════════════════════════════════════════════════════════
+const VOICE_NAMES = ['PIANO', 'FANTASY', 'VIOLIN', 'FLUTE', 'GUITAR'];
+const LCD_NAMES   = ['PIANO', 'FNTASY', 'VIOLIN', 'FLUTE', 'GUITAR'];
+// Default bank assignment per voice
+const defaultBanks = [
+  'Piano (Acoustic)',
+  'Fantasy',
+  'Violin',
+  'Flute',
+  'Guitar (Acoustic)',
+];
+
+// Which bank is currently assigned to each voice slot
+const voiceBankAssignment = [...defaultBanks];
+
+// ═══════════════════════════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════════════════════════
+let currentVoice = 0;
+let octaveOffset = 0; // -1, 0, +1
+let masterVolume = 0.8;
+let audioStarted = false;
+
+// Sampler cache: key = bankName
+const samplerCache = {};
+// Track which notes are active per sampler
+const activeNotes = {}; // midi -> { sampler, toneNote }
+
+// ═══════════════════════════════════════════════════════════════════
+// MIDI / TONE UTILITIES
+// ═══════════════════════════════════════════════════════════════════
+const MIDI_NOTE_NAMES = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
+
+function midiToTone(midi) {
+  const oct = Math.floor(midi / 12) - 1;
+  const name = MIDI_NOTE_NAMES[midi % 12];
+  return name + oct;
+}
+
+// Find best sample from bank for a given MIDI note (with lo/hi range lookup)
+function findSample(bank, midi) {
+  const samples = SAMPLE_BANKS[bank];
+  // First: exact range match
+  let match = samples.find(s => midi >= s.lo && midi <= s.hi);
+  if (match) return match;
+  // Fallback: nearest root
+  let best = samples[0];
+  let bestDist = Math.abs(samples[0].root - midi);
+  for (const s of samples) {
+    const d = Math.abs(s.root - midi);
+    if (d < bestDist) { bestDist = d; best = s; }
+  }
+  return best;
+}
+
+// Build a Tone.js Sampler URL map from a bank
+function buildSamplerUrls(bank) {
+  const samples = SAMPLE_BANKS[bank];
+  const urls = {};
+  for (const s of samples) {
+    urls[midiToTone(s.root)] = s.path;
+  }
+  return urls;
+}
+
+// Get or create a Tone.Sampler for a bank
+function getSampler(bankName) {
+  if (samplerCache[bankName]) return samplerCache[bankName];
+  const urls = buildSamplerUrls(bankName);
+  const vol = new Tone.Volume(Tone.gainToDb(masterVolume)).toDestination();
+  const sampler = new Tone.Sampler({
+    urls,
+    baseUrl: './',
+    release: 0.5,
+  }).connect(vol);
+  samplerCache[bankName] = { sampler, vol };
+  return samplerCache[bankName];
+}
+
+// Update all sampler volumes
+function setMasterVolume(v) {
+  masterVolume = v;
+  const db = Tone.gainToDb(Math.max(0.001, v));
+  for (const key of Object.keys(samplerCache)) {
+    samplerCache[key].vol.volume.value = db;
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// KEYBOARD LAYOUT
+// VL-1: 29 keys total. White: F G A B C D E × 2 + F G A B = 17
+// Black: F# G# A# | C# D# | F# G# A# | C# D# = 12
+// Starting at F3 (MIDI 53), middle octave, with octave shift
+// ═══════════════════════════════════════════════════════════════════
+
+// White key note offsets from F (semitones): F=0 G=2 A=4 B=5 C=7 D=9 E=11
+const WHITE_OFFSETS = [0, 2, 4, 5, 7, 9, 11]; // F G A B C D E
+// Note labels for white keys
+const WHITE_LABELS  = ['F','G','A','B','C','D','E'];
+
+// Build 17 white keys starting at F3 (MIDI 53)
+// F3 G3 A3 B3 C4 D4 E4 | F4 G4 A4 B4 C5 D5 E5 | F5 G5 A5 (B5 for 17th is actually skipped on VL-1)
+// Actually VL-1 is F3 to F5 = 25 keys? No — let's go with standard 29-key layout:
+// 17 white keys: F3..B3 (4 white), C4..B4 (7 white), C5..B5 (7 white) — that's 18. 
+// The real VL-1 has 29 keys total from F to F spanning ~2.5 octaves
+// White count: F G A B  C D E F  G A B C  D E F G  A = 17 keys
+// That's F3,G3,A3,B3, C4,D4,E4,F4, G4,A4,B4,C5, D5,E5,F5,G5, A5 = 17 white keys
+
+const WHITE_KEY_NOTES = [
+  // F3 group
+  { midi: 53, label: 'F3' },
+  { midi: 55, label: 'G3' },
+  { midi: 57, label: 'A3' },
+  { midi: 59, label: 'B3' },
+  // C4 group
+  { midi: 60, label: 'C4' },
+  { midi: 62, label: 'D4' },
+  { midi: 64, label: 'E4' },
+  { midi: 65, label: 'F4' },
+  { midi: 67, label: 'G4' },
+  { midi: 69, label: 'A4' },
+  { midi: 71, label: 'B4' },
+  // C5 group
+  { midi: 72, label: 'C5' },
+  { midi: 74, label: 'D5' },
+  { midi: 76, label: 'E5' },
+  { midi: 77, label: 'F5' },
+  { midi: 79, label: 'G5' },
+  { midi: 81, label: 'A5' },
+];
+
+// Black keys: position as fraction of white key index, MIDI note
+// Between white key index i and i+1 if the interval is 2 semitones
+const BLACK_KEY_DEFS = [];
+for (let i = 0; i < WHITE_KEY_NOTES.length - 1; i++) {
+  const curr = WHITE_KEY_NOTES[i].midi;
+  const next = WHITE_KEY_NOTES[i + 1].midi;
+  if (next - curr === 2) {
+    BLACK_KEY_DEFS.push({ midi: curr + 1, wIdx: i + 0.5, label: midiToTone(curr + 1) });
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// BUILD KEYBOARD DOM
+// ═══════════════════════════════════════════════════════════════════
+const whiteKeysEl = document.getElementById('whiteKeys');
+const blackKeysEl = document.getElementById('blackKeys');
+
+WHITE_KEY_NOTES.forEach((n, i) => {
+  const div = document.createElement('div');
+  div.className = 'wkey';
+  div.dataset.midi = n.midi;
+  div.dataset.idx = i;
+  const lbl = document.createElement('span');
+  lbl.className = 'note-label';
+  lbl.textContent = n.label;
+  div.appendChild(lbl);
+  whiteKeysEl.appendChild(div);
+});
+
+// Black keys need percentage positions
+const N_WHITE = WHITE_KEY_NOTES.length; // 17
+BLACK_KEY_DEFS.forEach(b => {
+  const div = document.createElement('div');
+  div.className = 'bkey';
+  div.dataset.midi = b.midi;
+  // Position: center on the gap between white keys
+  // Each white key = 100/17 % wide. Black key center at wIdx * (100/17) + (100/17)/2
+  const leftPct = (b.wIdx / N_WHITE) * 100;
+  const bkeyWidthPct = 60 / N_WHITE;
+  div.style.left = `calc(${leftPct}% - ${bkeyWidthPct / 2}%)`;
+  div.style.width = `${bkeyWidthPct}%`;
+  blackKeysEl.appendChild(div);
+});
+
+// ═══════════════════════════════════════════════════════════════════
+// AUDIO ENGINE
+// ═══════════════════════════════════════════════════════════════════
+async function startAudio() {
+  if (!audioStarted) {
+    await Tone.start();
+    audioStarted = true;
+  }
+}
+
+function getCurrentBank() {
+  return voiceBankAssignment[currentVoice];
+}
+
+function noteOn(rawMidi) {
+  const midi = rawMidi + octaveOffset * 12;
+  const bank = getCurrentBank();
+  const { sampler } = getSampler(bank);
+  const toneNote = midiToTone(midi);
+  // Stop if already playing
+  if (activeNotes[rawMidi]) {
+    try { activeNotes[rawMidi].sampler.triggerRelease(activeNotes[rawMidi].toneNote, Tone.now()); } catch(e) {}
+  }
+  sampler.triggerAttack(toneNote, Tone.now());
+  activeNotes[rawMidi] = { sampler, toneNote };
+}
+
+function noteOff(rawMidi) {
+  if (activeNotes[rawMidi]) {
+    try {
+      activeNotes[rawMidi].sampler.triggerRelease(activeNotes[rawMidi].toneNote, Tone.now() + 0.05);
+    } catch(e) {}
+    delete activeNotes[rawMidi];
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// KEY EVENTS (mouse + touch)
+// ═══════════════════════════════════════════════════════════════════
+function attachKeyEvents(el) {
+  const midi = parseInt(el.dataset.midi);
+
+  const onStart = async (e) => {
+    e.preventDefault();
+    await startAudio();
+    el.classList.add('pressed');
+    noteOn(midi);
+  };
+  const onEnd = (e) => {
+    e.preventDefault();
+    el.classList.remove('pressed');
+    noteOff(midi);
   };
 
-  const polySustainEngines = {};
-  let currentlySelectedVoice = 0;
+  el.addEventListener('mousedown', onStart);
+  el.addEventListener('mouseup', onEnd);
+  el.addEventListener('mouseleave', onEnd);
+  el.addEventListener('touchstart', onStart, { passive: false });
+  el.addEventListener('touchend', onEnd, { passive: false });
+  el.addEventListener('touchcancel', onEnd, { passive: false });
+}
 
-  // Initialize and build the standard low-latency playback maps
-  Object.keys(sampleDefinitions).forEach(voiceId => {
-    polySustainEngines[voiceId] = new Tone.Sampler({
-      urls: sampleDefinitions[voiceId],
-      release: 0.4,
-      baseUrl: "./"
-    }).toDestination();
+document.querySelectorAll('.wkey, .bkey').forEach(attachKeyEvents);
+
+// ═══════════════════════════════════════════════════════════════════
+// VOICE BUTTONS
+// ═══════════════════════════════════════════════════════════════════
+document.querySelectorAll('.voice-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.voice-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    currentVoice = parseInt(btn.dataset.voice);
+    document.getElementById('lcd').textContent = LCD_NAMES[currentVoice];
+    // Pre-warm sampler
+    getSampler(voiceBankAssignment[currentVoice]);
+  });
+});
+
+// ═══════════════════════════════════════════════════════════════════
+// OCTAVE SWITCH
+// ═══════════════════════════════════════════════════════════════════
+const octLabels = { '-1': 'LOW', '0': 'MID', '1': 'HIGH' };
+document.querySelectorAll('.oct-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    // Release all active notes before shifting
+    Object.keys(activeNotes).forEach(m => noteOff(parseInt(m)));
+    document.querySelectorAll('.oct-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    octaveOffset = parseInt(btn.dataset.oct);
+    document.getElementById('octLabel').textContent = 'OCT: ' + octLabels[btn.dataset.oct];
+  });
+});
+
+// ═══════════════════════════════════════════════════════════════════
+// VOLUME SLIDER
+// ═══════════════════════════════════════════════════════════════════
+document.getElementById('volumeSlider').addEventListener('input', e => {
+  setMasterVolume(e.target.value / 100);
+});
+
+// ═══════════════════════════════════════════════════════════════════
+// CONFIG PANEL — sample assignment per voice
+// ═══════════════════════════════════════════════════════════════════
+const configBody = document.getElementById('configBody');
+const bankNames = Object.keys(SAMPLE_BANKS);
+
+VOICE_NAMES.forEach((name, idx) => {
+  const div = document.createElement('div');
+  div.className = 'cfg-voice';
+
+  const label = document.createElement('div');
+  label.className = 'cfg-voice-name';
+  label.textContent = name;
+
+  const sel = document.createElement('select');
+  sel.className = 'cfg-select';
+  sel.id = `cfg-sel-${idx}`;
+
+  bankNames.forEach(bn => {
+    const opt = document.createElement('option');
+    opt.value = bn;
+    opt.textContent = bn;
+    if (bn === defaultBanks[idx]) opt.selected = true;
+    sel.appendChild(opt);
   });
 
-  const display = document.getElementById('display-matrix');
-  const modeSelector = document.getElementById('modeSelector');
-
-  // Mechanical Voice Slider Logic
-  modeSelector.addEventListener('input', (e) => {
-    currentlySelectedVoice = parseInt(e.target.value);
-    display.innerText = voiceNames[currentlySelectedVoice];
+  sel.addEventListener('change', () => {
+    voiceBankAssignment[idx] = sel.value;
+    // Pre-warm the new sampler
+    getSampler(sel.value);
   });
 
-  // Event Router Matrix for Multi-touch Mouse Navigation
-  document.querySelectorAll('.v-key').forEach(key => {
-    key.addEventListener('mousedown', async (e) => {
-      e.preventDefault();
-      await Tone.start(); // Unblocks modern browser audio sandboxing context smoothly
-      const note = key.getAttribute('data-note');
-      polySustainEngines[currentlySelectedVoice].triggerAttack(note);
-    });
+  div.appendChild(label);
+  div.appendChild(sel);
+  configBody.appendChild(div);
+});
 
-    const stopTrigger = (e) => {
-      e.preventDefault();
-      const note = key.getAttribute('data-note');
-      polySustainEngines[currentlySelectedVoice].triggerRelease(note);
-    };
+document.getElementById('configToggle').addEventListener('click', () => {
+  const body = document.getElementById('configBody');
+  const arrow = document.getElementById('configArrow');
+  body.classList.toggle('open');
+  arrow.textContent = body.classList.contains('open') ? '▲' : '▼';
+});
 
-    key.addEventListener('mouseup', stopTrigger);
-    key.addEventListener('mouseleave', stopTrigger);
-  });
+// ═══════════════════════════════════════════════════════════════════
+// KEYBOARD SHORTCUTS (for desktop testing)
+// ═══════════════════════════════════════════════════════════════════
+const KEY_MAP = {
+  'a': 53, 'w': 54, 's': 55, 'e': 56, 'd': 57, 'f': 59,
+  't': 60, 'g': 60, 'y': 61, 'h': 62, 'u': 63, 'j': 64,
+  'k': 65, 'o': 66, 'l': 67, 'p': 68,
+};
+// Simple chromatic map: a=F3, s=G3, d=A3, f=B3, g=C4, h=D4, j=E4, k=F4, l=G4 etc.
+const QWERTY_MAP = {
+  'z': 53, 'x': 55, 'c': 57, 'v': 59, 'b': 60, 'n': 62,
+  'm': 64, ',': 65, '.': 67, '/': 69,
+  'a': 54, 's': 56, 'd': 58, 'f': 61, 'g': 63, 'h': 66, 'j': 68,
+};
+const heldKeys = new Set();
+
+document.addEventListener('keydown', async e => {
+  if (e.repeat) return;
+  const midi = QWERTY_MAP[e.key.toLowerCase()];
+  if (midi == null) return;
+  if (heldKeys.has(e.key)) return;
+  heldKeys.add(e.key);
+  await startAudio();
+  // Highlight key
+  const keyEl = document.querySelector(`[data-midi="${midi}"]`);
+  if (keyEl) keyEl.classList.add('pressed');
+  noteOn(midi);
+});
+
+document.addEventListener('keyup', e => {
+  const midi = QWERTY_MAP[e.key.toLowerCase()];
+  if (midi == null) return;
+  heldKeys.delete(e.key);
+  const keyEl = document.querySelector(`[data-midi="${midi}"]`);
+  if (keyEl) keyEl.classList.remove('pressed');
+  noteOff(midi);
+});
+
+// Pre-warm default voice
+window.addEventListener('load', () => {
+  // Don't start audio yet (browser policy), but we can pre-build the sampler structure
+});
 </script>
-
 </body>
 </html>
