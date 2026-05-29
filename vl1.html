@@ -1002,6 +1002,9 @@ window.addEventListener('load', () => {
   // ═══════════════════════════════════════════════════════════════════
 // WEB MIDI API SUPPORT
 // ═══════════════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════════
+// WEB MIDI API SUPPORT (Streamlined)
+// ═══════════════════════════════════════════════════════════════════
 if (navigator.requestMIDIAccess) {
   navigator.requestMIDIAccess().then(onMIDISuccess, onMIDIFailure);
 } else {
@@ -1009,10 +1012,9 @@ if (navigator.requestMIDIAccess) {
 }
 
 function onMIDISuccess(midiAccess) {
-  // Attach listener to all currently connected MIDI devices
-  const inputs = midiAccess.inputs.values();
-  for (let input = inputs.next(); input && !input.done; input = inputs.next()) {
-    input.value.onmidimessage = handleMIDIMessage;
+  // Modern, foolproof loop to bind all currently connected devices
+  for (let input of midiAccess.inputs.values()) {
+    input.onmidimessage = handleMIDIMessage;
   }
   
   // Listen for devices plugged in after the page loads
@@ -1024,18 +1026,16 @@ function onMIDISuccess(midiAccess) {
 }
 
 function onMIDIFailure() {
-  console.error('Could not access your MIDI devices.');
+  console.error('Could not access your MIDI devices. Ensure you are running on localhost or HTTPS.');
 }
 
 function handleMIDIMessage(message) {
   const [command, note, velocity] = message.data;
 
-  // Mask off the lower 4 bits (the channel) to get just the message type.
-  // 0x90 (144 in decimal) is the base command for Note On across all channels.
-  // 0x80 (128 in decimal) is the base command for Note Off.
+  // Mask off the lower 4 bits (the channel) to get just the message type
   const messageType = command & 0xF0;
 
-  // Note On
+  // Note On (144 = 0x90)
   if (messageType === 144 && velocity > 0) {
     startAudio(); 
     noteOn(note);
@@ -1044,7 +1044,7 @@ function handleMIDIMessage(message) {
     if (keyEl) keyEl.classList.add('pressed');
   }
   
-  // Note Off (or Note On with 0 velocity)
+  // Note Off (128 = 0x80) or Note On with 0 velocity
   if (messageType === 128 || (messageType === 144 && velocity === 0)) {
     noteOff(note);
     
