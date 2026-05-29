@@ -247,6 +247,50 @@ header {
   color: #ff9933;
   background: #ffffff08;
 }
+/* ── INSTRUMENTS DROPDOWN ───────────────────────────────────── */
+
+/* Highlight the Instruments tab while open or on an instrument page */
+#site-nav li.instruments-dropdown.open > a,
+#site-nav li.instruments-dropdown[aria-current="page"] > a {
+  color: var(--cyan);
+}
+
+/* The floating menu panel for Instruments */
+.instruments-dropdown-menu {
+  background: #10101e;
+  border: 1px solid rgba(0, 245, 255, 0.3);
+  border-top: 2px solid var(--cyan);
+  z-index: 99999;
+  min-width: 200px;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.6);
+  pointer-events: auto;
+}
+
+/* Links inside the Instruments panel */
+.instruments-dropdown-menu a {
+  display: block;
+  padding: 10px 20px;
+  font-family: 'Space Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: #9988aa;
+  text-decoration: none;
+  border-bottom: 1px solid #ffffff0d;
+  transition: color 0.2s, background 0.2s;
+  white-space: nowrap;
+}
+
+.instruments-dropdown-menu a:last-child {
+  border-bottom: none;
+}
+
+.instruments-dropdown-menu a:hover,
+.instruments-dropdown-menu a.active {
+  color: var(--cyan);
+  background: #ffffff08;
+  text-shadow: 0 0 8px rgba(0, 245, 255, 0.6);
+}
 /* ── PAGE LAYOUT SYSTEMS ─────────────────────────────────────── */
 .page {
   display: grid;
