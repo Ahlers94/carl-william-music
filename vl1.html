@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Casio VL-Tone VL-1 Web Clone</title>
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
+
+  <style>
+    :root {
+      --vl1-bg: #ece9e4;
+      --vl1-dark-gray: #4a4947;
+      --vl1-lcd-green: #a3b899;
+    }
+
+    .vl1-wrapper {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+      font-family: Arial, sans-serif;
+    }
+
+    /* Enclosure dimensions matching standard UI skin ratios */
+    #vl1-chassis {
+      width: 812px;
+      height: 375px;
+      background-color: var(--vl1-bg);
+      border-radius: 8px;
+      box-shadow: 0 12px 35px rgba(0,0,0,0.4), inset 0 2px 3px #fff;
+      position: relative;
+      user-select: none;
+      border: 1px solid #d4d0c8;
+      overflow: hidden;
+    }
+
+    /* Top Panel Decorative Strip */
+    #vl1-chassis::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 12px;
+      background: linear-gradient(to bottom, #888, #555);
+    }
+
+    /* Original Branding Typography */
+    .branding {
+      position: absolute;
+      top: 25px;
+      left: 35px;
+      font-style: italic;
+      font-weight: bold;
+      color: #1a1a1a;
+      font-size: 18px;
+      letter-spacing: 1px;
+    }
+    .branding span {
+      font-size: 12px;
+      font-style: normal;
+      font-weight: normal;
+      margin-left: 5px;
+      background: #c00;
+      color: #fff;
+      padding: 1px 4px;
+      border-radius: 2px;
+    }
+
+    /* Vintage Liquid Crystal Display */
+    .lcd-screen {
+      position: absolute;
+      top: 25px;
+      right: 35px;
+      width: 140px;
+      height: 40px;
+      background-color: var(--vl1-lcd-green);
+      border: 3px solid #333;
+      box-shadow: inset 0 2px 5px rgba(0,0,0,0.3);
+      font-family: 'Courier New', monospace;
+      font-weight: bold;
+      font-size: 20px;
+      color: #2b3326;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      letter-spacing: 2px;
+    }
+
+    /* Real 5-Way Mode Switch Rails */
+    .slider-deck {
+      position: absolute;
+      top: 90px;
+      left: 35px;
+      background: #d8d4cd;
+      padding: 10px 15px;
+      border-radius: 4px;
+      border: 1px solid #bcba16;
+      box-shadow: inset 0 1px 3px rgba(0,0,0,0.15);
+    }
+
+    .slider-deck label {
+      display: block;
+      font-size: 9px;
+      font-weight: bold;
+      color: var(--vl1-dark-gray);
+      margin-bottom: 5px;
+      text-align: center;
+      letter-spacing: 0.5px;
+    }
+
+    .voice-slider {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 160px;
+      height: 8px;
+      background: #999;
+      border-radius: 4px;
+      outline: none;
+      box-shadow: inset 0 1px 2px rgba(0,0,0,0.4);
+    }
+
+    /* The iconic calculator-style slider cap */
+    .voice-slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 24px;
+      height: 18px;
+      background: #fafafa;
+      border: 2px solid #444;
+      border-radius: 3px;
+      cursor: pointer;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+    }
+
+    .voice-slider::-moz-range-thumb {
+      width: 24px;
+      height: 18px;
+      background: #fafafa;
+      border: 2px solid #444;
+      border-radius: 3px;
+      cursor: pointer;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+    }
+
+    /* Physical 29-Key Mechanical Matrix Layout */
+    .keyboard-matrix {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 190px;
+      background: #dad6cf;
+      box-shadow: inset 0 4px 6px rgba(0,0,0,0.15);
+      display: flex;
+      padding-left: 14px;
+      box-sizing: border-box;
+    }
+
+    .v-key {
+      position: relative;
+      width: 26px;
+      height: 175px;
+      background: #faf9f5;
+      border: 1px solid #b8b5ae;
+      border-radius: 0 0 4px 4px;
+      cursor: pointer;
+      margin-right: 1px;
+      box-shadow: inset 0 -4px 0 #d1cdc6, 0 2px 3px rgba(0,0,0,0.1);
+      z-index: 1;
+    }
+
+    .v-key.sharp {
+      position: absolute;
+      width: 16px;
+      height: 110px;
+      background: var(--vl1-dark-gray);
+      border: 1px solid #222;
+      box-shadow: inset 0 -3px 0 #111, 0 2px 3px rgba(0,0,0,0.3);
+      z-index: 10;
+      margin-left: -9px;
+    }
+
+    /* Mechanical key-press simulation */
+    .v-key:active {
+      height: 173px;
+      margin-top: 2px;
+      background: #f0ede6;
+      box-shadow: inset 0 2px 4px rgba(0,0,0,0.15), inset 0 -1px 0 #c8c4bc;
+    }
+
+    .v-key.sharp:active {
+      height: 108px;
+      margin-top: 2px;
+      background: #1a1a1a;
+      box-shadow: inset 0 2px 3px rgba(0,0,0,0.4);
+    }
+  </style>
+</head>
+<body>
+
+<div class="vl1-wrapper">
+  <div id="vl1-chassis">
+    
+    <div class="branding">Casio <span>VL-TONE</span></div>
+    
+    <div class="lcd-screen" id="display-matrix">PIANO</div>
+
+    <div class="slider-deck">
+      <label>PIANO · FANTASY · VIOLIN · FLUTE · GUITAR</label>
+      <input type="range" id="modeSelector" class="voice-slider" min="0" max="4" value="0" step="1">
+    </div>
+
+    <div class="keyboard-matrix" id="keybed">
+      <div class="v-key" data-note="F3"></div>
+      <div class="v-key sharp" data-note="F#3" style="left: 32px;"></div>
+      <div class="v-key" data-note="G3" style="margin-left: 17px;"></div>
+      <div class="v-key sharp" data-note="G#3" style="left: 59px;"></div>
+      <div class="v-key" data-note="A3" style="margin-left: 17px;"></div>
+      <div class="v-key sharp" data-note="A#3" style="left: 86px;"></div>
+      <div class="v-key" data-note="B3" style="margin-left: 17px;"></div>
+      
+      <div class="v-key" data-note="C4"></div>
+      <div class="v-key sharp" data-note="C#4" style="left: 140px;"></div>
+      <div class="v-key" data-note="D4" style="margin-left: 17px;"></div>
+      <div class="v-key sharp" data-note="D#4" style="left: 167px;"></div>
+      <div class="v-key" data-note="E4" style="margin-left: 17px;"></div>
+      <div class="v-key" data-note="F4"></div>
+      <div class="v-key sharp" data-note="F#4" style="left: 221px;"></div>
+      <div class="v-key" data-note="G4" style="margin-left: 17px;"></div>
+      <div class="v-key sharp" data-note="G#4" style="left: 248px;"></div>
+      <div class="v-key" data-note="A4" style="margin-left: 17px;"></div>
+      <div class="v-key sharp" data-note="A#4" style="left: 275px;"></div>
+      <div class="v-key" data-note="B4" style="margin-left: 17px;"></div>
+
+      <div class="v-key" data-note="C5"></div>
+      <div class="v-key sharp" data-note="C#5" style="left: 329px;"></div>
+      <div class="v-key" data-note="D5" style="margin-left: 17px;"></div>
+      <div class="v-key sharp" data-note="D#5" style="left: 356px;"></div>
+      <div class="v-key" data-note="E5" style="margin-left: 17px;"></div>
+      <div class="v-key" data-note="F5"></div>
+      <div class="v-key sharp" data-note="F#5" style="left: 410px;"></div>
+      <div class="v-key" data-note="G5" style="margin-left: 17px;"></div>
+      <div class="v-key sharp" data-note="G#5" style="left: 437px;"></div>
+      <div class="v-key" data-note="A5" style="margin-left: 17px;"></div>
+      <div class="v-key sharp" data-note="A#5" style="left: 464px;"></div>
+      <div class="v-key" data-note="B5" style="margin-left: 17px;"></div>
+
+      <div class="v-key" data-note="C6"></div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  // Text tracking arrays for our LCD panel display
+  const voiceNames = ["PIANO", "FANTASY", "VIOLIN", "FLUTE", "GUITAR"];
+
+  // Exact anchor paths referenced directly from your individual instrument presets
+  const sampleDefinitions = {
+    0: { "G3": "Samples/00099000_DI_43.wav", "C4": "Samples/00099000_DI_60.wav", "C5": "Samples/00099000_DI_72.wav", "C6": "Samples/00099000_DI_84.wav" }, // Waveform 0 Piano
+    1: { "G3": "Samples/Fantasy_55.wav", "C4": "Samples/Fantasy_60.wav", "C5": "Samples/Fantasy_72.wav", "C7": "Samples/Fantasy_96.wav" },                // Fantasy
+    2: { "C4": "Samples/Violin_48.wav", "C5": "Samples/Violin_71.wav", "A5": "Samples/Violin_84.wav" },                                              // Violin
+    3: { "C4": "Samples/30099000_DI_48.wav", "C5": "Samples/30099000_DI_72.wav", "A5": "Samples/30099000_DI_84.wav" },                               // Flute
+    4: { "G2": "Samples/40099000_DI_31.wav", "C4": "Samples/40099000_DI_60.wav", "C5": "Samples/40099000_DI_72.wav" }                                // Guitar
+  };
+
+  const polySustainEngines = {};
+  let currentlySelectedVoice = 0;
+
+  // Initialize and build the standard low-latency playback maps
+  Object.keys(sampleDefinitions).forEach(voiceId => {
+    polySustainEngines[voiceId] = new Tone.Sampler({
+      urls: sampleDefinitions[voiceId],
+      release: 0.4,
+      baseUrl: "./"
+    }).toDestination();
+  });
+
+  const display = document.getElementById('display-matrix');
+  const modeSelector = document.getElementById('modeSelector');
+
+  // Mechanical Voice Slider Logic
+  modeSelector.addEventListener('input', (e) => {
+    currentlySelectedVoice = parseInt(e.target.value);
+    display.innerText = voiceNames[currentlySelectedVoice];
+  });
+
+  // Event Router Matrix for Multi-touch Mouse Navigation
+  document.querySelectorAll('.v-key').forEach(key => {
+    key.addEventListener('mousedown', async (e) => {
+      e.preventDefault();
+      await Tone.start(); // Unblocks modern browser audio sandboxing context smoothly
+      const note = key.getAttribute('data-note');
+      polySustainEngines[currentlySelectedVoice].triggerAttack(note);
+    });
+
+    const stopTrigger = (e) => {
+      e.preventDefault();
+      const note = key.getAttribute('data-note');
+      polySustainEngines[currentlySelectedVoice].triggerRelease(note);
+    };
+
+    key.addEventListener('mouseup', stopTrigger);
+    key.addEventListener('mouseleave', stopTrigger);
+  });
+</script>
+
+</body>
+</html>
