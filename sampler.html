@@ -795,6 +795,11 @@ nav: sampler
     </div>
   </div>
 
+  <div class="eq-container" style="margin-top: 15px; background: #111; padding: 10px; border-radius: 4px;">
+  <div style="font-size: 11px; color: #888; margin-bottom: 5px; font-family: monospace;">PARAMETRIC EQ (4-BAND)</div>
+  <canvas id="eq-graph-canvas" style="width: 100%; height: 120px; background: #050505; cursor: crosshair; display: block; border: 1px solid #222;"></canvas>
+</div>
+
   <!-- CONTROL PANEL -->
   <div class="control-panel">
 
@@ -989,6 +994,15 @@ nav: sampler
         this.delayWetGain = null;
         this.delayDryGain = null;
 
+        // Add this inside your constructor()
+        this.eqBands = [
+          { type: 'lowshelf',  freq: 80,   gain: 0, q: 1,   id: 0, label: 'LOW' },
+          { type: 'peaking',   freq: 400,  gain: 0, q: 1.5, id: 1, label: 'MID 1' },
+          { type: 'peaking',   freq: 2500, gain: 0, q: 1.5, id: 2, label: 'MID 2' },
+          { type: 'highshelf', freq: 8000, gain: 0, q: 1,   id: 3, label: 'HIGH' }
+        ];
+        this.activeEqPoint = null; // Tracks currently dragged point
+
         // Compressor
         this.compressorNode = null;
         this.compEnabled = true;
@@ -1126,6 +1140,183 @@ nav: sampler
           grid.appendChild(pad);
         }
       }
+
+      initEqNodes() {
+  if (!this.audioCtx) return;
+
+  // Create nodes
+  this.eqNodes = this.eqBands.map(band => {
+    const node = this.audioCtx.createBiquadFilter();
+    node.type = band.type;
+    node.frequency.value = band.freq;
+    node.gain.value = band.gain;
+    node.Q.value = band.q;
+    return node;
+  });
+
+  // Connect them in series: Low -> Mid1 -> Mid2 -> High
+  for (let i = 0; i < this.eqNodes.length - 1; i++) {
+    this.eqNodes[i].connect(this.eqNodes[i + 1]);
+  }
+  
+  // NOTE: In your master routing, insert this chain:
+  // e.g., lowpassNode.connect(this.eqNodes[0]);
+  // and: this.eqNodes[3].connect(this.masterGain);
+}
+
+// Call this whenever an EQ point moves to update the actual audio graph
+updateEqDsp() {
+  if (!this.eqNodes) return;
+  const now = this.audioCtx.currentTime;
+  this.eqBands.forEach((band, i) => {
+    this.eqNodes[i].frequency.setTargetAtTime(band.freq, now, 0.01);
+    this.eqNodes[i].gain.setTargetAtTime(band.gain, now, 0.01);
+    this.eqNodes[i].Q.setTargetAtTime(band.q, now, 0.01);
+  });
+}
+
+      initEqCanvas(canvasId) {
+  const canvas = document.getElementById(canvasId);
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  
+  const w = canvas.width = canvas.offsetWidth;
+  const h = canvas.height = canvas.offsetHeight;
+  
+  // Helper functions for coordinate mapping (Logarithmic for Freq, Linear for Gain)
+  const getX = (freq) => {
+    const minLog = Math.log10(20);
+    const maxLog = Math.log10(20000);
+    return ((Math.log10(freq) - minLog) / (maxLog - minLog)) * w;
+  };
+
+  const getFreq = (x) => {
+    const minLog = Math.log10(20);
+    const maxLog = Math.log10(20000);
+    return Math.pow(10, minLog + (x / w) * (maxLog - minLog));
+  };
+
+  const getY = (gain) => {
+    // Maps +/- 15dB to canvas height
+    return h / 2 - (gain / 15) * (h / 2);
+  };
+
+  const getGain = (y) => {
+    return ((h / 2 - y) / (h / 2)) * 15;
+  };
+
+  // --- DRAWING LOOP ---
+  const drawEQ = () => {
+    ctx.clearRect(0, 0, w, h);
+
+    // 1. Draw Grid Lines (Frequencies)
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.05)';
+    ctx.lineWidth = 1;
+    const gridFreqs = [100, 200, 500, 1000, 2000, 5000, 10000];
+    gridFreqs.forEach(f => {
+      const x = getX(f);
+      ctx.beginPath();
+      ctx.moveTo(x, 0);
+      ctx.lineTo(x, h);
+      ctx.stroke();
+    });
+
+    // 2. Draw 0dB Baseline
+    ctx.strokeStyle = 'rgba(0, 245, 255, 0.2)';
+    ctx.beginPath();
+    ctx.moveTo(0, h / 2);
+    ctx.lineTo(w, h / 2);
+    ctx.stroke();
+
+    // 3. Compute and Plot Combined Frequency Response Curve
+    if (this.audioCtx && this.eqNodes) {
+      const sampleLength = w;
+      const frequencyArray = new Float32Array(sampleLength);
+      const magResponseOutput = new Float32Array(sampleLength);
+      const phaseResponseOutput = new Float32Array(sampleLength);
+      const totalMag = new Float32Array(sampleLength).fill(1.0);
+
+      // Populate frequency array logarithmically matching pixel widths
+      for (let i = 0; i < sampleLength; i++) {
+        frequencyArray[i] = getFreq(i);
+      }
+
+      // Multiply magnitudes across all 4 filters
+      this.eqNodes.forEach(node => {
+        node.getFrequencyResponse(frequencyArray, magResponseOutput, phaseResponseOutput);
+        for (let i = 0; i < sampleLength; i++) {
+          totalMag[i] *= magResponseOutput[i];
+        }
+      });
+
+      // Plot the response curve
+      ctx.strokeStyle = '#00f5ff';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      for (let i = 0; i < sampleLength; i++) {
+        const db = 20 * Math.log10(totalMag[i]);
+        const y = getY(db);
+        if (i === 0) ctx.moveTo(i, y);
+        else ctx.lineTo(i, y);
+      }
+      ctx.stroke();
+    }
+
+    // 4. Draw Interactive Control Nodes
+    this.eqBands.forEach(band => {
+      const cx = getX(band.freq);
+      const cy = getY(band.gain);
+
+      ctx.fillStyle = this.activeEqPoint === band.id ? '#fff' : '#00f5ff';
+      ctx.beginPath();
+      ctx.arc(cx, cy, 6, 0, 2 * Math.PI);
+      ctx.fill();
+      
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.4)';
+      ctx.font = '9px monospace';
+      ctx.fillText(band.label, cx - 12, cy - 12);
+    });
+  };
+
+  // --- INTERACTION HANDLING ---
+  canvas.addEventListener('mousedown', (e) => {
+    const rect = canvas.getBoundingClientRect();
+    const mx = e.clientX - rect.left;
+    const my = e.clientY - rect.top;
+
+    // Detect if clicking close to a control point (within 15 pixels radius)
+    this.activeEqPoint = this.eqBands.find(band => {
+      const cx = getX(band.freq);
+      const cy = getY(band.gain);
+      return Math.hypot(mx - cx, my - cy) < 15;
+    })?.id ?? null;
+  });
+
+  window.addEventListener('mousemove', (e) => {
+    if (this.activeEqPoint === null) return;
+    
+    const rect = canvas.getBoundingClientRect();
+    const mx = Math.max(0, Math.min(w, e.clientX - rect.left));
+    const my = Math.max(0, Math.min(h, e.clientY - rect.top));
+
+    const band = this.eqBands[this.activeEqPoint];
+    
+    // Update data structure parameters
+    band.freq = Math.max(20, Math.min(20000, getFreq(mx)));
+    band.gain = Math.max(-15, Math.min(15, getGain(my)));
+
+    // Sync parameters directly to Web Audio Nodes & UI
+    this.updateEqDsp();
+    drawEQ();
+  });
+
+  window.addEventListener('mouseup', () => {
+    this.activeEqPoint = null;
+  });
+
+  // Initial draw execution
+  drawEQ();
+}
 
       renderKeyboardBed() {
         const bed = document.getElementById('keyboard-bed');
@@ -1478,7 +1669,11 @@ attachSliderEngine(sliderId, fillId, valId, unit, callback, isPercent = false) {
         if (!buffer) return;
         document.getElementById('trim-pad-label').textContent = `PAD ${idx + 1}`;
         document.getElementById('trim-panel').classList.add('open');
-        
+        // Inside openTrimEditorPanel(idx)
+        setTimeout(() => {
+          this.initEqNodes(); // Ensure real AudioNodes exist in graph loop
+          this.initEqCanvas('eq-graph-canvas'); // Fire up listener matrix and render graph canvas
+        }, 50);
         // Measure canvas dimensions safely outside drawing optimizations if needed
         this.drawWaveformIntoCanvas('trim-waveform-canvas', buffer);
         this.updateTrimEditorUiMarkers();
