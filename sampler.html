@@ -689,6 +689,34 @@ nav: sampler
     }
     .key.black .key-lbl { font-size: 6.5px; color: #4f4b42; bottom: 4px; }
 
+    /* ── EQ SECTION ────────────────────────────────────── */
+    .eq-container {
+      border: 1px solid var(--border-hi);
+      border-top: none;
+      background: #07070e;
+      padding: 12px 16px;
+    }
+    .eq-header {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 8px;
+    }
+    .eq-title {
+      font-family: 'VT323', monospace; font-size: 18px;
+      letter-spacing: 0.18em; color: var(--gold);
+      text-shadow: 0 0 10px rgba(255,215,0,0.3);
+    }
+    .eq-hint {
+      font-size: 7.5px; letter-spacing: 0.15em; color: var(--dim);
+    }
+    #eq-graph-canvas {
+      width: 100%;
+      height: 120px;
+      background: #050505;
+      cursor: crosshair;
+      display: block;
+      border: 1px solid #222;
+    }
+
     /* ── STATUS BAR ────────────────────────────────────── */
     .status-bar {
       display: flex; align-items: center; justify-content: space-between;
@@ -794,11 +822,6 @@ nav: sampler
       </div>
     </div>
   </div>
-
-  <div class="eq-container" style="margin-top: 15px; background: #111; padding: 10px; border-radius: 4px;">
-  <div style="font-size: 11px; color: #888; margin-bottom: 5px; font-family: monospace;">PARAMETRIC EQ (4-BAND)</div>
-  <canvas id="eq-graph-canvas" style="width: 100%; height: 120px; background: #050505; cursor: crosshair; display: block; border: 1px solid #222;"></canvas>
-</div>
 
   <!-- CONTROL PANEL -->
   <div class="control-panel">
@@ -940,6 +963,15 @@ nav: sampler
       <span class="vol-value" id="vol-value">70%</span>
     </div>
 
+    <!-- EQ — always visible, outside trim panel -->
+    <div class="eq-container">
+      <div class="eq-header">
+        <span class="eq-title">PARAMETRIC EQ</span>
+        <span class="eq-hint">DRAG NODES · HORIZONTAL = FREQ · VERTICAL = GAIN ±15dB</span>
+      </div>
+      <canvas id="eq-graph-canvas"></canvas>
+    </div>
+
     <!-- KEYBOARD -->
     <div class="keyboard-header-row">
       <div class="section-label" style="margin-bottom:0;flex:1;">KEYBOARD — ROOT: A4 <span style="color:var(--pink)">●</span></div>
@@ -980,7 +1012,9 @@ nav: sampler
 <script>
     /* ════════════════════════════════════════════════════════
        MicroSampler — root A4 (MIDI 69)
-       All audio logic preserved exactly from original.
+       EQ fix: nodes built in initAudio(), inserted into master
+       bus between masterGain and compressorNode. Canvas init
+       deferred to render() with rAF sizing guard.
        ════════════════════════════════════════════════════════ */
 
     class MicroSampler {
@@ -994,22 +1028,22 @@ nav: sampler
         this.delayWetGain = null;
         this.delayDryGain = null;
 
-        // Add this inside your constructor()
         this.eqBands = [
           { type: 'lowshelf',  freq: 80,   gain: 0, q: 1,   id: 0, label: 'LOW' },
           { type: 'peaking',   freq: 400,  gain: 0, q: 1.5, id: 1, label: 'MID 1' },
           { type: 'peaking',   freq: 2500, gain: 0, q: 1.5, id: 2, label: 'MID 2' },
           { type: 'highshelf', freq: 8000, gain: 0, q: 1,   id: 3, label: 'HIGH' }
         ];
-        this.activeEqPoint = null; // Tracks currently dragged point
+        this.eqNodes = null;
+        this.activeEqPoint = null;
 
         // Compressor
         this.compressorNode = null;
         this.compEnabled = true;
-        this.compThreshold = -18;  // dB
+        this.compThreshold = -18;
         this.compRatio = 4;
-        this.compAttack = 0.003;   // seconds
-        this.compRelease = 0.25;   // seconds
+        this.compAttack = 0.003;
+        this.compRelease = 0.25;
 
         this.POLY_LIMIT = 6;
         this.ROOT_MIDI = 69;
@@ -1049,11 +1083,30 @@ nav: sampler
         this.isDraggingEnd = false;
       }
 
+      /* ─────────────────────────────────────────────────────
+         initAudio — builds the full signal chain once.
+         Signal flow:
+           voiceSrc → lowpassNode → voiceGain
+                                         ↓
+                                    masterGain
+                                         ↓
+                                    eqNodes[0→3]   ← FIX: EQ now in master bus
+                                         ↓
+                                    compressorNode
+                                         ↓
+                                  ┌──────┴──────┐
+                              dryGain        delayNode → wetGain
+                                  └──────┬──────┘
+                                       limiter
+                                         ↓
+                                     destination
+         ───────────────────────────────────────────────────── */
       initAudio() {
         if (this.audioCtx) return;
         const AudioContextClass = window.AudioContext || window.webkitAudioContext;
         this.audioCtx = new AudioContextClass();
 
+        // Limiter (brickwall at output)
         this.limiter = this.audioCtx.createDynamicsCompressor();
         this.limiter.threshold.setValueAtTime(-3.0, this.audioCtx.currentTime);
         this.limiter.knee.setValueAtTime(0, this.audioCtx.currentTime);
@@ -1062,10 +1115,14 @@ nav: sampler
         this.limiter.release.setValueAtTime(0.1, this.audioCtx.currentTime);
         this.limiter.connect(this.audioCtx.destination);
 
+        // Master gain
         this.masterGain = this.audioCtx.createGain();
         this.masterGain.gain.setValueAtTime(this.masterVolumeValue, this.audioCtx.currentTime);
 
-        // Musical compressor — sits between masterGain and the delay/limiter chain
+        // FIX: Build EQ chain first so we can insert it below
+        this.initEqNodes();
+
+        // Musical compressor
         this.compressorNode = this.audioCtx.createDynamicsCompressor();
         this.compressorNode.threshold.setValueAtTime(this.compThreshold, this.audioCtx.currentTime);
         this.compressorNode.knee.setValueAtTime(6, this.audioCtx.currentTime);
@@ -1073,6 +1130,7 @@ nav: sampler
         this.compressorNode.attack.setValueAtTime(this.compAttack, this.audioCtx.currentTime);
         this.compressorNode.release.setValueAtTime(this.compRelease, this.audioCtx.currentTime);
 
+        // Delay nodes
         this.delayNode = this.audioCtx.createDelay(1.0);
         this.delayFeedbackNode = this.audioCtx.createGain();
         this.delayWetGain = this.audioCtx.createGain();
@@ -1089,12 +1147,12 @@ nav: sampler
         this.delayNode.connect(this.delayFeedbackNode);
         this.delayFeedbackNode.connect(this.delayNode);
 
-        // masterGain → compressor → delay split → limiter
-        this.masterGain.connect(this.compressorNode);
+        // FIX: masterGain → eqNodes[0] → ... → eqNodes[3] → compressor → delay/dry → limiter
+        this.masterGain.connect(this.eqNodes[0]);
+        this.eqNodes[this.eqNodes.length - 1].connect(this.compressorNode);
         this.compressorNode.connect(this.delayDryGain);
         this.compressorNode.connect(this.delayNode);
         this.delayNode.connect(this.delayWetGain);
-
         this.delayDryGain.connect(this.limiter);
         this.delayWetGain.connect(this.limiter);
 
@@ -1106,15 +1164,20 @@ nav: sampler
         this.renderKeyboardBed();
         this.attachControlListeners();
         this.initMidi();
+
         // Sync master vol slider/fill to the actual initial value (may be boosted on mobile)
         const volSlider = document.getElementById('master-vol');
-        const volFill = document.getElementById('vol-fill');
-        const volLabel = document.getElementById('vol-value');
+        const volFill   = document.getElementById('vol-fill');
+        const volLabel  = document.getElementById('vol-value');
         if (volSlider) {
           volSlider.value = this.masterVolumeValue;
-          volFill.style.width = `${this.masterVolumeValue * 100}%`;
+          volFill.style.width  = `${this.masterVolumeValue * 100}%`;
           volLabel.textContent = `${Math.round(this.masterVolumeValue * 100)}%`;
         }
+
+        // FIX: Init EQ canvas at startup (not inside openTrimEditorPanel).
+        // Deferred so the DOM has finished painting and offsetWidth is reliable.
+        setTimeout(() => this.initEqCanvas('eq-graph-canvas'), 100);
       }
 
       renderPadsGrid() {
@@ -1141,182 +1204,156 @@ nav: sampler
         }
       }
 
+      /* ─────────────────────────────────────────────────────
+         initEqNodes — creates the four biquad filter nodes
+         and chains them in series. Called once from initAudio.
+         ───────────────────────────────────────────────────── */
       initEqNodes() {
-  if (!this.audioCtx) return;
+        if (!this.audioCtx) return;
 
-  // Create nodes
-  this.eqNodes = this.eqBands.map(band => {
-    const node = this.audioCtx.createBiquadFilter();
-    node.type = band.type;
-    node.frequency.value = band.freq;
-    node.gain.value = band.gain;
-    node.Q.value = band.q;
-    return node;
-  });
+        this.eqNodes = this.eqBands.map(band => {
+          const node = this.audioCtx.createBiquadFilter();
+          node.type = band.type;
+          node.frequency.value = band.freq;
+          node.gain.value = band.gain;
+          node.Q.value = band.q;
+          return node;
+        });
 
-  // Connect them in series: Low -> Mid1 -> Mid2 -> High
-  for (let i = 0; i < this.eqNodes.length - 1; i++) {
-    this.eqNodes[i].connect(this.eqNodes[i + 1]);
-  }
-  
-  // NOTE: In your master routing, insert this chain:
-  // e.g., lowpassNode.connect(this.eqNodes[0]);
-  // and: this.eqNodes[3].connect(this.masterGain);
-}
-
-// Call this whenever an EQ point moves to update the actual audio graph
-updateEqDsp() {
-  if (!this.eqNodes) return;
-  const now = this.audioCtx.currentTime;
-  this.eqBands.forEach((band, i) => {
-    this.eqNodes[i].frequency.setTargetAtTime(band.freq, now, 0.01);
-    this.eqNodes[i].gain.setTargetAtTime(band.gain, now, 0.01);
-    this.eqNodes[i].Q.setTargetAtTime(band.q, now, 0.01);
-  });
-}
-
-      initEqCanvas(canvasId) {
-  const canvas = document.getElementById(canvasId);
-  if (!canvas) return;
-  const ctx = canvas.getContext('2d');
-  
-  const w = canvas.width = canvas.offsetWidth;
-  const h = canvas.height = canvas.offsetHeight;
-  
-  // Helper functions for coordinate mapping (Logarithmic for Freq, Linear for Gain)
-  const getX = (freq) => {
-    const minLog = Math.log10(20);
-    const maxLog = Math.log10(20000);
-    return ((Math.log10(freq) - minLog) / (maxLog - minLog)) * w;
-  };
-
-  const getFreq = (x) => {
-    const minLog = Math.log10(20);
-    const maxLog = Math.log10(20000);
-    return Math.pow(10, minLog + (x / w) * (maxLog - minLog));
-  };
-
-  const getY = (gain) => {
-    // Maps +/- 15dB to canvas height
-    return h / 2 - (gain / 15) * (h / 2);
-  };
-
-  const getGain = (y) => {
-    return ((h / 2 - y) / (h / 2)) * 15;
-  };
-
-  // --- DRAWING LOOP ---
-  const drawEQ = () => {
-    ctx.clearRect(0, 0, w, h);
-
-    // 1. Draw Grid Lines (Frequencies)
-    ctx.strokeStyle = 'rgba(255, 255, 255, 0.05)';
-    ctx.lineWidth = 1;
-    const gridFreqs = [100, 200, 500, 1000, 2000, 5000, 10000];
-    gridFreqs.forEach(f => {
-      const x = getX(f);
-      ctx.beginPath();
-      ctx.moveTo(x, 0);
-      ctx.lineTo(x, h);
-      ctx.stroke();
-    });
-
-    // 2. Draw 0dB Baseline
-    ctx.strokeStyle = 'rgba(0, 245, 255, 0.2)';
-    ctx.beginPath();
-    ctx.moveTo(0, h / 2);
-    ctx.lineTo(w, h / 2);
-    ctx.stroke();
-
-    // 3. Compute and Plot Combined Frequency Response Curve
-    if (this.audioCtx && this.eqNodes) {
-      const sampleLength = w;
-      const frequencyArray = new Float32Array(sampleLength);
-      const magResponseOutput = new Float32Array(sampleLength);
-      const phaseResponseOutput = new Float32Array(sampleLength);
-      const totalMag = new Float32Array(sampleLength).fill(1.0);
-
-      // Populate frequency array logarithmically matching pixel widths
-      for (let i = 0; i < sampleLength; i++) {
-        frequencyArray[i] = getFreq(i);
-      }
-
-      // Multiply magnitudes across all 4 filters
-      this.eqNodes.forEach(node => {
-        node.getFrequencyResponse(frequencyArray, magResponseOutput, phaseResponseOutput);
-        for (let i = 0; i < sampleLength; i++) {
-          totalMag[i] *= magResponseOutput[i];
+        // Connect in series: Low → Mid1 → Mid2 → High
+        for (let i = 0; i < this.eqNodes.length - 1; i++) {
+          this.eqNodes[i].connect(this.eqNodes[i + 1]);
         }
-      });
-
-      // Plot the response curve
-      ctx.strokeStyle = '#00f5ff';
-      ctx.lineWidth = 2;
-      ctx.beginPath();
-      for (let i = 0; i < sampleLength; i++) {
-        const db = 20 * Math.log10(totalMag[i]);
-        const y = getY(db);
-        if (i === 0) ctx.moveTo(i, y);
-        else ctx.lineTo(i, y);
       }
-      ctx.stroke();
-    }
 
-    // 4. Draw Interactive Control Nodes
-    this.eqBands.forEach(band => {
-      const cx = getX(band.freq);
-      const cy = getY(band.gain);
+      /* ─────────────────────────────────────────────────────
+         updateEqDsp — syncs band data → Web Audio nodes.
+         Called whenever a control point is dragged.
+         ───────────────────────────────────────────────────── */
+      updateEqDsp() {
+        if (!this.eqNodes) return;
+        const now = this.audioCtx.currentTime;
+        this.eqBands.forEach((band, i) => {
+          this.eqNodes[i].frequency.setTargetAtTime(band.freq, now, 0.01);
+          this.eqNodes[i].gain.setTargetAtTime(band.gain, now, 0.01);
+          this.eqNodes[i].Q.setTargetAtTime(band.q, now, 0.01);
+        });
+      }
 
-      ctx.fillStyle = this.activeEqPoint === band.id ? '#fff' : '#00f5ff';
-      ctx.beginPath();
-      ctx.arc(cx, cy, 6, 0, 2 * Math.PI);
-      ctx.fill();
-      
-      ctx.fillStyle = 'rgba(255, 255, 255, 0.4)';
-      ctx.font = '9px monospace';
-      ctx.fillText(band.label, cx - 12, cy - 12);
-    });
-  };
+      /* ─────────────────────────────────────────────────────
+         initEqCanvas — sets up the interactive EQ display.
+         FIX: canvas dimensions measured inside rAF so
+         offsetWidth/Height are valid after first paint.
+         ───────────────────────────────────────────────────── */
+      initEqCanvas(canvasId) {
+        const canvas = document.getElementById(canvasId);
+        if (!canvas) return;
 
-  // --- INTERACTION HANDLING ---
-  canvas.addEventListener('mousedown', (e) => {
-    const rect = canvas.getBoundingClientRect();
-    const mx = e.clientX - rect.left;
-    const my = e.clientY - rect.top;
+        // FIX: defer sizing into rAF so layout is complete
+        requestAnimationFrame(() => {
+          const w = canvas.width  = canvas.offsetWidth;
+          const h = canvas.height = canvas.offsetHeight;
+          if (!w || !h) return; // still not visible, bail
 
-    // Detect if clicking close to a control point (within 15 pixels radius)
-    this.activeEqPoint = this.eqBands.find(band => {
-      const cx = getX(band.freq);
-      const cy = getY(band.gain);
-      return Math.hypot(mx - cx, my - cy) < 15;
-    })?.id ?? null;
-  });
+          const ctx = canvas.getContext('2d');
 
-  window.addEventListener('mousemove', (e) => {
-    if (this.activeEqPoint === null) return;
-    
-    const rect = canvas.getBoundingClientRect();
-    const mx = Math.max(0, Math.min(w, e.clientX - rect.left));
-    const my = Math.max(0, Math.min(h, e.clientY - rect.top));
+          // ── Coordinate helpers ───────────────────────────
+          const getX = (freq) => {
+            const minLog = Math.log10(20);
+            const maxLog = Math.log10(20000);
+            return ((Math.log10(freq) - minLog) / (maxLog - minLog)) * w;
+          };
+          const getFreq = (x) => {
+            const minLog = Math.log10(20);
+            const maxLog = Math.log10(20000);
+            return Math.pow(10, minLog + (x / w) * (maxLog - minLog));
+          };
+          const getY    = (gain) => h / 2 - (gain / 15) * (h / 2);
+          const getGain = (y)    => ((h / 2 - y) / (h / 2)) * 15;
 
-    const band = this.eqBands[this.activeEqPoint];
-    
-    // Update data structure parameters
-    band.freq = Math.max(20, Math.min(20000, getFreq(mx)));
-    band.gain = Math.max(-15, Math.min(15, getGain(my)));
+          // ── Drawing ──────────────────────────────────────
+          const drawEQ = () => {
+            ctx.clearRect(0, 0, w, h);
 
-    // Sync parameters directly to Web Audio Nodes & UI
-    this.updateEqDsp();
-    drawEQ();
-  });
+            // Grid lines
+            ctx.strokeStyle = 'rgba(255,255,255,0.05)';
+            ctx.lineWidth = 1;
+            [100, 200, 500, 1000, 2000, 5000, 10000].forEach(f => {
+              const x = getX(f);
+              ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, h); ctx.stroke();
+            });
 
-  window.addEventListener('mouseup', () => {
-    this.activeEqPoint = null;
-  });
+            // 0 dB baseline
+            ctx.strokeStyle = 'rgba(0,245,255,0.2)';
+            ctx.beginPath(); ctx.moveTo(0, h / 2); ctx.lineTo(w, h / 2); ctx.stroke();
 
-  // Initial draw execution
-  drawEQ();
-}
+            // Combined frequency response curve
+            if (this.audioCtx && this.eqNodes) {
+              const freqArr  = new Float32Array(w);
+              const magOut   = new Float32Array(w);
+              const phaseOut = new Float32Array(w);
+              const totalMag = new Float32Array(w).fill(1.0);
+
+              for (let i = 0; i < w; i++) freqArr[i] = getFreq(i);
+
+              this.eqNodes.forEach(node => {
+                node.getFrequencyResponse(freqArr, magOut, phaseOut);
+                for (let i = 0; i < w; i++) totalMag[i] *= magOut[i];
+              });
+
+              ctx.strokeStyle = '#00f5ff';
+              ctx.lineWidth = 2;
+              ctx.beginPath();
+              for (let i = 0; i < w; i++) {
+                const db = 20 * Math.log10(totalMag[i]);
+                const y  = getY(db);
+                i === 0 ? ctx.moveTo(i, y) : ctx.lineTo(i, y);
+              }
+              ctx.stroke();
+            }
+
+            // Control nodes
+            this.eqBands.forEach(band => {
+              const cx = getX(band.freq);
+              const cy = getY(band.gain);
+              ctx.fillStyle = this.activeEqPoint === band.id ? '#fff' : '#00f5ff';
+              ctx.beginPath(); ctx.arc(cx, cy, 6, 0, 2 * Math.PI); ctx.fill();
+              ctx.fillStyle = 'rgba(255,255,255,0.4)';
+              ctx.font = '9px monospace';
+              ctx.fillText(band.label, cx - 12, cy - 12);
+            });
+          };
+
+          // ── Interaction ──────────────────────────────────
+          canvas.addEventListener('mousedown', (e) => {
+            const rect = canvas.getBoundingClientRect();
+            const mx = e.clientX - rect.left;
+            const my = e.clientY - rect.top;
+            const hit = this.eqBands.find(band =>
+              Math.hypot(mx - getX(band.freq), my - getY(band.gain)) < 15
+            );
+            this.activeEqPoint = hit ? hit.id : null;
+          });
+
+          window.addEventListener('mousemove', (e) => {
+            if (this.activeEqPoint === null) return;
+            const rect = canvas.getBoundingClientRect();
+            const mx = Math.max(0, Math.min(w, e.clientX - rect.left));
+            const my = Math.max(0, Math.min(h, e.clientY - rect.top));
+            const band = this.eqBands[this.activeEqPoint];
+            band.freq = Math.max(20, Math.min(20000, getFreq(mx)));
+            band.gain = Math.max(-15, Math.min(15, getGain(my)));
+            this.updateEqDsp();
+            drawEQ();
+          });
+
+          window.addEventListener('mouseup', () => {
+            this.activeEqPoint = null;
+          });
+
+          drawEQ();
+        }); // end requestAnimationFrame
+      }
 
       renderKeyboardBed() {
         const bed = document.getElementById('keyboard-bed');
@@ -1367,10 +1404,10 @@ updateEqDsp() {
             keyEl.className = 'key white';
             if (n.visualMidi === this.ROOT_MIDI) keyEl.classList.add('root-note');
             const leftPos = whiteIndex * (whiteWidth + gap);
-            keyEl.style.left = `${leftPos}px`;
-            keyEl.style.width = `${whiteWidth}px`;
+            keyEl.style.left   = `${leftPos}px`;
+            keyEl.style.width  = `${whiteWidth}px`;
             keyEl.style.height = '100%';
-            keyEl.innerHTML = `<span class="key-lbl">${n.label}</span>`;
+            keyEl.innerHTML    = `<span class="key-lbl">${n.label}</span>`;
             bed.appendChild(keyEl);
             whiteIndex++;
           } else {
@@ -1378,7 +1415,7 @@ updateEqDsp() {
           }
         });
 
-        const blackWidth = 22;
+        const blackWidth  = 22;
         const blackHeight = 50;
 
         blackKeysToRender.forEach(bk => {
@@ -1387,10 +1424,10 @@ updateEqDsp() {
           keyEl.dataset.midi = bk.note.visualMidi;
           const associatedLeft = bk.associatedWhiteIndex * (whiteWidth + gap);
           const leftPos = associatedLeft + whiteWidth - (blackWidth / 2);
-          keyEl.style.left = `${leftPos}px`;
-          keyEl.style.width = `${blackWidth}px`;
+          keyEl.style.left   = `${leftPos}px`;
+          keyEl.style.width  = `${blackWidth}px`;
           keyEl.style.height = `${blackHeight}px`;
-          keyEl.innerHTML = `<span class="key-lbl">${bk.note.label}</span>`;
+          keyEl.innerHTML    = `<span class="key-lbl">${bk.note.label}</span>`;
           bed.appendChild(keyEl);
         });
       }
@@ -1447,7 +1484,7 @@ updateEqDsp() {
           this.updateDelayDspGraph();
         });
 
-        // --- Compressor Controls ---
+        // Compressor toggle
         const cToggle = document.getElementById('comp-toggle');
         cToggle.addEventListener('click', () => {
           this.compEnabled = !this.compEnabled;
@@ -1459,22 +1496,22 @@ updateEqDsp() {
           { id: 'comp-threshold', fillId: 'comp-threshold-fill', valId: 'comp-threshold-value',
             fmt: v => `${Math.round(v)} dB`,
             pct: v => ((parseFloat(v) - (-60)) / 60) * 100,
-            cb: v => { this.compThreshold = v; this.updateCompressorDspGraph(); }
+            cb:  v => { this.compThreshold = v; this.updateCompressorDspGraph(); }
           },
           { id: 'comp-ratio', fillId: 'comp-ratio-fill', valId: 'comp-ratio-value',
             fmt: v => `${parseFloat(v).toFixed(1)}:1`,
             pct: v => ((parseFloat(v) - 1) / 19) * 100,
-            cb: v => { this.compRatio = v; this.updateCompressorDspGraph(); }
+            cb:  v => { this.compRatio = v; this.updateCompressorDspGraph(); }
           },
           { id: 'comp-attack', fillId: 'comp-attack-fill', valId: 'comp-attack-value',
             fmt: v => parseFloat(v) < 0.01 ? `${Math.round(parseFloat(v)*1000)} ms` : `${(parseFloat(v)*1000).toFixed(0)} ms`,
             pct: v => (parseFloat(v) / 1) * 100,
-            cb: v => { this.compAttack = v; this.updateCompressorDspGraph(); }
+            cb:  v => { this.compAttack = v; this.updateCompressorDspGraph(); }
           },
           { id: 'comp-release', fillId: 'comp-release-fill', valId: 'comp-release-value',
             fmt: v => `${Math.round(parseFloat(v)*1000)} ms`,
             pct: v => ((parseFloat(v) - 0.01) / 0.99) * 100,
-            cb: v => { this.compRelease = v; this.updateCompressorDspGraph(); }
+            cb:  v => { this.compRelease = v; this.updateCompressorDspGraph(); }
           }
         ];
 
@@ -1490,18 +1527,9 @@ updateEqDsp() {
           });
         });
 
-        this.attachSliderEngine('delay-time', 'delay-time-fill', 'delay-time-value', ' ms', (val) => {
-          this.delayTimeValue = val;
-          this.updateDelayDspGraph();
-        });
-        this.attachSliderEngine('delay-feedback', 'delay-feedback-fill', 'delay-feedback-value', '%', (val) => {
-          this.delayFeedbackValue = val;
-          this.updateDelayDspGraph();
-        }, true);
-        this.attachSliderEngine('delay-mix', 'delay-mix-fill', 'delay-mix-value', '%', (val) => {
-          this.delayMixValue = val;
-          this.updateDelayDspGraph();
-        }, true);
+        this.attachSliderEngine('delay-time',     'delay-time-fill',     'delay-time-value',     ' ms', (val) => { this.delayTimeValue     = val; this.updateDelayDspGraph(); });
+        this.attachSliderEngine('delay-feedback', 'delay-feedback-fill', 'delay-feedback-value', '%',   (val) => { this.delayFeedbackValue = val; this.updateDelayDspGraph(); }, true);
+        this.attachSliderEngine('delay-mix',      'delay-mix-fill',      'delay-mix-value',      '%',   (val) => { this.delayMixValue      = val; this.updateDelayDspGraph(); }, true);
 
         this.attachSliderEngine('master-vol', 'vol-fill', 'vol-value', '%', (val) => {
           this.masterVolumeValue = val;
@@ -1511,7 +1539,7 @@ updateEqDsp() {
         }, true);
 
         document.getElementById('oct-down').addEventListener('click', () => this.shiftOctaveOffset(-1));
-        document.getElementById('oct-up').addEventListener('click', () => this.shiftOctaveOffset(1));
+        document.getElementById('oct-up').addEventListener('click',   () => this.shiftOctaveOffset(1));
 
         const bed = document.getElementById('keyboard-bed');
         bed.addEventListener('pointerdown', (e) => {
@@ -1539,22 +1567,15 @@ updateEqDsp() {
           this.isMouseDown = false;
           this.allNotesOffAction();
         };
-        bed.addEventListener('pointerup', releasePointerHandler);
-        bed.addEventListener('pointercancel', releasePointerHandler);
-        bed.addEventListener('lostpointercapture', releasePointerHandler);
-        // Touch fallback for browsers where pointer events don't fire reliably on scroll/cancel
+        bed.addEventListener('pointerup',           releasePointerHandler);
+        bed.addEventListener('pointercancel',        releasePointerHandler);
+        bed.addEventListener('lostpointercapture',   releasePointerHandler);
         bed.addEventListener('touchend', (e) => {
           e.preventDefault();
-          if (this.isMouseDown) {
-            this.isMouseDown = false;
-            this.allNotesOffAction();
-          }
+          if (this.isMouseDown) { this.isMouseDown = false; this.allNotesOffAction(); }
         }, { passive: false });
         bed.addEventListener('touchcancel', () => {
-          if (this.isMouseDown) {
-            this.isMouseDown = false;
-            this.allNotesOffAction();
-          }
+          if (this.isMouseDown) { this.isMouseDown = false; this.allNotesOffAction(); }
         });
 
         this.attachKeyboardMatrixHooks();
@@ -1564,19 +1585,18 @@ updateEqDsp() {
         });
       }
 
-attachSliderEngine(sliderId, fillId, valId, unit, callback, isPercent = false) {
+      attachSliderEngine(sliderId, fillId, valId, unit, callback, isPercent = false) {
         const slider = document.getElementById(sliderId);
-        const fill = document.getElementById(fillId);
-        const label = document.getElementById(valId);
+        const fill   = document.getElementById(fillId);
+        const label  = document.getElementById(valId);
 
         slider.addEventListener('input', (e) => {
-          const val = parseFloat(e.target.value);
-          const max = parseFloat(e.target.max) || 1;
-          const min = parseFloat(e.target.min) || 0;
+          const val     = parseFloat(e.target.value);
+          const max     = parseFloat(e.target.max) || 1;
+          const min     = parseFloat(e.target.min) || 0;
           const percent = ((val - min) / (max - min)) * 100;
-          fill.style.width = `${percent}%`;
-          if (isPercent) label.textContent = `${Math.round(val * 100)}${unit}`;
-          else label.textContent = `${val}${unit}`;
+          fill.style.width  = `${percent}%`;
+          label.textContent = isPercent ? `${Math.round(val * 100)}${unit}` : `${val}${unit}`;
           callback(val);
         });
       }
@@ -1586,7 +1606,7 @@ attachSliderEngine(sliderId, fillId, valId, unit, callback, isPercent = false) {
         let startCutoff = 0;
 
         const onPointerMove = (e) => {
-          const deltaY = startY - e.clientY;
+          const deltaY   = startY - e.clientY;
           let nextCutoff = startCutoff + (deltaY * 0.006);
           nextCutoff = Math.max(0, Math.min(1, nextCutoff));
           this.padFilterCutoffs[index] = nextCutoff;
@@ -1596,23 +1616,23 @@ attachSliderEngine(sliderId, fillId, valId, unit, callback, isPercent = false) {
         const onPointerUp = (e) => {
           knob.releasePointerCapture(e.pointerId);
           knob.removeEventListener('pointermove', onPointerMove);
-          knob.removeEventListener('pointerup', onPointerUp);
+          knob.removeEventListener('pointerup',   onPointerUp);
         };
 
         knob.addEventListener('pointerdown', (e) => {
           e.preventDefault();
           this.initAudio();
           knob.setPointerCapture(e.pointerId);
-          startY = e.clientY;
+          startY      = e.clientY;
           startCutoff = this.padFilterCutoffs[index];
           knob.addEventListener('pointermove', onPointerMove);
-          knob.addEventListener('pointerup', onPointerUp);
+          knob.addEventListener('pointerup',   onPointerUp);
         });
       }
 
       updateFilterKnobDisplay(index) {
-        const knob = document.getElementById(`filter-knob-${index}`);
-        const label = document.getElementById(`filter-val-${index}`);
+        const knob    = document.getElementById(`filter-knob-${index}`);
+        const label   = document.getElementById(`filter-val-${index}`);
         const normVal = this.padFilterCutoffs[index];
         const degrees = (normVal * 270) - 135;
         knob.style.transform = `rotate(${degrees}deg)`;
@@ -1629,8 +1649,8 @@ attachSliderEngine(sliderId, fillId, valId, unit, callback, isPercent = false) {
         if (nextOct >= -2 && nextOct <= 2) {
           this.octaveOffset = nextOct;
           const disp = document.getElementById('oct-value');
-          disp.textContent = (this.octaveOffset >= 0 ? '+' : '') + this.octaveOffset;
-          disp.className = 'oct-display-value' + (this.octaveOffset > 0 ? ' up' : this.octaveOffset < 0 ? ' down' : '');
+          disp.textContent  = (this.octaveOffset >= 0 ? '+' : '') + this.octaveOffset;
+          disp.className    = 'oct-display-value' + (this.octaveOffset > 0 ? ' up' : this.octaveOffset < 0 ? ' down' : '');
         }
       }
 
@@ -1669,25 +1689,20 @@ attachSliderEngine(sliderId, fillId, valId, unit, callback, isPercent = false) {
         if (!buffer) return;
         document.getElementById('trim-pad-label').textContent = `PAD ${idx + 1}`;
         document.getElementById('trim-panel').classList.add('open');
-        // Inside openTrimEditorPanel(idx)
-        setTimeout(() => {
-          this.initEqNodes(); // Ensure real AudioNodes exist in graph loop
-          this.initEqCanvas('eq-graph-canvas'); // Fire up listener matrix and render graph canvas
-        }, 50);
-        // Measure canvas dimensions safely outside drawing optimizations if needed
+        // FIX: removed initEqNodes() and initEqCanvas() from here —
+        // EQ nodes are built once in initAudio(), canvas is set up in render().
         this.drawWaveformIntoCanvas('trim-waveform-canvas', buffer);
         this.updateTrimEditorUiMarkers();
       }
 
       drawWaveformIntoCanvas(canvasId, buffer) {
         const canvas = document.getElementById(canvasId);
-        const ctx = canvas.getContext('2d');
-        const dpr = window.devicePixelRatio || 1;
-        const rect = canvas.parentElement.getBoundingClientRect();
-        
-        // Prevent layout thrashing if size hasn't actually modified
+        const ctx    = canvas.getContext('2d');
+        const dpr    = window.devicePixelRatio || 1;
+        const rect   = canvas.parentElement.getBoundingClientRect();
+
         if (canvas.width !== rect.width * dpr || canvas.height !== rect.height * dpr) {
-          canvas.width = rect.width * dpr;
+          canvas.width  = rect.width  * dpr;
           canvas.height = rect.height * dpr;
           ctx.scale(dpr, dpr);
         }
@@ -1700,9 +1715,9 @@ attachSliderEngine(sliderId, fillId, valId, unit, callback, isPercent = false) {
 
         const data = buffer.getChannelData(0);
         const step = Math.ceil(data.length / w);
-        const amp = h / 2;
+        const amp  = h / 2;
 
-        ctx.lineWidth = 1.5;
+        ctx.lineWidth   = 1.5;
         ctx.strokeStyle = '#1a3a5a';
         ctx.beginPath();
         ctx.moveTo(0, amp);
@@ -1724,37 +1739,37 @@ attachSliderEngine(sliderId, fillId, valId, unit, callback, isPercent = false) {
 
       updateTrimEditorUiMarkers() {
         if (this.activePad === -1 || !this.slots[this.activePad]) return;
-        const idx = this.activePad;
+        const idx      = this.activePad;
         const duration = this.slots[idx].duration;
         const startSec = this.padTrimStart[idx];
-        const endSec = this.padTrimEnd[idx];
+        const endSec   = this.padTrimEnd[idx];
         const startPct = (startSec / duration) * 100;
-        const endPct = (endSec / duration) * 100;
+        const endPct   = (endSec   / duration) * 100;
 
         const overlay = document.getElementById('trim-region-overlay');
-        overlay.style.left = `${startPct}%`;
+        overlay.style.left  = `${startPct}%`;
         overlay.style.width = `${endPct - startPct}%`;
         document.getElementById('trim-handle-start').style.left = `${startPct}%`;
-        document.getElementById('trim-handle-end').style.left = `${endPct}%`;
-        document.getElementById('trim-start-value').textContent = `${startSec.toFixed(3)}s`;
-        document.getElementById('trim-end-value').textContent = `${endSec.toFixed(3)}s`;
+        document.getElementById('trim-handle-end').style.left   = `${endPct}%`;
+        document.getElementById('trim-start-value').textContent    = `${startSec.toFixed(3)}s`;
+        document.getElementById('trim-end-value').textContent      = `${endSec.toFixed(3)}s`;
         document.getElementById('trim-duration-value').textContent = `${(endSec - startSec).toFixed(3)}s`;
       }
 
       attachTrimHandleInteractionEngine() {
         const container = document.getElementById('trim-waveform-container');
-        const hStart = document.getElementById('trim-handle-start');
-        const hEnd = document.getElementById('trim-handle-end');
+        const hStart    = document.getElementById('trim-handle-start');
+        const hEnd      = document.getElementById('trim-handle-end');
 
         const processDragAction = (clientX, targetType) => {
           if (this.activePad === -1 || !this.slots[this.activePad]) return;
-          const idx = this.activePad;
-          const duration = this.slots[idx].duration;
-          const rect = container.getBoundingClientRect();
-          let currentPct = (clientX - rect.left) / rect.width;
-          currentPct = Math.max(0, Math.min(1, currentPct));
-          const targetSec = currentPct * duration;
-          const minSliceLen = 0.05;
+          const idx          = this.activePad;
+          const duration     = this.slots[idx].duration;
+          const rect         = container.getBoundingClientRect();
+          let currentPct     = (clientX - rect.left) / rect.width;
+          currentPct         = Math.max(0, Math.min(1, currentPct));
+          const targetSec    = currentPct * duration;
+          const minSliceLen  = 0.05;
 
           if (targetType === 'start') {
             if (targetSec < this.padTrimEnd[idx] - minSliceLen) this.padTrimStart[idx] = targetSec;
@@ -1767,11 +1782,11 @@ attachSliderEngine(sliderId, fillId, valId, unit, callback, isPercent = false) {
 
         const attachHandlePointerHooks = (handle, type) => {
           const onMove = (e) => processDragAction(e.clientX, type);
-          const onUp = (e) => {
+          const onUp   = (e) => {
             handle.releasePointerCapture(e.pointerId);
             handle.classList.remove('dragging');
             window.removeEventListener('pointermove', onMove);
-            window.removeEventListener('pointerup', onUp);
+            window.removeEventListener('pointerup',   onUp);
           };
           handle.addEventListener('pointerdown', (e) => {
             e.preventDefault();
@@ -1779,12 +1794,12 @@ attachSliderEngine(sliderId, fillId, valId, unit, callback, isPercent = false) {
             handle.setPointerCapture(e.pointerId);
             handle.classList.add('dragging');
             window.addEventListener('pointermove', onMove);
-            window.addEventListener('pointerup', onUp);
+            window.addEventListener('pointerup',   onUp);
           });
         };
 
         attachHandlePointerHooks(hStart, 'start');
-        attachHandlePointerHooks(hEnd, 'end');
+        attachHandlePointerHooks(hEnd,   'end');
       }
 
       async startRecordingAction() {
@@ -1794,8 +1809,8 @@ attachSliderEngine(sliderId, fillId, valId, unit, callback, isPercent = false) {
           return;
         }
         if (this.isRecording) return;
-        this.isRecording = true;
-        this.audioChunks = [];
+        this.isRecording  = true;
+        this.audioChunks  = [];
 
         this.setStatus("RECORDING AUDIO STREAM INPUT…", true, "rec");
         const recBtn = document.getElementById('rec-btn');
@@ -1810,18 +1825,18 @@ attachSliderEngine(sliderId, fillId, valId, unit, callback, isPercent = false) {
           };
 
           this.mediaRecorder.onstop = async () => {
-            const audioBlob = new Blob(this.audioChunks, { type: 'audio/wav' });
-            const arrayArr = await audioBlob.arrayBuffer();
+            const audioBlob  = new Blob(this.audioChunks, { type: 'audio/wav' });
+            const arrayArr   = await audioBlob.arrayBuffer();
 
             this.audioCtx.decodeAudioData(arrayArr, (decodedBuffer) => {
               const idx = this.activePad;
-              this.slots[idx] = decodedBuffer;
-              this.padTrimStart[idx] = 0;
-              this.padTrimEnd[idx] = decodedBuffer.duration;
-              this.padStates[idx] = 'loaded';
+              this.slots[idx]         = decodedBuffer;
+              this.padTrimStart[idx]  = 0;
+              this.padTrimEnd[idx]    = decodedBuffer.duration;
+              this.padStates[idx]     = 'loaded';
 
               document.getElementById(`pad-status-${idx}`).textContent = `READY (${decodedBuffer.duration.toFixed(1)}s)`;
-              document.getElementById(`pad-${idx}`).className = 'pad state-armed';
+              document.getElementById(`pad-${idx}`).className           = 'pad state-armed';
 
               this.drawStaticPadThumbnailWaveforms(idx);
               this.openTrimEditorPanel(idx);
@@ -1857,22 +1872,22 @@ attachSliderEngine(sliderId, fillId, valId, unit, callback, isPercent = false) {
         const buffer = this.slots[idx];
         if (!buffer) return;
         const canvas = document.getElementById(`pad-canvas-${idx}`);
-        const ctx = canvas.getContext('2d');
-        const w = canvas.width = canvas.offsetWidth;
-        const h = canvas.height = canvas.offsetHeight;
+        const ctx    = canvas.getContext('2d');
+        const w      = canvas.width  = canvas.offsetWidth;
+        const h      = canvas.height = canvas.offsetHeight;
 
         ctx.clearRect(0, 0, w, h);
         ctx.fillStyle = 'rgba(0,245,255,0.01)';
         ctx.fillRect(0, 0, w, h);
 
-        const data = buffer.getChannelData(0);
-        const startIdx = Math.floor((this.padTrimStart[idx] / buffer.duration) * data.length);
-        const endIdx = Math.floor((this.padTrimEnd[idx] / buffer.duration) * data.length);
-        const rangeLen = endIdx - startIdx;
-        const step = Math.ceil(rangeLen / w) || 1;
-        const amp = h / 2;
+        const data       = buffer.getChannelData(0);
+        const startIdx   = Math.floor((this.padTrimStart[idx] / buffer.duration) * data.length);
+        const endIdx     = Math.floor((this.padTrimEnd[idx]   / buffer.duration) * data.length);
+        const rangeLen   = endIdx - startIdx;
+        const step       = Math.ceil(rangeLen / w) || 1;
+        const amp        = h / 2;
 
-        ctx.lineWidth = 1;
+        ctx.lineWidth   = 1;
         ctx.strokeStyle = 'rgba(0,245,255,0.15)';
         ctx.beginPath();
         ctx.moveTo(0, amp);
@@ -1916,7 +1931,6 @@ attachSliderEngine(sliderId, fillId, valId, unit, callback, isPercent = false) {
         }
       }
 
-      // NOTE: voice tracking now uses absolute unique key targeting to prevent octave shift voice leaks
       noteOnAction(playedMidi) {
         this.initAudio();
         if (this.activePad === -1 || !this.slots[this.activePad]) {
@@ -1925,7 +1939,7 @@ attachSliderEngine(sliderId, fillId, valId, unit, callback, isPercent = false) {
           return;
         }
 
-        const idx = this.activePad;
+        const idx        = this.activePad;
         const origBuffer = this.slots[idx];
 
         if (this.activeNotes.size >= this.POLY_LIMIT) {
@@ -1933,32 +1947,32 @@ attachSliderEngine(sliderId, fillId, valId, unit, callback, isPercent = false) {
           this.noteOffAction(oldestNoteKey);
         }
 
-        const pitchSemiShift = playedMidi - this.ROOT_MIDI;
-        let playbackRateValue = Math.pow(2, pitchSemiShift / 12);
+        const pitchSemiShift    = playedMidi - this.ROOT_MIDI;
+        let playbackRateValue   = Math.pow(2, pitchSemiShift / 12);
 
-        let activeTrimStart = this.padTrimStart[idx];
-        let activeTrimEnd = this.padTrimEnd[idx];
-        let sliceDuration = activeTrimEnd - activeTrimStart;
+        const activeTrimStart   = this.padTrimStart[idx];
+        const activeTrimEnd     = this.padTrimEnd[idx];
+        const sliceDuration     = activeTrimEnd - activeTrimStart;
         if (sliceDuration <= 0) return;
 
-        const sampleRate = origBuffer.sampleRate;
-        const startFrame = Math.floor(activeTrimStart * sampleRate);
-        const endFrame = Math.floor(activeTrimEnd * sampleRate);
-        const frameCount = endFrame - startFrame;
+        const sampleRate  = origBuffer.sampleRate;
+        const startFrame  = Math.floor(activeTrimStart * sampleRate);
+        const endFrame    = Math.floor(activeTrimEnd   * sampleRate);
+        const frameCount  = endFrame - startFrame;
         if (frameCount <= 0) return;
 
         const sliceBuffer = this.audioCtx.createBuffer(origBuffer.numberOfChannels, frameCount, sampleRate);
 
         for (let ch = 0; ch < origBuffer.numberOfChannels; ch++) {
-          const origData = origBuffer.getChannelData(ch);
+          const origData  = origBuffer.getChannelData(ch);
           const sliceData = sliceBuffer.getChannelData(ch);
           for (let f = 0; f < frameCount; f++) sliceData[f] = origData[startFrame + f];
 
           if (this.padReverseStates[idx]) Array.prototype.reverse.call(sliceData);
 
           if (this.padLofiStates[idx]) {
-            const bitDepth = 4;
-            const steps = Math.pow(2, bitDepth);
+            const bitDepth        = 4;
+            const steps           = Math.pow(2, bitDepth);
             const downsampleFactor = 6;
             for (let f = 0; f < frameCount; f++) {
               if (f % downsampleFactor !== 0) sliceData[f] = sliceData[f - (f % downsampleFactor)];
@@ -1968,14 +1982,14 @@ attachSliderEngine(sliderId, fillId, valId, unit, callback, isPercent = false) {
         }
 
         const voiceSrc = this.audioCtx.createBufferSource();
-        voiceSrc.buffer = sliceBuffer;
+        voiceSrc.buffer       = sliceBuffer;
         voiceSrc.playbackRate.setValueAtTime(playbackRateValue, this.audioCtx.currentTime);
-        voiceSrc.loop = this.padLoopStates[idx];
+        voiceSrc.loop         = this.padLoopStates[idx];
 
         const lowpassNode = this.audioCtx.createBiquadFilter();
-        lowpassNode.type = 'lowpass';
-        const normCutoff = this.padFilterCutoffs[idx];
-        const targetHz = 200 + (normCutoff * normCutoff * 19800);
+        lowpassNode.type  = 'lowpass';
+        const normCutoff  = this.padFilterCutoffs[idx];
+        const targetHz    = 200 + (normCutoff * normCutoff * 19800);
         lowpassNode.frequency.setValueAtTime(targetHz, this.audioCtx.currentTime);
 
         const voiceGainNode = this.audioCtx.createGain();
@@ -2011,21 +2025,20 @@ attachSliderEngine(sliderId, fillId, valId, unit, callback, isPercent = false) {
       }
 
       noteOffAction(playedMidi) {
-        const voiceSet = this.activeNotes.get(playedMidi);
+        const voiceSet   = this.activeNotes.get(playedMidi);
         const visualMidi = playedMidi - (this.octaveOffset * 12);
-        
-        if (!voiceSet) { 
-          this.highlightKey(visualMidi, false); 
-          return; 
+
+        if (!voiceSet) {
+          this.highlightKey(visualMidi, false);
+          return;
         }
 
-        const now = this.audioCtx.currentTime;
+        const now            = this.audioCtx.currentTime;
         const releaseTimeSec = 0.06;
 
         for (const voice of voiceSet) {
           try {
             voice.gainNode.gain.cancelScheduledValues(now);
-            // Anchor timeline target values explicitly to prevent interpolation crackle
             voice.gainNode.gain.setValueAtTime(voice.gainNode.gain.value, now);
             voice.gainNode.gain.exponentialRampToValueAtTime(0.001, now + releaseTimeSec);
             voice.source.stop(now + releaseTimeSec);
@@ -2047,9 +2060,9 @@ attachSliderEngine(sliderId, fillId, valId, unit, callback, isPercent = false) {
       }
 
       setStatus(msg, blink = false, cls = '') {
-        const el = document.getElementById('status-msg');
+        const el      = document.getElementById('status-msg');
         el.textContent = msg;
-        el.className = 'status-msg' + (cls ? ` ${cls}` : '');
+        el.className   = 'status-msg' + (cls ? ` ${cls}` : '');
         if (blink) el.classList.add('rec');
       }
 
@@ -2058,7 +2071,7 @@ attachSliderEngine(sliderId, fillId, valId, unit, callback, isPercent = false) {
       }
 
       startVuLoop() {
-        const segs = document.querySelectorAll('.vu-seg');
+        const segs    = document.querySelectorAll('.vu-seg');
         const grFill  = document.getElementById('gr-meter-fill');
         const grValue = document.getElementById('gr-meter-value');
         let grSmoothed = 0;
@@ -2077,17 +2090,17 @@ attachSliderEngine(sliderId, fillId, valId, unit, callback, isPercent = false) {
           });
 
           if (this.compressorNode && this.compEnabled && grFill && grValue) {
-            const rawGR = this.compressorNode.reduction; 
+            const rawGR  = this.compressorNode.reduction;
             const target = Math.abs(rawGR);
-            grSmoothed += target > grSmoothed
-              ? (target - grSmoothed) * 0.5     
-              : (target - grSmoothed) * 0.06;   
+            grSmoothed  += target > grSmoothed
+              ? (target - grSmoothed) * 0.5
+              : (target - grSmoothed) * 0.06;
             const pct = Math.min(100, (grSmoothed / 20) * 100);
-            grFill.style.width = `${pct}%`;
-            grValue.textContent = `-${grSmoothed.toFixed(1)} dB`;
+            grFill.style.width    = `${pct}%`;
+            grValue.textContent   = `-${grSmoothed.toFixed(1)} dB`;
           } else if (grFill && grValue) {
             grSmoothed *= 0.85;
-            grFill.style.width = `${Math.min(100, (grSmoothed / 20) * 100)}%`;
+            grFill.style.width  = `${Math.min(100, (grSmoothed / 20) * 100)}%`;
             grValue.textContent = `-${grSmoothed.toFixed(1)} dB`;
           }
 
@@ -2107,7 +2120,6 @@ attachSliderEngine(sliderId, fillId, valId, unit, callback, isPercent = false) {
           if (e.repeat || e.ctrlKey || e.metaKey || e.altKey) return;
           const key = e.key.toLowerCase();
           if (asciiMap[key] !== undefined) {
-            // Computer keys are visual mappings by nature; apply current octave shift directly
             const shiftedMidi = asciiMap[key] + (this.octaveOffset * 12);
             this.noteOnAction(shiftedMidi);
           }
@@ -2122,11 +2134,11 @@ attachSliderEngine(sliderId, fillId, valId, unit, callback, isPercent = false) {
       }
 
       initMidi() {
-        const led = document.getElementById('midi-led');
+        const led  = document.getElementById('midi-led');
         const text = document.getElementById('midi-text');
 
         if (!navigator.requestMIDIAccess) {
-          led.className = 'midi-led unsupported';
+          led.className    = 'midi-led unsupported';
           text.textContent = 'NO MIDI';
           return;
         }
@@ -2136,14 +2148,14 @@ attachSliderEngine(sliderId, fillId, valId, unit, callback, isPercent = false) {
             const scanPorts = () => {
               const inputs = Array.from(midi.inputs.values());
               if (inputs.length > 0) {
-                led.className = 'midi-led connected';
-                text.className = 'midi-text connected';
+                led.className    = 'midi-led connected';
+                text.className   = 'midi-text connected';
                 text.textContent = `MIDI: ${inputs[0].name.slice(0, 8).toUpperCase()}`;
                 inputs.forEach(input => {
                   input.onmidimessage = (msg) => this.handleMidiInputMessage(msg);
                 });
               } else {
-                led.className = 'midi-led';
+                led.className    = 'midi-led';
                 text.textContent = 'MIDI READY';
               }
             };
@@ -2152,7 +2164,7 @@ attachSliderEngine(sliderId, fillId, valId, unit, callback, isPercent = false) {
           })
           .catch((err) => {
             console.error(err);
-            led.className = 'midi-led unsupported';
+            led.className    = 'midi-led unsupported';
             text.textContent = 'MIDI ERR';
           });
       }
@@ -2161,24 +2173,15 @@ attachSliderEngine(sliderId, fillId, valId, unit, callback, isPercent = false) {
         const [status, data1, data2] = msg.data;
         const cmd = status & 0xf0;
 
-        // Note On
         if (cmd === 0x90 && data2 > 0) {
-          const playedMidi = data1;
-          
-          // Blink MIDI LED for any valid physical note received
           const led = document.getElementById('midi-led');
           if (led) {
             led.classList.add('active');
             setTimeout(() => led.classList.remove('active'), 40);
           }
-          
-          // Trigger voice execution across the entire MIDI range
-          this.noteOnAction(playedMidi);
-          
-        // Note Off
+          this.noteOnAction(data1);
         } else if (cmd === 0x80 || (cmd === 0x90 && data2 === 0)) {
-          const playedMidi = data1;
-          this.noteOffAction(playedMidi);
+          this.noteOffAction(data1);
         }
       }
     }
