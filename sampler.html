@@ -1373,7 +1373,7 @@ nav: sampler
         });
       }
 
-      attachSliderEngine(sliderId, fillId, valId, unit, callback, isPercent = false) {
+attachSliderEngine(sliderId, fillId, valId, unit, callback, isPercent = false) {
         const slider = document.getElementById(sliderId);
         const fill = document.getElementById(fillId);
         const label = document.getElementById(valId);
@@ -1478,6 +1478,8 @@ nav: sampler
         if (!buffer) return;
         document.getElementById('trim-pad-label').textContent = `PAD ${idx + 1}`;
         document.getElementById('trim-panel').classList.add('open');
+        
+        // Measure canvas dimensions safely outside drawing optimizations if needed
         this.drawWaveformIntoCanvas('trim-waveform-canvas', buffer);
         this.updateTrimEditorUiMarkers();
       }
@@ -1487,9 +1489,13 @@ nav: sampler
         const ctx = canvas.getContext('2d');
         const dpr = window.devicePixelRatio || 1;
         const rect = canvas.parentElement.getBoundingClientRect();
-        canvas.width = rect.width * dpr;
-        canvas.height = rect.height * dpr;
-        ctx.scale(dpr, dpr);
+        
+        // Prevent layout thrashing if size hasn't actually modified
+        if (canvas.width !== rect.width * dpr || canvas.height !== rect.height * dpr) {
+          canvas.width = rect.width * dpr;
+          canvas.height = rect.height * dpr;
+          ctx.scale(dpr, dpr);
+        }
 
         const w = rect.width;
         const h = rect.height;
@@ -1509,14 +1515,15 @@ nav: sampler
         for (let i = 0; i < w; i++) {
           let min = 1.0, max = -1.0;
           for (let j = 0; j < step; j++) {
-            const datum = data[(i * step) + j];
+            const index = (i * step) + j;
+            if (index >= data.length) break;
+            const datum = data[index];
             if (datum < min) min = datum;
             if (datum > max) max = datum;
           }
           ctx.lineTo(i, amp + (max * amp));
           ctx.lineTo(i, amp + (min * amp));
         }
-
         ctx.stroke();
       }
 
@@ -1532,7 +1539,6 @@ nav: sampler
         const overlay = document.getElementById('trim-region-overlay');
         overlay.style.left = `${startPct}%`;
         overlay.style.width = `${endPct - startPct}%`;
-        // Both handles use left% — CSS transform: translateX(-50%) centers them on the boundary
         document.getElementById('trim-handle-start').style.left = `${startPct}%`;
         document.getElementById('trim-handle-end').style.left = `${endPct}%`;
         document.getElementById('trim-start-value').textContent = `${startSec.toFixed(3)}s`;
@@ -1710,15 +1716,16 @@ nav: sampler
           this.compressorNode.attack.setTargetAtTime(this.compAttack, now, 0.01);
           this.compressorNode.release.setTargetAtTime(this.compRelease, now, 0.01);
         } else {
-          // Bypass: set threshold to 0dB, ratio to 1:1 — passes signal unchanged
           this.compressorNode.threshold.setTargetAtTime(0, now, 0.01);
           this.compressorNode.ratio.setTargetAtTime(1, now, 0.01);
         }
       }
 
-      noteOnAction(visualMidi) {
+      // NOTE: voice tracking now uses absolute unique key targeting to prevent octave shift voice leaks
+      noteOnAction(playedMidi) {
         this.initAudio();
         if (this.activePad === -1 || !this.slots[this.activePad]) {
+          const visualMidi = playedMidi - (this.octaveOffset * 12);
           this.highlightKey(visualMidi, true);
           return;
         }
@@ -1727,11 +1734,10 @@ nav: sampler
         const origBuffer = this.slots[idx];
 
         if (this.activeNotes.size >= this.POLY_LIMIT) {
-          const oldestVisualKey = this.activeNotes.keys().next().value;
-          this.noteOffAction(oldestVisualKey);
+          const oldestNoteKey = this.activeNotes.keys().next().value;
+          this.noteOffAction(oldestNoteKey);
         }
 
-        const playedMidi = visualMidi + (this.octaveOffset * 12);
         const pitchSemiShift = playedMidi - this.ROOT_MIDI;
         let playbackRateValue = Math.pow(2, pitchSemiShift / 12);
 
@@ -1786,16 +1792,18 @@ nav: sampler
 
         const voiceInstance = { source: voiceSrc, gainNode: voiceGainNode, filterNode: lowpassNode };
 
-        if (!this.activeNotes.has(visualMidi)) this.activeNotes.set(visualMidi, new Set());
-        this.activeNotes.get(visualMidi).add(voiceInstance);
+        if (!this.activeNotes.has(playedMidi)) this.activeNotes.set(playedMidi, new Set());
+        this.activeNotes.get(playedMidi).add(voiceInstance);
 
+        const visualMidi = playedMidi - (this.octaveOffset * 12);
         voiceSrc.onended = () => {
-          const voiceSet = this.activeNotes.get(visualMidi);
+          const voiceSet = this.activeNotes.get(playedMidi);
           if (voiceSet) {
             voiceSet.delete(voiceInstance);
             if (voiceSet.size === 0) {
-              this.activeNotes.delete(visualMidi);
-              this.highlightKey(visualMidi, false);
+              this.activeNotes.delete(playedMidi);
+              const currentVisualMidi = playedMidi - (this.octaveOffset * 12);
+              this.highlightKey(currentVisualMidi, false);
             }
             this.updatePolyCount();
           }
@@ -1807,9 +1815,14 @@ nav: sampler
         this.vuTargetLv = Math.max(this.vuTargetLv, 0.75);
       }
 
-      noteOffAction(visualMidi) {
-        const voiceSet = this.activeNotes.get(visualMidi);
-        if (!voiceSet) { this.highlightKey(visualMidi, false); return; }
+      noteOffAction(playedMidi) {
+        const voiceSet = this.activeNotes.get(playedMidi);
+        const visualMidi = playedMidi - (this.octaveOffset * 12);
+        
+        if (!voiceSet) { 
+          this.highlightKey(visualMidi, false); 
+          return; 
+        }
 
         const now = this.audioCtx.currentTime;
         const releaseTimeSec = 0.06;
@@ -1817,11 +1830,15 @@ nav: sampler
         for (const voice of voiceSet) {
           try {
             voice.gainNode.gain.cancelScheduledValues(now);
+            // Anchor timeline target values explicitly to prevent interpolation crackle
             voice.gainNode.gain.setValueAtTime(voice.gainNode.gain.value, now);
             voice.gainNode.gain.exponentialRampToValueAtTime(0.001, now + releaseTimeSec);
             voice.source.stop(now + releaseTimeSec);
           } catch (e) {}
         }
+        this.activeNotes.delete(playedMidi);
+        this.highlightKey(visualMidi, false);
+        this.updatePolyCount();
       }
 
       allNotesOffAction() {
@@ -1849,11 +1866,9 @@ nav: sampler
         const segs = document.querySelectorAll('.vu-seg');
         const grFill  = document.getElementById('gr-meter-fill');
         const grValue = document.getElementById('gr-meter-value');
-        // Smoothed GR display value
         let grSmoothed = 0;
 
         const tick = () => {
-          // VU meter
           this.vuLevel += (this.vuTargetLv - this.vuLevel) * 0.18;
           if (this.vuTargetLv > 0) this.vuTargetLv *= 0.88;
           const lit = Math.round(this.vuLevel * 8);
@@ -1866,15 +1881,12 @@ nav: sampler
             }
           });
 
-          // GR meter — compressor.reduction is a negative dB value (e.g. -6 = 6dB of gain reduction)
           if (this.compressorNode && this.compEnabled && grFill && grValue) {
-            const rawGR = this.compressorNode.reduction; // negative or 0
-            // Smooth: fast attack, slow release
+            const rawGR = this.compressorNode.reduction; 
             const target = Math.abs(rawGR);
             grSmoothed += target > grSmoothed
-              ? (target - grSmoothed) * 0.5     // fast attack
-              : (target - grSmoothed) * 0.06;   // slow release
-            // Map 0–20dB reduction to 0–100% bar width
+              ? (target - grSmoothed) * 0.5     
+              : (target - grSmoothed) * 0.06;   
             const pct = Math.min(100, (grSmoothed / 20) * 100);
             grFill.style.width = `${pct}%`;
             grValue.textContent = `-${grSmoothed.toFixed(1)} dB`;
@@ -1896,20 +1908,20 @@ nav: sampler
           's': 49, 'd': 51, 'g': 54, 'h': 56, 'j': 58,
           '2': 61, '3': 63, '5': 66, '6': 68, '7': 70
         };
-        const activePcKeys = new Set();
         window.addEventListener('keydown', (e) => {
           if (e.repeat || e.ctrlKey || e.metaKey || e.altKey) return;
           const key = e.key.toLowerCase();
           if (asciiMap[key] !== undefined) {
-            activePcKeys.add(key);
-            this.noteOnAction(asciiMap[key]);
+            // Computer keys are visual mappings by nature; apply current octave shift directly
+            const shiftedMidi = asciiMap[key] + (this.octaveOffset * 12);
+            this.noteOnAction(shiftedMidi);
           }
         });
         window.addEventListener('keyup', (e) => {
           const key = e.key.toLowerCase();
           if (asciiMap[key] !== undefined) {
-            activePcKeys.delete(key);
-            this.noteOffAction(asciiMap[key]);
+            const shiftedMidi = asciiMap[key] + (this.octaveOffset * 12);
+            this.noteOffAction(shiftedMidi);
           }
         });
       }
@@ -1954,6 +1966,7 @@ nav: sampler
         const [status, data1, data2] = msg.data;
         const cmd = status & 0xf0;
 
+        // Process directly with absolute incoming hardware MIDI pitch values
         if (cmd === 0x90 && data2 > 0) {
           const playedMidi = data1;
           const visualMidi = playedMidi - (this.octaveOffset * 12);
@@ -1961,14 +1974,11 @@ nav: sampler
             const led = document.getElementById('midi-led');
             led.classList.add('active');
             setTimeout(() => led.classList.remove('active'), 40);
-            this.noteOnAction(visualMidi);
+            this.noteOnAction(playedMidi);
           }
         } else if (cmd === 0x80 || (cmd === 0x90 && data2 === 0)) {
           const playedMidi = data1;
-          const visualMidi = playedMidi - (this.octaveOffset * 12);
-          if (visualMidi >= this.VISUAL_START_MIDI && visualMidi <= this.VISUAL_END_MIDI) {
-            this.noteOffAction(visualMidi);
-          }
+          this.noteOffAction(playedMidi);
         }
       }
     }
