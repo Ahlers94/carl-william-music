@@ -1966,16 +1966,21 @@ attachSliderEngine(sliderId, fillId, valId, unit, callback, isPercent = false) {
         const [status, data1, data2] = msg.data;
         const cmd = status & 0xf0;
 
-        // Process directly with absolute incoming hardware MIDI pitch values
+        // Note On
         if (cmd === 0x90 && data2 > 0) {
           const playedMidi = data1;
-          const visualMidi = playedMidi - (this.octaveOffset * 12);
-          if (visualMidi >= this.VISUAL_START_MIDI && visualMidi <= this.VISUAL_END_MIDI) {
-            const led = document.getElementById('midi-led');
+          
+          // Blink MIDI LED for any valid physical note received
+          const led = document.getElementById('midi-led');
+          if (led) {
             led.classList.add('active');
             setTimeout(() => led.classList.remove('active'), 40);
-            this.noteOnAction(playedMidi);
           }
+          
+          // Trigger voice execution across the entire MIDI range
+          this.noteOnAction(playedMidi);
+          
+        // Note Off
         } else if (cmd === 0x80 || (cmd === 0x90 && data2 === 0)) {
           const playedMidi = data1;
           this.noteOffAction(playedMidi);
