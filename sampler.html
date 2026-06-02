@@ -2651,7 +2651,49 @@ class MicroSampler {
 
     voiceSrc.start(now);
 
-    const voice = { source: voiceSrc, envelopeGain, filterNode: lowpassNode };
+   voiceSrc.start(now);
+
+    /* ── End-of-buffer micro-fade ──────────────────────────
+       When the sample plays to its natural end the source
+       node stops abruptly.  If the envelope gain is still
+       non-zero at that moment a hard click results.
+
+       Fix: schedule a short (4 ms) linear ramp to 0 that
+       completes just before the buffer runs out, then stop
+       the source at exactly that moment so the Web Audio
+       graph never sees a discontinuity.
+
+       We only apply this when the source is NOT looping,
+       because a looping voice never reaches its natural end.
+       The release path (noteOffAction) has its own ramp and
+       calls source.stop() itself, so we guard against double-
+       stopping with the `voice.releasedEarly` flag.
+    ──────────────────────────────────────────────────────── */
+    const DECLICK_S   = 0.004;                          // 4 ms micro-fade
+    const bufDuration = sliceBuffer.duration / Math.abs(playbackRate); // real wall-clock length
+    const naturalEnd  = now + bufDuration;
+
+    if (!this.padLoopStates[idx]) {
+      const fadeStart = naturalEnd - DECLICK_S;
+      if (fadeStart > now) {
+        // Ramp the envelope gain to 0 over the last 4 ms
+        envelopeGain.gain.setTargetAtTime(
+          envelopeGain.gain.value,   // snapshot current value at fade-start
+          fadeStart,
+          0.001                      // very tight time-constant ≈ instant lock
+        );
+        envelopeGain.gain.linearRampToValueAtTime(0.0, naturalEnd);
+      }
+      // Stop the source node at the exact moment the fade reaches 0
+      voiceSrc.stop(naturalEnd);
+    }
+
+    const voice = {
+      source:       voiceSrc,
+      envelopeGain,
+      filterNode:   lowpassNode,
+      releasedEarly: false          // set to true by noteOffAction to skip double-stop
+    };
 
     if (!this.activeNotes.has(playedMidi)) this.activeNotes.set(playedMidi, new Set());
     this.activeNotes.get(playedMidi).add(voice);
@@ -2667,7 +2709,6 @@ class MicroSampler {
         }
       }
       this.updatePolyCount();
-      // Cleanup node memory after the sound is done
       try { voiceSrc.disconnect(); envelopeGain.disconnect(); lowpassNode.disconnect(); } catch (e) {}
     };
 
@@ -2697,16 +2738,45 @@ class MicroSampler {
       try {
         const { envelopeGain, source } = voice;
 
-        /* Anti-pop guard: cancel future A/D/S ramps, then
-           snapshot the current actual gain so the release
-           ramp starts exactly where the envelope is now. */
-        envelopeGain.gain.cancelScheduledValues(now);
-        envelopeGain.gain.setValueAtTime(envelopeGain.gain.value, now);
+        /* Mark this voice so the natural end-of-buffer micro-
+           fade path in noteOnAction knows not to double-stop. */
+        voice.releasedEarly = true;
 
+        /* ── Release ramp ──────────────────────────────────
+           1. cancelAndHoldAtTime snapshots the *exact* current
+              computed gain (mid-attack, mid-decay, sustaining —
+              wherever the envelope is right now) and cancels all
+              future scheduled events in one atomic operation.
+              This is the correct modern API; it avoids the race
+              between cancelScheduledValues + setValueAtTime that
+              can cause a brief jump on some browsers.
+           2. We ramp to a very small positive value (not literal
+              0) because linearRampToValueAtTime targeting 0 can
+              still produce a click on some implementations when
+              the source is stopped exactly at that moment.
+              Stopping 2 ms *after* the ramp completes lets the
+              graph settle fully before the node is removed.
+        ──────────────────────────────────────────────────── */
+        const TAIL_PAD_S = 0.002;                     // 2 ms safety margin after ramp
         const releaseEnd = now + env.release;
+        const stopAt     = releaseEnd + TAIL_PAD_S;
+
+        if (typeof envelopeGain.gain.cancelAndHoldAtTime === 'function') {
+          // Preferred: atomic snapshot + cancel (Chrome, Safari 14.1+)
+          envelopeGain.gain.cancelAndHoldAtTime(now);
+        } else {
+          // Fallback for Firefox / older engines
+          envelopeGain.gain.cancelScheduledValues(now);
+          envelopeGain.gain.setValueAtTime(envelopeGain.gain.value, now);
+        }
+
         envelopeGain.gain.linearRampToValueAtTime(0.0001, releaseEnd);
-        source.stop(releaseEnd);
-      } catch (e) { /* voice may already be stopped */ }
+        // Final micro-fade from 0.0001 → 0 over the tail pad window
+        envelopeGain.gain.linearRampToValueAtTime(0.0, stopAt);
+
+        source.stop(stopAt);
+
+      } catch (e) { /* voice may already have stopped naturally */ }
     }
 
     this.activeNotes.delete(playedMidi);
