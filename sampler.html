@@ -2651,44 +2651,41 @@ class MicroSampler {
 
     voiceSrc.start(now);
 
-   voiceSrc.start(now);
+    /* ── End-of-buffer micro-fade (non-looping voices only) ─
+       Schedule a 4 ms gain ramp to 0 that completes exactly
+       when the buffer runs out, then stop the source at that
+       same sample-accurate moment.  This prevents the hard
+       amplitude discontinuity that causes the end-of-sample
+       click.
 
-    /* ── End-of-buffer micro-fade ──────────────────────────
-       When the sample plays to its natural end the source
-       node stops abruptly.  If the envelope gain is still
-       non-zero at that moment a hard click results.
+       Looping voices never reach a natural end, so they skip
+       this block entirely.  noteOffAction handles their
+       shutdown via its own release ramp + source.stop().
 
-       Fix: schedule a short (4 ms) linear ramp to 0 that
-       completes just before the buffer runs out, then stop
-       the source at exactly that moment so the Web Audio
-       graph never sees a discontinuity.
-
-       We only apply this when the source is NOT looping,
-       because a looping voice never reaches its natural end.
-       The release path (noteOffAction) has its own ramp and
-       calls source.stop() itself, so we guard against double-
-       stopping with the `voice.releasedEarly` flag.
+       Voice tracking (activeNotes) is ALWAYS performed below,
+       outside this conditional, so noteOffAction can always
+       locate and cleanly stop a looping voice on key release.
     ──────────────────────────────────────────────────────── */
-    const DECLICK_S   = 0.004;                          // 4 ms micro-fade
-    const bufDuration = sliceBuffer.duration / Math.abs(playbackRate); // real wall-clock length
+    const DECLICK_S   = 0.004;
+    const bufDuration = sliceBuffer.duration / Math.abs(playbackRate);
     const naturalEnd  = now + bufDuration;
 
     if (!this.padLoopStates[idx]) {
       const fadeStart = naturalEnd - DECLICK_S;
       if (fadeStart > now) {
-        // Safer cross-browser alternative if Firefox clicks:
-envelopeGain.gain.setValueAtTime(envelopeGain.gain.value, fadeStart);
-envelopeGain.gain.linearRampToValueAtTime(0.0, naturalEnd);
+        envelopeGain.gain.setValueAtTime(envelopeGain.gain.value, fadeStart);
+        envelopeGain.gain.linearRampToValueAtTime(0.0, naturalEnd);
       }
-      // Stop the source node at the exact moment the fade reaches 0
       voiceSrc.stop(naturalEnd);
     }
 
+    // Always create and track the voice — looping or not — so that
+    // noteOffAction can find it and trigger a clean shutdown on key release.
     const voice = {
-      source:       voiceSrc,
+      source:        voiceSrc,
       envelopeGain,
-      filterNode:   lowpassNode,
-      releasedEarly: false          // set to true by noteOffAction to skip double-stop
+      filterNode:    lowpassNode,
+      releasedEarly: false          // set to true by noteOffAction to prevent double-stop
     };
 
     if (!this.activeNotes.has(playedMidi)) this.activeNotes.set(playedMidi, new Set());
