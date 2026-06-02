@@ -543,6 +543,104 @@ nav: sampler
     }
     .delay-value { font-size: 8px; color: var(--purple); min-width: 36px; text-align: right; font-family: 'Space Mono', monospace; }
 
+    /* ── CHORUS SECTION ────────────────────────────────── */
+    .chorus-section {
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border);
+    }
+    .chorus-header {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-bottom: 10px;
+    }
+    .chorus-title {
+      font-family: 'VT323', monospace; font-size: 18px;
+      letter-spacing: 0.18em; color: var(--cyan);
+      text-shadow: 0 0 10px rgba(0,245,255,0.3);
+    }
+    .chorus-toggle {
+      width: 28px; height: 16px;
+      background: #0a0a16; border: 1px solid var(--border-hi);
+      border-radius: 8px; cursor: pointer; position: relative;
+      transition: background 0.2s, border-color 0.2s;
+    }
+    .chorus-toggle::after {
+      content: '';
+      position: absolute; top: 2px; left: 2px;
+      width: 10px; height: 10px;
+      background: #2a2a44; border-radius: 50%;
+      transition: left 0.2s, background 0.2s;
+    }
+    .chorus-toggle.active { background: #001a1a; border-color: #004a4a; }
+    .chorus-toggle.active::after { left: 14px; background: var(--cyan); box-shadow: 0 0 6px var(--cyan); }
+
+    .chorus-controls { display: flex; gap: 12px; }
+    .chorus-control { flex: 1; display: flex; flex-direction: column; gap: 4px; }
+    .chorus-control-label { font-size: 7.5px; letter-spacing: 0.15em; color: var(--dim); text-transform: uppercase; }
+    .chorus-control-row { display: flex; align-items: center; gap: 8px; }
+    .chorus-slider-track {
+      flex: 1; position: relative; height: 3px;
+      background: #0f0f20; border-radius: 2px; border: 1px solid var(--border);
+    }
+    .chorus-slider-fill {
+      position: absolute; left: 0; top: 0; bottom: 0;
+      background: linear-gradient(to right, #001a1a, var(--cyan));
+      border-radius: 2px; pointer-events: none;
+    }
+    .chorus-slider {
+      position: absolute; inset: 0; width: 100%; height: 100%;
+      opacity: 0; cursor: pointer;
+    }
+    .chorus-value { font-size: 8px; color: var(--cyan); min-width: 36px; text-align: right; font-family: 'Space Mono', monospace; }
+
+    /* ── FLANGER SECTION ───────────────────────────────── */
+    .flanger-section {
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border);
+    }
+    .flanger-header {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-bottom: 10px;
+    }
+    .flanger-title {
+      font-family: 'VT323', monospace; font-size: 18px;
+      letter-spacing: 0.18em; color: var(--pink);
+      text-shadow: 0 0 10px rgba(255,45,120,0.3);
+    }
+    .flanger-toggle {
+      width: 28px; height: 16px;
+      background: #0a0a16; border: 1px solid var(--border-hi);
+      border-radius: 8px; cursor: pointer; position: relative;
+      transition: background 0.2s, border-color 0.2s;
+    }
+    .flanger-toggle::after {
+      content: '';
+      position: absolute; top: 2px; left: 2px;
+      width: 10px; height: 10px;
+      background: #2a2a44; border-radius: 50%;
+      transition: left 0.2s, background 0.2s;
+    }
+    .flanger-toggle.active { background: #1a001a; border-color: #4a0030; }
+    .flanger-toggle.active::after { left: 14px; background: var(--pink); box-shadow: 0 0 6px var(--pink); }
+
+    .flanger-controls { display: flex; gap: 12px; flex-wrap: wrap; }
+    .flanger-control { flex: 1; min-width: 80px; display: flex; flex-direction: column; gap: 4px; }
+    .flanger-control-label { font-size: 7.5px; letter-spacing: 0.15em; color: var(--dim); text-transform: uppercase; }
+    .flanger-control-row { display: flex; align-items: center; gap: 8px; }
+    .flanger-slider-track {
+      flex: 1; position: relative; height: 3px;
+      background: #0f0f20; border-radius: 2px; border: 1px solid var(--border);
+    }
+    .flanger-slider-fill {
+      position: absolute; left: 0; top: 0; bottom: 0;
+      background: linear-gradient(to right, #1a0018, var(--pink));
+      border-radius: 2px; pointer-events: none;
+    }
+    .flanger-slider {
+      position: absolute; inset: 0; width: 100%; height: 100%;
+      opacity: 0; cursor: pointer;
+    }
+    .flanger-value { font-size: 8px; color: var(--pink); min-width: 36px; text-align: right; font-family: 'Space Mono', monospace; }
+
     /* ── COMPRESSOR SECTION ────────────────────────────── */
     .comp-section {
       padding: 12px 16px;
@@ -857,6 +955,10 @@ nav: sampler
       .fx-section { width: 100%; }
       .delay-controls { flex-wrap: wrap; }
       .delay-control { min-width: 45%; }
+      .chorus-controls { flex-wrap: wrap; }
+      .chorus-control { min-width: 45%; }
+      .flanger-controls { flex-wrap: wrap; }
+      .flanger-control { min-width: 45%; }
       .adsr-controls { flex-direction: column; }
       .adsr-viz-wrap { width: 100%; }
       #adsr-viz-canvas { width: 100% !important; }
@@ -1037,6 +1139,96 @@ nav: sampler
       </div>
     </div>
 
+    <!-- CHORUS -->
+    <div class="chorus-section">
+      <div class="chorus-header">
+        <span class="chorus-title">CHORUS</span>
+        <div class="chorus-toggle" id="chorus-toggle" role="button" aria-label="Toggle chorus"></div>
+      </div>
+      <div class="chorus-controls">
+        <div class="chorus-control">
+          <span class="chorus-control-label">Rate (Hz)</span>
+          <div class="chorus-control-row">
+            <div class="chorus-slider-track">
+              <div class="chorus-slider-fill" id="chorus-rate-fill" style="width:13%"></div>
+              <input type="range" class="chorus-slider" id="chorus-rate" min="0.1" max="8" step="0.05" value="1.2">
+            </div>
+            <span class="chorus-value" id="chorus-rate-value">1.20 Hz</span>
+          </div>
+        </div>
+        <div class="chorus-control">
+          <span class="chorus-control-label">Depth (ms)</span>
+          <div class="chorus-control-row">
+            <div class="chorus-slider-track">
+              <div class="chorus-slider-fill" id="chorus-depth-fill" style="width:35%"></div>
+              <input type="range" class="chorus-slider" id="chorus-depth" min="0" max="20" step="0.1" value="7">
+            </div>
+            <span class="chorus-value" id="chorus-depth-value">7.0 ms</span>
+          </div>
+        </div>
+        <div class="chorus-control">
+          <span class="chorus-control-label">Mix</span>
+          <div class="chorus-control-row">
+            <div class="chorus-slider-track">
+              <div class="chorus-slider-fill" id="chorus-mix-fill" style="width:45%"></div>
+              <input type="range" class="chorus-slider" id="chorus-mix" min="0" max="1" step="0.01" value="0.45">
+            </div>
+            <span class="chorus-value" id="chorus-mix-value">45%</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- FLANGER -->
+    <div class="flanger-section">
+      <div class="flanger-header">
+        <span class="flanger-title">FLANGER</span>
+        <div class="flanger-toggle" id="flanger-toggle" role="button" aria-label="Toggle flanger"></div>
+      </div>
+      <div class="flanger-controls">
+        <div class="flanger-control">
+          <span class="flanger-control-label">Rate (Hz)</span>
+          <div class="flanger-control-row">
+            <div class="flanger-slider-track">
+              <div class="flanger-slider-fill" id="flanger-rate-fill" style="width:3%"></div>
+              <input type="range" class="flanger-slider" id="flanger-rate" min="0.05" max="5" step="0.05" value="0.2">
+            </div>
+            <span class="flanger-value" id="flanger-rate-value">0.20 Hz</span>
+          </div>
+        </div>
+        <div class="flanger-control">
+          <span class="flanger-control-label">Depth (ms)</span>
+          <div class="flanger-control-row">
+            <div class="flanger-slider-track">
+              <div class="flanger-slider-fill" id="flanger-depth-fill" style="width:40%"></div>
+              <input type="range" class="flanger-slider" id="flanger-depth" min="0" max="5" step="0.05" value="2">
+            </div>
+            <span class="flanger-value" id="flanger-depth-value">2.0 ms</span>
+          </div>
+        </div>
+        <div class="flanger-control">
+          <span class="flanger-control-label">Feedback</span>
+          <div class="flanger-control-row">
+            <div class="flanger-slider-track">
+              <div class="flanger-slider-fill" id="flanger-feedback-fill" style="width:55%"></div>
+              <input type="range" class="flanger-slider" id="flanger-feedback" min="0" max="0.95" step="0.01" value="0.5">
+            </div>
+            <span class="flanger-value" id="flanger-feedback-value">50%</span>
+          </div>
+        </div>
+        <div class="flanger-control">
+          <span class="flanger-control-label">Mix</span>
+          <div class="flanger-control-row">
+            <div class="flanger-slider-track">
+              <div class="flanger-slider-fill" id="flanger-mix-fill" style="width:50%"></div>
+              <input type="range" class="flanger-slider" id="flanger-mix" min="0" max="1" step="0.01" value="0.5">
+            </div>
+            <span class="flanger-value" id="flanger-mix-value">50%</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- COMPRESSOR -->
     <div class="comp-section">
       <div class="comp-header">
@@ -1188,6 +1380,16 @@ nav: sampler
    noteOnAction applies the ADSR to every new voice via a
    dedicated envelopeGain node. noteOffAction triggers the
    release ramp and cleans up after the tail expires.
+
+   Signal chain (full):
+     voiceSrc → lowpassNode → envelopeGain → masterGain
+       → eqNodes[0→3] → compressorNode
+       → chorusDryGain ──────────────────────────────────────────┐
+       → chorusDelayNode → chorusLfoGain → chorusWetGain         │
+       → flangerDryGain ────────────────────────────────────────-┤
+       → flangerDelayNode → flangerFeedbackNode (loop) → flangerWetGain │
+       → delayDryGain + delayNode → delayWetGain                 │
+       → limiter → destination                                   │
    ════════════════════════════════════════════════════════ */
 
 class MicroSampler {
@@ -1200,6 +1402,47 @@ class MicroSampler {
     this.delayFeedbackNode = null;
     this.delayWetGain = null;
     this.delayDryGain = null;
+
+    /* ── Chorus nodes ───────────────────────────────────
+       Architecture: a single modulated delay line.
+       The LFO (OscillatorNode) drives a GainNode that
+       acts as a depth scaler, which in turn is connected
+       to the delayTime AudioParam via a ConstantSourceNode
+       offset trick — we use:
+           baseDelay (ConstantSourceNode → delay.delayTime)
+         + lfoGain   (OscillatorNode → GainNode → delay.delayTime)
+       Dry + wet are mixed by chorusDryGain / chorusWetGain.
+    ────────────────────────────────────────────────────── */
+    this.chorusDelayNode    = null;
+    this.chorusLfo          = null;
+    this.chorusLfoDepthGain = null;
+    this.chorusBaseDelay    = null;
+    this.chorusWetGain      = null;
+    this.chorusDryGain      = null;
+    this.chorusEnabled      = false;
+    this.chorusRate         = 1.2;   // Hz
+    this.chorusDepth        = 0.007; // seconds (7 ms)
+    this.chorusMix          = 0.45;  // wet proportion
+
+    /* ── Flanger nodes ──────────────────────────────────
+       Architecture: very short modulated delay with
+       feedback. Uses the same LFO + depth gain pattern,
+       but with a shorter base delay (≈2–4 ms centre) and a
+       feedback loop: flangerFeedbackGain feeds back into
+       the delay input after the delay node.
+    ────────────────────────────────────────────────────── */
+    this.flangerDelayNode    = null;
+    this.flangerLfo          = null;
+    this.flangerLfoDepthGain = null;
+    this.flangerBaseDelay    = null;
+    this.flangerFeedbackGain = null;
+    this.flangerWetGain      = null;
+    this.flangerDryGain      = null;
+    this.flangerEnabled      = false;
+    this.flangerRate         = 0.2;   // Hz
+    this.flangerDepth        = 0.002; // seconds (2 ms)
+    this.flangerFeedback     = 0.5;   // 0–0.95
+    this.flangerMix          = 0.5;   // wet proportion
 
     this.eqBands = [
       { type: 'lowshelf',  freq: 80,   gain: 0, q: 1,   id: 0, label: 'LOW' },
@@ -1268,21 +1511,31 @@ class MicroSampler {
 
   /* ─────────────────────────────────────────────────────
      initAudio — builds the full signal chain once.
-     Signal flow:
-       voiceSrc → lowpassNode → envelopeGain → voiceGain
-                                                    ↓
-                                               masterGain
-                                                    ↓
-                                               eqNodes[0→3]
-                                                    ↓
-                                               compressorNode
-                                                    ↓
-                                         ┌──────┴──────┐
-                                     dryGain        delayNode → wetGain
-                                         └──────┬──────┘
-                                              limiter
-                                                ↓
-                                            destination
+
+     Updated signal flow (post-compressor):
+       compressorNode
+         → chorusDryGain  ─────────────────────────────┐
+         → chorusInput (merger of dry+wet for chorus)   │
+         → flangerDryGain ───────────────────────────── chorusMerge
+         → flangerInput                                  │
+         → delayDryGain + delayNode → delayWetGain      │
+         → limiter → destination                        │
+
+     Exact routing for Chorus:
+       compressorNode → chorusDryGain → chorusMergeGain (output bus)
+       compressorNode → chorusDelayNode → chorusWetGain → chorusMergeGain
+       chorusLfo → chorusLfoDepthGain → chorusDelayNode.delayTime
+       chorusBaseDelay (ConstantSource) → chorusDelayNode.delayTime
+
+     Exact routing for Flanger:
+       chorusMergeGain → flangerDryGain → flangerMergeGain (output bus)
+       chorusMergeGain → flangerDelayNode → flangerWetGain → flangerMergeGain
+       flangerDelayNode → flangerFeedbackGain → flangerDelayNode (feedback)
+       flangerLfo → flangerLfoDepthGain → flangerDelayNode.delayTime
+       flangerBaseDelay (ConstantSource) → flangerDelayNode.delayTime
+
+     After flanger:
+       flangerMergeGain → delayDryGain + delayNode → delayWetGain → limiter
   ───────────────────────────────────────────────────── */
   initAudio() {
     if (this.audioCtx) return;
@@ -1309,6 +1562,106 @@ class MicroSampler {
     this.compressorNode.attack.setValueAtTime(this.compAttack, this.audioCtx.currentTime);
     this.compressorNode.release.setValueAtTime(this.compRelease, this.audioCtx.currentTime);
 
+    /* ── Build Chorus ──────────────────────────────────
+       Base delay: 25 ms centre, LFO sweeps ± depth around it.
+       Max buffer needed: 25 ms + 20 ms depth = 45 ms → 0.05 s
+    ────────────────────────────────────────────────────── */
+    const CHORUS_BASE_DELAY_S = 0.025; // 25 ms static centre
+
+    this.chorusDelayNode = this.audioCtx.createDelay(0.05);
+    this.chorusDelayNode.delayTime.setValueAtTime(CHORUS_BASE_DELAY_S, this.audioCtx.currentTime);
+
+    // ConstantSourceNode feeds the base delay offset into delayTime
+    this.chorusBaseDelay = this.audioCtx.createConstantSource();
+    this.chorusBaseDelay.offset.setValueAtTime(CHORUS_BASE_DELAY_S, this.audioCtx.currentTime);
+    this.chorusBaseDelay.connect(this.chorusDelayNode.delayTime);
+    this.chorusBaseDelay.start();
+
+    // LFO for chorus
+    this.chorusLfo = this.audioCtx.createOscillator();
+    this.chorusLfo.type = 'sine';
+    this.chorusLfo.frequency.setValueAtTime(this.chorusRate, this.audioCtx.currentTime);
+
+    // Depth gain: scales LFO amplitude to the actual delay modulation amount
+    this.chorusLfoDepthGain = this.audioCtx.createGain();
+    this.chorusLfoDepthGain.gain.setValueAtTime(this.chorusDepth, this.audioCtx.currentTime);
+
+    this.chorusLfo.connect(this.chorusLfoDepthGain);
+    this.chorusLfoDepthGain.connect(this.chorusDelayNode.delayTime);
+    this.chorusLfo.start();
+
+    // Wet / dry mix gains for chorus
+    this.chorusWetGain = this.audioCtx.createGain();
+    this.chorusDryGain = this.audioCtx.createGain();
+
+    // Merge node — everything after chorus feeds into this
+    this.chorusMergeGain = this.audioCtx.createGain();
+    this.chorusMergeGain.gain.setValueAtTime(1, this.audioCtx.currentTime);
+
+    // Patch dry path
+    this.chorusDryGain.connect(this.chorusMergeGain);
+    // Patch wet path: compressor → delay → wet gain → merge
+    this.chorusDelayNode.connect(this.chorusWetGain);
+    this.chorusWetGain.connect(this.chorusMergeGain);
+
+    // Set initial gain values (disabled = dry only)
+    const chorusWet = this.chorusEnabled ? this.chorusMix : 0;
+    const chorusDry = this.chorusEnabled ? (1 - this.chorusMix) : 1;
+    this.chorusWetGain.gain.setValueAtTime(chorusWet, this.audioCtx.currentTime);
+    this.chorusDryGain.gain.setValueAtTime(chorusDry, this.audioCtx.currentTime);
+
+    /* ── Build Flanger ─────────────────────────────────
+       Very short delay (2–4 ms centre) with feedback loop.
+       Max buffer: 4 ms centre + 5 ms depth = 9 ms → 0.01 s
+    ────────────────────────────────────────────────────── */
+    const FLANGER_BASE_DELAY_S = 0.003; // 3 ms static centre
+
+    this.flangerDelayNode = this.audioCtx.createDelay(0.015);
+    this.flangerDelayNode.delayTime.setValueAtTime(FLANGER_BASE_DELAY_S, this.audioCtx.currentTime);
+
+    // ConstantSourceNode for flanger base delay
+    this.flangerBaseDelay = this.audioCtx.createConstantSource();
+    this.flangerBaseDelay.offset.setValueAtTime(FLANGER_BASE_DELAY_S, this.audioCtx.currentTime);
+    this.flangerBaseDelay.connect(this.flangerDelayNode.delayTime);
+    this.flangerBaseDelay.start();
+
+    // LFO for flanger
+    this.flangerLfo = this.audioCtx.createOscillator();
+    this.flangerLfo.type = 'sine';
+    this.flangerLfo.frequency.setValueAtTime(this.flangerRate, this.audioCtx.currentTime);
+
+    // Depth gain
+    this.flangerLfoDepthGain = this.audioCtx.createGain();
+    this.flangerLfoDepthGain.gain.setValueAtTime(this.flangerDepth, this.audioCtx.currentTime);
+
+    this.flangerLfo.connect(this.flangerLfoDepthGain);
+    this.flangerLfoDepthGain.connect(this.flangerDelayNode.delayTime);
+    this.flangerLfo.start();
+
+    // Feedback loop: delay output → feedback gain → delay input
+    this.flangerFeedbackGain = this.audioCtx.createGain();
+    this.flangerFeedbackGain.gain.setValueAtTime(this.flangerFeedback, this.audioCtx.currentTime);
+    this.flangerDelayNode.connect(this.flangerFeedbackGain);
+    this.flangerFeedbackGain.connect(this.flangerDelayNode);
+
+    // Wet / dry mix gains for flanger
+    this.flangerWetGain = this.audioCtx.createGain();
+    this.flangerDryGain = this.audioCtx.createGain();
+
+    // Merge node — everything after flanger feeds into this
+    this.flangerMergeGain = this.audioCtx.createGain();
+    this.flangerMergeGain.gain.setValueAtTime(1, this.audioCtx.currentTime);
+
+    this.flangerDryGain.connect(this.flangerMergeGain);
+    this.flangerDelayNode.connect(this.flangerWetGain);
+    this.flangerWetGain.connect(this.flangerMergeGain);
+
+    const flangerWet = this.flangerEnabled ? this.flangerMix : 0;
+    const flangerDry = this.flangerEnabled ? (1 - this.flangerMix) : 1;
+    this.flangerWetGain.gain.setValueAtTime(flangerWet, this.audioCtx.currentTime);
+    this.flangerDryGain.gain.setValueAtTime(flangerDry, this.audioCtx.currentTime);
+
+    /* ── Build Delay / Echo ────────────────────────────── */
     this.delayNode = this.audioCtx.createDelay(1.0);
     this.delayFeedbackNode = this.audioCtx.createGain();
     this.delayWetGain = this.audioCtx.createGain();
@@ -1325,10 +1678,29 @@ class MicroSampler {
     this.delayNode.connect(this.delayFeedbackNode);
     this.delayFeedbackNode.connect(this.delayNode);
 
+    /* ── Wire the full chain ───────────────────────────
+       masterGain → eq[0..n] → compressor
+         → chorusDryGain → chorusMergeGain
+         → chorusDelayNode (already patched above) → chorusWetGain → chorusMergeGain
+         chorusMergeGain → flangerDryGain → flangerMergeGain
+         chorusMergeGain → flangerDelayNode → flangerWetGain → flangerMergeGain
+         flangerMergeGain → delayDryGain → limiter
+         flangerMergeGain → delayNode → delayWetGain → limiter
+    ────────────────────────────────────────────────────── */
     this.masterGain.connect(this.eqNodes[0]);
     this.eqNodes[this.eqNodes.length - 1].connect(this.compressorNode);
-    this.compressorNode.connect(this.delayDryGain);
-    this.compressorNode.connect(this.delayNode);
+
+    // Compressor → chorus split
+    this.compressorNode.connect(this.chorusDryGain);
+    this.compressorNode.connect(this.chorusDelayNode);
+
+    // Chorus merge → flanger split
+    this.chorusMergeGain.connect(this.flangerDryGain);
+    this.chorusMergeGain.connect(this.flangerDelayNode);
+
+    // Flanger merge → delay split → limiter
+    this.flangerMergeGain.connect(this.delayDryGain);
+    this.flangerMergeGain.connect(this.delayNode);
     this.delayNode.connect(this.delayWetGain);
     this.delayDryGain.connect(this.limiter);
     this.delayWetGain.connect(this.limiter);
@@ -1725,6 +2097,24 @@ class MicroSampler {
       this.updateCompressorDspGraph();
     });
 
+    /* ── Chorus listeners ──────────────────────────────── */
+    document.getElementById('chorus-toggle').addEventListener('click', () => {
+      this.chorusEnabled = !this.chorusEnabled;
+      document.getElementById('chorus-toggle').classList.toggle('active', this.chorusEnabled);
+      this.updateChorusDspGraph();
+    });
+
+    this.attachChorusSliderListeners();
+
+    /* ── Flanger listeners ─────────────────────────────── */
+    document.getElementById('flanger-toggle').addEventListener('click', () => {
+      this.flangerEnabled = !this.flangerEnabled;
+      document.getElementById('flanger-toggle').classList.toggle('active', this.flangerEnabled);
+      this.updateFlangerDspGraph();
+    });
+
+    this.attachFlangerSliderListeners();
+
     const compSliderDefs = [
       { id:'comp-threshold', fillId:'comp-threshold-fill', valId:'comp-threshold-value',
         fmt: v => `${Math.round(v)} dB`,       pct: v => ((parseFloat(v)-(-60))/60)*100, cb: v => { this.compThreshold=v; this.updateCompressorDspGraph(); }},
@@ -1784,6 +2174,121 @@ class MicroSampler {
 
     // Wire up per-pad ADSR sliders
     this.attachAdsrListeners();
+  }
+
+  /* ── Chorus slider wiring ──────────────────────────── */
+  attachChorusSliderListeners() {
+    // Rate
+    const rateSlider = document.getElementById('chorus-rate');
+    rateSlider.addEventListener('input', () => {
+      const v = parseFloat(rateSlider.value);
+      const pct = ((v - 0.1) / (8 - 0.1)) * 100;
+      document.getElementById('chorus-rate-fill').style.width = `${pct}%`;
+      document.getElementById('chorus-rate-value').textContent = `${v.toFixed(2)} Hz`;
+      this.chorusRate = v;
+      this.updateChorusDspGraph();
+    });
+    // Depth
+    const depthSlider = document.getElementById('chorus-depth');
+    depthSlider.addEventListener('input', () => {
+      const v = parseFloat(depthSlider.value);
+      const pct = (v / 20) * 100;
+      document.getElementById('chorus-depth-fill').style.width = `${pct}%`;
+      document.getElementById('chorus-depth-value').textContent = `${v.toFixed(1)} ms`;
+      this.chorusDepth = v / 1000; // store as seconds
+      this.updateChorusDspGraph();
+    });
+    // Mix
+    const mixSlider = document.getElementById('chorus-mix');
+    mixSlider.addEventListener('input', () => {
+      const v = parseFloat(mixSlider.value);
+      document.getElementById('chorus-mix-fill').style.width = `${v * 100}%`;
+      document.getElementById('chorus-mix-value').textContent = `${Math.round(v * 100)}%`;
+      this.chorusMix = v;
+      this.updateChorusDspGraph();
+    });
+  }
+
+  /* ── Flanger slider wiring ─────────────────────────── */
+  attachFlangerSliderListeners() {
+    // Rate
+    const rateSlider = document.getElementById('flanger-rate');
+    rateSlider.addEventListener('input', () => {
+      const v = parseFloat(rateSlider.value);
+      const pct = ((v - 0.05) / (5 - 0.05)) * 100;
+      document.getElementById('flanger-rate-fill').style.width = `${pct}%`;
+      document.getElementById('flanger-rate-value').textContent = `${v.toFixed(2)} Hz`;
+      this.flangerRate = v;
+      this.updateFlangerDspGraph();
+    });
+    // Depth
+    const depthSlider = document.getElementById('flanger-depth');
+    depthSlider.addEventListener('input', () => {
+      const v = parseFloat(depthSlider.value);
+      const pct = (v / 5) * 100;
+      document.getElementById('flanger-depth-fill').style.width = `${pct}%`;
+      document.getElementById('flanger-depth-value').textContent = `${v.toFixed(1)} ms`;
+      this.flangerDepth = v / 1000; // store as seconds
+      this.updateFlangerDspGraph();
+    });
+    // Feedback
+    const fbSlider = document.getElementById('flanger-feedback');
+    fbSlider.addEventListener('input', () => {
+      const v = parseFloat(fbSlider.value);
+      const pct = (v / 0.95) * 100;
+      document.getElementById('flanger-feedback-fill').style.width = `${pct}%`;
+      document.getElementById('flanger-feedback-value').textContent = `${Math.round(v * 100)}%`;
+      this.flangerFeedback = v;
+      this.updateFlangerDspGraph();
+    });
+    // Mix
+    const mixSlider = document.getElementById('flanger-mix');
+    mixSlider.addEventListener('input', () => {
+      const v = parseFloat(mixSlider.value);
+      document.getElementById('flanger-mix-fill').style.width = `${v * 100}%`;
+      document.getElementById('flanger-mix-value').textContent = `${Math.round(v * 100)}%`;
+      this.flangerMix = v;
+      this.updateFlangerDspGraph();
+    });
+  }
+
+  /* ── Chorus DSP update ─────────────────────────────── */
+  updateChorusDspGraph() {
+    if (!this.audioCtx || !this.chorusLfo) return;
+    const now = this.audioCtx.currentTime;
+
+    // Update LFO rate
+    this.chorusLfo.frequency.setTargetAtTime(this.chorusRate, now, 0.02);
+
+    // Update depth (modulation amplitude in seconds)
+    this.chorusLfoDepthGain.gain.setTargetAtTime(this.chorusDepth, now, 0.02);
+
+    // Update wet/dry based on enabled state
+    const wet = this.chorusEnabled ? this.chorusMix : 0;
+    const dry = this.chorusEnabled ? (1 - this.chorusMix) : 1;
+    this.chorusWetGain.gain.setTargetAtTime(wet, now, 0.01);
+    this.chorusDryGain.gain.setTargetAtTime(dry, now, 0.01);
+  }
+
+  /* ── Flanger DSP update ────────────────────────────── */
+  updateFlangerDspGraph() {
+    if (!this.audioCtx || !this.flangerLfo) return;
+    const now = this.audioCtx.currentTime;
+
+    // Update LFO rate
+    this.flangerLfo.frequency.setTargetAtTime(this.flangerRate, now, 0.02);
+
+    // Update depth
+    this.flangerLfoDepthGain.gain.setTargetAtTime(this.flangerDepth, now, 0.02);
+
+    // Update feedback
+    this.flangerFeedbackGain.gain.setTargetAtTime(this.flangerFeedback, now, 0.02);
+
+    // Update wet/dry
+    const wet = this.flangerEnabled ? this.flangerMix : 0;
+    const dry = this.flangerEnabled ? (1 - this.flangerMix) : 1;
+    this.flangerWetGain.gain.setTargetAtTime(wet, now, 0.01);
+    this.flangerDryGain.gain.setTargetAtTime(dry, now, 0.01);
   }
 
   attachSliderEngine(sliderId, fillId, valId, unit, callback, isPercent = false) {
