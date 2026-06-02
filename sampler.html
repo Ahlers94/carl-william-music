@@ -2676,13 +2676,9 @@ class MicroSampler {
     if (!this.padLoopStates[idx]) {
       const fadeStart = naturalEnd - DECLICK_S;
       if (fadeStart > now) {
-        // Ramp the envelope gain to 0 over the last 4 ms
-        envelopeGain.gain.setTargetAtTime(
-          envelopeGain.gain.value,   // snapshot current value at fade-start
-          fadeStart,
-          0.001                      // very tight time-constant ≈ instant lock
-        );
-        envelopeGain.gain.linearRampToValueAtTime(0.0, naturalEnd);
+        // Safer cross-browser alternative if Firefox clicks:
+envelopeGain.gain.setValueAtTime(envelopeGain.gain.value, fadeStart);
+envelopeGain.gain.linearRampToValueAtTime(0.0, naturalEnd);
       }
       // Stop the source node at the exact moment the fade reaches 0
       voiceSrc.stop(naturalEnd);
