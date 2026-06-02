@@ -1489,6 +1489,9 @@ class MicroSampler {
     ];
 
     this.octaveOffset = 0;
+    this.pitchBendMultiplier = 1.0;  // 1.0 = no bend
+    this.modWheelValue = 0;          // 0–127
+    this.PITCH_BEND_SEMITONES = 2;   // ± semitone range
     this.masterVolumeValue = /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent) ? 1.0 : 0.7;
     this.delayEnabled = false;
     this.delayTimeValue = 300;
@@ -2592,7 +2595,7 @@ class MicroSampler {
 
     // Build trimmed + FX slice buffer
     const pitchShift   = playedMidi - this.ROOT_MIDI;
-    const playbackRate = Math.pow(2, pitchShift / 12);
+    const playbackRate = Math.pow(2, pitchShift / 12) * this.pitchBendMultiplier;
     const sampleRate   = origBuffer.sampleRate;
     const startFrame   = Math.floor(this.padTrimStart[idx] * sampleRate);
     const endFrame     = Math.floor(this.padTrimEnd[idx]   * sampleRate);
@@ -2809,12 +2812,82 @@ class MicroSampler {
   handleMidiInputMessage(msg) {
     const [status, data1, data2] = msg.data;
     const cmd = status & 0xf0;
+
     if (cmd === 0x90 && data2 > 0) {
+      /* ── Note On ───────────────────────────────────────── */
       const led = document.getElementById('midi-led');
       if (led) { led.classList.add('active'); setTimeout(() => led.classList.remove('active'), 40); }
       this.noteOnAction(data1);
+
     } else if (cmd === 0x80 || (cmd === 0x90 && data2 === 0)) {
+      /* ── Note Off ──────────────────────────────────────── */
       this.noteOffAction(data1);
+
+    } else if (cmd === 0xe0) {
+      /* ── Pitch Bend (0xE0–0xEF) ────────────────────────
+         14-bit value: LSB = data1 (7 bits), MSB = data2 (7 bits).
+         Center (no bend) = 8192.
+         Range: ± PITCH_BEND_SEMITONES semitones.
+      ──────────────────────────────────────────────────── */
+      const raw14    = (data2 << 7) | data1;           // 0 – 16383
+      const centered = raw14 - 8192;                   // -8192 – +8191
+      const semis    = (centered / 8192) * this.PITCH_BEND_SEMITONES;
+      this.pitchBendMultiplier = Math.pow(2, semis / 12);
+
+      /* Re-tune every currently sounding voice in real time */
+      if (this.audioCtx) {
+        const now = this.audioCtx.currentTime;
+        this.activeNotes.forEach((voiceSet, playedMidi) => {
+          const basePitchShift = playedMidi - this.ROOT_MIDI;
+          const newRate = Math.pow(2, basePitchShift / 12) * this.pitchBendMultiplier;
+          voiceSet.forEach(voice => {
+            try {
+              voice.source.playbackRate.setTargetAtTime(newRate, now, 0.01);
+            } catch (e) { /* voice may have ended */ }
+          });
+        });
+      }
+
+      const led = document.getElementById('midi-led');
+      if (led) { led.classList.add('active'); setTimeout(() => led.classList.remove('active'), 40); }
+
+    } else if (cmd === 0xb0) {
+      /* ── Control Change (0xB0–0xBF) ────────────────────
+         CC #1 = Mod Wheel (0–127).
+         Scales the active pad's filter cutoff by blending
+         the stored knob position with a mod-wheel factor:
+           effective_cutoff = stored_cutoff * (1 - modDepth)
+                            + modTarget    *  modDepth
+         where modDepth  = wheel / 127
+               modTarget = 0.05  (closes filter near bottom)
+         This preserves the knob value; releasing the wheel
+         smoothly restores the original cutoff.
+      ──────────────────────────────────────────────────── */
+      if (data1 === 1) {
+        this.modWheelValue = data2; // 0–127
+
+        if (this.activePad !== -1 && this.audioCtx) {
+          const idx        = this.activePad;
+          const stored     = this.padFilterCutoffs[idx];   // 0–1, set by knob
+          const modDepth   = data2 / 127;
+          const modTarget  = 0.05;                          // minimum cutoff at full wheel
+          const effective  = stored * (1 - modDepth) + modTarget * modDepth;
+
+          /* Push the new effective frequency to every live voice on this pad */
+          const freqHz = 200 + (effective ** 2) * 19800;
+          const now    = this.audioCtx.currentTime;
+          this.activeNotes.forEach((voiceSet) => {
+            voiceSet.forEach(voice => {
+              try {
+                voice.filterNode.frequency.setTargetAtTime(freqHz, now, 0.015);
+              } catch (e) { /* voice may have ended */ }
+            });
+          });
+        }
+
+        const led = document.getElementById('midi-led');
+        if (led) { led.classList.add('active'); setTimeout(() => led.classList.remove('active'), 40); }
+      }
     }
   }
 }
