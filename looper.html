@@ -1,0 +1,2400 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CWM LOOPER — Performance Loop Laboratory</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=VT323&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+/* ══════════════════════════════════════════════════════════════════
+   CWM LOOPER — Single-File Performance Loop Laboratory
+   Inspired by EHX 95000 | Styled for carlwilliammusic.com
+   ══════════════════════════════════════════════════════════════════ */
+
+:root {
+  --bg:      #0a0a12;
+  --surface: #0d0d1a;
+  --surface2:#12121f;
+  --pink:    #ff2d78;
+  --cyan:    #00f5ff;
+  --gold:    #ffd700;
+  --purple:  #b06aff;
+  --green:   #99cc77;
+  --red:     #ff3b30;
+  --text:    #e0d8f0;
+  --muted:   #9988aa;
+  --dim:     #443355;
+  --border:  #1e1e30;
+  --track1:  #ff2d78;
+  --track2:  #00f5ff;
+  --track3:  #ffd700;
+  --track4:  #b06aff;
+  --track5:  #99cc77;
+  --track6:  #ff9933;
+  --trackMix:#ffffff;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Space Mono', monospace;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* CRT scanlines */
+body::before {
+  content: '';
+  position: fixed; inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent, transparent 3px,
+    rgba(0,245,255,0.012) 3px, rgba(0,245,255,0.012) 4px
+  );
+  pointer-events: none; z-index: 9999;
+}
+
+/* Cursor glow */
+#cursor-glow {
+  position: fixed; width: 32px; height: 32px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(0,245,255,0.15) 0%, transparent 70%);
+  pointer-events: none;
+  transform: translate(-50%, -50%);
+  z-index: 9998;
+  transition: opacity 0.3s;
+}
+
+/* ── HEADER ── */
+.app-header {
+  border-bottom: 2px solid var(--cyan);
+  padding: 18px 24px 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.app-logo {
+  font-family: 'VT323', monospace;
+  font-size: 36px;
+  color: #00ff41;
+  letter-spacing: 4px;
+  text-shadow: 2px 2px 0 #003d10, 0 0 30px #00ff4188;
+  animation: breathe 3s ease-in-out infinite;
+}
+
+@keyframes breathe {
+  0%,100%{ text-shadow: 2px 2px 0 #003d10, 0 0 20px #00ff4133; }
+  50%    { text-shadow: 2px 2px 0 #003d10, 0 0 40px #00ff41aa, 0 0 60px #00ff4133; }
+}
+
+.app-subtitle {
+  font-size: 9px; color: var(--cyan);
+  letter-spacing: 3px; text-transform: uppercase; opacity: 0.7;
+}
+
+.header-status {
+  display: flex; gap: 12px; align-items: center; flex-wrap: wrap;
+}
+
+/* ── MASTER DISPLAY ── */
+.master-display {
+  display: flex; gap: 0;
+  background: #06060e;
+  border: 1px solid var(--cyan);
+  box-shadow: 0 0 14px #00f5ff22, inset 0 0 20px rgba(0,245,255,0.03);
+  padding: 10px 16px;
+  align-items: center;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+
+.lcd-block {
+  display: flex; flex-direction: column; align-items: center;
+}
+
+.lcd-label {
+  font-size: 8px; color: var(--muted);
+  letter-spacing: 2px; text-transform: uppercase; margin-bottom: 2px;
+}
+
+.lcd-value {
+  font-family: 'VT323', monospace;
+  font-size: 32px; color: var(--cyan);
+  text-shadow: 0 0 10px #00f5ff88;
+  letter-spacing: 3px;
+  min-width: 80px; text-align: center;
+}
+
+.lcd-value.bpm { color: var(--gold); text-shadow: 0 0 10px #ffd70088; }
+.lcd-value.bar { color: #00ff41;   text-shadow: 0 0 10px #00ff4188; }
+.lcd-value.state { font-size: 16px; letter-spacing: 2px; min-width: 120px; }
+
+.lcd-sep { width: 1px; height: 40px; background: var(--border); }
+
+/* Transport state colors */
+.state-stopped  { color: var(--muted) !important; text-shadow: none !important; }
+.state-armed    { color: var(--pink)  !important; text-shadow: 0 0 10px #ff2d7888 !important; animation: blink 0.5s step-end infinite; }
+.state-recording{ color: var(--red)   !important; text-shadow: 0 0 10px #ff3b3088 !important; animation: blink 0.8s step-end infinite; }
+.state-playing  { color: #00ff41     !important; text-shadow: 0 0 10px #00ff4188 !important; }
+.state-overdub  { color: var(--purple)!important; text-shadow: 0 0 10px #b06aff88 !important; animation: blink 0.6s step-end infinite; }
+
+@keyframes blink { 50% { opacity: 0.3; } }
+
+/* ── MAIN LAYOUT ── */
+.app-body {
+  display: grid;
+  grid-template-columns: 1fr 260px;
+  grid-template-rows: auto 1fr;
+  gap: 0;
+  height: calc(100vh - 80px);
+  min-height: 600px;
+}
+
+/* ── PERFORMANCE ZONE (left) ── */
+.performance-zone {
+  display: flex;
+  flex-direction: column;
+  border-right: 1px solid var(--border);
+  overflow: hidden;
+}
+
+/* Master Transport */
+.master-transport {
+  display: flex; gap: 8px;
+  padding: 10px 12px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  flex-wrap: wrap;
+}
+
+.transport-btn {
+  flex: 1; min-width: 70px;
+  padding: 14px 8px;
+  font-family: 'Space Mono', monospace;
+  font-size: 11px; font-weight: 700;
+  letter-spacing: 3px; text-transform: uppercase;
+  border: 1px solid var(--dim);
+  background: var(--surface);
+  cursor: pointer;
+  transition: all 0.12s;
+  touch-action: manipulation;
+}
+
+#btn-rec   { color: var(--pink);   border-color: #ff2d7844; }
+#btn-play  { color: var(--cyan);   border-color: #00f5ff44; }
+#btn-stop  { color: var(--gold);   border-color: #ffd70044; }
+#btn-overdub { color: var(--purple); border-color: #b06aff44; }
+#btn-undo  { color: var(--muted);  border-color: #9988aa33; }
+#btn-clear { color: var(--red);    border-color: #ff3b3033; }
+
+#btn-rec:hover   { background: #ff2d7811; box-shadow: 0 0 12px #ff2d7833; }
+#btn-play:hover  { background: #00f5ff11; box-shadow: 0 0 12px #00f5ff33; }
+#btn-stop:hover  { background: #ffd70011; box-shadow: 0 0 12px #ffd70033; }
+#btn-overdub:hover { background: #b06aff11; box-shadow: 0 0 12px #b06aff33; }
+#btn-undo:hover  { background: #9988aa11; }
+#btn-clear:hover { background: #ff3b3011; box-shadow: 0 0 12px #ff3b3033; }
+
+#btn-rec.active   { background: #ff2d7822; border-color: var(--pink);   box-shadow: inset 0 0 12px #ff2d7833, 0 0 20px #ff2d7844; }
+#btn-play.active  { background: #00f5ff22; border-color: var(--cyan);   box-shadow: inset 0 0 12px #00f5ff33, 0 0 20px #00f5ff44; }
+#btn-overdub.active{ background:#b06aff22; border-color: var(--purple); box-shadow: inset 0 0 12px #b06aff33, 0 0 20px #b06aff44; }
+
+/* ── TRACK STRIPS AREA ── */
+.tracks-scroll {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  scrollbar-width: thin;
+  scrollbar-color: var(--dim) transparent;
+}
+
+/* ── TRACK STRIP ── */
+.track-strip {
+  display: grid;
+  grid-template-columns: 32px 90px 1fr 36px 44px 44px 44px 60px 50px;
+  gap: 4px;
+  align-items: center;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  padding: 6px 8px;
+  min-height: 58px;
+  transition: border-color 0.2s;
+}
+
+.track-strip:hover { border-color: #2a2a42; }
+.track-strip.selected { border-color: #3a3a5a; background: #0f0f1e; }
+.track-strip.recording { border-color: var(--red) !important; box-shadow: 0 0 10px #ff3b3033; }
+.track-strip.playing { border-color: var(--green) !important; }
+.track-strip.muted-strip { opacity: 0.45; }
+.track-strip.soloed-strip { box-shadow: 0 0 14px #ffd70033; }
+
+/* Track number/select button */
+.track-select-btn {
+  width: 30px; height: 46px;
+  font-family: 'VT323', monospace;
+  font-size: 20px; font-weight: 700;
+  border: 1px solid; cursor: pointer;
+  background: transparent;
+  transition: all 0.12s;
+  display: flex; align-items: center; justify-content: center;
+}
+
+/* Track info & waveform */
+.track-info { display: flex; flex-direction: column; gap: 2px; }
+
+.track-name {
+  font-size: 9px; letter-spacing: 2px; text-transform: uppercase;
+  font-weight: 700; white-space: nowrap; overflow: hidden;
+}
+
+.track-duration {
+  font-family: 'VT323', monospace;
+  font-size: 13px; color: var(--muted);
+}
+
+.track-waveform-wrap {
+  position: relative; height: 36px;
+  background: #06060e;
+  border: 1px solid #1a1a2e;
+  overflow: hidden; cursor: pointer;
+}
+
+canvas.waveform-canvas {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
+}
+
+.track-playhead {
+  position: absolute; top: 0; bottom: 0;
+  width: 1px; background: rgba(255,255,255,0.6);
+  pointer-events: none;
+}
+
+/* Pan knob */
+.pan-knob-wrap {
+  display: flex; flex-direction: column;
+  align-items: center; gap: 1px;
+}
+
+.pan-label { font-size: 7px; color: var(--muted); letter-spacing: 1px; }
+
+.pan-knob {
+  width: 28px; height: 28px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, #2a2a3e, #0d0d18);
+  border: 1px solid #333;
+  cursor: pointer;
+  position: relative;
+  display: flex; align-items: center; justify-content: center;
+  touch-action: none;
+}
+
+.pan-dot {
+  position: absolute;
+  width: 3px; height: 3px;
+  border-radius: 50%;
+  background: var(--cyan);
+  top: 4px; left: 50%;
+  transform: translateX(-50%);
+  box-shadow: 0 0 4px var(--cyan);
+}
+
+/* Fader */
+.fader-wrap {
+  display: flex; flex-direction: column;
+  align-items: center; gap: 1px;
+  height: 46px;
+}
+
+.fader-label { font-size: 7px; color: var(--muted); letter-spacing: 1px; white-space: nowrap; }
+
+input.fader {
+  -webkit-appearance: none; appearance: none;
+  writing-mode: vertical-lr;
+  direction: rtl;
+  width: 10px; height: 36px;
+  background: #0d0d18;
+  border: 1px solid #1e1e30;
+  border-radius: 2px;
+  outline: none;
+  cursor: pointer;
+}
+
+input.fader::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 18px; height: 8px;
+  background: linear-gradient(to bottom, #3a3a5a, #1e1e30);
+  border: 1px solid #4a4a6a;
+  border-radius: 2px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.5);
+  cursor: pointer;
+}
+
+input.fader::-moz-range-thumb {
+  width: 18px; height: 8px;
+  background: linear-gradient(to bottom, #3a3a5a, #1e1e30);
+  border: 1px solid #4a4a6a;
+  border-radius: 2px;
+}
+
+/* Toggle buttons */
+.track-btn {
+  width: 40px; height: 46px;
+  font-family: 'Space Mono', monospace;
+  font-size: 8px; letter-spacing: 1px;
+  text-transform: uppercase;
+  border: 1px solid #2a2a3e;
+  background: transparent; cursor: pointer;
+  transition: all 0.12s;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  gap: 2px; color: var(--muted);
+}
+
+.track-btn:hover { border-color: #4a4a6a; color: var(--text); }
+.track-btn.mute-btn.active  { background: #ff2d7822; color: var(--pink);   border-color: var(--pink);   box-shadow: 0 0 8px #ff2d7833; }
+.track-btn.solo-btn.active  { background: #ffd70022; color: var(--gold);   border-color: var(--gold);   box-shadow: 0 0 8px #ffd70033; }
+.track-btn.trig-btn.active  { background: #00f5ff22; color: var(--cyan);   border-color: var(--cyan);   box-shadow: 0 0 8px #00f5ff33; }
+
+.track-btn .btn-icon { font-size: 14px; line-height: 1; }
+
+/* IO buttons */
+.track-io {
+  display: flex; flex-direction: column;
+  gap: 3px;
+}
+
+.io-btn {
+  flex: 1; width: 46px;
+  font-size: 7px; letter-spacing: 1px;
+  text-transform: uppercase;
+  border: 1px solid #1e1e30; background: transparent;
+  color: var(--muted); cursor: pointer;
+  padding: 2px 4px;
+  transition: all 0.12s;
+  white-space: nowrap;
+}
+
+.io-btn:hover { border-color: var(--dim); color: var(--text); }
+.io-btn.load-btn:hover { border-color: var(--cyan); color: var(--cyan); }
+.io-btn.save-btn:hover { border-color: var(--gold); color: var(--gold); }
+
+/* Mixdown track styling */
+.track-strip.mixdown-track {
+  background: #0d0d18;
+  border-color: #2a2a42;
+}
+
+/* ── RIGHT PANEL ── */
+.right-panel {
+  background: var(--surface);
+  border-left: 1px solid var(--border);
+  display: flex; flex-direction: column;
+  overflow-y: auto; overflow-x: hidden;
+  scrollbar-width: thin;
+  scrollbar-color: var(--dim) transparent;
+}
+
+.panel-section {
+  border-bottom: 1px solid var(--border);
+  padding: 10px 12px;
+}
+
+.section-label {
+  font-size: 9px; color: var(--cyan);
+  letter-spacing: 3px; text-transform: uppercase;
+  margin-bottom: 8px;
+  display: flex; align-items: center; gap: 8px;
+}
+
+.section-label::after {
+  content: ''; flex: 1; height: 1px; background: #00f5ff22;
+}
+
+/* Input selector */
+.input-select {
+  width: 100%;
+  background: #0d0d18; color: var(--text);
+  border: 1px solid var(--border);
+  font-family: 'Space Mono', monospace;
+  font-size: 10px; padding: 6px 8px;
+  outline: none; cursor: pointer;
+  margin-bottom: 6px;
+}
+
+.input-select:focus { border-color: var(--cyan); }
+
+/* FX Controls */
+.fx-row {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 6px; margin-bottom: 8px;
+}
+
+.fx-label {
+  font-size: 8px; color: var(--muted);
+  letter-spacing: 1.5px; text-transform: uppercase;
+  min-width: 60px;
+}
+
+.fx-value {
+  font-family: 'VT323', monospace;
+  font-size: 14px; color: var(--gold);
+  min-width: 36px; text-align: right;
+}
+
+input.fx-slider {
+  -webkit-appearance: none; appearance: none;
+  flex: 1; height: 4px;
+  background: #1a1a2e;
+  border: none; border-radius: 2px;
+  outline: none; cursor: pointer;
+}
+
+input.fx-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 12px; height: 12px;
+  background: var(--cyan);
+  border-radius: 2px;
+  box-shadow: 0 0 6px var(--cyan);
+  cursor: pointer;
+}
+
+input.fx-slider::-moz-range-thumb {
+  width: 12px; height: 12px;
+  background: var(--cyan); border: none;
+  border-radius: 2px;
+  box-shadow: 0 0 6px var(--cyan);
+}
+
+/* FX Buttons */
+.fx-btn-row {
+  display: flex; gap: 4px; flex-wrap: wrap;
+}
+
+.fx-btn {
+  flex: 1; min-width: 50px;
+  font-family: 'Space Mono', monospace;
+  font-size: 8px; letter-spacing: 1px;
+  text-transform: uppercase;
+  padding: 6px 4px;
+  border: 1px solid var(--dim); background: transparent;
+  color: var(--muted); cursor: pointer;
+  transition: all 0.12s;
+}
+
+.fx-btn:hover   { border-color: var(--purple); color: var(--purple); }
+.fx-btn.active  { background: #b06aff22; color: var(--purple); border-color: var(--purple); box-shadow: 0 0 8px #b06aff33; }
+.fx-btn.reverse-btn:hover  { border-color: var(--pink);   color: var(--pink); }
+.fx-btn.reverse-btn.active { background: #ff2d7822; color: var(--pink); border-color: var(--pink); box-shadow: 0 0 8px #ff2d7833; }
+
+/* CLIX Metronome */
+.metro-row {
+  display: flex; align-items: center; gap: 6px; margin-bottom: 6px;
+}
+
+.metro-beat-display {
+  display: flex; gap: 3px;
+}
+
+.beat-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: #1a1a2e;
+  border: 1px solid var(--dim);
+  transition: all 0.05s;
+}
+
+.beat-dot.active {
+  background: var(--gold);
+  box-shadow: 0 0 8px var(--gold);
+  border-color: var(--gold);
+}
+
+.beat-dot.beat1.active {
+  background: var(--pink);
+  box-shadow: 0 0 8px var(--pink);
+  border-color: var(--pink);
+}
+
+/* MIDI panel */
+.midi-status {
+  font-family: 'VT323', monospace;
+  font-size: 14px;
+  padding: 4px 8px;
+  border: 1px solid var(--border);
+  display: inline-block;
+  margin-bottom: 6px;
+}
+
+.midi-status.connected { color: #00ff41; border-color: #00ff4144; text-shadow: 0 0 6px #00ff4166; }
+.midi-status.disconnected { color: var(--dim); }
+
+.midi-learn-btn {
+  font-family: 'Space Mono', monospace;
+  font-size: 8px; letter-spacing: 1px;
+  text-transform: uppercase;
+  padding: 5px 10px;
+  border: 1px solid var(--dim); background: transparent;
+  color: var(--muted); cursor: pointer;
+  transition: all 0.12s;
+  width: 100%; margin-bottom: 4px;
+}
+
+.midi-learn-btn:hover { border-color: var(--gold); color: var(--gold); }
+.midi-learn-btn.active { background: #ffd70022; color: var(--gold); border-color: var(--gold); box-shadow: 0 0 8px #ffd70033; }
+
+.midi-log {
+  font-size: 8px; color: var(--dim);
+  letter-spacing: 1px;
+  height: 40px; overflow-y: auto;
+  background: #06060e;
+  border: 1px solid var(--border);
+  padding: 4px 6px;
+  line-height: 1.6;
+}
+
+/* Download master */
+.download-master-btn {
+  width: 100%;
+  font-family: 'Space Mono', monospace;
+  font-size: 9px; letter-spacing: 2px;
+  text-transform: uppercase;
+  padding: 10px;
+  border: 1px solid var(--gold); background: transparent;
+  color: var(--gold); cursor: pointer;
+  transition: all 0.12s;
+}
+
+.download-master-btn:hover {
+  background: #ffd70011;
+  box-shadow: 0 0 12px #ffd70033;
+}
+
+/* Loop length quantize buttons */
+.quant-row {
+  display: flex; gap: 3px;
+}
+
+.quant-btn {
+  flex: 1;
+  font-family: 'VT323', monospace;
+  font-size: 14px;
+  padding: 4px 2px;
+  border: 1px solid var(--dim); background: transparent;
+  color: var(--muted); cursor: pointer;
+  text-align: center;
+  transition: all 0.1s;
+}
+
+.quant-btn:hover { border-color: var(--purple); color: var(--purple); }
+.quant-btn.active { background: #b06aff22; color: var(--purple); border-color: var(--purple); box-shadow: 0 0 6px #b06aff33; }
+
+/* Toast / notification */
+#toast {
+  position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
+  background: var(--surface2);
+  border: 1px solid var(--cyan);
+  color: var(--cyan);
+  font-size: 10px; letter-spacing: 2px; text-transform: uppercase;
+  padding: 8px 20px;
+  box-shadow: 0 0 20px #00f5ff33;
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.3s;
+  z-index: 10000;
+}
+
+#toast.show { opacity: 1; }
+
+/* Hidden file inputs */
+.hidden-input { display: none; }
+
+/* Scrollbar styling */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--dim); border-radius: 2px; }
+
+/* Responsive */
+@media (max-width: 900px) {
+  .app-body { grid-template-columns: 1fr; }
+  .right-panel { border-left: none; border-top: 1px solid var(--border); max-height: 300px; }
+  .track-strip { grid-template-columns: 28px 80px 1fr 32px 40px 40px 40px 52px 44px; }
+}
+
+@media (max-width: 600px) {
+  .track-strip { grid-template-columns: 28px 1fr 32px 36px 36px; }
+  .track-strip .pan-knob-wrap,
+  .track-strip .fader-wrap,
+  .track-strip .track-io { display: none; }
+}
+</style>
+</head>
+<body>
+
+<div id="cursor-glow"></div>
+
+<!-- ══ HEADER ══════════════════════════════════════════════════ -->
+<header class="app-header">
+  <div>
+    <div class="app-logo">CWM LOOPER</div>
+    <div class="app-subtitle">Performance Loop Laboratory &nbsp;·&nbsp; v1.0</div>
+  </div>
+
+  <!-- Master Display -->
+  <div class="master-display">
+    <div class="lcd-block">
+      <div class="lcd-label">State</div>
+      <div class="lcd-value state state-stopped" id="lcd-state">STOPPED</div>
+    </div>
+    <div class="lcd-sep"></div>
+    <div class="lcd-block">
+      <div class="lcd-label">Bar.Beat</div>
+      <div class="lcd-value bar" id="lcd-barbeat">01.1</div>
+    </div>
+    <div class="lcd-sep"></div>
+    <div class="lcd-block">
+      <div class="lcd-label">BPM</div>
+      <div class="lcd-value bpm" id="lcd-bpm">---</div>
+    </div>
+    <div class="lcd-sep"></div>
+    <div class="lcd-block">
+      <div class="lcd-label">Loop</div>
+      <div class="lcd-value" id="lcd-loop" style="font-size:14px;color:var(--muted);">NO LOOP</div>
+    </div>
+  </div>
+</header>
+
+<!-- ══ APP BODY ════════════════════════════════════════════════ -->
+<div class="app-body">
+
+  <!-- ── PERFORMANCE ZONE (left) ── -->
+  <div class="performance-zone">
+
+    <!-- Master Transport -->
+    <div class="master-transport">
+      <button class="transport-btn" id="btn-rec">⏺ REC</button>
+      <button class="transport-btn" id="btn-play">▶ PLAY</button>
+      <button class="transport-btn" id="btn-stop">■ STOP</button>
+      <button class="transport-btn" id="btn-overdub">⊕ DUB</button>
+      <button class="transport-btn" id="btn-undo">↩ UNDO</button>
+      <button class="transport-btn" id="btn-clear">✕ CLR</button>
+    </div>
+
+    <!-- Track Strips -->
+    <div class="tracks-scroll" id="tracks-container">
+      <!-- Tracks injected by JS -->
+    </div>
+
+  </div>
+
+  <!-- ── RIGHT PANEL ── -->
+  <div class="right-panel">
+
+    <!-- Input Source -->
+    <div class="panel-section">
+      <div class="section-label">Input</div>
+      <select class="input-select" id="input-device-select">
+        <option value="">— Select Input —</option>
+      </select>
+      <button class="fx-btn" id="btn-init-audio" style="width:100%;margin-top:4px;">Init Audio</button>
+    </div>
+
+    <!-- CLIX Metronome -->
+    <div class="panel-section">
+      <div class="section-label">CLIX Metronome</div>
+      <div class="metro-row">
+        <button class="fx-btn" id="btn-metro" style="flex:1;">Off</button>
+        <div class="metro-beat-display" id="metro-beats">
+          <div class="beat-dot beat1"></div>
+          <div class="beat-dot"></div>
+          <div class="beat-dot"></div>
+          <div class="beat-dot"></div>
+        </div>
+      </div>
+      <div class="fx-row">
+        <span class="fx-label">BPM</span>
+        <input type="range" class="fx-slider" id="metro-bpm" min="40" max="240" value="120" step="0.5">
+        <span class="fx-value" id="metro-bpm-val">120</span>
+      </div>
+      <div class="fx-row">
+        <span class="fx-label">Time Sig</span>
+        <select class="input-select" id="metro-timesig" style="flex:1;margin-bottom:0;">
+          <option value="4">4/4</option>
+          <option value="3">3/4</option>
+          <option value="6">6/8</option>
+          <option value="2">2/4</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Performance FX -->
+    <div class="panel-section">
+      <div class="section-label">Performance FX</div>
+      <div class="fx-row">
+        <span class="fx-label">Pitch/Spd</span>
+        <input type="range" class="fx-slider" id="fx-pitch" min="0.25" max="4.0" value="1.0" step="0.01">
+        <span class="fx-value" id="fx-pitch-val">1.00×</span>
+      </div>
+      <div class="fx-row">
+        <span class="fx-label">Feedback</span>
+        <input type="range" class="fx-slider" id="fx-feedback" min="0" max="1" value="0.8" step="0.01">
+        <span class="fx-value" id="fx-feedback-val">0.80</span>
+      </div>
+      <div class="fx-btn-row" style="margin-top:4px;">
+        <button class="fx-btn" id="btn-half-speed">½ Speed</button>
+        <button class="fx-btn reverse-btn" id="btn-reverse">⇄ Rev</button>
+      </div>
+    </div>
+
+    <!-- Loop Quantize -->
+    <div class="panel-section">
+      <div class="section-label">Loop Quantize</div>
+      <div class="quant-row" id="quant-row">
+        <button class="quant-btn" data-mult="0.5">½×</button>
+        <button class="quant-btn active" data-mult="1">1×</button>
+        <button class="quant-btn" data-mult="2">2×</button>
+        <button class="quant-btn" data-mult="4">4×</button>
+      </div>
+    </div>
+
+    <!-- MIDI -->
+    <div class="panel-section">
+      <div class="section-label">MIDI</div>
+      <div class="midi-status disconnected" id="midi-status">NO MIDI</div>
+      <button class="midi-learn-btn" id="btn-midi-learn" style="margin-top:6px;">MIDI Learn</button>
+      <div class="midi-log" id="midi-log">Waiting for MIDI...</div>
+    </div>
+
+    <!-- Master Export -->
+    <div class="panel-section">
+      <div class="section-label">Export</div>
+      <button class="download-master-btn" id="btn-download-mix">↓ Download Master Mix</button>
+    </div>
+
+  </div>
+</div>
+
+<!-- Hidden file inputs (one per track, created by JS) -->
+<div id="file-inputs"></div>
+
+<!-- Toast -->
+<div id="toast"></div>
+
+<!-- ══════════════════════════════════════════════════════════════
+     JAVASCRIPT ENGINE
+     ══════════════════════════════════════════════════════════════ -->
+<script>
+'use strict';
+
+/* ══════════════════════════════════════════════════════════════
+   MODULE: Audio Context & Node Pool
+   ══════════════════════════════════════════════════════════════ */
+
+let audioCtx = null;          // Web Audio context (created on user gesture)
+let mediaStream = null;       // Microphone/interface stream
+let sourceNode = null;        // MediaStreamSourceNode
+let inputSplitter = null;     // ChannelSplitterNode
+let masterGain = null;        // Master output gain
+let metronomeGain = null;     // Metronome sub-mix gain
+
+// Smooth ramp duration in seconds (50ms click cushion)
+const RAMP_TIME = 0.05;
+
+/* ══════════════════════════════════════════════════════════════
+   MODULE: Track Data Model
+   ══════════════════════════════════════════════════════════════ */
+
+const TRACK_COUNT = 6; // 6 mono + 1 stereo mixdown
+
+const TRACK_COLORS = [
+  'var(--track1)', 'var(--track2)', 'var(--track3)',
+  'var(--track4)', 'var(--track5)', 'var(--track6)',
+  'var(--trackMix)'
+];
+
+const TRACK_NAMES = ['TRK 1','TRK 2','TRK 3','TRK 4','TRK 5','TRK 6','MIX'];
+
+/**
+ * Track object holds all state for a single looper track.
+ */
+function createTrack(index) {
+  return {
+    index,
+    name: TRACK_NAMES[index],
+    color: TRACK_COLORS[index],
+    isMixdown: index === 6,
+
+    // Audio buffers & playback
+    buffer: null,          // AudioBuffer — current content
+    undoBuffer: null,      // AudioBuffer — previous state for undo
+    sourceNode: null,      // BufferSourceNode playing back
+    gainNode: null,        // GainNode for level
+    panNode: null,         // StereoPannerNode
+    analyserNode: null,    // AnalyserNode for waveform display
+
+    // Recording state
+    recorder: null,        // ScriptProcessorNode for overdub capture
+    recChunks: [],         // Float32Array chunks during recording
+
+    // Parameters (0–1 mapped to 0–1.5 for gain)
+    level: 0.8,            // Fader 0.0–1.5
+    pan: 0.0,              // -1.0 to +1.0
+    muted: false,
+    soloed: false,
+    selected: index === 0,
+
+    // Loop quantize multiplier relative to Track 1's duration
+    quantMult: 1.0,
+
+    // Flags
+    isRecording: false,
+    isPlaying: false,
+    isReversed: false,
+  };
+}
+
+// Instantiate all 7 tracks (6 mono + 1 mixdown)
+const tracks = Array.from({ length: 7 }, (_, i) => createTrack(i));
+
+/* ══════════════════════════════════════════════════════════════
+   MODULE: Transport / App State Machine
+   States: stopped | armed | recording | playing | overdubbing
+   ══════════════════════════════════════════════════════════════ */
+
+const AppState = {
+  STOPPED:    'stopped',
+  ARMED:      'armed',       // Waiting for MIDI downbeat
+  RECORDING:  'recording',
+  PLAYING:    'playing',
+  OVERDUB:    'overdubbing',
+};
+
+let appState   = AppState.STOPPED;
+let loopStart  = 0;       // audioCtx.currentTime when loop began
+let loopLength = 0;       // master loop duration in seconds
+let barBeat    = { bar: 1, beat: 1 };
+
+// Which track is "selected" for record operations
+let selectedTrack = 0;
+
+// FX parameters
+let pitchRate  = 1.0;
+let halfSpeed  = false;
+let feedbackCoeff = 0.80;
+
+/* ══════════════════════════════════════════════════════════════
+   MODULE: Audio Context Initialisation
+   Must be triggered by a user gesture (browser autoplay policy).
+   ══════════════════════════════════════════════════════════════ */
+
+async function initAudio() {
+  if (audioCtx) return; // already inited
+
+  try {
+    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    if (audioCtx.state === 'suspended') await audioCtx.resume();
+
+    // Master gain node → destination
+    masterGain = audioCtx.createGain();
+    masterGain.gain.value = 1.0;
+    masterGain.connect(audioCtx.destination);
+
+    // Metronome gain (separate sub-mix)
+    metronomeGain = audioCtx.createGain();
+    metronomeGain.gain.value = 0.7;
+    metronomeGain.connect(masterGain);
+
+    // Build per-track audio graph
+    tracks.forEach(t => buildTrackGraph(t));
+
+    // Populate input device list
+    await refreshInputDevices();
+
+    toast('Audio engine ready');
+    document.getElementById('btn-init-audio').textContent = '✓ Audio Ready';
+    document.getElementById('btn-init-audio').style.color = 'var(--green)';
+    document.getElementById('btn-init-audio').style.borderColor = 'var(--green)';
+  } catch (e) {
+    toast('Audio init failed: ' + e.message);
+    console.error(e);
+  }
+}
+
+/**
+ * Build the audio routing graph for a single track:
+ *   Analyser → Pan → Gain → Master
+ */
+function buildTrackGraph(track) {
+  if (!audioCtx) return;
+
+  // Gain node (controls level + mute/solo ramping)
+  track.gainNode = audioCtx.createGain();
+  track.gainNode.gain.value = track.muted ? 0 : track.level;
+
+  // Stereo panner
+  track.panNode = audioCtx.createStereoPanner
+    ? audioCtx.createStereoPanner()
+    : audioCtx.createPanner();
+  if (track.panNode.pan) track.panNode.pan.value = track.pan;
+
+  // Analyser for waveform display
+  track.analyserNode = audioCtx.createAnalyser();
+  track.analyserNode.fftSize = 256;
+
+  // Chain: analyser → pan → gain → master
+  track.analyserNode.connect(track.panNode);
+  track.panNode.connect(track.gainNode);
+  track.gainNode.connect(masterGain);
+}
+
+/* ══════════════════════════════════════════════════════════════
+   MODULE: Input Device Management
+   ══════════════════════════════════════════════════════════════ */
+
+async function refreshInputDevices() {
+  try {
+    // Request mic permission to enumerate devices properly
+    const tempStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    tempStream.getTracks().forEach(t => t.stop());
+
+    const devices = await navigator.mediaDevices.enumerateDevices();
+    const inputs  = devices.filter(d => d.kind === 'audioinput');
+
+    const sel = document.getElementById('input-device-select');
+    sel.innerHTML = '<option value="">— Select Input —</option>';
+    inputs.forEach(dev => {
+      const opt = document.createElement('option');
+      opt.value = dev.deviceId;
+      opt.textContent = dev.label || `Input ${dev.deviceId.slice(0,8)}`;
+      sel.appendChild(opt);
+    });
+  } catch (e) {
+    console.warn('Device enumeration failed:', e);
+  }
+}
+
+async function selectInputDevice(deviceId) {
+  if (!audioCtx) await initAudio();
+  if (!deviceId) return;
+
+  if (mediaStream) {
+    mediaStream.getTracks().forEach(t => t.stop());
+    if (sourceNode) sourceNode.disconnect();
+  }
+
+  try {
+    mediaStream = await navigator.mediaDevices.getUserMedia({
+      audio: { deviceId: { exact: deviceId }, echoCancellation: false, autoGainControl: false }
+    });
+    sourceNode = audioCtx.createMediaStreamSource(mediaStream);
+    // Source is available for routing into track recorder
+    toast('Input connected');
+  } catch (e) {
+    toast('Input failed: ' + e.message);
+  }
+}
+
+/* ══════════════════════════════════════════════════════════════
+   MODULE: Transport Controls
+   ══════════════════════════════════════════════════════════════ */
+
+function handleRec() {
+  if (!audioCtx) { initAudio().then(() => handleRec()); return; }
+  if (audioCtx.state === 'suspended') audioCtx.resume();
+
+  const track = tracks[selectedTrack];
+
+  if (midiClockRunning) {
+    // MIDI sync: arm and wait for downbeat
+    if (appState !== AppState.ARMED) {
+      setAppState(AppState.ARMED);
+      toast(`TRK ${selectedTrack+1} Armed — awaiting downbeat`);
+    } else {
+      setAppState(AppState.STOPPED);
+    }
+    return;
+  }
+
+  // Free-running record
+  if (appState === AppState.STOPPED || appState === AppState.PLAYING) {
+    startRecording(track);
+  } else if (appState === AppState.RECORDING) {
+    stopRecording(track, true);
+  }
+}
+
+function handlePlay() {
+  if (!audioCtx) { initAudio().then(() => handlePlay()); return; }
+  if (audioCtx.state === 'suspended') audioCtx.resume();
+
+  if (appState === AppState.STOPPED || appState === AppState.ARMED) {
+    startPlayback();
+  }
+}
+
+function handleStop() {
+  if (appState === AppState.RECORDING) {
+    stopRecording(tracks[selectedTrack], true);
+  }
+  stopPlayback();
+  setAppState(AppState.STOPPED);
+  barBeat = { bar: 1, beat: 1 };
+  updateDisplay();
+}
+
+function handleOverdub() {
+  if (!audioCtx) { initAudio().then(() => handleOverdub()); return; }
+  if (audioCtx.state === 'suspended') audioCtx.resume();
+
+  const track = tracks[selectedTrack];
+  if (!track.buffer) { toast('No loop to overdub'); return; }
+
+  if (appState !== AppState.OVERDUB) {
+    startOverdub(track);
+  } else {
+    stopOverdub(track);
+  }
+}
+
+function handleUndo() {
+  const track = tracks[selectedTrack];
+  if (track.undoBuffer) {
+    track.buffer = track.undoBuffer;
+    track.undoBuffer = null;
+    restartTrackPlayback(track);
+    drawWaveform(track);
+    toast(`TRK ${selectedTrack+1} undone`);
+  } else {
+    toast('Nothing to undo');
+  }
+}
+
+function handleClear() {
+  const track = tracks[selectedTrack];
+  if (track.sourceNode) {
+    try { track.sourceNode.stop(0); } catch(e){}
+    track.sourceNode = null;
+  }
+  track.undoBuffer = track.buffer;
+  track.buffer = null;
+  track.isPlaying = false;
+  track.isReversed = false;
+  drawWaveform(track);
+  updateTrackUI(track);
+  if (selectedTrack === 0) {
+    loopLength = 0;
+    document.getElementById('lcd-loop').textContent = 'NO LOOP';
+    document.getElementById('lcd-loop').style.color = 'var(--muted)';
+  }
+  toast(`TRK ${selectedTrack+1} cleared`);
+}
+
+/* ══════════════════════════════════════════════════════════════
+   MODULE: Recording Engine
+   Uses MediaRecorder + offline AudioContext approach, then
+   decodes into an AudioBuffer. For overdub, mixes with the
+   existing buffer applying the feedback coefficient.
+   ══════════════════════════════════════════════════════════════ */
+
+let mediaRecorder = null;
+let recChunks     = [];
+let recStartTime  = 0;
+
+function startRecording(track) {
+  if (!mediaStream) {
+    toast('Select an input first');
+    return;
+  }
+
+  // Save undo snapshot
+  track.undoBuffer = track.buffer ? cloneBuffer(track.buffer) : null;
+
+  recChunks    = [];
+  recStartTime = audioCtx.currentTime;
+
+  // Use MediaRecorder on the input stream
+  let mimeType = '';
+  if (MediaRecorder.isTypeSupported('audio/webm;codecs=opus')) mimeType = 'audio/webm;codecs=opus';
+  else if (MediaRecorder.isTypeSupported('audio/ogg;codecs=opus')) mimeType = 'audio/ogg;codecs=opus';
+
+  mediaRecorder = new MediaRecorder(mediaStream, mimeType ? { mimeType } : {});
+  mediaRecorder.ondataavailable = e => { if (e.data.size > 0) recChunks.push(e.data); };
+  mediaRecorder.onstop = () => finaliseRecording(track);
+  mediaRecorder.start(100);
+
+  track.isRecording = true;
+  setAppState(AppState.RECORDING);
+  updateTrackUI(track);
+  toast(`REC TRK ${track.index+1}`);
+}
+
+function stopRecording(track, autoPlay = false) {
+  if (!mediaRecorder || mediaRecorder.state === 'inactive') return;
+  mediaRecorder.stop();
+  track.isRecording = false;
+  updateTrackUI(track);
+}
+
+async function finaliseRecording(track) {
+  const blob = new Blob(recChunks, { type: recChunks[0]?.type || 'audio/webm' });
+  const arrayBuf = await blob.arrayBuffer();
+
+  let decoded;
+  try {
+    decoded = await audioCtx.decodeAudioData(arrayBuf);
+  } catch (e) {
+    toast('Decode error: ' + e.message);
+    setAppState(AppState.STOPPED);
+    return;
+  }
+
+  // Resample to context sample rate (createBuffer already at ctx rate)
+  const targetSR = audioCtx.sampleRate;
+  const resampledBuf = await resampleBuffer(decoded, targetSR);
+
+  // For Track 1: set master loop length
+  if (track.index === 0 && loopLength === 0) {
+    loopLength = resampledBuf.duration;
+    document.getElementById('lcd-loop').textContent = loopLength.toFixed(2) + 's';
+    document.getElementById('lcd-loop').style.color = 'var(--green)';
+    loopStart = audioCtx.currentTime;
+  } else if (loopLength > 0) {
+    // Quantize to valid multiple/division of master loop
+    resampledBuf.cwmQuantMult = track.quantMult;
+  }
+
+  track.buffer = resampledBuf;
+  drawWaveform(track);
+  updateTrackUI(track);
+
+  setAppState(AppState.PLAYING);
+  startPlayback();
+  toast(`TRK ${track.index+1} captured (${resampledBuf.duration.toFixed(2)}s)`);
+}
+
+/**
+ * Resample an AudioBuffer to a target sample rate using OfflineAudioContext.
+ */
+async function resampleBuffer(buf, targetSR) {
+  if (buf.sampleRate === targetSR) return buf;
+  const ratio = targetSR / buf.sampleRate;
+  const offCtx = new OfflineAudioContext(
+    buf.numberOfChannels,
+    Math.round(buf.length * ratio),
+    targetSR
+  );
+  const src = offCtx.createBufferSource();
+  src.buffer = buf;
+  src.connect(offCtx.destination);
+  src.start(0);
+  return await offCtx.startRendering();
+}
+
+/**
+ * Clone an AudioBuffer (for undo).
+ */
+function cloneBuffer(buf) {
+  const clone = audioCtx.createBuffer(buf.numberOfChannels, buf.length, buf.sampleRate);
+  for (let ch = 0; ch < buf.numberOfChannels; ch++) {
+    clone.getChannelData(ch).set(buf.getChannelData(ch));
+  }
+  return clone;
+}
+
+/* ══════════════════════════════════════════════════════════════
+   MODULE: Overdub Engine
+   Mixes new input over existing buffer with feedback decay.
+   ══════════════════════════════════════════════════════════════ */
+
+function startOverdub(track) {
+  if (!mediaStream) { toast('Select an input first'); return; }
+  if (!track.buffer) { toast('No buffer to overdub'); return; }
+
+  recChunks    = [];
+  recStartTime = audioCtx.currentTime;
+
+  let mimeType = '';
+  if (MediaRecorder.isTypeSupported('audio/webm;codecs=opus')) mimeType = 'audio/webm;codecs=opus';
+  else if (MediaRecorder.isTypeSupported('audio/ogg;codecs=opus')) mimeType = 'audio/ogg;codecs=opus';
+
+  mediaRecorder = new MediaRecorder(mediaStream, mimeType ? { mimeType } : {});
+  mediaRecorder.ondataavailable = e => { if (e.data.size > 0) recChunks.push(e.data); };
+  mediaRecorder.onstop = () => finaliseOverdub(track);
+  mediaRecorder.start(100);
+
+  setAppState(AppState.OVERDUB);
+  track.isRecording = true;
+  updateTrackUI(track);
+  toast(`OVERDUB TRK ${track.index+1}`);
+}
+
+function stopOverdub(track) {
+  if (!mediaRecorder || mediaRecorder.state === 'inactive') return;
+  mediaRecorder.stop();
+  track.isRecording = false;
+  setAppState(AppState.PLAYING);
+  updateTrackUI(track);
+}
+
+async function finaliseOverdub(track) {
+  const blob = new Blob(recChunks, { type: recChunks[0]?.type || 'audio/webm' });
+  const arrayBuf = await blob.arrayBuffer();
+
+  let decoded;
+  try {
+    decoded = await audioCtx.decodeAudioData(arrayBuf);
+  } catch (e) {
+    toast('Overdub decode error: ' + e.message);
+    return;
+  }
+
+  const targetSR  = audioCtx.sampleRate;
+  const newBuf    = await resampleBuffer(decoded, targetSR);
+  const existBuf  = track.buffer;
+
+  // Undo snapshot
+  track.undoBuffer = cloneBuffer(existBuf);
+
+  // Mix: existing * feedback + new * (1 - feedback * 0.5)
+  const outLen  = Math.max(existBuf.length, newBuf.length);
+  const nCh     = Math.max(existBuf.numberOfChannels, newBuf.numberOfChannels);
+  const outBuf  = audioCtx.createBuffer(nCh, outLen, targetSR);
+
+  for (let ch = 0; ch < nCh; ch++) {
+    const out  = outBuf.getChannelData(ch);
+    const ex   = existBuf.numberOfChannels > ch
+      ? existBuf.getChannelData(ch) : existBuf.getChannelData(0);
+    const nw   = newBuf.numberOfChannels > ch
+      ? newBuf.getChannelData(ch)   : newBuf.getChannelData(0);
+
+    for (let i = 0; i < outLen; i++) {
+      const exSamp = i < ex.length ? ex[i] : 0;
+      const nwSamp = i < nw.length ? nw[i] : 0;
+      out[i] = (exSamp * feedbackCoeff) + (nwSamp * (1.0 - feedbackCoeff * 0.3));
+      // Soft clip
+      if (out[i] > 1)  out[i] = 1;
+      if (out[i] < -1) out[i] = -1;
+    }
+  }
+
+  track.buffer = outBuf;
+  restartTrackPlayback(track);
+  drawWaveform(track);
+  toast(`TRK ${track.index+1} overdub mixed`);
+}
+
+/* ══════════════════════════════════════════════════════════════
+   MODULE: Playback Engine
+   Starts/stops looping BufferSourceNodes for all tracks.
+   ══════════════════════════════════════════════════════════════ */
+
+function startPlayback() {
+  if (!audioCtx) return;
+  loopStart = audioCtx.currentTime;
+
+  tracks.forEach(t => {
+    if (t.buffer && !t.isRecording) {
+      startTrackPlayback(t);
+    }
+  });
+
+  setAppState(AppState.PLAYING);
+  scheduleBeatCounter();
+}
+
+function stopPlayback() {
+  tracks.forEach(t => {
+    if (t.sourceNode) {
+      const g = t.gainNode;
+      if (g) {
+        g.gain.setTargetAtTime(0, audioCtx.currentTime, 0.02);
+      }
+      try {
+        t.sourceNode.stop(audioCtx.currentTime + RAMP_TIME + 0.05);
+      } catch(e) {}
+      t.sourceNode = null;
+    }
+    t.isPlaying = false;
+    updateTrackUI(t);
+  });
+  cancelAnimationFrame(playheadRAF);
+}
+
+function startTrackPlayback(track) {
+  if (!track.buffer || !audioCtx) return;
+
+  // Compute loop duration for this track based on quantize mult
+  const trackLoopLen = loopLength > 0
+    ? loopLength * track.quantMult
+    : track.buffer.duration;
+
+  // Create source node
+  const src = audioCtx.createBufferSource();
+  src.buffer    = track.buffer;
+  src.loop      = true;
+  src.loopStart = 0;
+  src.loopEnd   = Math.min(track.buffer.duration, trackLoopLen);
+
+  // Apply pitch/speed
+  src.playbackRate.value = pitchRate * (halfSpeed ? 0.5 : 1.0);
+
+  // Connect: source → analyser → pan → gain → master
+  src.connect(track.analyserNode);
+
+  // Ramp gain in from 0 to avoid click
+  track.gainNode.gain.cancelScheduledValues(audioCtx.currentTime);
+  track.gainNode.gain.setValueAtTime(0, audioCtx.currentTime);
+  const targetGain = track.muted ? 0 : track.level;
+  track.gainNode.gain.linearRampToValueAtTime(targetGain, audioCtx.currentTime + RAMP_TIME);
+
+  // Sync to loop start
+  const phase = loopLength > 0
+    ? (audioCtx.currentTime - loopStart) % trackLoopLen
+    : 0;
+
+  src.start(audioCtx.currentTime, phase);
+
+  if (track.sourceNode) {
+    try { track.sourceNode.stop(0); } catch(e) {}
+  }
+  track.sourceNode = src;
+  track.isPlaying  = true;
+  updateTrackUI(track);
+}
+
+function restartTrackPlayback(track) {
+  if (track.sourceNode) {
+    try { track.sourceNode.stop(0); } catch(e) {}
+    track.sourceNode = null;
+  }
+  if (appState === AppState.PLAYING || appState === AppState.OVERDUB) {
+    startTrackPlayback(track);
+  }
+}
+
+/* ══════════════════════════════════════════════════════════════
+   MODULE: Reverse
+   Physically reverses channel data arrays in the AudioBuffer.
+   ══════════════════════════════════════════════════════════════ */
+
+function reverseTrack(track) {
+  if (!track.buffer) { toast('No buffer to reverse'); return; }
+  track.undoBuffer = cloneBuffer(track.buffer);
+
+  for (let ch = 0; ch < track.buffer.numberOfChannels; ch++) {
+    const data = track.buffer.getChannelData(ch);
+    Array.prototype.reverse.call(data);
+  }
+
+  track.isReversed = !track.isReversed;
+  restartTrackPlayback(track);
+  drawWaveform(track);
+  toast(`TRK ${track.index+1} ${track.isReversed ? 'reversed' : 'forward'}`);
+}
+
+/* ══════════════════════════════════════════════════════════════
+   MODULE: Pitch / Half-Speed FX
+   ══════════════════════════════════════════════════════════════ */
+
+function applyPitchToAll() {
+  tracks.forEach(t => {
+    if (t.sourceNode) {
+      t.sourceNode.playbackRate.value = pitchRate * (halfSpeed ? 0.5 : 1.0);
+    }
+  });
+}
+
+/* ══════════════════════════════════════════════════════════════
+   MODULE: Mute / Solo
+   Uses gain ramping for click-free switching.
+   ══════════════════════════════════════════════════════════════ */
+
+function toggleMute(track) {
+  track.muted = !track.muted;
+  if (track.gainNode) {
+    const now = audioCtx ? audioCtx.currentTime : 0;
+    track.gainNode.gain.cancelScheduledValues(now);
+    track.gainNode.gain.setValueAtTime(track.gainNode.gain.value, now);
+    const target = track.muted ? 0 : getSoloedGain(track);
+    track.gainNode.gain.linearRampToValueAtTime(target, now + RAMP_TIME);
+  }
+  updateTrackUI(track);
+}
+
+function toggleSolo(track) {
+  track.soloed = !track.soloed;
+  const anySoloed = tracks.some(t => t.soloed);
+
+  tracks.forEach(t => {
+    if (!t.gainNode) return;
+    const now  = audioCtx ? audioCtx.currentTime : 0;
+    t.gainNode.gain.cancelScheduledValues(now);
+    t.gainNode.gain.setValueAtTime(t.gainNode.gain.value, now);
+    const g = getSoloedGain(t, anySoloed);
+    t.gainNode.gain.linearRampToValueAtTime(g, now + RAMP_TIME);
+    updateTrackUI(t);
+  });
+}
+
+function getSoloedGain(track, anySoloed) {
+  if (anySoloed === undefined) anySoloed = tracks.some(t => t.soloed);
+  if (track.muted) return 0;
+  if (anySoloed && !track.soloed) return 0;
+  return track.level;
+}
+
+/* ══════════════════════════════════════════════════════════════
+   MODULE: File I/O — Load & Download
+   ══════════════════════════════════════════════════════════════ */
+
+async function loadFile(track, file) {
+  if (!audioCtx) await initAudio();
+  try {
+    const ab  = await file.arrayBuffer();
+    const raw = await audioCtx.decodeAudioData(ab);
+    const buf = await resampleBuffer(raw, audioCtx.sampleRate);
+
+    track.undoBuffer = track.buffer ? cloneBuffer(track.buffer) : null;
+    track.buffer     = buf;
+
+    if (track.index === 0 && loopLength === 0) {
+      loopLength = buf.duration;
+      document.getElementById('lcd-loop').textContent = loopLength.toFixed(2) + 's';
+      document.getElementById('lcd-loop').style.color = 'var(--green)';
+    }
+
+    drawWaveform(track);
+    updateTrackUI(track);
+    restartTrackPlayback(track);
+    if (appState === AppState.STOPPED) {
+      setAppState(AppState.PLAYING);
+      startPlayback();
+    }
+    toast(`TRK ${track.index+1} loaded: ${file.name}`);
+  } catch (e) {
+    toast('Load error: ' + e.message);
+  }
+}
+
+/**
+ * Encode an AudioBuffer as an uncompressed 16-bit PCM WAV Blob.
+ * Handles mono and stereo.
+ */
+function bufferToWav(buffer) {
+  const nCh     = buffer.numberOfChannels;
+  const nFrames = buffer.length;
+  const sr      = buffer.sampleRate;
+  const bitsPerSample = 16;
+  const bytesPerSample = bitsPerSample / 8;
+  const blockAlign = nCh * bytesPerSample;
+  const byteRate   = sr * blockAlign;
+  const dataSize   = nFrames * blockAlign;
+  const headerSize = 44;
+
+  const ab  = new ArrayBuffer(headerSize + dataSize);
+  const dv  = new DataView(ab);
+
+  // RIFF header
+  const writeStr = (offset, str) => {
+    for (let i = 0; i < str.length; i++) dv.setUint8(offset + i, str.charCodeAt(i));
+  };
+
+  writeStr(0, 'RIFF');
+  dv.setUint32(4, 36 + dataSize, true);
+  writeStr(8, 'WAVE');
+  writeStr(12, 'fmt ');
+  dv.setUint32(16, 16, true);   // PCM
+  dv.setUint16(20, 1, true);    // PCM format
+  dv.setUint16(22, nCh, true);
+  dv.setUint32(24, sr, true);
+  dv.setUint32(28, byteRate, true);
+  dv.setUint16(32, blockAlign, true);
+  dv.setUint16(34, bitsPerSample, true);
+  writeStr(36, 'data');
+  dv.setUint32(40, dataSize, true);
+
+  // Interleave channels
+  let offset = 44;
+  for (let i = 0; i < nFrames; i++) {
+    for (let ch = 0; ch < nCh; ch++) {
+      const sample = buffer.getChannelData(ch)[i];
+      const clamped = Math.max(-1, Math.min(1, sample));
+      dv.setInt16(offset, clamped < 0 ? clamped * 32768 : clamped * 32767, true);
+      offset += 2;
+    }
+  }
+
+  return new Blob([ab], { type: 'audio/wav' });
+}
+
+function downloadTrack(track) {
+  if (!track.buffer) { toast(`TRK ${track.index+1} — no data`); return; }
+  const blob = bufferToWav(track.buffer);
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href     = url;
+  a.download = `cwm-looper-track${track.index+1}.wav`;
+  a.click();
+  URL.revokeObjectURL(url);
+  toast(`TRK ${track.index+1} exported`);
+}
+
+/**
+ * Bounce all playing tracks into a stereo mixdown buffer,
+ * then download as WAV.
+ */
+async function downloadMasterMix() {
+  if (!audioCtx) { toast('No audio engine'); return; }
+
+  const validTracks = tracks.slice(0, 6).filter(t => t.buffer && !t.muted);
+  if (!validTracks.length) { toast('No tracks to mix'); return; }
+
+  // Determine mix length (use the longest active loop segment)
+  const maxLen = validTracks.reduce((acc, t) => Math.max(acc, t.buffer.duration), 0);
+  const sr     = audioCtx.sampleRate;
+
+  const offCtx = new OfflineAudioContext(2, Math.ceil(maxLen * sr), sr);
+
+  validTracks.forEach(t => {
+    const src = offCtx.createBufferSource();
+    src.buffer = t.buffer;
+    src.loop   = false;
+
+    const gain = offCtx.createGain();
+    gain.gain.value = t.muted ? 0 : t.level;
+
+    const pan = offCtx.createStereoPanner();
+    if (pan.pan) pan.pan.value = t.pan;
+
+    src.connect(pan);
+    pan.connect(gain);
+    gain.connect(offCtx.destination);
+    src.start(0);
+  });
+
+  toast('Bouncing mix…');
+
+  try {
+    const mixBuf = await offCtx.startRendering();
+    tracks[6].buffer = mixBuf; // Store in mixdown track
+
+    const blob = bufferToWav(mixBuf);
+    const url  = URL.createObjectURL(blob);
+    const a    = document.createElement('a');
+    a.href     = url;
+    a.download = 'cwm-looper-mix.wav';
+    a.click();
+    URL.revokeObjectURL(url);
+    drawWaveform(tracks[6]);
+    toast('Master mix downloaded');
+  } catch (e) {
+    toast('Mix error: ' + e.message);
+  }
+}
+
+/* ══════════════════════════════════════════════════════════════
+   MODULE: Metronome (CLIX) — Look-ahead scheduler
+   Schedules click events ~200ms into the future to avoid
+   JavaScript timer jitter, using audioCtx.currentTime.
+   ══════════════════════════════════════════════════════════════ */
+
+let metroRunning   = false;
+let metroBPM       = 120;
+let metroTimeSig   = 4;
+let metroBeat      = 0;
+let metroNextBeat  = 0;
+let metroTimerID   = null;
+const METRO_LOOKAHEAD   = 0.2;  // seconds
+const METRO_SCHEDULE_INT = 50;  // ms
+
+function startMetronome() {
+  if (!audioCtx) { toast('Init audio first'); return; }
+  if (metroRunning) return;
+  metroRunning  = true;
+  metroBeat     = 0;
+  metroNextBeat = audioCtx.currentTime;
+  scheduleMetro();
+  toast('CLIX on');
+}
+
+function stopMetronome() {
+  metroRunning = false;
+  if (metroTimerID) clearTimeout(metroTimerID);
+  document.querySelectorAll('.beat-dot').forEach(d => d.classList.remove('active'));
+}
+
+function scheduleMetro() {
+  if (!metroRunning) return;
+
+  const beatDur = 60.0 / metroBPM;
+  const now     = audioCtx.currentTime;
+
+  while (metroNextBeat < now + METRO_LOOKAHEAD) {
+    scheduleClick(metroNextBeat, metroBeat % metroTimeSig === 0);
+    scheduleBeatVisual(metroNextBeat, metroBeat % metroTimeSig);
+    metroNextBeat += beatDur;
+    metroBeat++;
+  }
+
+  metroTimerID = setTimeout(scheduleMetro, METRO_SCHEDULE_INT);
+}
+
+function scheduleClick(time, isDownbeat) {
+  if (!audioCtx) return;
+  const osc = audioCtx.createOscillator();
+  const env = audioCtx.createGain();
+
+  osc.frequency.value = isDownbeat ? 1400 : 900;
+  env.gain.setValueAtTime(0.6, time);
+  env.gain.exponentialRampToValueAtTime(0.001, time + 0.04);
+
+  osc.connect(env);
+  env.connect(metronomeGain);
+
+  osc.start(time);
+  osc.stop(time + 0.05);
+}
+
+function scheduleBeatVisual(time, beatIndex) {
+  const delay = (time - audioCtx.currentTime) * 1000;
+  const safeDelay = Math.max(0, delay);
+  setTimeout(() => {
+    document.querySelectorAll('.beat-dot').forEach((d, i) => {
+      d.classList.toggle('active', i === beatIndex);
+    });
+    // Update BPM display from metro value
+    document.getElementById('lcd-bpm').textContent = metroBPM.toFixed(1);
+  }, safeDelay);
+}
+
+/* ══════════════════════════════════════════════════════════════
+   MODULE: Bar/Beat Counter
+   ══════════════════════════════════════════════════════════════ */
+
+let playheadRAF = null;
+
+function scheduleBeatCounter() {
+  cancelAnimationFrame(playheadRAF);
+
+  function tick() {
+    if (!audioCtx || loopLength === 0) { playheadRAF = requestAnimationFrame(tick); return; }
+    if (appState !== AppState.PLAYING && appState !== AppState.OVERDUB && appState !== AppState.RECORDING) return;
+
+    const elapsed  = (audioCtx.currentTime - loopStart) % (loopLength || 1);
+    const beatDur  = metroBPM > 0 ? 60 / metroBPM : 0.5;
+    const totalBeat = elapsed / beatDur;
+    const bar  = Math.floor(totalBeat / metroTimeSig) + 1;
+    const beat = Math.floor(totalBeat % metroTimeSig) + 1;
+
+    document.getElementById('lcd-barbeat').textContent =
+      String(bar).padStart(2,'0') + '.' + beat;
+
+    // Update playhead lines on waveform canvases
+    tracks.forEach(t => {
+      if (t.buffer) {
+        const prog = elapsed / t.buffer.duration;
+        const wrap = document.querySelector(`#track-${t.index} .track-waveform-wrap`);
+        if (wrap) {
+          const ph = wrap.querySelector('.track-playhead');
+          if (ph) ph.style.left = (prog * 100) + '%';
+        }
+      }
+    });
+
+    playheadRAF = requestAnimationFrame(tick);
+  }
+
+  playheadRAF = requestAnimationFrame(tick);
+}
+
+/* ══════════════════════════════════════════════════════════════
+   MODULE: Waveform Visualiser
+   ══════════════════════════════════════════════════════════════ */
+
+function drawWaveform(track) {
+  const canvas = document.querySelector(`#track-${track.index} .waveform-canvas`);
+  if (!canvas) return;
+
+  const ctx2 = canvas.getContext('2d');
+  const W = canvas.width = canvas.offsetWidth || 200;
+  const H = canvas.height = canvas.offsetHeight || 36;
+
+  ctx2.clearRect(0, 0, W, H);
+
+  if (!track.buffer) {
+    ctx2.fillStyle = '#06060e';
+    ctx2.fillRect(0, 0, W, H);
+    ctx2.fillStyle = '#1a1a2e';
+    ctx2.fillRect(0, H/2 - 0.5, W, 1);
+    return;
+  }
+
+  // Down-sample buffer data to canvas width
+  const data  = track.buffer.getChannelData(0);
+  const step  = Math.floor(data.length / W);
+  const color = track.color;
+
+  ctx2.fillStyle = '#06060e';
+  ctx2.fillRect(0, 0, W, H);
+
+  // Draw waveform
+  ctx2.strokeStyle = color;
+  ctx2.lineWidth = 1;
+  ctx2.shadowColor = color;
+  ctx2.shadowBlur  = 3;
+  ctx2.beginPath();
+
+  for (let x = 0; x < W; x++) {
+    let min = 1, max = -1;
+    for (let s = 0; s < step; s++) {
+      const v = data[x * step + s] || 0;
+      if (v < min) min = v;
+      if (v > max) max = v;
+    }
+    const yTop = ((1 - max) / 2) * H;
+    const yBot = ((1 - min) / 2) * H;
+    if (x === 0) ctx2.moveTo(x, yTop);
+    ctx2.lineTo(x, yTop);
+    ctx2.lineTo(x, yBot);
+  }
+
+  ctx2.stroke();
+}
+
+/* ══════════════════════════════════════════════════════════════
+   MODULE: MIDI Engine
+   Listen for MIDI clock (24 PPQN) and control messages.
+   ══════════════════════════════════════════════════════════════ */
+
+let midiAccess       = null;
+let midiClockRunning = false;
+let midiClockPulses  = 0;
+let midiClockTimes   = [];
+let midiLearnMode    = false;
+let midiLearnParam   = null; // {type:'fader'|'mute'|..., trackIndex}
+let midiLearnMap     = {};   // cc# → action
+
+const MIDI_CLOCK   = 0xF8;
+const MIDI_START   = 0xFA;
+const MIDI_STOP    = 0xFC;
+const MIDI_CONTINUE= 0xFB;
+
+async function initMIDI() {
+  if (!navigator.requestMIDIAccess) {
+    document.getElementById('midi-status').textContent = 'NOT SUPPORTED';
+    return;
+  }
+  try {
+    midiAccess = await navigator.requestMIDIAccess({ sysex: false });
+    setupMIDIInputs();
+    midiAccess.onstatechange = setupMIDIInputs;
+    updateMidiStatus();
+  } catch (e) {
+    document.getElementById('midi-status').textContent = 'DENIED';
+  }
+}
+
+function setupMIDIInputs() {
+  midiAccess.inputs.forEach(input => {
+    input.onmidimessage = handleMIDIMessage;
+  });
+  updateMidiStatus();
+}
+
+function updateMidiStatus() {
+  const count = midiAccess ? midiAccess.inputs.size : 0;
+  const el = document.getElementById('midi-status');
+  if (count > 0) {
+    el.textContent = `${count} PORT${count>1?'S':''}`;
+    el.className = 'midi-status connected';
+  } else {
+    el.textContent = 'NO MIDI';
+    el.className = 'midi-status disconnected';
+  }
+}
+
+function handleMIDIMessage(msg) {
+  const [status, data1, data2] = msg.data;
+  const now = performance.now();
+
+  // System Realtime
+  if (status === MIDI_CLOCK) {
+    midiClockPulses++;
+    midiClockTimes.push(now);
+    if (midiClockTimes.length > 24) midiClockTimes.shift();
+
+    // Calculate BPM from 24 PPQN
+    if (midiClockTimes.length >= 24) {
+      const elapsed = (midiClockTimes[midiClockTimes.length-1] - midiClockTimes[0]) / 1000;
+      const bpm = (23 / (elapsed * 24)) * 60;
+      metroBPM = Math.round(bpm * 10) / 10;
+      document.getElementById('lcd-bpm').textContent = metroBPM.toFixed(1);
+      document.getElementById('metro-bpm').value = metroBPM;
+      document.getElementById('metro-bpm-val').textContent = metroBPM.toFixed(1);
+    }
+
+    // Downbeat detection: every 24 pulses = 1 beat, every 24*4 = 1 bar (4/4)
+    if (midiClockPulses % (24 * metroTimeSig) === 0) {
+      if (appState === AppState.ARMED) {
+        startRecording(tracks[selectedTrack]);
+      }
+    }
+
+    midiClockRunning = true;
+    return;
+  }
+
+  if (status === MIDI_START || status === MIDI_CONTINUE) {
+    midiClockRunning = true;
+    midiClockPulses  = 0;
+    return;
+  }
+
+  if (status === MIDI_STOP) {
+    midiClockRunning = false;
+    return;
+  }
+
+  // Channel messages
+  const msgType = status & 0xF0;
+
+  if (msgType === 0xB0) { // Control Change
+    logMidi(`CC${data1}=${data2}`);
+
+    if (midiLearnMode && midiLearnParam) {
+      midiLearnMap[data1] = midiLearnParam;
+      toast(`CC${data1} → ${midiLearnParam.type} TRK${midiLearnParam.trackIndex+1}`);
+      midiLearnMode = false;
+      midiLearnParam = null;
+      document.getElementById('btn-midi-learn').classList.remove('active');
+      document.getElementById('btn-midi-learn').textContent = 'MIDI Learn';
+      return;
+    }
+
+    // Apply mapped CCs
+    if (midiLearnMap[data1]) {
+      const action = midiLearnMap[data1];
+      const t = tracks[action.trackIndex];
+      if (action.type === 'fader') {
+        t.level = (data2 / 127) * 1.5;
+        if (t.gainNode) t.gainNode.gain.setTargetAtTime(t.muted ? 0 : t.level, audioCtx.currentTime, 0.01);
+        const faderEl = document.querySelector(`#track-${t.index} .fader`);
+        if (faderEl) faderEl.value = t.level;
+      } else if (action.type === 'mute') {
+        if (data2 >= 64) toggleMute(t);
+      }
+    }
+
+    // Hard-wired transport CCs
+    if (data1 === 20 && data2 >= 64) handleRec();
+    if (data1 === 21 && data2 >= 64) handlePlay();
+    if (data1 === 22 && data2 >= 64) handleStop();
+  }
+
+  if (msgType === 0x90 && data2 > 0) { // Note On
+    // Note 36–41 trigger tracks 1–6
+    if (data1 >= 36 && data1 <= 41) {
+      const t = tracks[data1 - 36];
+      toggleMute(t);
+    }
+  }
+}
+
+function logMidi(msg) {
+  const log = document.getElementById('midi-log');
+  log.textContent = msg + ' | ' + (log.textContent.slice(0, 60));
+}
+
+/* ══════════════════════════════════════════════════════════════
+   MODULE: App State Management & UI Updates
+   ══════════════════════════════════════════════════════════════ */
+
+function setAppState(state) {
+  appState = state;
+  updateDisplay();
+  updateTransportUI();
+}
+
+function updateDisplay() {
+  const el = document.getElementById('lcd-state');
+  el.className = 'lcd-value state';
+
+  const map = {
+    [AppState.STOPPED]:   ['STOPPED',   'state-stopped'],
+    [AppState.ARMED]:     ['ARMED',     'state-armed'],
+    [AppState.RECORDING]: ['REC',       'state-recording'],
+    [AppState.PLAYING]:   ['PLAYING',   'state-playing'],
+    [AppState.OVERDUB]:   ['OVERDUB',   'state-overdub'],
+  };
+
+  const [label, cls] = map[appState] || ['?', 'state-stopped'];
+  el.textContent = label;
+  el.classList.add(cls);
+}
+
+function updateTransportUI() {
+  document.getElementById('btn-rec').classList.toggle('active',
+    appState === AppState.RECORDING || appState === AppState.ARMED);
+  document.getElementById('btn-play').classList.toggle('active',
+    appState === AppState.PLAYING);
+  document.getElementById('btn-overdub').classList.toggle('active',
+    appState === AppState.OVERDUB);
+}
+
+function updateTrackUI(track) {
+  const strip = document.getElementById(`track-${track.index}`);
+  if (!strip) return;
+
+  strip.classList.toggle('recording',  track.isRecording);
+  strip.classList.toggle('playing',    track.isPlaying && !track.isRecording);
+  strip.classList.toggle('muted-strip', track.muted && !track.soloed);
+  strip.classList.toggle('selected',   track.index === selectedTrack);
+
+  const muteBtn = strip.querySelector('.mute-btn');
+  const soloBtn = strip.querySelector('.solo-btn');
+  if (muteBtn) muteBtn.classList.toggle('active', track.muted);
+  if (soloBtn) soloBtn.classList.toggle('active', track.soloed);
+
+  const dur = strip.querySelector('.track-duration');
+  if (dur) {
+    dur.textContent = track.buffer
+      ? track.buffer.duration.toFixed(2) + 's'
+      : '—';
+  }
+}
+
+/* ══════════════════════════════════════════════════════════════
+   MODULE: UI Rendering — Track Strips
+   ══════════════════════════════════════════════════════════════ */
+
+function renderTracks() {
+  const container = document.getElementById('tracks-container');
+  container.innerHTML = '';
+
+  tracks.forEach(track => {
+    const strip = document.createElement('div');
+    strip.className = 'track-strip' + (track.isMixdown ? ' mixdown-track' : '');
+    strip.id = `track-${track.index}`;
+    if (track.index === 0) strip.classList.add('selected');
+
+    // ── Track Select Button ──
+    const selectBtn = document.createElement('button');
+    selectBtn.className = 'track-select-btn';
+    selectBtn.textContent = track.isMixdown ? 'M' : (track.index + 1);
+    selectBtn.style.color        = track.color;
+    selectBtn.style.borderColor  = track.color + '66';
+    selectBtn.style.boxShadow    = `0 0 6px ${track.color}22`;
+    selectBtn.title = 'Select track';
+    selectBtn.onclick = () => selectTrack(track.index);
+    strip.appendChild(selectBtn);
+
+    // ── Track Info ──
+    const info = document.createElement('div');
+    info.className = 'track-info';
+
+    const name = document.createElement('div');
+    name.className = 'track-name';
+    name.style.color = track.color;
+    name.textContent = track.name;
+    info.appendChild(name);
+
+    const dur = document.createElement('div');
+    dur.className = 'track-duration';
+    dur.textContent = '—';
+    info.appendChild(dur);
+    strip.appendChild(info);
+
+    // ── Waveform ──
+    const waveWrap = document.createElement('div');
+    waveWrap.className = 'track-waveform-wrap';
+    waveWrap.title = 'Click to trigger track';
+    waveWrap.onclick = () => triggerTrack(track);
+
+    const canvas = document.createElement('canvas');
+    canvas.className = 'waveform-canvas';
+    waveWrap.appendChild(canvas);
+
+    const playhead = document.createElement('div');
+    playhead.className = 'track-playhead';
+    waveWrap.appendChild(playhead);
+    strip.appendChild(waveWrap);
+
+    // ── Pan Knob ──
+    if (!track.isMixdown) {
+      const panWrap = document.createElement('div');
+      panWrap.className = 'pan-knob-wrap';
+      panWrap.title = 'Pan';
+
+      const panLabel = document.createElement('div');
+      panLabel.className = 'pan-label';
+      panLabel.textContent = 'PAN';
+      panWrap.appendChild(panLabel);
+
+      const knob = document.createElement('div');
+      knob.className = 'pan-knob';
+      knob.dataset.trackIndex = track.index;
+
+      const dot = document.createElement('div');
+      dot.className = 'pan-dot';
+      knob.appendChild(dot);
+      updateKnobRotation(knob, track.pan);
+
+      // Pan knob drag logic
+      let dragStartY = null, startPan = 0;
+      const onDown = e => {
+        dragStartY = e.type === 'touchstart' ? e.touches[0].clientY : e.clientY;
+        startPan   = track.pan;
+        e.preventDefault();
+        document.addEventListener('mousemove', onMove);
+        document.addEventListener('mouseup',   onUp);
+        document.addEventListener('touchmove', onMove, { passive: false });
+        document.addEventListener('touchend',  onUp);
+      };
+      const onMove = e => {
+        if (dragStartY === null) return;
+        const y = e.type === 'touchmove' ? e.touches[0].clientY : e.clientY;
+        const delta = (dragStartY - y) / 80;
+        track.pan = Math.max(-1, Math.min(1, startPan + delta));
+        if (track.panNode && track.panNode.pan) {
+          track.panNode.pan.setTargetAtTime(track.pan, audioCtx ? audioCtx.currentTime : 0, 0.02);
+        }
+        updateKnobRotation(knob, track.pan);
+        e.preventDefault();
+      };
+      const onUp = () => {
+        dragStartY = null;
+        document.removeEventListener('mousemove', onMove);
+        document.removeEventListener('mouseup',   onUp);
+        document.removeEventListener('touchmove', onMove);
+        document.removeEventListener('touchend',  onUp);
+      };
+      knob.addEventListener('mousedown',  onDown);
+      knob.addEventListener('touchstart', onDown, { passive: false });
+      panWrap.appendChild(knob);
+      strip.appendChild(panWrap);
+    } else {
+      strip.appendChild(document.createElement('div')); // spacer
+    }
+
+    // ── Level Fader ──
+    const faderWrap = document.createElement('div');
+    faderWrap.className = 'fader-wrap';
+
+    const faderLabel = document.createElement('div');
+    faderLabel.className = 'fader-label';
+    faderLabel.textContent = 'LVL';
+    faderWrap.appendChild(faderLabel);
+
+    const fader = document.createElement('input');
+    fader.type  = 'range';
+    fader.className = 'fader';
+    fader.min   = '0';
+    fader.max   = '1.5';
+    fader.step  = '0.01';
+    fader.value = track.level;
+    fader.addEventListener('input', () => {
+      track.level = parseFloat(fader.value);
+      if (track.gainNode && !track.muted) {
+        const now = audioCtx ? audioCtx.currentTime : 0;
+        track.gainNode.gain.setTargetAtTime(
+          getSoloedGain(track),
+          now, 0.02
+        );
+      }
+    });
+    faderWrap.appendChild(fader);
+    strip.appendChild(faderWrap);
+
+    // ── Mute Button ──
+    if (!track.isMixdown) {
+      const muteBtn = document.createElement('button');
+      muteBtn.className = 'track-btn mute-btn';
+      muteBtn.title = 'Mute';
+      muteBtn.innerHTML = '<span class="btn-icon">M</span>';
+      muteBtn.onclick = () => toggleMute(track);
+      strip.appendChild(muteBtn);
+
+      // ── Solo Button ──
+      const soloBtn = document.createElement('button');
+      soloBtn.className = 'track-btn solo-btn';
+      soloBtn.title = 'Solo';
+      soloBtn.innerHTML = '<span class="btn-icon">S</span>';
+      soloBtn.onclick = () => toggleSolo(track);
+      strip.appendChild(soloBtn);
+
+      // ── Reverse Trigger ──
+      const revBtn = document.createElement('button');
+      revBtn.className = 'track-btn';
+      revBtn.title = 'Reverse buffer';
+      revBtn.innerHTML = '<span class="btn-icon">⇄</span>';
+      revBtn.style.color = track.color;
+      revBtn.onclick = () => reverseTrack(track);
+      strip.appendChild(revBtn);
+    } else {
+      strip.appendChild(document.createElement('div'));
+      strip.appendChild(document.createElement('div'));
+      strip.appendChild(document.createElement('div'));
+    }
+
+    // ── IO Buttons ──
+    const io = document.createElement('div');
+    io.className = 'track-io';
+
+    const loadBtn = document.createElement('button');
+    loadBtn.className = 'io-btn load-btn';
+    loadBtn.textContent = '↑ Load';
+    loadBtn.onclick = () => triggerFileLoad(track);
+    io.appendChild(loadBtn);
+
+    const saveBtn = document.createElement('button');
+    saveBtn.className = 'io-btn save-btn';
+    saveBtn.textContent = '↓ Save';
+    saveBtn.onclick = () => downloadTrack(track);
+    io.appendChild(saveBtn);
+
+    strip.appendChild(io);
+    container.appendChild(strip);
+
+    // Draw initial empty waveform
+    requestAnimationFrame(() => drawWaveform(track));
+  });
+
+  // Create hidden file inputs
+  const fileContainer = document.getElementById('file-inputs');
+  fileContainer.innerHTML = '';
+  tracks.forEach(track => {
+    const fi = document.createElement('input');
+    fi.type   = 'file';
+    fi.accept = 'audio/*,.wav,.mp3,.ogg,.flac,.aif,.aiff';
+    fi.id     = `file-input-${track.index}`;
+    fi.className = 'hidden-input';
+    fi.addEventListener('change', async e => {
+      const file = e.target.files[0];
+      if (file) await loadFile(track, file);
+      fi.value = ''; // reset so same file can be re-loaded
+    });
+    fileContainer.appendChild(fi);
+  });
+
+  // Drag-and-drop on waveform areas
+  tracks.forEach(track => {
+    const strip = document.getElementById(`track-${track.index}`);
+    const waveWrap = strip.querySelector('.track-waveform-wrap');
+    waveWrap.addEventListener('dragover', e => { e.preventDefault(); waveWrap.style.borderColor = track.color; });
+    waveWrap.addEventListener('dragleave', () => { waveWrap.style.borderColor = ''; });
+    waveWrap.addEventListener('drop', async e => {
+      e.preventDefault();
+      waveWrap.style.borderColor = '';
+      const file = e.dataTransfer.files[0];
+      if (file) await loadFile(track, file);
+    });
+  });
+}
+
+function triggerFileLoad(track) {
+  document.getElementById(`file-input-${track.index}`).click();
+}
+
+function selectTrack(index) {
+  selectedTrack = index;
+  tracks.forEach(t => {
+    const strip = document.getElementById(`track-${t.index}`);
+    if (strip) strip.classList.toggle('selected', t.index === index);
+  });
+}
+
+function triggerTrack(track) {
+  if (!track.buffer) { selectTrack(track.index); return; }
+  if (appState === AppState.STOPPED) {
+    selectTrack(track.index);
+    startPlayback();
+  }
+}
+
+function updateKnobRotation(knob, pan) {
+  const deg = pan * 135; // -135 to +135 degrees
+  const dot = knob.querySelector('.pan-dot');
+  if (dot) {
+    const rad = (deg - 90) * Math.PI / 180;
+    const x = 50 + 35 * Math.cos(rad);
+    const y = 50 + 35 * Math.sin(rad);
+    dot.style.left = `calc(${x}% - 1.5px)`;
+    dot.style.top  = `calc(${y}% - 1.5px)`;
+  }
+}
+
+/* ══════════════════════════════════════════════════════════════
+   MODULE: Toast Notifications
+   ══════════════════════════════════════════════════════════════ */
+
+let toastTimer = null;
+function toast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  if (toastTimer) clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove('show'), 2000);
+}
+
+/* ══════════════════════════════════════════════════════════════
+   MODULE: Cursor Glow
+   ══════════════════════════════════════════════════════════════ */
+
+document.addEventListener('mousemove', e => {
+  const glow = document.getElementById('cursor-glow');
+  if (glow) {
+    glow.style.left = e.clientX + 'px';
+    glow.style.top  = e.clientY + 'px';
+  }
+});
+
+/* ══════════════════════════════════════════════════════════════
+   MODULE: Event Listeners — Transport & Panel Controls
+   ══════════════════════════════════════════════════════════════ */
+
+document.getElementById('btn-rec').addEventListener('click',     handleRec);
+document.getElementById('btn-play').addEventListener('click',    handlePlay);
+document.getElementById('btn-stop').addEventListener('click',    handleStop);
+document.getElementById('btn-overdub').addEventListener('click', handleOverdub);
+document.getElementById('btn-undo').addEventListener('click',    handleUndo);
+document.getElementById('btn-clear').addEventListener('click',   handleClear);
+
+document.getElementById('btn-init-audio').addEventListener('click', initAudio);
+
+document.getElementById('input-device-select').addEventListener('change', e => {
+  selectInputDevice(e.target.value);
+});
+
+// Metronome
+document.getElementById('btn-metro').addEventListener('click', () => {
+  if (metroRunning) {
+    stopMetronome();
+    document.getElementById('btn-metro').textContent = 'Off';
+    document.getElementById('btn-metro').classList.remove('active');
+  } else {
+    startMetronome();
+    document.getElementById('btn-metro').textContent = 'On';
+    document.getElementById('btn-metro').classList.add('active');
+  }
+});
+
+document.getElementById('metro-bpm').addEventListener('input', e => {
+  metroBPM = parseFloat(e.target.value);
+  document.getElementById('metro-bpm-val').textContent = metroBPM.toFixed(1);
+  document.getElementById('lcd-bpm').textContent = metroBPM.toFixed(1);
+});
+
+document.getElementById('metro-timesig').addEventListener('change', e => {
+  metroTimeSig = parseInt(e.target.value);
+  // Rebuild beat dots
+  const container = document.getElementById('metro-beats');
+  container.innerHTML = '';
+  for (let i = 0; i < metroTimeSig; i++) {
+    const dot = document.createElement('div');
+    dot.className = 'beat-dot' + (i === 0 ? ' beat1' : '');
+    container.appendChild(dot);
+  }
+});
+
+// FX Controls
+document.getElementById('fx-pitch').addEventListener('input', e => {
+  pitchRate = parseFloat(e.target.value);
+  document.getElementById('fx-pitch-val').textContent = pitchRate.toFixed(2) + '×';
+  applyPitchToAll();
+});
+
+document.getElementById('fx-feedback').addEventListener('input', e => {
+  feedbackCoeff = parseFloat(e.target.value);
+  document.getElementById('fx-feedback-val').textContent = feedbackCoeff.toFixed(2);
+});
+
+document.getElementById('btn-half-speed').addEventListener('click', () => {
+  halfSpeed = !halfSpeed;
+  document.getElementById('btn-half-speed').classList.toggle('active', halfSpeed);
+  applyPitchToAll();
+  toast(halfSpeed ? '½ Speed ON' : '½ Speed OFF');
+});
+
+document.getElementById('btn-reverse').addEventListener('click', () => {
+  reverseTrack(tracks[selectedTrack]);
+});
+
+// Quantize buttons
+document.getElementById('quant-row').addEventListener('click', e => {
+  const btn = e.target.closest('.quant-btn');
+  if (!btn) return;
+  document.querySelectorAll('.quant-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  const mult = parseFloat(btn.dataset.mult);
+  tracks[selectedTrack].quantMult = mult;
+  toast(`TRK ${selectedTrack+1} quantize: ${btn.textContent}`);
+});
+
+// MIDI
+document.getElementById('btn-midi-learn').addEventListener('click', () => {
+  midiLearnMode = !midiLearnMode;
+  const btn = document.getElementById('btn-midi-learn');
+  btn.classList.toggle('active', midiLearnMode);
+  btn.textContent = midiLearnMode ? 'Learning… (touch CC)' : 'MIDI Learn';
+  if (midiLearnMode) {
+    midiLearnParam = { type: 'fader', trackIndex: selectedTrack };
+    toast(`MIDI Learn: TRK ${selectedTrack+1} fader — send CC`);
+  }
+});
+
+// Master export
+document.getElementById('btn-download-mix').addEventListener('click', downloadMasterMix);
+
+/* ══════════════════════════════════════════════════════════════
+   MODULE: Keyboard Shortcuts
+   ══════════════════════════════════════════════════════════════ */
+
+document.addEventListener('keydown', e => {
+  if (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT') return;
+
+  switch (e.code) {
+    case 'Space':      e.preventDefault(); handleRec();   break;
+    case 'Enter':      e.preventDefault(); handlePlay();  break;
+    case 'Escape':     e.preventDefault(); handleStop();  break;
+    case 'KeyO':       e.preventDefault(); handleOverdub(); break;
+    case 'KeyU':       e.preventDefault(); handleUndo();  break;
+    case 'KeyR':       e.preventDefault(); reverseTrack(tracks[selectedTrack]); break;
+    case 'Digit1':     selectTrack(0); break;
+    case 'Digit2':     selectTrack(1); break;
+    case 'Digit3':     selectTrack(2); break;
+    case 'Digit4':     selectTrack(3); break;
+    case 'Digit5':     selectTrack(4); break;
+    case 'Digit6':     selectTrack(5); break;
+    case 'KeyM':
+      e.preventDefault();
+      toggleMute(tracks[selectedTrack]);
+      break;
+    case 'KeyS':
+      e.preventDefault();
+      toggleSolo(tracks[selectedTrack]);
+      break;
+  }
+});
+
+/* ══════════════════════════════════════════════════════════════
+   INIT
+   ══════════════════════════════════════════════════════════════ */
+
+(function init() {
+  renderTracks();
+  initMIDI();
+
+  // Keyboard shortcut hints
+  toast('Shortcuts: SPACE=Rec  ENTER=Play  ESC=Stop  1-6=Select');
+})();
+</script>
+</body>
+</html>
