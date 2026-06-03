@@ -5,6 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 <title>Casio VL-Tone VL-1 // Carl William Music</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
+<!-- SEQUENCER: midi-writer-js for MIDI file export -->
+<script src="https://unpkg.com/midi-writer-js/browser/midiwriter.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=VT323&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 <style>
@@ -34,6 +36,12 @@
   --key-border:   #44335588;
   --btn-idle:     #1a1a2e;
   --btn-active:   #ffd700;
+
+  /* SEQUENCER colors */
+  --seq-a:    #ff6b35;
+  --seq-b:    #ff2d78;
+  --seq-rec:  #ff2d2d;
+  --seq-play: #00ff88;
 }
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -698,16 +706,407 @@ input[type=range].h-slider::-moz-range-thumb {
 }
 .cfg-select:focus { border-color: var(--cyan); }
 
+/* ═══════════════════════════════════════════════════════════
+   SEQUENCER STYLES — One Key Play Engine
+   ═══════════════════════════════════════════════════════════ */
+
+/* Sequencer panel container */
+.seq-panel {
+  width: min(900px, 100%);
+  margin-top: 12px;
+  background: var(--surface);
+  border: 1px solid #2a2a44;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.seq-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 9px 16px;
+  background: var(--chassis-mid);
+  border-bottom: 1px solid #2a2a44;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.seq-header:hover { background: #14142a; }
+
+.seq-header-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.seq-title {
+  font-family: 'VT323', monospace;
+  font-size: 18px;
+  color: var(--gold);
+  letter-spacing: 3px;
+  text-shadow: 0 0 8px #ffd70066;
+}
+
+.seq-subtitle {
+  font-size: 8px;
+  color: var(--muted);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+.seq-body {
+  display: none;
+  padding: 14px 16px;
+  gap: 12px;
+  flex-direction: column;
+}
+.seq-body.open { display: flex; }
+
+/* Mode selector row */
+.seq-mode-row {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.seq-mode-label {
+  font-size: 8px;
+  color: var(--muted);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin-right: 4px;
+}
+
+.seq-mode-btn {
+  cursor: pointer;
+  background: var(--chassis);
+  border: 1px solid var(--dim);
+  border-bottom: 2px solid #000008;
+  border-radius: 3px;
+  padding: 5px 12px;
+  font-family: 'Space Mono', monospace;
+  font-size: 8px;
+  font-weight: bold;
+  letter-spacing: 1px;
+  color: var(--muted);
+  text-align: center;
+  transition: all 0.1s ease;
+  text-transform: uppercase;
+}
+.seq-mode-btn:active { transform: translateY(1px); }
+.seq-mode-btn.mode-normal.active {
+  background: #001a00;
+  color: #00ff41;
+  border-color: #00ff41;
+  border-bottom-width: 0;
+  transform: translateY(2px);
+  box-shadow: 0 0 8px #00ff4144;
+  text-shadow: 0 0 8px #00ff41;
+}
+.seq-mode-btn.mode-record.active {
+  background: #1a0000;
+  color: var(--seq-rec);
+  border-color: var(--seq-rec);
+  border-bottom-width: 0;
+  transform: translateY(2px);
+  box-shadow: 0 0 8px #ff2d2d44;
+  text-shadow: 0 0 8px var(--seq-rec);
+  animation: rec-pulse 1s ease-in-out infinite;
+}
+@keyframes rec-pulse {
+  0%,100% { box-shadow: 0 0 8px #ff2d2d44; }
+  50%     { box-shadow: 0 0 18px #ff2d2daa; }
+}
+.seq-mode-btn.mode-play.active {
+  background: #001a0a;
+  color: var(--seq-play);
+  border-color: var(--seq-play);
+  border-bottom-width: 0;
+  transform: translateY(2px);
+  box-shadow: 0 0 8px #00ff8844;
+  text-shadow: 0 0 8px var(--seq-play);
+}
+
+/* One Key Play performance buttons */
+.okp-buttons-row {
+  display: flex;
+  gap: 10px;
+  align-items: stretch;
+  flex-wrap: wrap;
+}
+
+.okp-btn {
+  cursor: pointer;
+  flex: 1;
+  min-width: 120px;
+  min-height: 60px;
+  background: var(--chassis);
+  border: 2px solid var(--dim);
+  border-bottom: 4px solid #000008;
+  border-radius: 6px;
+  font-family: 'VT323', monospace;
+  font-size: clamp(16px, 2.5vw, 22px);
+  font-weight: bold;
+  letter-spacing: 3px;
+  color: var(--muted);
+  text-align: center;
+  transition: all 0.08s ease;
+  text-transform: uppercase;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: none;
+}
+.okp-btn .okp-sub {
+  font-family: 'Space Mono', monospace;
+  font-size: 7px;
+  letter-spacing: 1px;
+  color: var(--dim);
+  text-transform: uppercase;
+}
+
+.okp-btn#okp-a {
+  border-color: var(--seq-a);
+  color: var(--seq-a);
+  text-shadow: 0 0 10px #ff6b3566;
+  box-shadow: 0 0 12px #ff6b3522, inset 0 0 20px #ff6b3508;
+}
+.okp-btn#okp-b {
+  border-color: var(--seq-b);
+  color: var(--seq-b);
+  text-shadow: 0 0 10px #ff2d7866;
+  box-shadow: 0 0 12px #ff2d7822, inset 0 0 20px #ff2d7808;
+}
+.okp-btn#okp-a:active, .okp-btn#okp-a.firing {
+  background: #1a0800;
+  border-bottom-width: 0;
+  transform: translateY(4px);
+  box-shadow: 0 0 24px #ff6b35aa, inset 0 0 30px #ff6b3522;
+  text-shadow: 0 0 20px var(--seq-a);
+}
+.okp-btn#okp-b:active, .okp-btn#okp-b.firing {
+  background: #1a0010;
+  border-bottom-width: 0;
+  transform: translateY(4px);
+  box-shadow: 0 0 24px #ff2d78aa, inset 0 0 30px #ff2d7822;
+  text-shadow: 0 0 20px var(--seq-b);
+}
+
+/* Disabled state when not in OKP mode */
+.okp-btn.disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* MIDI output + utility row */
+.seq-util-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.seq-select {
+  background: var(--chassis);
+  color: var(--text);
+  border: 1px solid var(--dim);
+  border-radius: 3px;
+  padding: 5px 8px;
+  font-family: 'Space Mono', monospace;
+  font-size: 8px;
+  cursor: pointer;
+  outline: none;
+  flex: 1;
+  min-width: 150px;
+}
+.seq-select:focus { border-color: var(--gold); }
+
+.seq-util-btn {
+  cursor: pointer;
+  background: var(--chassis);
+  border: 1px solid var(--dim);
+  border-bottom: 2px solid #000008;
+  border-radius: 3px;
+  padding: 5px 10px;
+  font-family: 'Space Mono', monospace;
+  font-size: 8px;
+  font-weight: bold;
+  letter-spacing: 0.5px;
+  color: var(--muted);
+  text-align: center;
+  transition: all 0.1s ease;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+.seq-util-btn:active { transform: translateY(1px); border-bottom-width: 0; }
+.seq-util-btn.danger {
+  border-color: var(--pink);
+  color: var(--pink);
+}
+.seq-util-btn.danger:hover { background: #1a0010; }
+.seq-util-btn.export {
+  border-color: var(--gold);
+  color: var(--gold);
+}
+.seq-util-btn.export:hover { background: #1a1200; }
+.seq-util-btn.undo {
+  border-color: var(--purple);
+  color: var(--purple);
+}
+.seq-util-btn.undo:hover { background: #0d0020; }
+
+/* Step list container */
+.seq-step-list-wrap {
+  background: var(--chassis);
+  border: 1px solid #2a2a44;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.seq-step-list-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 12px;
+  background: var(--chassis-mid);
+  border-bottom: 1px solid #2a2a44;
+}
+.seq-step-list-header span {
+  font-size: 8px;
+  color: var(--cyan);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+.seq-step-count {
+  font-family: 'VT323', monospace;
+  font-size: 14px;
+  color: var(--gold);
+}
+
+.seq-step-list {
+  max-height: 220px;
+  overflow-y: auto;
+  padding: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  scrollbar-width: thin;
+  scrollbar-color: var(--dim) transparent;
+}
+.seq-step-list::-webkit-scrollbar { width: 4px; }
+.seq-step-list::-webkit-scrollbar-track { background: transparent; }
+.seq-step-list::-webkit-scrollbar-thumb { background: var(--dim); border-radius: 2px; }
+
+.seq-empty {
+  padding: 20px;
+  text-align: center;
+  font-size: 9px;
+  color: var(--dim);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+/* Individual step card */
+.step-card {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--chassis-mid);
+  border: 1px solid #2a2a44;
+  border-radius: 3px;
+  padding: 5px 8px;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+.step-card.current-step {
+  border-color: var(--seq-play);
+  box-shadow: 0 0 8px #00ff8833;
+}
+.step-card.current-step .step-num {
+  color: var(--seq-play);
+  text-shadow: 0 0 6px var(--seq-play);
+}
+
+.step-num {
+  font-family: 'VT323', monospace;
+  font-size: 16px;
+  color: var(--muted);
+  min-width: 28px;
+  text-align: right;
+  letter-spacing: 1px;
+}
+.step-notes {
+  flex: 1;
+  font-size: 9px;
+  color: var(--cyan);
+  letter-spacing: 1px;
+  font-weight: bold;
+}
+.step-vel {
+  font-family: 'VT323', monospace;
+  font-size: 13px;
+  color: var(--gold);
+  min-width: 36px;
+  text-align: right;
+}
+.step-del-btn {
+  cursor: pointer;
+  background: none;
+  border: 1px solid #443355;
+  border-radius: 2px;
+  padding: 2px 5px;
+  font-size: 8px;
+  color: var(--dim);
+  transition: all 0.1s;
+  font-family: 'Space Mono', monospace;
+}
+.step-del-btn:hover {
+  border-color: var(--pink);
+  color: var(--pink);
+  background: #1a0010;
+}
+
+/* Status bar */
+.seq-status-bar {
+  padding: 5px 12px;
+  background: var(--chassis-mid);
+  border-top: 1px solid #2a2a44;
+  font-size: 8px;
+  color: var(--muted);
+  letter-spacing: 1.5px;
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+.seq-status-item { display: flex; gap: 4px; align-items: center; }
+.seq-status-item .s-label { color: var(--dim); text-transform: uppercase; }
+.seq-status-item .s-val {
+  font-family: 'VT323', monospace;
+  font-size: 14px;
+  color: var(--gold);
+}
+.seq-status-item .s-val.rec-active {
+  color: var(--seq-rec);
+  animation: rec-pulse 1s ease-in-out infinite;
+}
+.seq-status-item .s-val.play-active { color: var(--seq-play); }
+
 /* responsive */
 @media (max-width: 700px) {
   .panel { grid-template-columns: auto 1fr; }
   .lcd-panel { display: none; }
   .fx-body { grid-template-columns: 1fr 1fr; }
+  .okp-btn { min-height: 50px; }
 }
 @media (max-width: 480px) {
   .fx-body { grid-template-columns: 1fr; }
   .center-controls { flex-direction: column; align-items: center; }
   .voice-grid { flex-wrap: wrap; justify-content: center; }
+  .seq-util-row { flex-direction: column; }
 }
 </style>
 </head>
@@ -976,6 +1375,78 @@ input[type=range].h-slider::-moz-range-thumb {
   </div>
   <div class="config-body" id="configBody"></div>
 </div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     ONE KEY PLAY SEQUENCER PANEL
+     ═══════════════════════════════════════════════════════════ -->
+<div class="seq-panel">
+  <div class="seq-header" id="seqHeader">
+    <div class="seq-header-left">
+      <span class="seq-title">ONE KEY PLAY</span>
+      <span class="seq-subtitle">// Polyphonic Step Sequencer</span>
+    </div>
+    <span class="fx-arrow" id="seqArrow">▼</span>
+  </div>
+
+  <div class="seq-body" id="seqBody">
+
+    <!-- Mode selector -->
+    <div class="seq-mode-row">
+      <span class="seq-mode-label">Mode:</span>
+      <button class="seq-mode-btn mode-normal active" id="btn-mode-normal">⬤ Normal</button>
+      <button class="seq-mode-btn mode-record" id="btn-mode-record">⏺ Record</button>
+      <button class="seq-mode-btn mode-play" id="btn-mode-play">▶ One Key Play</button>
+    </div>
+
+    <!-- OKP performance buttons -->
+    <div class="okp-buttons-row">
+      <button class="okp-btn disabled" id="okp-a">
+        ONE KEY PLAY
+        <span class="okp-sub">Button A — Press to advance</span>
+      </button>
+      <button class="okp-btn disabled" id="okp-b">
+        ONE KEY PLAY
+        <span class="okp-sub">Button B — Press to advance</span>
+      </button>
+    </div>
+
+    <!-- MIDI output + utility buttons -->
+    <div class="seq-util-row">
+      <select class="seq-select" id="midi-out-select">
+        <option value="">— MIDI Output: None —</option>
+      </select>
+      <button class="seq-util-btn undo" id="btn-undo">↩ Undo</button>
+      <button class="seq-util-btn danger" id="btn-clear">✕ Clear</button>
+      <button class="seq-util-btn export" id="btn-export">⬇ Export MIDI</button>
+    </div>
+
+    <!-- Step list -->
+    <div class="seq-step-list-wrap">
+      <div class="seq-step-list-header">
+        <span>Step Sequence</span>
+        <span class="seq-step-count" id="seq-step-count">0 steps</span>
+      </div>
+      <div class="seq-step-list" id="seq-step-list">
+        <div class="seq-empty" id="seq-empty-msg">No steps recorded. Enter Record Mode and play notes.</div>
+      </div>
+      <div class="seq-status-bar">
+        <div class="seq-status-item">
+          <span class="s-label">Mode</span>
+          <span class="s-val" id="seq-status-mode">NORMAL</span>
+        </div>
+        <div class="seq-status-item">
+          <span class="s-label">Step</span>
+          <span class="s-val" id="seq-status-step">—</span>
+        </div>
+        <div class="seq-status-item">
+          <span class="s-label">Buffer</span>
+          <span class="s-val" id="seq-status-buf">—</span>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /seq-body -->
+</div><!-- /seq-panel -->
 
 <!-- ═══════════════════════════════════════════════════════════════ -->
 <script>
@@ -1382,24 +1853,8 @@ function applyBypass(name, bypassGain, activeNode, isActive) {
   const g = isActive ? 1 : 0;
   const b = isActive ? 0 : 1;
   if (bypassGain) bypassGain.gain.setTargetAtTime(b, audioCtx.currentTime, 0.01);
-  // For nodes that aren't GainNodes (compressor, filters) we control bypass gain only
-  // Active path gain controls are embedded in the routing above (no separate activeGain needed)
-  // We DON'T touch filter/compressor gain — their output always passes, bypass node crossfades
-  // So: when ACTIVE (bypassed=false), bypass gain = 0. When BYPASSED (active=false), bypass gain = 1.
-  // The active chain always passes signal; we just blend in bypass path on top when bypassing.
-  // Wait — actually the design routes: source -> active_chain AND source -> bypass_gain -> merge
-  // So to bypass: bypass_gain=1, active routing still passes but we want to mute it.
-  // Better: use a gain to silence the active path when bypassed.
-  // Let's correct: we need to mute the active path into the merge point.
-  // The architecture already handles this via the merge node (postEq etc.) — both paths always feed in.
-  // When bypass=true: bypass_gain=1 (full signal), active chain also passes (double signal!).
-  // We need to either gate the input to the active chain OR gate its output.
-  // Simplest fix: add an "activePathGain" per fx block.
-  // Since fxNodes isn't built yet when this is first called, we handle it via initial gain values set in buildFxChain.
 }
 
-// Proper bypass using input gate + bypass gain crossfade
-// We re-implement this after buildFxChain stores everything properly.
 function setBypass(name, enabled) {
   if (!fxNodes) return;
   fxBypass[name] = enabled;
@@ -1416,8 +1871,6 @@ function setBypass(name, enabled) {
 
   const { byp } = map[name];
   byp.gain.setTargetAtTime(enabled ? 0 : 1, t, 0.02);
-  // Note: active path always passes — bypass=true means we use active path, bypass=false means we
-  // use bypass (dry) path. We store fxBypass as "is fx active" not "is bypassed".
   syncChainIndicator();
 }
 
@@ -1572,6 +2025,7 @@ BLACK_KEY_DEFS.forEach(b => {
 
 // ═══════════════════════════════════════════════════════════════════
 // KEY EVENTS — mouse / touch
+// Intercept key events when Record Mode or One Key Play Mode is active
 // ═══════════════════════════════════════════════════════════════════
 function attachKeyEvents(el) {
   const midi = parseInt(el.dataset.midi);
@@ -1580,11 +2034,25 @@ function attachKeyEvents(el) {
     e.preventDefault();
     await startAudio();
     el.classList.add('pressed');
+
+    // ── SEQUENCER INTERCEPT ──────────────────────────────────────
+    if (isRecordMode) {
+      seqRecordNote(midi);
+      return; // do NOT fall through to normal noteOn
+    }
+    if (isOneKeyPlayMode) {
+      return; // keys are decoupled in OKP mode
+    }
+    // ────────────────────────────────────────────────────────────
+
     noteOn(midi);
   };
   const onEnd = (e) => {
     e.preventDefault();
     el.classList.remove('pressed');
+
+    if (isRecordMode || isOneKeyPlayMode) return;
+
     noteOff(midi);
   };
 
@@ -1757,6 +2225,17 @@ document.addEventListener('keydown', async e => {
   await startAudio();
   const keyEl = document.querySelector(`[data-midi="${midi}"]`);
   if (keyEl) keyEl.classList.add('pressed');
+
+  // ── SEQUENCER INTERCEPT ──────────────────────────────────────
+  if (isRecordMode) {
+    seqRecordNote(midi);
+    return;
+  }
+  if (isOneKeyPlayMode) {
+    return;
+  }
+  // ────────────────────────────────────────────────────────────
+
   noteOn(midi);
 });
 
@@ -1766,27 +2245,37 @@ document.addEventListener('keyup', e => {
   heldKeys.delete(e.key);
   const keyEl = document.querySelector(`[data-midi="${midi}"]`);
   if (keyEl) keyEl.classList.remove('pressed');
+
+  if (isRecordMode || isOneKeyPlayMode) return;
+
   noteOff(midi);
 });
 
 // ═══════════════════════════════════════════════════════════════════
 // WEB MIDI API
 // ═══════════════════════════════════════════════════════════════════
+let midiAccess = null;
+
 if (navigator.requestMIDIAccess) {
   navigator.requestMIDIAccess().then(onMIDISuccess, () => {
     console.warn('MIDI access denied.');
   });
 }
 
-function onMIDISuccess(midiAccess) {
-  for (const input of midiAccess.inputs.values()) {
+function onMIDISuccess(access) {
+  midiAccess = access;
+  for (const input of access.inputs.values()) {
     input.onmidimessage = handleMIDIMessage;
   }
-  midiAccess.onstatechange = e => {
+  access.onstatechange = e => {
     if (e.port.type === 'input' && e.port.state === 'connected') {
       e.port.onmidimessage = handleMIDIMessage;
     }
+    // Refresh MIDI output list when ports change
+    seqPopulateMidiOutputs();
   };
+  // Populate MIDI output dropdown
+  seqPopulateMidiOutputs();
 }
 
 async function handleMIDIMessage(msg) {
@@ -1796,10 +2285,24 @@ async function handleMIDIMessage(msg) {
     await startAudio();
     const keyEl = document.querySelector(`[data-midi="${note}"]`);
     if (keyEl) keyEl.classList.add('pressed');
+
+    // ── SEQUENCER INTERCEPT ──────────────────────────────────────
+    if (isRecordMode) {
+      seqRecordNote(note);
+      return;
+    }
+    if (isOneKeyPlayMode) {
+      return;
+    }
+    // ────────────────────────────────────────────────────────────
+
     noteOn(note);
   } else if (type === 0x80 || (type === 0x90 && vel === 0)) {
     const keyEl = document.querySelector(`[data-midi="${note}"]`);
     if (keyEl) keyEl.classList.remove('pressed');
+
+    if (isRecordMode || isOneKeyPlayMode) return;
+
     noteOff(note);
   }
 }
@@ -1849,6 +2352,406 @@ document.getElementById('configToggle').addEventListener('click', () => {
 // INITIAL SYNC — set chain indicator before audio starts
 // ═══════════════════════════════════════════════════════════════════
 syncChainIndicator();
+
+
+// ╔═══════════════════════════════════════════════════════════════════╗
+// ║  SEQUENCER STATE ENGINE — ONE KEY PLAY                            ║
+// ║  Begin: One Key Play polyphonic step sequencer implementation     ║
+// ╚═══════════════════════════════════════════════════════════════════╝
+
+// ── State Variables ──────────────────────────────────────────────────
+let isRecordMode       = false;      // True when in Record Mode
+let isOneKeyPlayMode   = false;      // True when in One Key Play Mode
+let sequenceArray      = [];         // Array of step objects: { notes: [midiNums], velocity: int }
+let stepIndex          = 0;          // Current position in the looping sequence
+let activeNotesOnCurrentStep = [];   // MIDI notes currently sounding from OKP
+
+// Record-mode chord detection buffer
+let _recBuffer       = [];  // temporary note pool
+let _recTimer        = null; // setTimeout handle for 50ms window
+const REC_CHORD_WINDOW_MS = 50;
+
+// MIDI output port reference
+let selectedMidiOutput = null;
+
+// ── Sequencer Panel Toggle ───────────────────────────────────────────
+document.getElementById('seqHeader').addEventListener('click', () => {
+  const body  = document.getElementById('seqBody');
+  const arrow = document.getElementById('seqArrow');
+  body.classList.toggle('open');
+  arrow.classList.toggle('open');
+});
+
+// Open the sequencer by default for discoverability
+document.getElementById('seqBody').classList.add('open');
+document.getElementById('seqArrow').classList.add('open');
+
+// ── Mode Buttons ─────────────────────────────────────────────────────
+document.getElementById('btn-mode-normal').addEventListener('click', () => setMode('normal'));
+document.getElementById('btn-mode-record').addEventListener('click', () => setMode('record'));
+document.getElementById('btn-mode-play').addEventListener('click',   () => setMode('play'));
+
+function setMode(mode) {
+  // Kill any currently sounding OKP notes when leaving play mode
+  if (isOneKeyPlayMode) {
+    seqKillActiveNotes();
+  }
+
+  isRecordMode     = (mode === 'record');
+  isOneKeyPlayMode = (mode === 'play');
+
+  // Update mode button styles
+  document.getElementById('btn-mode-normal').classList.toggle('active', mode === 'normal');
+  document.getElementById('btn-mode-record').classList.toggle('active', mode === 'record');
+  document.getElementById('btn-mode-play').classList.toggle('active',   mode === 'play');
+
+  // Enable/disable OKP buttons
+  const okpA = document.getElementById('okp-a');
+  const okpB = document.getElementById('okp-b');
+  if (isOneKeyPlayMode) {
+    okpA.classList.remove('disabled');
+    okpB.classList.remove('disabled');
+  } else {
+    okpA.classList.add('disabled');
+    okpB.classList.add('disabled');
+    // Clear the record buffer if leaving record mode mid-chord
+    if (_recTimer) { clearTimeout(_recTimer); _recTimer = null; }
+    _recBuffer = [];
+  }
+
+  // Update status bar
+  seqUpdateStatus();
+}
+
+// ── MIDI Output Dropdown ──────────────────────────────────────────────
+function seqPopulateMidiOutputs() {
+  const sel = document.getElementById('midi-out-select');
+  // Save currently selected value
+  const prev = sel.value;
+  sel.innerHTML = '<option value="">— MIDI Output: None —</option>';
+  if (!midiAccess) return;
+  for (const [id, port] of midiAccess.outputs.entries()) {
+    const opt = document.createElement('option');
+    opt.value = id;
+    opt.textContent = port.name;
+    if (id === prev) opt.selected = true;
+    sel.appendChild(opt);
+  }
+}
+
+document.getElementById('midi-out-select').addEventListener('change', e => {
+  if (!midiAccess || !e.target.value) {
+    selectedMidiOutput = null;
+    return;
+  }
+  selectedMidiOutput = midiAccess.outputs.get(e.target.value) || null;
+});
+
+// ── Record Mode — Polyphonic Chord Detection ───────────────────────────
+function seqRecordNote(midiNote) {
+  // Pool the note into the current chord buffer
+  if (!_recBuffer.includes(midiNote)) {
+    _recBuffer.push(midiNote);
+  }
+
+  // Update status buffer display
+  seqUpdateStatus();
+
+  // Reset the 50ms chord-close timer
+  if (_recTimer) clearTimeout(_recTimer);
+  _recTimer = setTimeout(() => {
+    // Timer fired — commit this chord as a step
+    if (_recBuffer.length === 0) return;
+
+    const step = {
+      notes: [..._recBuffer],
+      velocity: 100
+    };
+    sequenceArray.push(step);
+    _recBuffer = [];
+    _recTimer = null;
+
+    // Persist + update UI
+    seqSaveToStorage();
+    seqRenderStepList();
+    seqUpdateStatus();
+  }, REC_CHORD_WINDOW_MS);
+}
+
+// ── One Key Play Mode — Advance Step ────────────────────────────────────
+async function seqAdvanceStep() {
+  if (!isOneKeyPlayMode) return;
+
+  await startAudio(); // ensure audio context is running
+
+  // 1. NOTE OFF — kill all currently sounding OKP notes
+  seqKillActiveNotes();
+
+  // 2. Guard — nothing to play if sequence is empty
+  if (sequenceArray.length === 0) return;
+
+  // 3. Wrap step index (also handles case where sequence was edited shorter)
+  if (stepIndex >= sequenceArray.length) stepIndex = 0;
+
+  const currentStep = sequenceArray[stepIndex];
+
+  // 4. NOTE ON — trigger all notes in the step simultaneously
+  for (const midiNote of currentStep.notes) {
+    noteOn(midiNote); // use existing sampler noteOn
+    // Send to external MIDI output if selected
+    if (selectedMidiOutput) {
+      selectedMidiOutput.send([0x90, midiNote, currentStep.velocity]);
+    }
+    activeNotesOnCurrentStep.push(midiNote);
+  }
+
+  // 5. Highlight current step card
+  seqHighlightStep(stepIndex);
+
+  // 6. Advance + wrap
+  stepIndex++;
+  if (stepIndex >= sequenceArray.length) stepIndex = 0;
+
+  seqUpdateStatus();
+}
+
+// Kill all notes in activeNotesOnCurrentStep
+function seqKillActiveNotes() {
+  for (const midiNote of activeNotesOnCurrentStep) {
+    noteOff(midiNote, true); // immediate
+    if (selectedMidiOutput) {
+      selectedMidiOutput.send([0x80, midiNote, 0]); // Note Off
+    }
+  }
+  activeNotesOnCurrentStep = [];
+}
+
+// ── OKP Button Events (mouse + touch) ────────────────────────────────────
+function attachOkpButton(btnEl) {
+  const fireClass = () => {
+    btnEl.classList.add('firing');
+    setTimeout(() => btnEl.classList.remove('firing'), 120);
+  };
+
+  const onTrigger = async (e) => {
+    e.preventDefault();
+    if (!isOneKeyPlayMode) return;
+    fireClass();
+    await seqAdvanceStep();
+  };
+
+  btnEl.addEventListener('mousedown', onTrigger);
+  btnEl.addEventListener('touchstart', onTrigger, { passive: false });
+}
+
+attachOkpButton(document.getElementById('okp-a'));
+attachOkpButton(document.getElementById('okp-b'));
+
+// ── Undo Button ───────────────────────────────────────────────────────
+document.getElementById('btn-undo').addEventListener('click', () => {
+  if (sequenceArray.length === 0) return;
+  sequenceArray.pop();
+  // Clamp stepIndex in case it's now out of range
+  if (stepIndex >= sequenceArray.length) stepIndex = Math.max(0, sequenceArray.length - 1);
+  seqSaveToStorage();
+  seqRenderStepList();
+  seqUpdateStatus();
+});
+
+// ── Clear Button ──────────────────────────────────────────────────────
+document.getElementById('btn-clear').addEventListener('click', () => {
+  seqKillActiveNotes();
+  sequenceArray = [];
+  stepIndex = 0;
+  seqSaveToStorage();
+  seqRenderStepList();
+  seqUpdateStatus();
+});
+
+// ── Export MIDI Button ────────────────────────────────────────────────
+document.getElementById('btn-export').addEventListener('click', () => {
+  if (sequenceArray.length === 0) {
+    alert('No steps to export. Record a sequence first.');
+    return;
+  }
+
+  // MidiWriter may be available as MidiWriter or window.MidiWriter
+  const MW = window.MidiWriter || window.MIDIWriter;
+  if (!MW) {
+    alert('MIDI Writer library not loaded. Check your connection.');
+    return;
+  }
+
+  const track = new MW.Track();
+  track.setTempo(120);
+
+  for (const step of sequenceArray) {
+    // Map MIDI numbers to note name strings that MidiWriter accepts (e.g. "C4")
+    const noteNames = step.notes.map(n => midiToNoteName(n));
+    const event = new MW.NoteEvent({
+      pitch: noteNames,
+      duration: '4',       // quarter note
+      velocity: step.velocity,
+    });
+    track.addEvent(event);
+  }
+
+  const writer = new MW.Writer(track);
+  const dataUri = writer.dataUri();
+
+  // Trigger download
+  const a = document.createElement('a');
+  a.href = dataUri;
+  a.download = 'sequence.mid';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+});
+
+// ── Step List Rendering ────────────────────────────────────────────────
+function seqRenderStepList() {
+  const list  = document.getElementById('seq-step-list');
+  const empty = document.getElementById('seq-empty-msg');
+  const count = document.getElementById('seq-step-count');
+
+  // Update count badge
+  count.textContent = sequenceArray.length + ' step' + (sequenceArray.length !== 1 ? 's' : '');
+
+  // Show/hide empty message
+  if (sequenceArray.length === 0) {
+    empty.style.display = '';
+    // Clear any step cards
+    const cards = list.querySelectorAll('.step-card');
+    cards.forEach(c => c.remove());
+    return;
+  }
+  empty.style.display = 'none';
+
+  // Remove old cards and rebuild (simple approach; sequence typically short)
+  const cards = list.querySelectorAll('.step-card');
+  cards.forEach(c => c.remove());
+
+  sequenceArray.forEach((step, idx) => {
+    const card = document.createElement('div');
+    card.className = 'step-card';
+    card.dataset.stepIdx = idx;
+
+    const numEl = document.createElement('span');
+    numEl.className = 'step-num';
+    numEl.textContent = String(idx + 1).padStart(2, '0');
+
+    const notesEl = document.createElement('span');
+    notesEl.className = 'step-notes';
+    notesEl.textContent = step.notes.map(n => midiToNoteName(n)).join(' ');
+
+    const velEl = document.createElement('span');
+    velEl.className = 'step-vel';
+    velEl.textContent = 'v' + step.velocity;
+
+    const delBtn = document.createElement('button');
+    delBtn.className = 'step-del-btn';
+    delBtn.textContent = '✕';
+    delBtn.title = 'Delete step ' + (idx + 1);
+    delBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      seqDeleteStep(idx);
+    });
+
+    card.appendChild(numEl);
+    card.appendChild(notesEl);
+    card.appendChild(velEl);
+    card.appendChild(delBtn);
+    list.appendChild(card);
+  });
+
+  // Scroll the list to bottom when a new step is added
+  list.scrollTop = list.scrollHeight;
+}
+
+// Highlight the currently playing step card
+function seqHighlightStep(idx) {
+  const list = document.getElementById('seq-step-list');
+  list.querySelectorAll('.step-card').forEach(c => c.classList.remove('current-step'));
+  // Use the index before incrementing (the step we're playing)
+  const card = list.querySelector(`.step-card[data-step-idx="${idx}"]`);
+  if (card) {
+    card.classList.add('current-step');
+    card.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+  }
+}
+
+// ── Individual Step Deletion ───────────────────────────────────────────
+function seqDeleteStep(idx) {
+  sequenceArray.splice(idx, 1);
+  // Adjust stepIndex if we deleted a step at or before the current pointer
+  if (idx <= stepIndex && stepIndex > 0) stepIndex--;
+  if (stepIndex >= sequenceArray.length) stepIndex = Math.max(0, sequenceArray.length - 1);
+  seqSaveToStorage();
+  seqRenderStepList();
+  seqUpdateStatus();
+}
+
+// ── Status Bar Update ─────────────────────────────────────────────────
+function seqUpdateStatus() {
+  const modeEl = document.getElementById('seq-status-mode');
+  const stepEl = document.getElementById('seq-status-step');
+  const bufEl  = document.getElementById('seq-status-buf');
+
+  if (isRecordMode) {
+    modeEl.textContent = 'REC';
+    modeEl.className = 's-val rec-active';
+  } else if (isOneKeyPlayMode) {
+    modeEl.textContent = 'PLAY';
+    modeEl.className = 's-val play-active';
+  } else {
+    modeEl.textContent = 'NORMAL';
+    modeEl.className = 's-val';
+  }
+
+  stepEl.textContent = sequenceArray.length > 0
+    ? (stepIndex + 1) + '/' + sequenceArray.length
+    : '—';
+
+  bufEl.textContent = _recBuffer.length > 0
+    ? _recBuffer.map(n => midiToNoteName(n)).join(' ')
+    : '—';
+}
+
+// ── localStorage Persistence ─────────────────────────────────────────
+const SEQ_STORAGE_KEY = 'vl1_sequence_v1';
+
+function seqSaveToStorage() {
+  try {
+    localStorage.setItem(SEQ_STORAGE_KEY, JSON.stringify(sequenceArray));
+  } catch (e) {
+    console.warn('Could not save sequence to localStorage:', e);
+  }
+}
+
+function seqLoadFromStorage() {
+  try {
+    const raw = localStorage.getItem(SEQ_STORAGE_KEY);
+    if (!raw) return;
+    const parsed = JSON.parse(raw);
+    if (Array.isArray(parsed) && parsed.length > 0) {
+      sequenceArray = parsed;
+      stepIndex = 0;
+      seqRenderStepList();
+      seqUpdateStatus();
+    }
+  } catch (e) {
+    console.warn('Could not load sequence from localStorage:', e);
+  }
+}
+
+// ── Initialize sequencer on page load ────────────────────────────────
+seqRenderStepList();
+seqUpdateStatus();
+seqLoadFromStorage();
+
+// ╔═══════════════════════════════════════════════════════════════════╗
+// ║  SEQUENCER STATE ENGINE — End                                     ║
+// ╚═══════════════════════════════════════════════════════════════════╝
 </script>
 </body>
 </html>
