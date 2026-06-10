@@ -146,7 +146,7 @@ body::before {
 
 /* ── METER SECTION ──────────────────────────────────────────── */
 .meter-section {
-  padding: 20px 20px 8px;
+  padding: 20px 20px 20px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -216,7 +216,7 @@ body::before {
 
 /* ── ACTIVATE BUTTON ────────────────────────────────────────── */
 .activate-btn {
-  margin: 0 20px;
+  margin: 16px 0 0;
   padding: 14px;
   background: transparent;
   border: 1px solid var(--cyan);
@@ -226,7 +226,7 @@ body::before {
   letter-spacing: 3px;
   text-transform: uppercase;
   cursor: pointer;
-  width: calc(100% - 40px);
+  width: 100%;
   transition: background 0.2s, box-shadow 0.2s, color 0.2s;
   text-shadow: 0 0 8px rgba(0,245,255,0.5);
 }
@@ -540,16 +540,81 @@ body::before {
   text-transform: uppercase;
 }
 
-/* ── DESKTOP EXPANSION ──────────────────────────────────────── */
-@media (min-width: 520px) {
-  .tuner-shell { max-width: 560px; }
-  .tuner-title { font-size: 52px; }
-  .dial-wrap { width: 280px; height: 150px; }
+/* ── DESKTOP LAYOUT ─────────────────────────────────────────── */
+@media (min-width: 800px) {
+  body { padding: 32px 24px 48px; }
+
+  .tuner-shell {
+    max-width: 960px;
+    display: grid;
+    grid-template-columns: 1fr 380px;
+    grid-template-rows: auto auto auto auto 1fr auto;
+    grid-template-areas:
+      "header   header"
+      "controls controls"
+      "error    error"
+      "status   status"
+      "meter    strings"
+      "footer   footer";
+    gap: 0;
+  }
+
+  .tuner-header  { grid-area: header; }
+  .control-panel { grid-area: controls; }
+  .mic-error     { grid-area: error; }
+  .status-strip  { grid-area: status; }
+  .meter-section { grid-area: meter; border-right: 1px solid #ffffff0d; padding: 32px 40px; }
+  .headstock-wrap { grid-area: strings; }
+  .tuner-footer  { grid-area: footer; }
+
+  /* Meter gets more vertical room, dial scales up */
+  .meter-section {
+    justify-content: center;
+    padding-top: 36px;
+  }
+
+  .detected-note { font-size: 96px; min-height: 96px; }
+
+  .dial-wrap { width: 340px; height: 185px; }
+
+  .cents-readout { font-size: 28px; }
+  .freq-readout  { font-size: 11px; }
+
+  /* Right column: strings panel */
+  .headstock-wrap {
+    display: flex;
+    flex-direction: column;
+    background: var(--surface);
+  }
+
+  .headstock-label {
+    padding: 24px 24px 12px;
+    border-bottom: 1px solid #ffffff08;
+    margin-bottom: 0;
+  }
+
+  .headstock {
+    padding: 16px 20px;
+    gap: 8px;
+    flex: 1;
+  }
+
+  /* Slightly more generous peg sizing on desktop */
+  .peg { min-height: 58px; }
+  .peg-note { font-size: 36px; }
+
+  /* Activate button is now inside .meter-section — full width within that column */
+  .activate-btn {
+    margin: 16px 0 0;
+    width: 100%;
+  }
+
+  .tuner-title { font-size: 64px; }
 }
 
-@media (min-width: 720px) {
-  body { padding: 20px 0; }
-  .tuner-shell { max-width: 640px; }
+@media (min-width: 1100px) {
+  .tuner-shell { max-width: 1080px; grid-template-columns: 1fr 420px; }
+  .dial-wrap   { width: 380px; height: 206px; }
 }
 
 /* Reduced motion */
@@ -663,15 +728,17 @@ body::before {
 
     <div class="cents-readout" id="centsReadout">— ¢</div>
     <div class="freq-readout" id="freqReadout">— Hz detected</div>
+
+    <!-- Activate button lives inside the meter column -->
+    <button class="activate-btn" id="activateBtn">⬤ Activate Tuner</button>
   </div>
 
-  <!-- Activate Button -->
-  <button class="activate-btn" id="activateBtn">⬤ Activate Tuner</button>
-
-  <!-- Headstock -->
-  <div class="headstock-label">Strings</div>
-  <div class="headstock" id="headstock">
-    <!-- Pegs injected by JS -->
+  <!-- Strings (right column on desktop) -->
+  <div class="headstock-wrap">
+    <div class="headstock-label">Strings</div>
+    <div class="headstock" id="headstock">
+      <!-- Pegs injected by JS -->
+    </div>
   </div>
 
   <!-- Footer -->
@@ -698,6 +765,9 @@ const TUNINGS = {
   dadgad:   { label: 'DADGAD',      notes: ['D2','A2','D3','G3','A3','D4'] },
   halfdown: { label: 'Half-Step ↓', notes: ['Eb2','Ab2','Db3','Gb3','Bb3','Eb4'] },
 };
+// Correct MIDI mapping: C4 = midi 60, A4 = midi 69 = 440 Hz
+// E2 = midi 40 ≈ 82 Hz, A2 = 45 ≈ 110 Hz, D3 = 50 ≈ 147 Hz,
+// G3 = 55 ≈ 196 Hz, B3 = 59 ≈ 247 Hz, E4 = 64 ≈ 330 Hz  ✓
 
 /* ── NOTE FREQUENCY TABLE ─────────────────────────────────────
    Equal temperament, A4 = 440 Hz                              */
@@ -706,7 +776,8 @@ const NOTE_FREQ = (() => {
   const map = {};
   for (let oct = 0; oct <= 7; oct++) {
     notes.forEach((n, i) => {
-      const midi = oct * 12 + i;
+      // Standard MIDI: C4=60, A4=69=440Hz → midi = (oct+1)*12 + noteIndex
+      const midi = (oct + 1) * 12 + i;
       map[n + oct] = 440 * Math.pow(2, (midi - 69) / 12);
     });
   }
@@ -790,7 +861,7 @@ function buildHeadstock() {
     downBtn.textContent = '▼';
     downBtn.dataset.string = i;
     downBtn.dataset.dir = 'down';
-    downBtn.addEventListener('click', onNudge);
+    attachNudgeListeners(downBtn, i, 'down');
 
     const peg = document.createElement('button');
     peg.className = 'peg';
@@ -811,7 +882,7 @@ function buildHeadstock() {
     upBtn.textContent = '▲';
     upBtn.dataset.string = i;
     upBtn.dataset.dir = 'up';
-    upBtn.addEventListener('click', onNudge);
+    attachNudgeListeners(upBtn, i, 'up');
 
     row.appendChild(downBtn);
     row.appendChild(peg);
@@ -900,21 +971,59 @@ function stopOscillator(fade = true) {
   if (isRunning) setStatus('active', 'Listening…');
 }
 
-/* ── NUDGE BUTTONS ──────────────────────────────────────────── */
-function onNudge(e) {
-  resetActivity();
-  const i = parseInt(e.currentTarget.dataset.string, 10);
-  const dir = e.currentTarget.dataset.dir;
+/* ── NUDGE BUTTONS — hold to accelerate ────────────────────── */
+// Each button gets pointerdown → starts repeat interval that speeds up
+const nudgeState = {}; // keyed by element
+
+function applyNudge(i, dir) {
   const step = dir === 'up' ? 1 : -1;
-  // Shift by 1 cent
   stringFreqs[i] *= Math.pow(2, step / 1200);
-  // Update display
   const pegHz = document.getElementById(`peg-hz-${i}`);
   if (pegHz) pegHz.textContent = stringFreqs[i].toFixed(1) + ' Hz';
-  // Update playing tone if it's this string
   if (activeOscString === i && activeOsc) {
     activeOsc.frequency.setValueAtTime(stringFreqs[i], audioCtx.currentTime);
   }
+}
+
+function startNudge(el, i, dir) {
+  resetActivity();
+  applyNudge(i, dir); // immediate first step
+
+  let stepCount = 0;
+  // Start slow (200ms), accelerate every 5 steps down to 40ms
+  function scheduleNext() {
+    const delay = stepCount < 5  ? 200 :
+                  stepCount < 15 ? 100 :
+                  stepCount < 30 ? 60  : 40;
+    nudgeState[el._nudgeId] = setTimeout(() => {
+      if (!nudgeState[el._nudgeId]) return;
+      applyNudge(i, dir);
+      stepCount++;
+      scheduleNext();
+    }, delay);
+  }
+  scheduleNext();
+}
+
+function stopNudge(el) {
+  if (nudgeState[el._nudgeId]) {
+    clearTimeout(nudgeState[el._nudgeId]);
+    nudgeState[el._nudgeId] = null;
+  }
+}
+
+function onNudge(e) { /* kept for compatibility — not used directly */ }
+
+function attachNudgeListeners(btn, i, dir) {
+  btn._nudgeId = `${i}-${dir}`;
+  btn.addEventListener('pointerdown', (e) => {
+    e.preventDefault(); // prevent ghost click on touch
+    btn.setPointerCapture(e.pointerId);
+    startNudge(btn, i, dir);
+  });
+  btn.addEventListener('pointerup',    () => stopNudge(btn));
+  btn.addEventListener('pointercancel',() => stopNudge(btn));
+  btn.addEventListener('pointerleave', () => stopNudge(btn));
 }
 
 /* ── ACTIVATE / DEACTIVATE MIC ──────────────────────────────── */
