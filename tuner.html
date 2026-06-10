@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-<title>Carl William — Guitar Tuner</title>
+<title>Carl William — Universal Tuner v5</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=VT323&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
@@ -20,8 +20,7 @@
   --text:    #e0d8f0;
   --muted:   #9988aa;
   --dim:     #443355;
-  --s1: #ff4444; --s2: #ff9933; --s3: #ffd700;
-  --s4: #00ff88; --s5: #00f5ff; --s6: #b06aff;
+  --amber:   #ffd700;
 }
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -105,20 +104,37 @@ body::before {
 }
 .ctrl-select:hover, .ctrl-select:focus { border-color: var(--cyan); }
 
-/* A4 number input */
-.ctrl-number {
+/* A4 nudge row */
+.a4-row {
+  display: flex; align-items: center; gap: 0;
+}
+.a4-nudge {
+  width: 30px; height: 30px;
+  background: #06060f;
+  border: 1px solid var(--dim); color: var(--muted);
+  font-size: 13px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: background 0.12s, border-color 0.12s, color 0.12s;
+  flex-shrink: 0; touch-action: manipulation;
+  -webkit-user-select: none; user-select: none;
+}
+.a4-nudge:first-child { border-right: none; }
+.a4-nudge:last-child  { border-left: none; }
+.a4-nudge:active, .a4-nudge.nudging {
+  background: rgba(0,245,255,0.08);
+  border-color: var(--cyan); color: var(--cyan);
+}
+.a4-display {
+  flex: 1;
   background: #06060f; color: var(--text);
   border: 1px solid var(--dim);
   font-family: 'Space Mono', monospace;
   font-size: 10px; letter-spacing: 1px;
-  padding: 6px 8px;
-  outline: none; width: 100%;
+  padding: 6px 4px;
+  text-align: center;
   transition: border-color 0.2s;
-  -moz-appearance: textfield;
+  pointer-events: none;
 }
-.ctrl-number::-webkit-outer-spin-button,
-.ctrl-number::-webkit-inner-spin-button { -webkit-appearance: none; }
-.ctrl-number:hover, .ctrl-number:focus { border-color: var(--cyan); }
 
 /* ── MODE TOGGLE ROW ────────────────────────────────────────── */
 .mode-row {
@@ -130,8 +146,8 @@ body::before {
   flex-wrap: wrap;
 }
 .mode-btn {
-  flex: 1; min-width: 80px;
-  padding: 7px 10px;
+  flex: 1; min-width: 70px;
+  padding: 7px 6px;
   background: #06060f;
   border: 1px solid var(--dim);
   color: var(--muted);
@@ -147,6 +163,19 @@ body::before {
   background: rgba(0,245,255,0.06);
   text-shadow: 0 0 8px rgba(0,245,255,0.5);
 }
+.mode-btn.drone-active {
+  border-color: var(--purple);
+  color: var(--purple);
+  background: rgba(176,106,255,0.06);
+  text-shadow: 0 0 8px rgba(176,106,255,0.5);
+}
+.mode-btn.calibrating {
+  border-color: var(--gold);
+  color: var(--gold);
+  background: rgba(255,215,0,0.06);
+  animation: calib-pulse 0.6s step-end infinite;
+}
+@keyframes calib-pulse { 50%{opacity:0.5} }
 
 /* ── STATUS STRIP ───────────────────────────────────────────── */
 .status-strip {
@@ -200,9 +229,19 @@ body::before {
   transition: color 0.2s, text-shadow 0.2s;
   min-height: 64px; text-align: center;
 }
-.detected-note.in-tune { color: var(--green); text-shadow: 0 0 24px rgba(0,255,136,0.7); }
-.detected-note.sharp   { color: var(--pink);  text-shadow: 0 0 24px rgba(255,45,120,0.7); }
-.detected-note.flat    { color: var(--gold);  text-shadow: 0 0 24px rgba(255,215,0,0.7); }
+.detected-note.in-tune {
+  color: var(--cyan);
+  text-shadow: 0 0 24px rgba(0,245,255,0.9), 0 0 48px rgba(0,245,255,0.4);
+  filter: drop-shadow(0 0 8px var(--cyan));
+}
+.detected-note.warn {
+  color: var(--amber);
+  text-shadow: 0 0 24px rgba(255,215,0,0.7);
+}
+.detected-note.off {
+  color: var(--pink);
+  text-shadow: 0 0 24px rgba(255,45,120,0.7);
+}
 
 /* ── NEEDLE METER ───────────────────────────────────────────── */
 .dial-wrap {
@@ -221,24 +260,17 @@ body::before {
   width: 240px; height: 130px;
   display: flex; flex-direction: column;
   align-items: center; justify-content: center;
-  gap: 10px;
-  position: relative;
+  gap: 8px; position: relative;
 }
 .strobe-wrap.hidden { display: none; }
 .strobe-disc-outer {
-  width: 110px; height: 110px;
+  width: 120px; height: 120px;
   border-radius: 50%;
   background: #06060f;
   border: 2px solid var(--dim);
   position: relative;
   overflow: hidden;
   display: flex; align-items: center; justify-content: center;
-}
-.strobe-disc {
-  width: 100%; height: 100%;
-  border-radius: 50%;
-  position: absolute;
-  /* Stripes painted via JS canvas */
 }
 canvas#strobeCanvas {
   position: absolute; inset: 0;
@@ -275,15 +307,13 @@ canvas#strobeCanvas {
   display: flex; align-items: center; gap: 8px;
 }
 .lock-icon {
-  font-size: 14px;
-  opacity: 0.25;
+  font-size: 14px; opacity: 0.25;
   transition: opacity 0.3s, filter 0.3s;
-  filter: none;
 }
 .lock-icon.locked {
   opacity: 1;
-  filter: drop-shadow(0 0 6px var(--green));
-  color: var(--green);
+  filter: drop-shadow(0 0 6px var(--cyan));
+  color: var(--cyan);
 }
 .stability-bar-track {
   flex: 1; height: 3px;
@@ -302,15 +332,40 @@ canvas#strobeCanvas {
   font-family: 'VT323', monospace;
   font-size: 20px; letter-spacing: 2px;
   color: var(--muted); text-align: center;
-  min-height: 24px; transition: color 0.2s;
+  min-height: 24px; transition: color 0.2s, text-shadow 0.2s;
 }
-.cents-readout.in-tune { color: var(--green); }
-.cents-readout.sharp   { color: var(--pink); }
-.cents-readout.flat    { color: var(--gold); }
+.cents-readout.in-tune {
+  color: var(--cyan);
+  text-shadow: 0 0 8px rgba(0,245,255,0.7);
+  filter: drop-shadow(0 0 4px var(--cyan));
+}
+.cents-readout.warn  { color: var(--amber); }
+.cents-readout.off   { color: var(--pink); }
+
 .freq-readout {
   font-size: 9px; color: var(--dim);
   letter-spacing: 2px; text-transform: uppercase;
   min-height: 14px;
+}
+.harmonic-readout {
+  font-size: 8px; letter-spacing: 1px; text-transform: uppercase;
+  min-height: 12px; transition: color 0.2s;
+  color: var(--dim);
+}
+.harmonic-readout.clean { color: var(--green); }
+.harmonic-readout.poor  { color: var(--pink); }
+
+/* ── DRONE VOLUME ───────────────────────────────────────────── */
+.drone-vol-row {
+  display: flex; align-items: center; gap: 8px;
+  width: 100%; max-width: 240px;
+  margin-top: 4px;
+}
+.drone-vol-row label {
+  font-size: 8px; color: var(--dim); letter-spacing: 2px; text-transform: uppercase; white-space: nowrap;
+}
+.drone-vol-row input[type=range] {
+  flex: 1; accent-color: var(--purple); height: 3px;
 }
 
 /* ── ACTIVATE BUTTON ────────────────────────────────────────── */
@@ -418,22 +473,8 @@ canvas#strobeCanvas {
 }
 .peg.playing .peg-note { color: var(--peg-color, var(--cyan)); text-shadow: 0 0 16px var(--peg-color, var(--cyan)); animation: peg-note-breathe 0.8s ease-in-out infinite; }
 @keyframes peg-note-breathe { 0%,100%{opacity:1} 50%{opacity:0.65} }
-.peg.in-tune { box-shadow: 0 0 20px rgba(0,255,136,0.5) !important; border-color: var(--green) !important; animation: none !important; }
-.peg.in-tune .peg-note { color: var(--green) !important; text-shadow: 0 0 18px rgba(0,255,136,0.8) !important; animation: none !important; }
-
-/* String colour vars */
-.peg[data-string="1"] { --peg-color: var(--s1); }
-.peg[data-string="2"] { --peg-color: var(--s2); }
-.peg[data-string="3"] { --peg-color: var(--s3); }
-.peg[data-string="4"] { --peg-color: var(--s4); }
-.peg[data-string="5"] { --peg-color: var(--s5); }
-.peg[data-string="6"] { --peg-color: var(--s6); }
-.peg[data-string="1"] .peg-string-num { color: var(--s1); }
-.peg[data-string="2"] .peg-string-num { color: var(--s2); }
-.peg[data-string="3"] .peg-string-num { color: var(--s3); }
-.peg[data-string="4"] .peg-string-num { color: var(--s4); }
-.peg[data-string="5"] .peg-string-num { color: var(--s5); }
-.peg[data-string="6"] .peg-string-num { color: var(--s6); }
+.peg.in-tune { box-shadow: 0 0 20px rgba(0,245,255,0.5) !important; border-color: var(--cyan) !important; animation: none !important; }
+.peg.in-tune .peg-note { color: var(--cyan) !important; text-shadow: 0 0 18px rgba(0,245,255,0.8) !important; animation: none !important; }
 
 /* ── SLEEP OVERLAY ──────────────────────────────────────────── */
 .sleep-overlay {
@@ -464,7 +505,6 @@ canvas#strobeCanvas {
 /* ── DESKTOP LAYOUT ─────────────────────────────────────────── */
 @media (min-width: 800px) {
   body { padding: 28px 24px 48px; }
-
   .tuner-shell {
     max-width: 980px;
     display: grid;
@@ -478,7 +518,6 @@ canvas#strobeCanvas {
       "meter    strings"
       "footer   footer";
   }
-
   .tuner-header   { grid-area: header; }
   .control-panel  { grid-area: controls; }
   .mode-row       { grid-area: modes; }
@@ -487,30 +526,25 @@ canvas#strobeCanvas {
   .meter-section  { grid-area: meter; border-right: 1px solid #ffffff0d; padding: 28px 40px 28px; justify-content: center; }
   .headstock-wrap { grid-area: strings; display: flex; flex-direction: column; background: var(--surface); }
   .tuner-footer   { grid-area: footer; }
-
   .tuner-title    { font-size: 60px; }
   .detected-note  { font-size: 96px; min-height: 96px; }
   .dial-wrap      { width: 320px; height: 174px; }
   .strobe-wrap    { width: 320px; height: 174px; }
-  .strobe-disc-outer { width: 140px; height: 140px; }
+  .strobe-disc-outer { width: 160px; height: 160px; }
   .cents-readout  { font-size: 26px; }
   .freq-readout   { font-size: 11px; }
   .confidence-wrap { max-width: 320px; }
-
   .headstock-label { padding: 22px 24px 10px; border-bottom: 1px solid #ffffff08; }
   .headstock { padding: 14px 20px; gap: 8px; flex: 1; }
   .peg { min-height: 56px; }
   .peg-note { font-size: 34px; }
-
   .activate-btn { margin: 16px 0 0; width: 100%; }
 }
-
 @media (min-width: 1100px) {
   .tuner-shell { max-width: 1080px; grid-template-columns: 1fr 420px; }
   .dial-wrap   { width: 360px; height: 195px; }
   .strobe-wrap { width: 360px; height: 195px; }
 }
-
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation: none !important; transition: none !important; }
 }
@@ -527,19 +561,18 @@ canvas#strobeCanvas {
 
   <header class="tuner-header">
     <div class="tuner-title">TUNER</div>
-    <div class="tuner-subtitle">Carl William Music<br>Web Audio API v3</div>
+    <div class="tuner-subtitle">Carl William Music<br>Universal v5</div>
   </header>
 
   <!-- Control Panel -->
   <div class="control-panel">
     <div class="ctrl-group">
+      <label for="instrumentSelect">Instrument</label>
+      <select class="ctrl-select" id="instrumentSelect"></select>
+    </div>
+    <div class="ctrl-group">
       <label for="tuningSelect">Tuning</label>
-      <select class="ctrl-select" id="tuningSelect">
-        <option value="standard">Standard — EADGBE</option>
-        <option value="dropd">Drop D — DADGBE</option>
-        <option value="dadgad">DADGAD</option>
-        <option value="halfdown">Half-Step Down — Eb</option>
-      </select>
+      <select class="ctrl-select" id="tuningSelect"></select>
     </div>
     <div class="ctrl-group">
       <label for="waveSelect">Waveform</label>
@@ -549,10 +582,13 @@ canvas#strobeCanvas {
         <option value="sawtooth">Sawtooth</option>
       </select>
     </div>
-    <div class="ctrl-group" style="min-width:90px;max-width:130px;">
-      <label for="a4Input">A4 Ref (Hz)</label>
-      <input class="ctrl-number" type="number" id="a4Input"
-             min="430" max="450" step="1" value="440">
+    <div class="ctrl-group" style="min-width:110px;max-width:150px;">
+      <label>A4 Reference</label>
+      <div class="a4-row">
+        <button class="a4-nudge" id="a4Down" aria-label="A4 lower">▼</button>
+        <div class="a4-display" id="a4Display">440 Hz</div>
+        <button class="a4-nudge" id="a4Up" aria-label="A4 higher">▲</button>
+      </div>
     </div>
   </div>
 
@@ -560,7 +596,9 @@ canvas#strobeCanvas {
   <div class="mode-row">
     <button class="mode-btn active" id="btnNeedle">◈ Needle</button>
     <button class="mode-btn" id="btnStrobe">⦿ Strobe</button>
-    <button class="mode-btn active" id="btnChromatic" data-active="false">𝄞 Chromatic</button>
+    <button class="mode-btn" id="btnChromatic" data-active="false">𝄞 Chromatic</button>
+    <button class="mode-btn" id="btnDrone">⬡ Drone All</button>
+    <button class="mode-btn" id="btnCalibrate">⬤ Calibrate</button>
   </div>
 
   <div class="mic-error" id="micError">
@@ -583,7 +621,7 @@ canvas#strobeCanvas {
       <svg class="dial-svg" viewBox="0 0 240 130" xmlns="http://www.w3.org/2000/svg">
         <path d="M 20 120 A 100 100 0 0 1 220 120" fill="none" stroke="#1a1a2e" stroke-width="18" stroke-linecap="round"/>
         <path d="M 20 120 A 100 100 0 0 1 80 35"   fill="none" stroke="rgba(255,215,0,0.22)"  stroke-width="18" stroke-linecap="round"/>
-        <path d="M 108 20.5 A 100 100 0 0 1 132 20.5" fill="none" stroke="rgba(0,255,136,0.35)" stroke-width="20" stroke-linecap="round"/>
+        <path d="M 108 20.5 A 100 100 0 0 1 132 20.5" fill="none" stroke="rgba(0,245,255,0.35)" stroke-width="20" stroke-linecap="round"/>
         <path d="M 160 35 A 100 100 0 0 1 220 120" fill="none" stroke="rgba(255,45,120,0.22)"  stroke-width="18" stroke-linecap="round"/>
         <g stroke="#443355" stroke-width="1">
           <line x1="120" y1="20" x2="120" y2="10" transform="rotate(-60 120 120)"/>
@@ -592,9 +630,9 @@ canvas#strobeCanvas {
           <line x1="120" y1="20" x2="120" y2="10" transform="rotate(30 120 120)"/>
           <line x1="120" y1="20" x2="120" y2="10" transform="rotate(60 120 120)"/>
         </g>
-        <line x1="120" y1="22" x2="120" y2="8" stroke="rgba(0,255,136,0.6)" stroke-width="2"/>
+        <line x1="120" y1="22" x2="120" y2="8" stroke="rgba(0,245,255,0.6)" stroke-width="2"/>
         <text x="16"  y="116" font-family="Space Mono,monospace" font-size="9" fill="#ffd700">♭</text>
-        <text x="114" y="11"  font-family="Space Mono,monospace" font-size="8" fill="rgba(0,255,136,0.7)" text-anchor="middle">✓</text>
+        <text x="114" y="11"  font-family="Space Mono,monospace" font-size="8" fill="rgba(0,245,255,0.7)" text-anchor="middle">✓</text>
         <text x="222" y="116" font-family="Space Mono,monospace" font-size="9" fill="#ff2d78">#</text>
         <g id="needleGroup" style="transform-origin:120px 120px">
           <line id="needleLine" x1="120" y1="120" x2="120" y2="26" stroke="var(--cyan)" stroke-width="2.5" stroke-linecap="round"/>
@@ -608,7 +646,7 @@ canvas#strobeCanvas {
     <!-- STROBE meter -->
     <div class="strobe-wrap hidden" id="strobeWrap" aria-hidden="true">
       <div class="strobe-disc-outer">
-        <canvas id="strobeCanvas" width="200" height="200"></canvas>
+        <canvas id="strobeCanvas" width="320" height="320"></canvas>
       </div>
       <div class="strobe-label" id="strobeLabel">— strobe —</div>
     </div>
@@ -634,6 +672,13 @@ canvas#strobeCanvas {
 
     <div class="cents-readout" id="centsReadout">— ¢</div>
     <div class="freq-readout"  id="freqReadout">— Hz detected</div>
+    <div class="harmonic-readout" id="harmonicReadout"></div>
+
+    <!-- Drone volume -->
+    <div class="drone-vol-row" id="droneVolRow" style="display:none;">
+      <label for="droneVol">Drone Vol</label>
+      <input type="range" id="droneVol" min="0" max="1" step="0.01" value="0.6">
+    </div>
 
     <button class="activate-btn" id="activateBtn">⬤ Activate Tuner</button>
   </div>
@@ -656,56 +701,120 @@ canvas#strobeCanvas {
 'use strict';
 
 /* ================================================================
-   CARL WILLIAM MUSIC — GUITAR TUNER  v3
-   New in this version:
-     • Chromatic mode (any note, not just the 6 strings)
-     • A4 reference pitch adjustment (430–450 Hz)
-     • Stability lock indicator (0.5s stable before lighting)
-     • Signal confidence bar (autocorrelation score)
-     • Strobe disc mode (freezes when in-tune)
-     • Haptic feedback on in-tune (navigator.vibrate)
-     • Hold-to-accelerate nudge buttons
-     • Auto-mute / auto-sleep / desktop two-column layout
+   CARL WILLIAM MUSIC — UNIVERSAL TUNER v5
+   Modules:
+     1. Unified Control Panel & Polymorphic UI Scaling
+     2. Dual-Action Peg Nudge + Local Storage Profiles
+     3. Dynamic Tracking Filter & Sub-Bass DSP Decimation
+     4. Continuous Canvas Phase Strobe & Precision State Morphing
+     5. Ambient Noise Fingerprinting & Calibration Mask
+     6. Multi-Harmonic Overtone Analysis (String Inharmonicity)
+     7. Polyphonic Reference Drone Engine & Mode State Machine
    ================================================================ */
 
-/* ── TUNINGS ────────────────────────────────────────────────── */
-const TUNINGS = {
-  standard: { notes: ['E2','A2','D3','G3','B3','E4'] },
-  dropd:    { notes: ['D2','A2','D3','G3','B3','E4'] },
-  dadgad:   { notes: ['D2','A2','D3','G3','A3','D4'] },
-  halfdown: { notes: ['Eb2','Ab2','Db3','Gb3','Bb3','Eb4'] },
-};
+/* ══════════════════════════════════════════════════════════════
+   MODULE 1 — INSTRUMENT / TUNING DATASET
+   ══════════════════════════════════════════════════════════════ */
+
+const INSTRUMENTS = [
+  {
+    id: 'guitar', label: 'Guitar',
+    tunings: [
+      { id: 'standard',  label: 'Standard',       notes: ['E2','A2','D3','G3','B3','E4'] },
+      { id: 'dropd',     label: 'Drop D',          notes: ['D2','A2','D3','G3','B3','E4'] },
+      { id: 'dadgad',    label: 'DADGAD',          notes: ['D2','A2','D3','G3','A3','D4'] },
+      { id: 'halfdown',  label: 'Half-Step Down',  notes: ['Eb2','Ab2','Db3','Gb3','Bb3','Eb4'] },
+    ]
+  },
+  {
+    id: 'bass4', label: 'Bass Guitar (4-Str)',
+    tunings: [
+      { id: 'standard', label: 'Standard', notes: ['E1','A1','D2','G2'] },
+      { id: 'dropd',    label: 'Drop D',   notes: ['D1','A1','D2','G2'] },
+    ]
+  },
+  {
+    id: 'bass5', label: 'Bass Guitar (5-Str)',
+    tunings: [
+      { id: 'standard', label: 'Standard', notes: ['B0','E1','A1','D2','G2'] },
+    ]
+  },
+  {
+    id: 'uke', label: 'Ukulele',
+    tunings: [
+      { id: 'gcea',     label: 'Standard GCEA',  notes: ['G4','C4','E4','A4'] },
+      { id: 'dtuning',  label: 'D-Tuning',       notes: ['A4','D4','F#4','B4'] },
+    ]
+  },
+  {
+    id: 'banjo', label: 'Banjo (5-Str)',
+    tunings: [
+      { id: 'openg',    label: 'Open G',          notes: ['D3','G3','B3','D4','G4'] },
+      { id: 'ctuning',  label: 'C-Tuning',        notes: ['C3','G3','B3','D4','G4'] },
+    ]
+  },
+  {
+    id: 'mandolin', label: 'Mandolin / Violin',
+    tunings: [
+      { id: 'gdae', label: 'Standard GDAE', notes: ['G3','D4','A4','E5'] },
+    ]
+  },
+  {
+    id: 'viola', label: 'Viola',
+    tunings: [
+      { id: 'cgda', label: 'Standard CGDA', notes: ['C3','G3','D4','A4'] },
+    ]
+  },
+  {
+    id: 'cello', label: 'Cello',
+    tunings: [
+      { id: 'cgda', label: 'Standard CGDA', notes: ['C2','G2','D3','A3'] },
+    ]
+  },
+  {
+    id: 'doublebass', label: 'Double Bass',
+    tunings: [
+      { id: 'eadg',    label: 'Standard EADG',  notes: ['E1','A1','D2','G2'] },
+      { id: 'cext',    label: 'C-Extension',    notes: ['C1','A1','D2','G2'] },
+    ]
+  },
+];
 
 /* ── NOTE FREQUENCY TABLE ───────────────────────────────────── */
-// Rebuilt whenever A4 reference changes
 let A4_REF = 440;
-let NOTE_FREQ = {};  // "C4" → Hz
-let NOTE_LIST = [];  // [{name, freq}] sorted by freq, all notes C0–B7
+let NOTE_FREQ = {};
+let NOTE_LIST = [];
+
+const NOTE_NAMES  = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
+const NOTE_ALIASES = { Eb:'D#', Ab:'G#', Db:'C#', Gb:'F#', Bb:'A#' };
 
 function buildNoteTable() {
-  const notes = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
-  const aliases = {Eb:'D#',Ab:'G#',Db:'C#',Gb:'F#',Bb:'A#'};
   NOTE_FREQ = {};
   NOTE_LIST = [];
-  for (let oct = 0; oct <= 7; oct++) {
-    notes.forEach((n, i) => {
-      // Standard MIDI: C4=60, A4=69
+  for (let oct = 0; oct <= 9; oct++) {
+    NOTE_NAMES.forEach((n, i) => {
       const midi = (oct + 1) * 12 + i;
       const freq = A4_REF * Math.pow(2, (midi - 69) / 12);
       NOTE_FREQ[n + oct] = freq;
       NOTE_LIST.push({ name: n + oct, freq });
     });
   }
-  // Aliases
-  Object.entries(aliases).forEach(([alias, real]) => {
-    for (let o = 0; o <= 7; o++) NOTE_FREQ[alias + o] = NOTE_FREQ[real + o];
+  Object.entries(NOTE_ALIASES).forEach(([alias, real]) => {
+    for (let o = 0; o <= 9; o++) NOTE_FREQ[alias + o] = NOTE_FREQ[real + o];
   });
   NOTE_LIST.sort((a, b) => a.freq - b.freq);
 }
 buildNoteTable();
 
+function noteFreq(name) {
+  if (NOTE_FREQ[name]) return NOTE_FREQ[name];
+  // Try alias
+  const base = name.slice(0, -1), oct = name.slice(-1);
+  const real = NOTE_ALIASES[base];
+  return real ? NOTE_FREQ[real + oct] || 440 : 440;
+}
+
 function nearestNote(freq) {
-  // Binary-search NOTE_LIST for fastest nearest-note lookup
   let lo = 0, hi = NOTE_LIST.length - 1;
   while (lo < hi) {
     const mid = (lo + hi) >> 1;
@@ -721,102 +830,173 @@ function nearestNote(freq) {
   return { name, cents: 1200 * Math.log2(freq / f) };
 }
 
+/* ── NEON COLOR SPECTRUM GENERATOR ─────────────────────────── */
+function computeNeonSpectrum(count) {
+  // Hue sweep from 0° (red-pink) → 300° (purple-violet) across `count` steps
+  const colors = [];
+  for (let i = 0; i < count; i++) {
+    const hue = Math.round((i / Math.max(count - 1, 1)) * 300);
+    colors.push(`hsl(${hue}, 100%, 60%)`);
+  }
+  return colors;
+}
+
 /* ── STATE ──────────────────────────────────────────────────── */
 let audioCtx = null, analyserNode = null, filterNode = null;
 let micStream = null, micSourceNode = null;
+let isRunning   = false, rafId = null;
+let droneActive = false;
+let droneOscillators = []; // {osc, gain}
+let droneMasterGain = null;
+
+// Active single-string reference oscillator (listen mode only)
 let activeOsc = null, activeOscGain = null, activeOscString = -1;
-let isRunning = false, rafId = null;
 
 let stringFreqs = [], stringNotes = [];
+let currentInstrumentId = 'guitar';
+let currentTuningId     = 'standard';
 
-// Display mode
-let displayMode = 'needle'; // 'needle' | 'strobe'
+// Display
+let displayMode   = 'needle';
 let chromaticMode = false;
 
 // Smoothing
 const SMOOTH_WINDOW = 8;
-let pitchBuffer = [];
-let displayCents = 0;      // lerp-damped for visual
+let pitchBuffer   = [];
+let displayCents  = 0;
 
-// Stability lock: note must be within ±IN_TUNE_THRESHOLD for STABLE_FRAMES consecutive frames
-const IN_TUNE_THRESHOLD = 5;   // cents
-const STABLE_FRAMES_NEEDED = 15; // ~0.5s at 30fps
-let stableFrameCount = 0;
-let lastLockedState = false;
+// Precision state thresholds
+const THRESH_IN_TUNE = 2;   // cents — cyan glow
+const THRESH_WARN    = 10;  // cents — amber warning
+// |err| > 10 => off (pink/crimson)
 
-// Haptic: only fire once per in-tune event, not every frame
-let hapticFired = false;
+const STABLE_FRAMES_NEEDED = 15;
+let stableFrameCount = 0, lastLockedState = false, hapticFired = false;
 
 // Sleep
 const SLEEP_TIMEOUT_MS = 3 * 60 * 1000;
 let sleepTimer = null, isSleeping = false;
 
-const AUTOMUTE_THRESHOLD = 60; // Hz
+// Operational state machine
+// 'listen' | 'drone' | 'idle'
+let appMode = 'idle';
 
-/* ── DOM ────────────────────────────────────────────────────── */
-const activateBtn  = document.getElementById('activateBtn');
-const tuningSelect = document.getElementById('tuningSelect');
-const waveSelect   = document.getElementById('waveSelect');
-const a4Input      = document.getElementById('a4Input');
-const headstock    = document.getElementById('headstock');
-const detectedNote = document.getElementById('detectedNote');
-const centsReadout = document.getElementById('centsReadout');
-const freqReadout  = document.getElementById('freqReadout');
-const needleGroup  = document.getElementById('needleGroup');
-const needleLine   = document.getElementById('needleLine');
-const dialWrap     = document.getElementById('dialWrap');
-const strobeWrap   = document.getElementById('strobeWrap');
-const strobeLabel  = document.getElementById('strobeLabel');
-const strobeCanvas = document.getElementById('strobeCanvas');
-const confFill     = document.getElementById('confFill');
-const confPct      = document.getElementById('confPct');
-const stabilityFill= document.getElementById('stabilityFill');
-const lockIcon     = document.getElementById('lockIcon');
-const statusDot    = document.getElementById('statusDot');
-const statusText   = document.getElementById('statusText');
-const micError     = document.getElementById('micError');
-const sleepOverlay = document.getElementById('sleepOverlay');
-const btnNeedle    = document.getElementById('btnNeedle');
-const btnStrobe    = document.getElementById('btnStrobe');
-const btnChromatic = document.getElementById('btnChromatic');
+/* ── MODULE 5: NOISE FINGERPRINT ──────────────────────────── */
+let noiseMask = null;         // Float32Array of avg energy per bin
+let isCalibrating = false;
 
-/* ── STROBE ENGINE ──────────────────────────────────────────── */
-// The strobe disc has alternating black/white sectors.
-// We rotate it at a rate proportional to cents deviation.
-// At 0 cents it appears stationary.
-const STROBE_SECTORS = 24;
-let strobeAngle = 0;
-let strobeLastTime = null;
+/* ── DOM ─────────────────────────────────────────────────────── */
+const activateBtn      = document.getElementById('activateBtn');
+const instrumentSelect = document.getElementById('instrumentSelect');
+const tuningSelect     = document.getElementById('tuningSelect');
+const waveSelect       = document.getElementById('waveSelect');
+const a4Display        = document.getElementById('a4Display');
+const a4Down           = document.getElementById('a4Down');
+const a4Up             = document.getElementById('a4Up');
+const headstock        = document.getElementById('headstock');
+const detectedNote     = document.getElementById('detectedNote');
+const centsReadout     = document.getElementById('centsReadout');
+const freqReadout      = document.getElementById('freqReadout');
+const harmonicReadout  = document.getElementById('harmonicReadout');
+const needleGroup      = document.getElementById('needleGroup');
+const needleLine       = document.getElementById('needleLine');
+const dialWrap         = document.getElementById('dialWrap');
+const strobeWrap       = document.getElementById('strobeWrap');
+const strobeLabel      = document.getElementById('strobeLabel');
+const strobeCanvas     = document.getElementById('strobeCanvas');
+const confFill         = document.getElementById('confFill');
+const confPct          = document.getElementById('confPct');
+const stabilityFill    = document.getElementById('stabilityFill');
+const lockIcon         = document.getElementById('lockIcon');
+const statusDot        = document.getElementById('statusDot');
+const statusText       = document.getElementById('statusText');
+const micError         = document.getElementById('micError');
+const sleepOverlay     = document.getElementById('sleepOverlay');
+const btnNeedle        = document.getElementById('btnNeedle');
+const btnStrobe        = document.getElementById('btnStrobe');
+const btnChromatic     = document.getElementById('btnChromatic');
+const btnDrone         = document.getElementById('btnDrone');
+const btnCalibrate     = document.getElementById('btnCalibrate');
+const droneVolRow      = document.getElementById('droneVolRow');
+const droneVol         = document.getElementById('droneVol');
+
+/* ══════════════════════════════════════════════════════════════
+   MODULE 4 — STROBE ENGINE (Dual-Ring Phase Strobe)
+   ══════════════════════════════════════════════════════════════ */
+let strobeAngle     = 0;
+let strobeLastTime  = null;
+let strobeRafId     = null;
+let strobeCents     = 0;
+let strobeState     = 'idle';
+let strobeAmplitude = 0;      // 0..1 for inner waveform ring
+
 const strobeCtx = strobeCanvas.getContext('2d');
+const STROBE_SEGMENTS = 36;
 
-function drawStrobeDisc(angle, tuneState) {
+function getStripeColors(state) {
+  switch (state) {
+    case 'in-tune': return { bright: '#00f5ff', dim: '#003344' };
+    case 'warn':    return { bright: '#ffd700', dim: '#1a1100' };
+    case 'off':     return { bright: '#ff2d78', dim: '#1a0010' };
+    default:        return { bright: '#443355', dim: '#0d0d1a' };
+  }
+}
+
+function drawDualRingStrobe(timestamp) {
   const W = strobeCanvas.width, H = strobeCanvas.height;
-  const cx = W / 2, cy = H / 2, r = W / 2 - 2;
+  const cx = W / 2, cy = H / 2;
+  const outerR = W / 2 - 4;
+  const innerR = outerR * 0.52;
+
   strobeCtx.clearRect(0, 0, W, H);
 
-  const sectorAngle = (Math.PI * 2) / STROBE_SECTORS;
-  const colors = {
-    'in-tune': ['#00ff88', '#003322'],
-    'sharp':   ['#ff2d78', '#1a0010'],
-    'flat':    ['#ffd700', '#1a1100'],
-    'idle':    ['#443355', '#0d0d1a'],
-  };
-  const [bright, dark] = colors[tuneState] || colors.idle;
+  const { bright, dim } = getStripeColors(strobeState);
 
-  for (let s = 0; s < STROBE_SECTORS; s++) {
-    const start = angle + s * sectorAngle;
-    const end   = start + sectorAngle * 0.92; // slight gap
+  // ── OUTER RING: rotating phase strobe ──
+  const segAngle = (Math.PI * 2) / STROBE_SEGMENTS;
+  for (let s = 0; s < STROBE_SEGMENTS; s++) {
+    const start = strobeAngle + s * segAngle;
+    const end   = start + segAngle * 0.88;
     strobeCtx.beginPath();
     strobeCtx.moveTo(cx, cy);
-    strobeCtx.arc(cx, cy, r, start, end);
+    strobeCtx.arc(cx, cy, outerR, start, end);
     strobeCtx.closePath();
-    strobeCtx.fillStyle = s % 2 === 0 ? bright : dark;
+    strobeCtx.fillStyle = s % 2 === 0 ? bright : dim;
     strobeCtx.fill();
   }
 
-  // Center dot
+  // ── INNER RING: amplitude waveform ──
+  strobeCtx.save();
   strobeCtx.beginPath();
-  strobeCtx.arc(cx, cy, 8, 0, Math.PI * 2);
+  strobeCtx.arc(cx, cy, innerR, 0, Math.PI * 2);
+  strobeCtx.closePath();
+  strobeCtx.fillStyle = '#06060f';
+  strobeCtx.fill();
+  strobeCtx.clip();
+
+  // Draw waveform around inner ring
+  const wavePoints = 128;
+  const amp = strobeAmplitude * innerR * 0.4;
+  strobeCtx.beginPath();
+  for (let p = 0; p < wavePoints; p++) {
+    const angle = (p / wavePoints) * Math.PI * 2;
+    const wave  = Math.sin(p * 0.5 + timestamp * 0.003) * amp;
+    const r     = innerR * 0.65 + wave;
+    const x     = cx + Math.cos(angle) * r;
+    const y     = cy + Math.sin(angle) * r;
+    p === 0 ? strobeCtx.moveTo(x, y) : strobeCtx.lineTo(x, y);
+  }
+  strobeCtx.closePath();
+  strobeCtx.strokeStyle = bright;
+  strobeCtx.lineWidth   = 1.5;
+  strobeCtx.globalAlpha = 0.75;
+  strobeCtx.stroke();
+  strobeCtx.globalAlpha = 1;
+  strobeCtx.restore();
+
+  // ── CENTER DOT ──
+  strobeCtx.beginPath();
+  strobeCtx.arc(cx, cy, 6, 0, Math.PI * 2);
   strobeCtx.fillStyle = '#0d0d1a';
   strobeCtx.fill();
   strobeCtx.strokeStyle = bright;
@@ -824,44 +1004,234 @@ function drawStrobeDisc(angle, tuneState) {
   strobeCtx.stroke();
 }
 
-function updateStrobe(cents, tuneState, timestamp) {
-  if (strobeLastTime === null) { strobeLastTime = timestamp; }
-  const dt = Math.min((timestamp - strobeLastTime) / 1000, 0.1); // cap at 100ms
+function strobeLoop(timestamp) {
+  if (displayMode !== 'strobe') { strobeRafId = null; return; }
+  strobeRafId = requestAnimationFrame(strobeLoop);
+
+  if (strobeLastTime === null) strobeLastTime = timestamp;
+  const dt = Math.min((timestamp - strobeLastTime) / 1000, 0.1);
   strobeLastTime = timestamp;
 
-  // Rotation speed ∝ cents deviation. At ±50¢ → ~2 rev/s. At 0¢ → stationary.
-  // Direction: sharp = clockwise (+), flat = counter (-)
-  const radsPerSec = (cents / 50) * (Math.PI * 2) * 2;
+  // Sharp = CW (+), flat = CCW (-), velocity ∝ cents
+  const radsPerSec = (strobeCents / 50) * Math.PI * 4;
   strobeAngle += radsPerSec * dt;
 
-  const label = tuneState === 'in-tune' ? '✓ LOCKED' :
-                tuneState === 'sharp'   ? '▶ SHARP'  :
-                tuneState === 'flat'    ? '◀ FLAT'   : '—';
-  strobeLabel.textContent = label;
-  strobeLabel.style.color = tuneState === 'in-tune' ? 'var(--green)' :
-                            tuneState === 'sharp'   ? 'var(--pink)'  :
-                            tuneState === 'flat'    ? 'var(--gold)'  : 'var(--dim)';
+  drawDualRingStrobe(timestamp);
 
-  drawStrobeDisc(strobeAngle, tuneState);
+  // Update label
+  if (strobeState === 'in-tune') {
+    strobeLabel.textContent = '✓ LOCKED';
+    strobeLabel.style.color = 'var(--cyan)';
+  } else if (strobeState === 'warn') {
+    strobeLabel.textContent = strobeCents > 0 ? '▶ SHARP' : '◀ FLAT';
+    strobeLabel.style.color = 'var(--gold)';
+  } else if (strobeState === 'off') {
+    strobeLabel.textContent = strobeCents > 0 ? '▶ SHARP' : '◀ FLAT';
+    strobeLabel.style.color = 'var(--pink)';
+  } else {
+    strobeLabel.textContent = '— strobe —';
+    strobeLabel.style.color = 'var(--dim)';
+  }
 }
 
-/* ── HEADSTOCK UI ───────────────────────────────────────────── */
+function ensureStrobeLoop() {
+  if (displayMode === 'strobe' && !strobeRafId) {
+    strobeLastTime = null;
+    strobeRafId = requestAnimationFrame(strobeLoop);
+  }
+}
+
+/* ══════════════════════════════════════════════════════════════
+   MODULE 1 — INSTRUMENT SELECT UI
+   ══════════════════════════════════════════════════════════════ */
+
+function populateInstruments() {
+  instrumentSelect.innerHTML = '';
+  INSTRUMENTS.forEach(inst => {
+    const opt = document.createElement('option');
+    opt.value = inst.id;
+    opt.textContent = inst.label;
+    instrumentSelect.appendChild(opt);
+  });
+  instrumentSelect.value = 'guitar';
+}
+
+function populateTunings(instrumentId) {
+  const inst = INSTRUMENTS.find(i => i.id === instrumentId);
+  if (!inst) return;
+
+  // Save non-custom options
+  tuningSelect.innerHTML = '';
+  inst.tunings.forEach(t => {
+    const opt = document.createElement('option');
+    opt.value = t.id + '|' + instrumentId;
+    opt.textContent = t.label;
+    tuningSelect.appendChild(opt);
+  });
+
+  // Re-append custom tunings for this instrument from localStorage
+  loadCustomTunings(instrumentId);
+
+  // Append permanent "+ Add Custom Tuning..."
+  const addOpt = document.createElement('option');
+  addOpt.value = '__add_custom__';
+  addOpt.textContent = '+ Add Custom Tuning…';
+  tuningSelect.appendChild(addOpt);
+}
+
+/* ══════════════════════════════════════════════════════════════
+   MODULE 2 — LOCAL STORAGE CUSTOM TUNINGS
+   ══════════════════════════════════════════════════════════════ */
+
+function loadCustomTunings(instrumentId) {
+  try {
+    const raw = localStorage.getItem('cwm_custom_tunings_' + instrumentId);
+    if (!raw) return;
+    const customs = JSON.parse(raw);
+    customs.forEach(ct => {
+      const opt = document.createElement('option');
+      opt.value = '__custom__|' + ct.name + '|' + ct.freqs.join(',') + '|' + ct.notes.join(',');
+      opt.textContent = ct.name + ' (custom)';
+      // Insert before the last "add" option position (we'll add it after)
+      tuningSelect.appendChild(opt);
+    });
+  } catch(e) {}
+}
+
+function saveCustomTuning(instrumentId, name, freqs, notes) {
+  try {
+    const key = 'cwm_custom_tunings_' + instrumentId;
+    const existing = JSON.parse(localStorage.getItem(key) || '[]');
+    existing.push({ name, freqs, notes });
+    localStorage.setItem(key, JSON.stringify(existing));
+  } catch(e) {}
+}
+
+function handleTuningSelectChange() {
+  const val = tuningSelect.value;
+
+  if (val === '__add_custom__') {
+    // Reset to previous valid selection to avoid staying on __add_custom__
+    const firstName = tuningSelect.querySelector('option:not([value="__add_custom__"])');
+    if (firstName) tuningSelect.value = firstName.value;
+
+    const profileName = prompt('Enter a name for your custom tuning:');
+    if (!profileName || !profileName.trim()) return;
+
+    saveCustomTuning(currentInstrumentId, profileName.trim(), [...stringFreqs], [...stringNotes]);
+    populateTunings(currentInstrumentId);
+
+    // Select the newly-added custom tuning
+    const opts = Array.from(tuningSelect.options);
+    const newOpt = opts.find(o => o.textContent === profileName.trim() + ' (custom)');
+    if (newOpt) tuningSelect.value = newOpt.value;
+    return;
+  }
+
+  if (val.startsWith('__custom__|')) {
+    const parts = val.split('|');
+    // parts: ['__custom__', name, freqs_csv, notes_csv]
+    stringNotes = parts[3].split(',');
+    stringFreqs = parts[2].split(',').map(Number);
+    buildHeadstock();
+    return;
+  }
+
+  // Built-in tuning
+  const [tuningId, instrId] = val.split('|');
+  const inst   = INSTRUMENTS.find(i => i.id === instrId);
+  const tuning = inst && inst.tunings.find(t => t.id === tuningId);
+  if (tuning) {
+    currentTuningId = tuningId;
+    stringNotes = [...tuning.notes];
+    stringFreqs = stringNotes.map(n => noteFreq(n));
+    buildHeadstock();
+  }
+  resetActivity();
+}
+
+instrumentSelect.addEventListener('change', () => {
+  currentInstrumentId = instrumentSelect.value;
+  populateTunings(currentInstrumentId);
+  // Trigger first tuning
+  handleTuningSelectChange();
+});
+
+tuningSelect.addEventListener('change', handleTuningSelectChange);
+
+/* ══════════════════════════════════════════════════════════════
+   MODULE 1 — A4 NUDGE BUTTONS (Tactile, Hold-to-Accelerate)
+   ══════════════════════════════════════════════════════════════ */
+
+let a4NudgeTimer = null;
+let a4NudgeStep  = 0;
+
+function applyA4Nudge(dir) {
+  A4_REF = Math.max(415, Math.min(466, A4_REF + (dir === 'up' ? 1 : -1)));
+  a4Display.textContent = A4_REF + ' Hz';
+  buildNoteTable();
+  // Rebuild freqs in-place (don't reset custom freqs unless they were built from note names)
+  stringFreqs = stringNotes.map(n => noteFreq(n));
+  buildHeadstock();
+}
+
+function attachA4Nudge(btn, dir) {
+  btn.addEventListener('pointerdown', e => {
+    e.preventDefault();
+    btn.setPointerCapture(e.pointerId);
+    btn.classList.add('nudging');
+    resetActivity();
+    applyA4Nudge(dir);
+    a4NudgeStep = 0;
+    const go = () => {
+      const delay = a4NudgeStep < 4 ? 350 : a4NudgeStep < 12 ? 150 : 80;
+      a4NudgeTimer = setTimeout(() => {
+        applyA4Nudge(dir);
+        a4NudgeStep++;
+        go();
+      }, delay);
+    };
+    go();
+  });
+  const stop = () => {
+    btn.classList.remove('nudging');
+    clearTimeout(a4NudgeTimer);
+    a4NudgeTimer = null;
+  };
+  btn.addEventListener('pointerup',     stop);
+  btn.addEventListener('pointercancel', stop);
+  btn.addEventListener('pointerleave',  stop);
+}
+
+attachA4Nudge(a4Down, 'down');
+attachA4Nudge(a4Up,   'up');
+
+/* ══════════════════════════════════════════════════════════════
+   MODULE 1 — HEADSTOCK: POLYMORPHIC BUILD
+   ══════════════════════════════════════════════════════════════ */
+
 function buildHeadstock() {
   headstock.innerHTML = '';
+  const spectrum = computeNeonSpectrum(stringFreqs.length);
+
   stringNotes.forEach((note, i) => {
+    const color = spectrum[i];
+
     const row = document.createElement('div');
     row.className = 'peg-row';
 
     const dn = document.createElement('button');
     dn.className = 'nudge-btn'; dn.textContent = '▼';
     dn.setAttribute('aria-label', `String ${i+1} flatter`);
-    attachNudge(dn, i, 'down');
+    attachPegNudge(dn, i, 'down');
 
     const peg = document.createElement('button');
     peg.className = 'peg'; peg.id = `peg-${i}`;
-    peg.dataset.string = i + 1;
+    peg.dataset.string = String(i + 1);
+    // Inject computed neon color as CSS custom property
+    peg.style.setProperty('--peg-color', color);
     peg.innerHTML = `
-      <span class="peg-string-num">${i+1}</span>
+      <span class="peg-string-num" style="color:${color}">${i + 1}</span>
       <span class="peg-note" id="peg-note-${i}">${note}</span>
       <span class="peg-hz"   id="peg-hz-${i}">${stringFreqs[i].toFixed(1)} Hz</span>
       <div class="peg-bar-wrap"><div class="peg-bar" id="peg-bar-${i}"></div></div>`;
@@ -870,157 +1240,121 @@ function buildHeadstock() {
     const up = document.createElement('button');
     up.className = 'nudge-btn'; up.textContent = '▲';
     up.setAttribute('aria-label', `String ${i+1} sharper`);
-    attachNudge(up, i, 'up');
+    attachPegNudge(up, i, 'up');
 
     row.append(dn, peg, up);
     headstock.appendChild(row);
   });
 }
 
-/* ── NUDGE: HOLD TO ACCELERATE ─────────────────────────────── */
-const nudgeTimers = {};
+/* ══════════════════════════════════════════════════════════════
+   MODULE 2 — PEG NUDGE (Dual-Action: tap=semitone, hold=micro-cents)
+   ══════════════════════════════════════════════════════════════ */
 
-function applyNudge(i, dir) {
-  stringFreqs[i] *= Math.pow(2, (dir === 'up' ? 1 : -1) / 1200);
-  const el = document.getElementById(`peg-hz-${i}`);
-  if (el) el.textContent = stringFreqs[i].toFixed(1) + ' Hz';
-  if (activeOscString === i && activeOsc && audioCtx)
-    activeOsc.frequency.setValueAtTime(stringFreqs[i], audioCtx.currentTime);
-}
+const pegNudgeTimers  = {};
+const pegNudgeStart   = {};
+const TAP_THRESHOLD   = 250; // ms
 
-function attachNudge(btn, i, dir) {
+function attachPegNudge(btn, i, dir) {
   const id = `${i}-${dir}`;
-  btn._nudgeId = id;
 
   btn.addEventListener('pointerdown', e => {
     e.preventDefault();
     btn.setPointerCapture(e.pointerId);
     btn.classList.add('nudging');
     resetActivity();
-    applyNudge(i, dir);
-    let step = 0;
-    const go = () => {
-      const delay = step < 5 ? 200 : step < 15 ? 100 : step < 30 ? 60 : 40;
-      nudgeTimers[id] = setTimeout(() => {
-        if (!nudgeTimers[id]) return;
-        applyNudge(i, dir); step++; go();
-      }, delay);
-    };
-    go();
+    pegNudgeStart[id] = performance.now();
+
+    // Start hold timer
+    pegNudgeTimers[id] = setTimeout(() => {
+      // Long press mode: micro-cents acceleration
+      let elapsed = 0;
+      const microTick = () => {
+        if (!pegNudgeTimers[id + '_micro']) return;
+        elapsed += 16;
+        // Very slow first second, then exponential acceleration
+        const speed = elapsed < 1000
+          ? 0.05
+          : 0.05 * Math.pow(1.003, elapsed - 1000);
+        const semitonePerCent = 1 / 1200;
+        stringFreqs[i] *= Math.pow(2, (dir === 'up' ? speed : -speed) * semitonePerCent);
+        updatePegHz(i);
+        if (activeOscString === i && activeOsc) {
+          activeOsc.frequency.setValueAtTime(stringFreqs[i], audioCtx.currentTime);
+        }
+        if (droneActive && droneOscillators[i]) {
+          droneOscillators[i].osc.frequency.setValueAtTime(stringFreqs[i], audioCtx.currentTime);
+        }
+        pegNudgeTimers[id + '_micro'] = setTimeout(microTick, 16);
+      };
+      pegNudgeTimers[id + '_micro'] = setTimeout(microTick, 16);
+    }, TAP_THRESHOLD);
   });
 
   const stop = () => {
     btn.classList.remove('nudging');
-    clearTimeout(nudgeTimers[id]);
-    nudgeTimers[id] = null;
+    const downDuration = performance.now() - (pegNudgeStart[id] || 0);
+    clearTimeout(pegNudgeTimers[id]);
+    clearTimeout(pegNudgeTimers[id + '_micro']);
+    delete pegNudgeTimers[id];
+    delete pegNudgeTimers[id + '_micro'];
+    delete pegNudgeStart[id];
+
+    // Quick tap: shift one semitone
+    if (downDuration < TAP_THRESHOLD) {
+      const semitone = dir === 'up' ? 1 : -1;
+      stringFreqs[i] *= Math.pow(2, semitone / 12);
+      // Update note label to nearest note
+      const nearest = nearestNote(stringFreqs[i]);
+      stringNotes[i] = nearest.name;
+      const noteEl = document.getElementById(`peg-note-${i}`);
+      if (noteEl) noteEl.textContent = nearest.name;
+      updatePegHz(i);
+      if (activeOscString === i && activeOsc) {
+        activeOsc.frequency.setValueAtTime(stringFreqs[i], audioCtx.currentTime);
+      }
+      if (droneActive && droneOscillators[i]) {
+        droneOscillators[i].osc.frequency.setValueAtTime(stringFreqs[i], audioCtx.currentTime);
+      }
+    }
   };
   btn.addEventListener('pointerup',     stop);
   btn.addEventListener('pointercancel', stop);
   btn.addEventListener('pointerleave',  stop);
 }
 
-/* ── LOAD TUNING ────────────────────────────────────────────── */
-function loadTuning(key) {
-  const notesHighToLow = [...TUNINGS[key].notes].reverse();
-  stringNotes = notesHighToLow;
-  stringFreqs = notesHighToLow.map(n => NOTE_FREQ[n] || 440);
-  buildHeadstock();
+function updatePegHz(i) {
+  const el = document.getElementById(`peg-hz-${i}`);
+  if (el) el.textContent = stringFreqs[i].toFixed(1) + ' Hz';
 }
 
-tuningSelect.addEventListener('change', () => { loadTuning(tuningSelect.value); resetActivity(); });
+/* ══════════════════════════════════════════════════════════════
+   MODULE 7 — STATE MACHINE: LISTEN / DRONE / IDLE
+   ══════════════════════════════════════════════════════════════ */
 
-/* ── A4 REFERENCE PITCH ─────────────────────────────────────── */
-a4Input.addEventListener('change', () => {
-  const v = parseInt(a4Input.value, 10);
-  if (v >= 430 && v <= 450) {
-    A4_REF = v;
-    buildNoteTable();
-    loadTuning(tuningSelect.value); // rebuild string freqs with new A4
-    resetActivity();
+async function ensureAudioCtx() {
+  if (!audioCtx) {
+    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
   }
-});
-
-/* ── DISPLAY MODE TOGGLES ───────────────────────────────────── */
-btnNeedle.addEventListener('click', () => {
-  displayMode = 'needle';
-  dialWrap.classList.remove('hidden');
-  strobeWrap.classList.add('hidden');
-  btnNeedle.classList.add('active');
-  btnStrobe.classList.remove('active');
-  strobeLastTime = null;
-  resetActivity();
-});
-
-btnStrobe.addEventListener('click', () => {
-  displayMode = 'strobe';
-  dialWrap.classList.add('hidden');
-  strobeWrap.classList.remove('hidden');
-  btnStrobe.classList.add('active');
-  btnNeedle.classList.remove('active');
-  strobeLastTime = null;
-  resetActivity();
-});
-
-btnChromatic.addEventListener('click', () => {
-  chromaticMode = !chromaticMode;
-  btnChromatic.classList.toggle('active', chromaticMode);
-  btnChromatic.style.borderColor = chromaticMode ? 'var(--gold)' : '';
-  btnChromatic.style.color       = chromaticMode ? 'var(--gold)' : '';
-  resetActivity();
-});
-
-/* ── PEG CLICK ──────────────────────────────────────────────── */
-function onPegClick(i) {
-  resetActivity();
-  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-  if (audioCtx.state === 'suspended') audioCtx.resume();
-
-  if (activeOscString === i) { stopOscillator(); return; }
-  stopOscillator();
-
-  const osc  = audioCtx.createOscillator();
-  const gain = audioCtx.createGain();
-  osc.type = waveSelect.value;
-  osc.frequency.setValueAtTime(stringFreqs[i], audioCtx.currentTime);
-  gain.gain.setValueAtTime(0, audioCtx.currentTime);
-  gain.gain.linearRampToValueAtTime(0.35, audioCtx.currentTime + 0.04);
-  osc.connect(gain); gain.connect(audioCtx.destination); osc.start();
-
-  activeOsc = osc; activeOscGain = gain; activeOscString = i;
-  setPegState(i, 'playing');
-  setStatus('active', `Playing ${stringNotes[i]} reference`);
+  if (audioCtx.state === 'suspended') {
+    try { await audioCtx.resume(); } catch(e){}
+  }
 }
 
-function stopOscillator(fade = true) {
-  if (!activeOsc) return;
-  const osc = activeOsc, gain = activeOscGain, prev = activeOscString;
-  if (fade && audioCtx) {
-    const now = audioCtx.currentTime;
-    gain.gain.cancelScheduledValues(now);
-    gain.gain.setValueAtTime(gain.gain.value, now);
-    gain.gain.linearRampToValueAtTime(0, now + 0.08);
-    setTimeout(() => { try { osc.stop(); } catch(e){} }, 110);
-  } else { try { osc.stop(); } catch(e){} }
-  activeOsc = null; activeOscGain = null; activeOscString = -1;
-  if (prev >= 0) setPegState(prev, 'idle');
-  if (isRunning) setStatus('active', 'Listening…');
-}
-
-/* ── ACTIVATE MIC ───────────────────────────────────────────── */
+// ── LISTEN MODE ──────────────────────────────────────────────
 activateBtn.addEventListener('click', async () => {
   resetActivity();
   micError.classList.remove('visible');
 
-  if (isRunning) {
-    deactivateMic();
-    activateBtn.classList.remove('active');
-    activateBtn.textContent = '⬤ Activate Tuner';
-    setStatus('idle', 'Tap activate to begin');
+  if (appMode === 'listen') {
+    deactivateListen();
     return;
   }
 
-  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-  try { await audioCtx.resume(); } catch(e){}
+  // Stop drone if active
+  if (droneActive) deactivateDrone();
+
+  await ensureAudioCtx();
 
   try {
     micStream = await navigator.mediaDevices.getUserMedia({
@@ -1038,24 +1372,26 @@ activateBtn.addEventListener('click', async () => {
   filterNode.frequency.value = 400;
   filterNode.Q.value = 1;
   analyserNode = audioCtx.createAnalyser();
-  analyserNode.fftSize = 4096;
+  analyserNode.fftSize = 8192;
   analyserNode.smoothingTimeConstant = 0;
   micSourceNode.connect(filterNode);
   filterNode.connect(analyserNode);
-  // Not connected to destination — no feedback
 
+  appMode   = 'listen';
   isRunning = true;
   activateBtn.classList.add('active');
   activateBtn.textContent = '■ Deactivate Tuner';
   setStatus('active', 'Listening…');
   startLoop();
   resetSleepTimer();
+  ensureStrobeLoop();
 });
 
-function deactivateMic() {
+function deactivateListen() {
+  appMode   = 'idle';
   isRunning = false;
   stopLoop();
-  stopOscillator(false);
+  stopSingleOsc(false);
   if (micStream)     { micStream.getTracks().forEach(t => t.stop()); micStream = null; }
   if (micSourceNode) { try { micSourceNode.disconnect(); } catch(e){} micSourceNode = null; }
   if (filterNode)    { try { filterNode.disconnect(); }    catch(e){} filterNode = null; }
@@ -1064,12 +1400,235 @@ function deactivateMic() {
   detectedNote.textContent = '—'; detectedNote.className = 'detected-note';
   centsReadout.textContent = '— ¢'; centsReadout.className = 'cents-readout';
   freqReadout.textContent  = '— Hz detected';
+  harmonicReadout.textContent = '';
   setNeedle(0); setConfidence(0); setStability(0, false);
-  drawStrobeDisc(0, 'idle');
+  strobeCents = 0; strobeState = 'idle';
   pitchBuffer = []; displayCents = 0; stableFrameCount = 0; hapticFired = false;
+  activateBtn.classList.remove('active');
+  activateBtn.textContent = '⬤ Activate Tuner';
+  setStatus('idle', 'Tap activate to begin');
 }
 
-/* ── DETECTION LOOP ─────────────────────────────────────────── */
+// ── DRONE MODE ───────────────────────────────────────────────
+btnDrone.addEventListener('click', async () => {
+  resetActivity();
+  if (droneActive) {
+    deactivateDrone();
+    return;
+  }
+
+  // Tear down mic to prevent feedback
+  if (appMode === 'listen') deactivateListen();
+
+  await ensureAudioCtx();
+
+  droneMasterGain = audioCtx.createGain();
+  // Scale master gain inversely with string count to prevent clipping
+  const masterVol = (parseFloat(droneVol.value) || 0.6) / Math.sqrt(stringFreqs.length);
+  droneMasterGain.gain.setValueAtTime(masterVol, audioCtx.currentTime);
+  droneMasterGain.connect(audioCtx.destination);
+
+  droneOscillators = stringFreqs.map((freq, i) => {
+    const osc  = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.type = waveSelect.value;
+    osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+    gain.gain.setValueAtTime(0, audioCtx.currentTime);
+    gain.gain.linearRampToValueAtTime(1.0, audioCtx.currentTime + 0.08);
+    osc.connect(gain);
+    gain.connect(droneMasterGain);
+    osc.start();
+    setPegState(i, 'playing');
+    return { osc, gain };
+  });
+
+  droneActive = true;
+  appMode     = 'drone';
+  btnDrone.classList.add('drone-active');
+  btnDrone.textContent = '■ Stop Drone';
+  droneVolRow.style.display = 'flex';
+  setStatus('active', `Droning ${stringFreqs.length} strings`);
+});
+
+function deactivateDrone() {
+  if (!droneActive) return;
+  droneOscillators.forEach(({ osc, gain }) => {
+    const now = audioCtx.currentTime;
+    gain.gain.cancelScheduledValues(now);
+    gain.gain.setValueAtTime(gain.gain.value, now);
+    gain.gain.linearRampToValueAtTime(0, now + 0.08);
+    setTimeout(() => { try { osc.stop(); } catch(e){} }, 120);
+  });
+  if (droneMasterGain) { try { droneMasterGain.disconnect(); } catch(e){} droneMasterGain = null; }
+  droneOscillators = [];
+  droneActive = false;
+  appMode     = 'idle';
+  btnDrone.classList.remove('drone-active');
+  btnDrone.textContent = '⬡ Drone All';
+  droneVolRow.style.display = 'none';
+  clearAllPegStates();
+  setStatus('idle', 'Tap activate to begin');
+}
+
+// Drone volume slider
+droneVol.addEventListener('input', () => {
+  if (droneMasterGain && audioCtx) {
+    const masterVol = parseFloat(droneVol.value) / Math.sqrt(Math.max(stringFreqs.length, 1));
+    droneMasterGain.gain.setValueAtTime(masterVol, audioCtx.currentTime);
+  }
+});
+
+// Waveform change
+waveSelect.addEventListener('change', () => {
+  resetActivity();
+  if (activeOsc) activeOsc.type = waveSelect.value;
+  droneOscillators.forEach(({ osc }) => { try { osc.type = waveSelect.value; } catch(e){} });
+});
+
+// ── SINGLE-STRING REFERENCE OSC (listen mode) ─────────────────
+function onPegClick(i) {
+  resetActivity();
+  if (droneActive) {
+    // In drone mode: clicking a peg mutes/unmutes it
+    const { gain } = droneOscillators[i] || {};
+    if (!gain || !audioCtx) return;
+    const current = gain.gain.value;
+    const target  = current > 0.01 ? 0 : 1.0;
+    gain.gain.cancelScheduledValues(audioCtx.currentTime);
+    gain.gain.setValueAtTime(current, audioCtx.currentTime);
+    gain.gain.linearRampToValueAtTime(target, audioCtx.currentTime + 0.05);
+    return;
+  }
+
+  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  if (audioCtx.state === 'suspended') audioCtx.resume();
+
+  if (activeOscString === i) { stopSingleOsc(); return; }
+  stopSingleOsc();
+
+  const osc  = audioCtx.createOscillator();
+  const gain = audioCtx.createGain();
+  osc.type = waveSelect.value;
+  osc.frequency.setValueAtTime(stringFreqs[i], audioCtx.currentTime);
+  gain.gain.setValueAtTime(0, audioCtx.currentTime);
+  gain.gain.linearRampToValueAtTime(0.35, audioCtx.currentTime + 0.04);
+  osc.connect(gain); gain.connect(audioCtx.destination); osc.start();
+  activeOsc = osc; activeOscGain = gain; activeOscString = i;
+  setPegState(i, 'playing');
+  setStatus('active', `Playing ${stringNotes[i]} reference`);
+}
+
+function stopSingleOsc(fade = true) {
+  if (!activeOsc) return;
+  const osc = activeOsc, gain = activeOscGain, prev = activeOscString;
+  if (fade && audioCtx) {
+    const now = audioCtx.currentTime;
+    gain.gain.cancelScheduledValues(now);
+    gain.gain.setValueAtTime(gain.gain.value, now);
+    gain.gain.linearRampToValueAtTime(0, now + 0.08);
+    setTimeout(() => { try { osc.stop(); } catch(e){} }, 110);
+  } else { try { osc.stop(); } catch(e){} }
+  activeOsc = null; activeOscGain = null; activeOscString = -1;
+  if (prev >= 0) setPegState(prev, 'idle');
+  if (isRunning) setStatus('active', 'Listening…');
+}
+
+/* ══════════════════════════════════════════════════════════════
+   MODULE 5 — AMBIENT NOISE CALIBRATION
+   ══════════════════════════════════════════════════════════════ */
+
+btnCalibrate.addEventListener('click', async () => {
+  resetActivity();
+  if (isCalibrating) return;
+
+  if (!analyserNode) {
+    // Need mic active for calibration
+    alert('Activate the tuner first, then calibrate.');
+    return;
+  }
+
+  isCalibrating = true;
+  btnCalibrate.classList.add('calibrating');
+  btnCalibrate.textContent = '⬤ Sampling…';
+  setStatus('active', 'Calibrating noise floor — 2s…');
+
+  const binCount   = analyserNode.frequencyBinCount;
+  const samples    = 60; // ~2s at 30fps
+  const accumulate = new Float32Array(binCount);
+  const freqBuf    = new Uint8Array(binCount);
+  let   sampleCount = 0;
+
+  const sampleFrame = () => {
+    if (sampleCount >= samples) {
+      // Average
+      noiseMask = new Float32Array(binCount);
+      for (let b = 0; b < binCount; b++) {
+        noiseMask[b] = accumulate[b] / samples;
+      }
+      isCalibrating = false;
+      btnCalibrate.classList.remove('calibrating');
+      btnCalibrate.textContent = '✓ Calibrated';
+      setStatus('active', 'Noise floor calibrated');
+      setTimeout(() => { if (!isCalibrating) btnCalibrate.textContent = '⬤ Calibrate'; }, 3000);
+      return;
+    }
+    analyserNode.getByteFrequencyData(freqBuf);
+    for (let b = 0; b < binCount; b++) accumulate[b] += freqBuf[b];
+    sampleCount++;
+    setTimeout(sampleFrame, 33);
+  };
+
+  sampleFrame();
+});
+
+/* ── NOISE GATE CHECK ───────────────────────────────────────── */
+function noiseMaskGate(targetFreq) {
+  if (!noiseMask || !analyserNode) return false; // gate open by default
+
+  const binCount  = analyserNode.frequencyBinCount;
+  const nyquist   = audioCtx.sampleRate / 2;
+  const binWidth  = nyquist / binCount;
+  const targetBin = Math.round(targetFreq / binWidth);
+
+  // Check ±3 bins around target fundamental
+  const freqBuf = new Uint8Array(binCount);
+  analyserNode.getByteFrequencyData(freqBuf);
+
+  const range = 4;
+  let sigLevel  = 0, noiseLevel = 0;
+  let sigCount  = 0, noiseCount = 0;
+  for (let b = Math.max(0, targetBin - range); b <= Math.min(binCount - 1, targetBin + range); b++) {
+    sigLevel += freqBuf[b];
+    sigCount++;
+  }
+  for (let b = Math.max(0, targetBin - range); b <= Math.min(binCount - 1, targetBin + range); b++) {
+    noiseLevel += noiseMask[b];
+    noiseCount++;
+  }
+  sigLevel   = sigCount   > 0 ? sigLevel   / sigCount   : 0;
+  noiseLevel = noiseCount > 0 ? noiseLevel / noiseCount : 0;
+
+  // 6dB = 2× linear in byte domain
+  return sigLevel < noiseLevel * 2;
+}
+
+/* ══════════════════════════════════════════════════════════════
+   MODULE 3 — TRACKING LOOP WITH DYNAMIC FILTER & DECIMATION
+   ══════════════════════════════════════════════════════════════ */
+
+function updateFilterForFreq(f) {
+  if (!filterNode || !audioCtx) return;
+  let cutoff;
+  if (f < 100) {
+    cutoff = 60 + (f / 100) * 40; // 60–100 Hz
+  } else if (f <= 400) {
+    cutoff = 300 + ((f - 100) / 300) * 100; // 300–400 Hz
+  } else {
+    cutoff = 400 + ((f - 400) / 600) * 600; // 400–1000 Hz
+  }
+  filterNode.frequency.setValueAtTime(Math.min(cutoff, 1000), audioCtx.currentTime);
+}
+
 function startLoop() {
   const buf = new Float32Array(analyserNode.fftSize);
 
@@ -1078,44 +1637,51 @@ function startLoop() {
     rafId = requestAnimationFrame(tick);
     analyserNode.getFloatTimeDomainData(buf);
 
+    // Determine target freq for filter tuning
+    let targetFreqForFilter = 440;
+    if (!chromaticMode && stringFreqs.length > 0) {
+      // Use currently-active string or closest detection
+      targetFreqForFilter = activeOscString >= 0
+        ? stringFreqs[activeOscString]
+        : stringFreqs[Math.floor(stringFreqs.length / 2)];
+    }
+    updateFilterForFreq(targetFreqForFilter);
+
     // RMS gate
     let rms = 0;
     for (let k = 0; k < buf.length; k++) rms += buf[k] * buf[k];
     rms = Math.sqrt(rms / buf.length);
 
-    if (rms < 0.008) { tickIdle(timestamp); return; }
+    if (rms < 0.005) { tickIdle(timestamp); return; }
 
-    const { freq, confidence } = autocorrelate(buf, audioCtx.sampleRate);
-    if (freq < 50 || freq > 1500) { tickIdle(timestamp); return; }
+    // Noise mask gate
+    if (noiseMaskGate(targetFreqForFilter)) { tickIdle(timestamp); return; }
 
-    // Confidence bar
+    const { freq, confidence } = autocorrelate(buf, audioCtx.sampleRate, targetFreqForFilter);
+    if (freq < 20 || freq > 2500) { tickIdle(timestamp); return; }
+
     setConfidence(confidence);
 
-    // Auto-mute reference tone when strumming
-    if (activeOsc && freq > AUTOMUTE_THRESHOLD) stopOscillator(true);
+    // Auto-mute reference tone
+    if (activeOsc && freq > 40) stopSingleOsc(true);
 
-    // Smooth pitch
     pitchBuffer.push(freq);
     if (pitchBuffer.length > SMOOTH_WINDOW) pitchBuffer.shift();
-    const avgFreq = pitchBuffer.reduce((a,b)=>a+b,0) / pitchBuffer.length;
+    const avgFreq = pitchBuffer.reduce((a,b) => a + b, 0) / pitchBuffer.length;
 
-    // Cents vs target
     let targetCents, nearestStr = -1, noteName;
 
     if (chromaticMode) {
-      // In chromatic mode: find nearest semitone in all of equal temperament
       const r = nearestNote(avgFreq);
-      noteName   = r.name;
+      noteName    = r.name;
       targetCents = r.cents;
-      // Also highlight nearest string if close enough
-      let bestStr = 0, bestDist = Infinity;
+      let bestDist = Infinity;
       stringFreqs.forEach((sf, idx) => {
         const d = Math.abs(1200 * Math.log2(avgFreq / sf));
-        if (d < bestDist) { bestDist = d; bestStr = idx; }
+        if (d < bestDist) { bestDist = d; nearestStr = idx; }
       });
-      nearestStr = bestDist < 60 ? bestStr : -1;
+      if (bestDist > 60) nearestStr = -1;
     } else {
-      // Guitar mode: only compare against the 6 target strings
       let bestDist = Infinity;
       stringFreqs.forEach((sf, idx) => {
         const c = 1200 * Math.log2(avgFreq / sf);
@@ -1124,13 +1690,18 @@ function startLoop() {
       noteName = nearestNote(avgFreq).name;
     }
 
-    // Lerp displayCents toward target
-    displayCents += (targetCents - displayCents) * 0.25;
+    // Update filter to detected freq
+    updateFilterForFreq(avgFreq);
 
+    // Lerp displayCents
+    displayCents += (targetCents - displayCents) * 0.3;
     const absC = Math.abs(displayCents);
-    const tuneState = absC <= IN_TUNE_THRESHOLD ? 'in-tune' : displayCents > 0 ? 'sharp' : 'flat';
 
-    // Stability counter
+    // Precision state
+    const tuneState = absC <= THRESH_IN_TUNE ? 'in-tune' :
+                      absC <= THRESH_WARN    ? 'warn'    : 'off';
+
+    // Stability
     if (tuneState === 'in-tune') {
       stableFrameCount = Math.min(stableFrameCount + 1, STABLE_FRAMES_NEEDED);
     } else {
@@ -1138,7 +1709,6 @@ function startLoop() {
     }
     const isLocked = stableFrameCount >= STABLE_FRAMES_NEEDED;
 
-    // Haptic on first lock
     if (isLocked && !lastLockedState && !hapticFired) {
       hapticFired = true;
       if (navigator.vibrate) navigator.vibrate(60);
@@ -1147,6 +1717,10 @@ function startLoop() {
     lastLockedState = isLocked;
 
     setStability(stableFrameCount / STABLE_FRAMES_NEEDED, isLocked);
+
+    // Module 6: harmonic analysis
+    analyzeHarmonics(avgFreq);
+
     updateDisplay(avgFreq, noteName, nearestStr, displayCents, tuneState, timestamp);
     resetSleepTimer();
   }
@@ -1157,81 +1731,178 @@ function startLoop() {
 function tickIdle(timestamp) {
   displayCents += (0 - displayCents) * 0.08;
   stableFrameCount = Math.max(stableFrameCount - 1, 0);
-  const isLocked = stableFrameCount >= STABLE_FRAMES_NEEDED;
-  setStability(stableFrameCount / STABLE_FRAMES_NEEDED, isLocked);
+  setStability(stableFrameCount / STABLE_FRAMES_NEEDED, false);
   setConfidence(0);
   freqReadout.textContent = '— Hz detected';
+  harmonicReadout.textContent = '';
   clearAllPegStates(true);
   if (Math.abs(displayCents) > 0.3) {
     setNeedle((displayCents / 100) * 60);
-    if (displayMode === 'strobe') updateStrobe(displayCents, 'idle', timestamp);
+  } else {
+    setNeedle(0);
   }
+  strobeCents = displayCents; strobeState = 'idle';
 }
 
 function stopLoop() {
   if (rafId) { cancelAnimationFrame(rafId); rafId = null; }
 }
 
-/* ── AUTOCORRELATION ────────────────────────────────────────── */
-// Returns { freq, confidence } where confidence is 0..1
-function autocorrelate(buf, sampleRate) {
-  const SIZE = buf.length;
+/* ══════════════════════════════════════════════════════════════
+   MODULE 3 — AUTOCORRELATION WITH DECIMATION & PARABOLIC INTERP
+   ══════════════════════════════════════════════════════════════ */
+
+function autocorrelate(buf, sampleRate, targetFreq) {
+  // For sub-bass (< 100 Hz), decimate by 4; for very low (< 200 Hz), decimate by 2
+  let workBuf = buf;
+  let workRate = sampleRate;
+
+  if (targetFreq < 100) {
+    workBuf  = decimateBuffer(buf, 4);
+    workRate = sampleRate / 4;
+  } else if (targetFreq < 200) {
+    workBuf  = decimateBuffer(buf, 2);
+    workRate = sampleRate / 2;
+  }
+
+  const SIZE = workBuf.length;
   const MAX  = Math.floor(SIZE / 2);
 
   let rms = 0;
-  for (let i = 0; i < SIZE; i++) rms += buf[i] * buf[i];
+  for (let i = 0; i < SIZE; i++) rms += workBuf[i] * workBuf[i];
   rms = Math.sqrt(rms / SIZE);
-  if (rms < 0.005) return { freq: -1, confidence: 0 };
+  if (rms < 0.003) return { freq: -1, confidence: 0 };
 
   let lastCorr = 1, bestCorr = 0, bestOffset = -1;
   let foundGood = false;
 
-  for (let offset = 0; offset < MAX; offset++) {
+  for (let offset = 1; offset < MAX; offset++) {
     let corr = 0;
-    for (let i = 0; i < MAX; i++) corr += Math.abs(buf[i] - buf[i + offset]);
+    for (let i = 0; i < MAX; i++) corr += Math.abs(workBuf[i] - workBuf[i + offset]);
     corr = 1 - corr / MAX;
 
     if (corr > 0.9 && corr > lastCorr) {
       foundGood = true;
       if (corr > bestCorr) { bestCorr = corr; bestOffset = offset; }
     } else if (foundGood) {
-      const shift = bestOffset > 1
-        ? (corr - lastCorr) / (2 * (2 * bestCorr - lastCorr - corr))
-        : 0;
-      return { freq: sampleRate / (bestOffset + shift), confidence: bestCorr };
+      break;
     }
     lastCorr = corr;
   }
-  return bestOffset > -1
-    ? { freq: sampleRate / bestOffset, confidence: bestCorr }
-    : { freq: -1, confidence: 0 };
+
+  if (bestOffset <= 0) {
+    return bestOffset > -1
+      ? { freq: workRate / bestOffset, confidence: bestCorr }
+      : { freq: -1, confidence: 0 };
+  }
+
+  // Parabolic interpolation for sub-cent resolution
+  const y1 = bestOffset > 1     ? (1 - computeCorr(workBuf, MAX, bestOffset - 1)) : bestCorr;
+  const y2 = bestCorr;
+  const y3 = bestOffset < MAX-1 ? (1 - computeCorr(workBuf, MAX, bestOffset + 1)) : bestCorr;
+  const denom = 2 * y2 - y1 - y3;
+  const shift = denom !== 0 ? (y1 - y3) / (2 * denom) : 0;
+  const refinedOffset = bestOffset + shift;
+
+  return { freq: workRate / refinedOffset, confidence: bestCorr };
 }
 
-/* ── DISPLAY UPDATE ─────────────────────────────────────────── */
+function computeCorr(buf, MAX, offset) {
+  if (offset <= 0) return 0;
+  let corr = 0;
+  for (let i = 0; i < MAX; i++) corr += Math.abs(buf[i] - buf[i + offset]);
+  return corr / MAX;
+}
+
+function decimateBuffer(buf, factor) {
+  const out = new Float32Array(Math.floor(buf.length / factor));
+  for (let i = 0; i < out.length; i++) {
+    let sum = 0;
+    for (let j = 0; j < factor; j++) sum += buf[i * factor + j];
+    out[i] = sum / factor;
+  }
+  return out;
+}
+
+/* ══════════════════════════════════════════════════════════════
+   MODULE 6 — HARMONIC INHARMONICITY ANALYSIS
+   ══════════════════════════════════════════════════════════════ */
+
+function analyzeHarmonics(f0) {
+  if (!analyserNode || !audioCtx) return;
+  const binCount = analyserNode.frequencyBinCount;
+  const freqBuf  = new Uint8Array(binCount);
+  analyserNode.getByteFrequencyData(freqBuf);
+
+  const nyquist  = audioCtx.sampleRate / 2;
+  const binWidth = nyquist / binCount;
+
+  // Find peak near each expected harmonic
+  let maxDeviation = 0;
+  for (let h = 2; h <= 4; h++) {
+    const expectedFreq = f0 * h;
+    if (expectedFreq > nyquist) continue;
+
+    const expectedBin = Math.round(expectedFreq / binWidth);
+    const searchRange = Math.max(3, Math.round((expectedFreq * 0.02) / binWidth)); // ±2%
+    let peakBin = expectedBin, peakVal = 0;
+
+    for (let b = Math.max(0, expectedBin - searchRange);
+             b <= Math.min(binCount - 1, expectedBin + searchRange); b++) {
+      if (freqBuf[b] > peakVal) { peakVal = freqBuf[b]; peakBin = b; }
+    }
+
+    if (peakVal < 10) continue; // harmonic not present
+
+    const actualFreq  = peakBin * binWidth;
+    const deviation   = Math.abs(1200 * Math.log2(actualFreq / expectedFreq));
+    maxDeviation = Math.max(maxDeviation, deviation);
+  }
+
+  if (maxDeviation === 0) {
+    harmonicReadout.textContent = '';
+    harmonicReadout.className   = 'harmonic-readout';
+  } else if (maxDeviation < 12) {
+    harmonicReadout.textContent = 'String Intonation: Clean';
+    harmonicReadout.className   = 'harmonic-readout clean';
+  } else {
+    harmonicReadout.textContent = 'String Intonation: Poor (Inharmonicity Detected)';
+    harmonicReadout.className   = 'harmonic-readout poor';
+  }
+}
+
+/* ══════════════════════════════════════════════════════════════
+   DISPLAY UPDATE
+   ══════════════════════════════════════════════════════════════ */
+
 function updateDisplay(freq, noteName, nearestStr, cents, tuneState, timestamp) {
   freqReadout.textContent = `${freq.toFixed(1)} Hz  ·  A4 = ${A4_REF} Hz`;
 
-  // Strip octave number for the big display
-  detectedNote.textContent = noteName.replace(/\d/g,'');
+  detectedNote.textContent = noteName.replace(/\d/g, '');
   detectedNote.className   = 'detected-note ' + tuneState;
 
   const sign = cents > 0 ? '+' : '';
   centsReadout.textContent = `${sign}${Math.round(cents)} ¢`;
   centsReadout.className   = 'cents-readout ' + tuneState;
 
+  // Needle color: cyan (in-tune), amber (warn), pink (off)
+  const col = tuneState === 'in-tune' ? 'var(--cyan)' :
+              tuneState === 'warn'    ? 'var(--gold)'  : 'var(--pink)';
+
   const angleDeg = Math.max(-60, Math.min(60, (cents / 100) * 60));
 
   if (displayMode === 'needle') {
     setNeedle(angleDeg);
-    const col = tuneState === 'in-tune' ? 'var(--green)' :
-                tuneState === 'sharp'   ? 'var(--pink)'  : 'var(--gold)';
     needleLine.setAttribute('stroke', col);
-    needleGroup.querySelectorAll('circle')[0].setAttribute('fill', col);
+    const circles = needleGroup.querySelectorAll('circle');
+    if (circles[0]) circles[0].setAttribute('fill', col);
+    if (circles[2]) circles[2].setAttribute('fill', col);
   } else {
-    updateStrobe(cents, tuneState, timestamp);
+    strobeCents = cents;
+    strobeState = tuneState;
+    strobeAmplitude = Math.min(1, Math.max(0, (parseFloat(confFill.style.width) || 0) / 100));
   }
 
-  // Peg highlights
   clearAllPegStates(true);
   if (nearestStr >= 0 && activeOscString < 0) {
     const peg = document.getElementById(`peg-${nearestStr}`);
@@ -1246,17 +1917,16 @@ function setNeedle(deg) {
 }
 
 function setConfidence(v) {
-  // v is 0..1 (autocorrelation score, typically 0.9–1.0 for clean signal)
-  // Remap 0.9–1.0 → 0–100% for readability
   const pct = Math.max(0, Math.min(100, (v - 0.88) / 0.12 * 100));
   confFill.style.width = pct + '%';
   confFill.style.background = pct > 70 ? 'var(--green)' : pct > 35 ? 'var(--gold)' : 'var(--pink)';
   confPct.textContent = Math.round(pct) + '%';
+  strobeAmplitude = pct / 100;
 }
 
 function setStability(ratio, locked) {
   stabilityFill.style.width = (ratio * 100) + '%';
-  stabilityFill.style.background = locked ? 'var(--green)' : 'var(--muted)';
+  stabilityFill.style.background = locked ? 'var(--cyan)' : 'var(--muted)';
   lockIcon.classList.toggle('locked', locked);
 }
 
@@ -1265,7 +1935,9 @@ function updatePegBar(idx, cents) {
   if (!bar) return;
   const offset = Math.max(-50, Math.min(50, cents / 2));
   bar.style.transform  = `translateX(${offset * 2}%)`;
-  bar.style.background = Math.abs(cents) <= IN_TUNE_THRESHOLD ? 'var(--green)' :
+  const absC = Math.abs(cents);
+  bar.style.background = absC <= THRESH_IN_TUNE ? 'var(--cyan)' :
+                         absC <= THRESH_WARN    ? 'var(--gold)'  :
                          cents > 0 ? 'var(--pink)' : 'var(--gold)';
 }
 
@@ -1273,7 +1945,7 @@ function updatePegBar(idx, cents) {
 function setPegState(i, state) {
   const p = document.getElementById(`peg-${i}`);
   if (!p) return;
-  p.classList.remove('listening','playing','in-tune');
+  p.classList.remove('listening', 'playing', 'in-tune');
   if (state !== 'idle') p.classList.add(state);
 }
 
@@ -1281,7 +1953,7 @@ function clearAllPegStates(listeningOnly = false) {
   for (let i = 0; i < stringFreqs.length; i++) {
     const p = document.getElementById(`peg-${i}`);
     if (!p) continue;
-    p.classList.remove('listening','in-tune');
+    p.classList.remove('listening', 'in-tune');
     if (!listeningOnly) p.classList.remove('playing');
     const bar = document.getElementById(`peg-bar-${i}`);
     if (bar) { bar.style.transform = 'translateX(0)'; bar.style.background = 'var(--dim)'; }
@@ -1294,24 +1966,48 @@ function setStatus(state, msg) {
   statusDot.className = 'status-dot' + (state === 'active' ? ' active' : state === 'error' ? ' error' : '');
 }
 
+/* ── DISPLAY MODE TOGGLES ───────────────────────────────────── */
+btnNeedle.addEventListener('click', () => {
+  displayMode = 'needle';
+  dialWrap.classList.remove('hidden');
+  strobeWrap.classList.add('hidden');
+  btnNeedle.classList.add('active');
+  btnStrobe.classList.remove('active');
+  resetActivity();
+});
+
+btnStrobe.addEventListener('click', () => {
+  displayMode = 'strobe';
+  dialWrap.classList.add('hidden');
+  strobeWrap.classList.remove('hidden');
+  btnStrobe.classList.add('active');
+  btnNeedle.classList.remove('active');
+  strobeLastTime = null;
+  resetActivity();
+  ensureStrobeLoop();
+});
+
+btnChromatic.addEventListener('click', () => {
+  chromaticMode = !chromaticMode;
+  btnChromatic.classList.toggle('active', chromaticMode);
+  resetActivity();
+});
+
 /* ── SLEEP ──────────────────────────────────────────────────── */
 function resetSleepTimer() {
   if (isSleeping) wakeUp();
   clearTimeout(sleepTimer);
-  if (isRunning) sleepTimer = setTimeout(goToSleep, SLEEP_TIMEOUT_MS);
+  if (isRunning || droneActive) sleepTimer = setTimeout(goToSleep, SLEEP_TIMEOUT_MS);
 }
 
 function goToSleep() {
-  if (!isRunning) return;
+  if (!isRunning && !droneActive) return;
   isSleeping = true;
-  stopOscillator(true);
+  if (droneActive) deactivateDrone();
+  if (isRunning)   deactivateListen();
   if (audioCtx && audioCtx.state === 'running') audioCtx.suspend();
-  if (micStream) micStream.getTracks().forEach(t => t.stop());
-  isRunning = false;
   sleepOverlay.classList.add('visible');
   setStatus('idle', 'Sleeping — tap to wake');
-  activateBtn.classList.remove('active');
-  activateBtn.textContent = '⬤ Activate Tuner';
 }
 
 function wakeUp() {
@@ -1324,26 +2020,32 @@ sleepOverlay.addEventListener('click', () => { wakeUp(); resetActivity(); });
 function resetActivity() {
   if (isSleeping) wakeUp();
   clearTimeout(sleepTimer);
-  if (isRunning) sleepTimer = setTimeout(goToSleep, SLEEP_TIMEOUT_MS);
+  if (isRunning || droneActive) sleepTimer = setTimeout(goToSleep, SLEEP_TIMEOUT_MS);
 }
 
 ['click','touchstart','keydown'].forEach(e =>
   document.addEventListener(e, resetActivity, { passive: true }));
 
-/* ── WAVEFORM CHANGE ────────────────────────────────────────── */
-waveSelect.addEventListener('change', () => {
-  resetActivity();
-  if (activeOsc) activeOsc.type = waveSelect.value;
-});
+/* ══════════════════════════════════════════════════════════════
+   INIT
+   ══════════════════════════════════════════════════════════════ */
 
-/* ── INIT ───────────────────────────────────────────────────── */
-// Draw idle strobe
-drawStrobeDisc(0, 'idle');
+populateInstruments();
+populateTunings('guitar');
+// Trigger first tuning load
+{
+  const first = tuningSelect.querySelector('option:not([value="__add_custom__"])');
+  if (first) {
+    tuningSelect.value = first.value;
+    handleTuningSelectChange();
+  }
+}
 
-// Chromatic off by default — button styled accordingly
+// Idle strobe frame
+strobeCents = 0; strobeState = 'idle';
+if (displayMode === 'strobe') ensureStrobeLoop();
+
 btnChromatic.classList.remove('active');
-
-loadTuning('standard');
 setStatus('idle', 'Tap activate to begin');
 </script>
 </body>
