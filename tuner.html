@@ -1,0 +1,1262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Carl William — Guitar Tuner</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=VT323&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+
+<style>
+/* ── INHERIT SITE DESIGN TOKENS ─────────────────────────────── */
+:root {
+  --bg:      #0a0a12;
+  --surface: #0d0d1a;
+  --pink:    #ff2d78;
+  --cyan:    #00f5ff;
+  --gold:    #ffd700;
+  --purple:  #b06aff;
+  --green:   #00ff88;
+  --text:    #e0d8f0;
+  --muted:   #9988aa;
+  --dim:     #443355;
+
+  /* String colours — one per string, top-to-bottom */
+  --s1: #ff4444;   /* E6 — high red    */
+  --s2: #ff9933;   /* B   — orange     */
+  --s3: #ffd700;   /* G   — gold       */
+  --s4: #00ff88;   /* D   — green      */
+  --s5: #00f5ff;   /* A   — cyan       */
+  --s6: #b06aff;   /* E2  — purple     */
+
+  --needle-range: 120deg; /* full deflection, ±60° */
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Space Mono', monospace;
+  min-height: 100dvh;
+  overflow-x: hidden;
+}
+
+/* CRT scanline overlay (matches site's body::before) */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 3px,
+    rgba(0,245,255,0.012) 3px,
+    rgba(0,245,255,0.012) 4px
+  );
+  pointer-events: none;
+  z-index: 900;
+}
+
+/* ── LAYOUT SHELL ───────────────────────────────────────────── */
+.tuner-shell {
+  max-width: 480px;
+  margin: 0 auto;
+  padding: 0 0 40px;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+/* ── HEADER ─────────────────────────────────────────────────── */
+.tuner-header {
+  padding: 22px 24px 16px;
+  border-bottom: 2px solid var(--cyan);
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.tuner-title {
+  font-family: 'VT323', monospace;
+  font-size: 42px;
+  color: var(--cyan);
+  letter-spacing: 4px;
+  line-height: 1;
+  text-shadow: 0 0 20px rgba(0,245,255,0.5);
+}
+
+.tuner-subtitle {
+  font-size: 9px;
+  color: var(--muted);
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  text-align: right;
+  line-height: 1.6;
+}
+
+/* ── CONTROL PANEL ──────────────────────────────────────────── */
+.control-panel {
+  padding: 16px 20px;
+  background: var(--surface);
+  border-bottom: 1px solid #ffffff0d;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  align-items: flex-end;
+}
+
+.ctrl-group {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  flex: 1;
+  min-width: 120px;
+}
+
+.ctrl-group label {
+  font-size: 8px;
+  color: var(--cyan);
+  letter-spacing: 3px;
+  text-transform: uppercase;
+}
+
+.ctrl-select {
+  background: #06060f;
+  color: var(--text);
+  border: 1px solid var(--dim);
+  font-family: 'Space Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 1px;
+  padding: 7px 10px;
+  outline: none;
+  cursor: pointer;
+  transition: border-color 0.2s;
+  appearance: none;
+  -webkit-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%239988aa'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  padding-right: 28px;
+}
+
+.ctrl-select:hover, .ctrl-select:focus { border-color: var(--cyan); }
+
+/* ── METER SECTION ──────────────────────────────────────────── */
+.meter-section {
+  padding: 20px 20px 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  position: relative;
+}
+
+/* Detected note readout */
+.detected-note {
+  font-family: 'VT323', monospace;
+  font-size: 64px;
+  color: var(--text);
+  letter-spacing: 4px;
+  line-height: 1;
+  text-shadow: 0 0 12px rgba(255,255,255,0.15);
+  transition: color 0.2s, text-shadow 0.2s;
+  min-height: 64px;
+  text-align: center;
+}
+
+.detected-note.in-tune   { color: var(--green); text-shadow: 0 0 24px rgba(0,255,136,0.7); }
+.detected-note.sharp     { color: var(--pink);  text-shadow: 0 0 24px rgba(255,45,120,0.7); }
+.detected-note.flat      { color: var(--gold);  text-shadow: 0 0 24px rgba(255,215,0,0.7); }
+
+/* Dial / VU Meter */
+.dial-wrap {
+  position: relative;
+  width: 240px;
+  height: 130px;
+  overflow: visible;
+}
+
+.dial-svg {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+/* Needle */
+.needle-group {
+  transform-origin: 120px 120px; /* pivot at arc center */
+  transition: transform 0.18s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.cents-readout {
+  font-family: 'VT323', monospace;
+  font-size: 20px;
+  letter-spacing: 2px;
+  color: var(--muted);
+  text-align: center;
+  min-height: 24px;
+  transition: color 0.2s;
+}
+
+.cents-readout.in-tune { color: var(--green); }
+.cents-readout.sharp   { color: var(--pink); }
+.cents-readout.flat    { color: var(--gold); }
+
+/* Freq debug line */
+.freq-readout {
+  font-size: 9px;
+  color: var(--dim);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  min-height: 14px;
+}
+
+/* ── ACTIVATE BUTTON ────────────────────────────────────────── */
+.activate-btn {
+  margin: 0 20px;
+  padding: 14px;
+  background: transparent;
+  border: 1px solid var(--cyan);
+  color: var(--cyan);
+  font-family: 'Space Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  cursor: pointer;
+  width: calc(100% - 40px);
+  transition: background 0.2s, box-shadow 0.2s, color 0.2s;
+  text-shadow: 0 0 8px rgba(0,245,255,0.5);
+}
+
+.activate-btn:hover {
+  background: rgba(0,245,255,0.06);
+  box-shadow: 0 0 16px rgba(0,245,255,0.25);
+}
+
+.activate-btn.active {
+  background: rgba(255,45,120,0.06);
+  border-color: var(--pink);
+  color: var(--pink);
+  text-shadow: 0 0 8px rgba(255,45,120,0.5);
+}
+
+/* ── HEADSTOCK / PEG SECTION ────────────────────────────────── */
+.headstock-label {
+  padding: 20px 20px 10px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 9px;
+  color: var(--cyan);
+  letter-spacing: 3px;
+  text-transform: uppercase;
+}
+
+.headstock-label::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: #00f5ff33;
+}
+
+/* 6 pegs in a column — inline headstock layout */
+.headstock {
+  padding: 0 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* Individual peg row */
+.peg-row {
+  display: grid;
+  grid-template-columns: 44px 1fr 44px;
+  gap: 8px;
+  align-items: center;
+}
+
+/* Down/Up nudge buttons */
+.nudge-btn {
+  width: 44px;
+  height: 44px;
+  background: #06060f;
+  border: 1px solid var(--dim);
+  color: var(--muted);
+  font-size: 18px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+  flex-shrink: 0;
+  touch-action: manipulation;
+}
+
+.nudge-btn:active {
+  background: rgba(0,245,255,0.08);
+  border-color: var(--cyan);
+  color: var(--cyan);
+}
+
+/* The peg button itself */
+.peg {
+  position: relative;
+  background: var(--surface);
+  border: 1px solid var(--dim);
+  padding: 12px 16px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  touch-action: manipulation;
+  transition: background 0.15s, border-color 0.2s, box-shadow 0.2s;
+  min-height: 64px;
+}
+
+/* String number badge */
+.peg-string-num {
+  font-size: 9px;
+  color: var(--dim);
+  letter-spacing: 1px;
+  min-width: 14px;
+}
+
+/* Note name — large tap target */
+.peg-note {
+  font-family: 'VT323', monospace;
+  font-size: 40px;
+  line-height: 1;
+  letter-spacing: 2px;
+  flex: 1;
+  text-align: center;
+  transition: color 0.2s, text-shadow 0.2s;
+}
+
+/* Hz readout inside peg */
+.peg-hz {
+  font-size: 9px;
+  color: var(--dim);
+  letter-spacing: 1px;
+  text-align: right;
+  min-width: 52px;
+  transition: color 0.2s;
+}
+
+/* Mini bar showing tuning deviation inside peg */
+.peg-bar-wrap {
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 3px;
+  background: transparent;
+  overflow: hidden;
+}
+
+.peg-bar {
+  height: 100%;
+  width: 50%;
+  background: var(--dim);
+  transform-origin: center;
+  transition: width 0.15s, background 0.15s, transform 0.15s;
+}
+
+/* ── PEG STATES (per-string colour vars injected inline) ─────── */
+
+/* Idle — default */
+/* Active Listening — mic detecting this string */
+.peg.listening {
+  background: rgba(0,0,0,0.4);
+  animation: peg-listen-pulse 1.4s ease-in-out infinite;
+}
+
+@keyframes peg-listen-pulse {
+  0%, 100% { box-shadow: 0 0 0 rgba(255,255,255,0); }
+  50%       { box-shadow: 0 0 14px var(--peg-color, var(--cyan)); }
+}
+
+.peg.listening .peg-note {
+  color: var(--peg-color, var(--cyan));
+  text-shadow: 0 0 12px var(--peg-color, var(--cyan));
+}
+
+.peg.listening .peg-hz {
+  color: var(--peg-color, var(--cyan));
+}
+
+/* Reference tone playing */
+.peg.playing {
+  animation: peg-play-pulse 0.8s ease-in-out infinite;
+  background: rgba(0,0,0,0.5);
+}
+
+@keyframes peg-play-pulse {
+  0%, 100% { box-shadow: 0 0 6px var(--peg-color, var(--cyan)), inset 0 0 8px rgba(0,0,0,0.3); }
+  50%       { box-shadow: 0 0 22px var(--peg-color, var(--cyan)), inset 0 0 14px rgba(0,0,0,0.2); }
+}
+
+.peg.playing .peg-note {
+  color: var(--peg-color, var(--cyan));
+  text-shadow: 0 0 16px var(--peg-color, var(--cyan));
+  animation: peg-note-breathe 0.8s ease-in-out infinite;
+}
+
+@keyframes peg-note-breathe {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.7; }
+}
+
+.peg.playing { border-color: var(--peg-color, var(--cyan)); }
+
+/* In-tune highlight */
+.peg.in-tune {
+  box-shadow: 0 0 20px rgba(0,255,136,0.5) !important;
+  border-color: var(--green) !important;
+  animation: none !important;
+}
+
+.peg.in-tune .peg-note {
+  color: var(--green) !important;
+  text-shadow: 0 0 18px rgba(0,255,136,0.8) !important;
+  animation: none !important;
+}
+
+/* ── STRING COLOUR ASSIGNMENT ───────────────────────────────── */
+.peg[data-string="1"] { --peg-color: var(--s1); }
+.peg[data-string="2"] { --peg-color: var(--s2); }
+.peg[data-string="3"] { --peg-color: var(--s3); }
+.peg[data-string="4"] { --peg-color: var(--s4); }
+.peg[data-string="5"] { --peg-color: var(--s5); }
+.peg[data-string="6"] { --peg-color: var(--s6); }
+
+.peg[data-string="1"] .peg-string-num { color: var(--s1); }
+.peg[data-string="2"] .peg-string-num { color: var(--s2); }
+.peg[data-string="3"] .peg-string-num { color: var(--s3); }
+.peg[data-string="4"] .peg-string-num { color: var(--s4); }
+.peg[data-string="5"] .peg-string-num { color: var(--s5); }
+.peg[data-string="6"] .peg-string-num { color: var(--s6); }
+
+/* ── SLEEP OVERLAY ──────────────────────────────────────────── */
+.sleep-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(10,10,18,0.94);
+  z-index: 800;
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  cursor: pointer;
+  backdrop-filter: blur(4px);
+}
+
+.sleep-overlay.visible { display: flex; }
+
+.sleep-icon {
+  font-family: 'VT323', monospace;
+  font-size: 72px;
+  color: var(--dim);
+  letter-spacing: 4px;
+  text-shadow: 0 0 18px rgba(68,51,85,0.8);
+  animation: blink 2s step-end infinite;
+}
+
+@keyframes blink { 50% { opacity: 0; } }
+
+.sleep-label {
+  font-size: 10px;
+  color: var(--muted);
+  letter-spacing: 4px;
+  text-transform: uppercase;
+}
+
+/* ── MIC ERROR BANNER ───────────────────────────────────────── */
+.mic-error {
+  margin: 12px 20px 0;
+  padding: 12px 16px;
+  border: 1px solid var(--pink);
+  background: rgba(255,45,120,0.06);
+  font-size: 10px;
+  color: var(--pink);
+  letter-spacing: 1px;
+  line-height: 1.7;
+  display: none;
+}
+
+.mic-error.visible { display: block; }
+
+/* ── STATUS STRIP ────────────────────────────────────────────── */
+.status-strip {
+  margin: 10px 20px 0;
+  padding: 8px 14px;
+  background: var(--surface);
+  border: 1px solid #ffffff0d;
+  font-size: 9px;
+  color: var(--dim);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.status-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--dim);
+  flex-shrink: 0;
+  transition: background 0.3s, box-shadow 0.3s;
+}
+
+.status-dot.active {
+  background: var(--green);
+  box-shadow: 0 0 8px rgba(0,255,136,0.6);
+  animation: dot-pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes dot-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+.status-dot.error { background: var(--pink); box-shadow: 0 0 8px rgba(255,45,120,0.6); animation: none; }
+
+/* ── FOOTER ─────────────────────────────────────────────────── */
+.tuner-footer {
+  margin-top: 28px;
+  padding: 14px 24px;
+  border-top: 1px solid #00f5ff22;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #07070f;
+  font-size: 9px;
+  color: var(--dim);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+/* ── DESKTOP EXPANSION ──────────────────────────────────────── */
+@media (min-width: 520px) {
+  .tuner-shell { max-width: 560px; }
+  .tuner-title { font-size: 52px; }
+  .dial-wrap { width: 280px; height: 150px; }
+}
+
+@media (min-width: 720px) {
+  body { padding: 20px 0; }
+  .tuner-shell { max-width: 640px; }
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+}
+</style>
+</head>
+<body>
+
+<!-- ── SLEEP OVERLAY ─────────────────────────────────────────── -->
+<div class="sleep-overlay" id="sleepOverlay" role="dialog" aria-label="Tuner sleeping">
+  <div class="sleep-icon">ZZZ</div>
+  <div class="sleep-label">Tap to wake up</div>
+</div>
+
+<!-- ── MAIN SHELL ────────────────────────────────────────────── -->
+<main class="tuner-shell">
+
+  <!-- Header -->
+  <header class="tuner-header">
+    <div class="tuner-title">TUNER</div>
+    <div class="tuner-subtitle">Carl William Music<br>Web Audio API v2</div>
+  </header>
+
+  <!-- Control Panel -->
+  <div class="control-panel">
+    <div class="ctrl-group">
+      <label for="tuningSelect">Tuning</label>
+      <select class="ctrl-select" id="tuningSelect">
+        <option value="standard">Standard — EADGBE</option>
+        <option value="dropd">Drop D — DADGBE</option>
+        <option value="dadgad">DADGAD</option>
+        <option value="halfdown">Half-Step Down — Eb</option>
+      </select>
+    </div>
+    <div class="ctrl-group">
+      <label for="waveSelect">Waveform</label>
+      <select class="ctrl-select" id="waveSelect">
+        <option value="triangle">Triangle</option>
+        <option value="sine">Sine</option>
+        <option value="sawtooth">Sawtooth</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Mic Error -->
+  <div class="mic-error" id="micError">
+    ⚠ Microphone access denied or unavailable.<br>
+    Grant mic permission in your browser settings and tap Activate Tuner again.
+  </div>
+
+  <!-- Status strip -->
+  <div class="status-strip">
+    <div class="status-dot" id="statusDot"></div>
+    <span id="statusText">Tap activate to begin</span>
+  </div>
+
+  <!-- Meter Section -->
+  <div class="meter-section">
+    <div class="detected-note" id="detectedNote">—</div>
+
+    <!-- Dial meter (SVG) -->
+    <div class="dial-wrap" aria-hidden="true">
+      <svg class="dial-svg" id="dialSvg" viewBox="0 0 240 130" xmlns="http://www.w3.org/2000/svg">
+        <!-- Arc track: flat=left, sharp=right, in-tune=center -->
+        <!-- Background arc -->
+        <path d="M 20 120 A 100 100 0 0 1 220 120"
+              fill="none" stroke="#1a1a2e" stroke-width="18" stroke-linecap="round"/>
+        <!-- Flat zone (left) -->
+        <path d="M 20 120 A 100 100 0 0 1 80 35"
+              fill="none" stroke="rgba(255,215,0,0.25)" stroke-width="18" stroke-linecap="round"/>
+        <!-- In-tune zone (center) -->
+        <path d="M 108 20.5 A 100 100 0 0 1 132 20.5"
+              fill="none" stroke="rgba(0,255,136,0.35)" stroke-width="20" stroke-linecap="round"/>
+        <!-- Sharp zone (right) -->
+        <path d="M 160 35 A 100 100 0 0 1 220 120"
+              fill="none" stroke="rgba(255,45,120,0.25)" stroke-width="18" stroke-linecap="round"/>
+
+        <!-- Tick marks -->
+        <g stroke="#443355" stroke-width="1">
+          <line x1="120" y1="20" x2="120" y2="10" transform="rotate(-60 120 120)"/>
+          <line x1="120" y1="20" x2="120" y2="10" transform="rotate(-30 120 120)"/>
+          <line x1="120" y1="20" x2="120" y2="10"/>
+          <line x1="120" y1="20" x2="120" y2="10" transform="rotate(30 120 120)"/>
+          <line x1="120" y1="20" x2="120" y2="10" transform="rotate(60 120 120)"/>
+        </g>
+        <!-- Center tick (in-tune) — brighter -->
+        <line x1="120" y1="22" x2="120" y2="8" stroke="rgba(0,255,136,0.6)" stroke-width="2"/>
+
+        <!-- Labels -->
+        <text x="16" y="116" font-family="Space Mono,monospace" font-size="8" fill="#ffd700" letter-spacing="0">♭</text>
+        <text x="114" y="11" font-family="Space Mono,monospace" font-size="8" fill="rgba(0,255,136,0.7)" text-anchor="middle">✓</text>
+        <text x="222" y="116" font-family="Space Mono,monospace" font-size="8" fill="#ff2d78">#</text>
+
+        <!-- Needle -->
+        <g class="needle-group" id="needleGroup">
+          <!-- Needle shaft -->
+          <line x1="120" y1="120" x2="120" y2="26"
+                stroke="var(--cyan)" stroke-width="2" stroke-linecap="round"
+                id="needleLine"/>
+          <!-- Needle tip glow -->
+          <circle cx="120" cy="26" r="3" fill="var(--cyan)" opacity="0.9"
+                  style="filter: drop-shadow(0 0 4px var(--cyan))"/>
+          <!-- Pivot -->
+          <circle cx="120" cy="120" r="5" fill="#0d0d1a" stroke="var(--cyan)" stroke-width="1.5"/>
+          <circle cx="120" cy="120" r="2" fill="var(--cyan)"/>
+        </g>
+      </svg>
+    </div>
+
+    <div class="cents-readout" id="centsReadout">— ¢</div>
+    <div class="freq-readout" id="freqReadout">— Hz detected</div>
+  </div>
+
+  <!-- Activate Button -->
+  <button class="activate-btn" id="activateBtn">⬤ Activate Tuner</button>
+
+  <!-- Headstock -->
+  <div class="headstock-label">Strings</div>
+  <div class="headstock" id="headstock">
+    <!-- Pegs injected by JS -->
+  </div>
+
+  <!-- Footer -->
+  <footer class="tuner-footer">
+    <span>Carl William Music</span>
+    <span class="blink">■</span>
+    <span>Auto-sleep 3 min</span>
+  </footer>
+
+</main>
+
+<script>
+/* ================================================================
+   CARL WILLIAM MUSIC — GUITAR TUNER
+   Web Audio API + Autocorrelation pitch detection
+   ================================================================ */
+
+'use strict';
+
+/* ── TUNING PRESETS ─────────────────────────────────────────── */
+const TUNINGS = {
+  standard: { label: 'Standard',    notes: ['E2','A2','D3','G3','B3','E4'] },
+  dropd:    { label: 'Drop D',      notes: ['D2','A2','D3','G3','B3','E4'] },
+  dadgad:   { label: 'DADGAD',      notes: ['D2','A2','D3','G3','A3','D4'] },
+  halfdown: { label: 'Half-Step ↓', notes: ['Eb2','Ab2','Db3','Gb3','Bb3','Eb4'] },
+};
+
+/* ── NOTE FREQUENCY TABLE ─────────────────────────────────────
+   Equal temperament, A4 = 440 Hz                              */
+const NOTE_FREQ = (() => {
+  const notes = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
+  const map = {};
+  for (let oct = 0; oct <= 7; oct++) {
+    notes.forEach((n, i) => {
+      const midi = oct * 12 + i;
+      map[n + oct] = 440 * Math.pow(2, (midi - 69) / 12);
+    });
+  }
+  // Aliases: Eb=D#, Ab=G#, Db=C#, Gb=F#, Bb=A#
+  const aliases = {Eb:'D#', Ab:'G#', Db:'C#', Gb:'F#', Bb:'A#'};
+  Object.entries(aliases).forEach(([alias, real]) => {
+    for (let o = 0; o <= 7; o++) map[alias + o] = map[real + o];
+  });
+  return map;
+})();
+
+/* Nearest note from frequency */
+function nearestNote(freq) {
+  let best = null, bestCents = Infinity;
+  for (const [name, f] of Object.entries(NOTE_FREQ)) {
+    const cents = 1200 * Math.log2(freq / f);
+    if (Math.abs(cents) < Math.abs(bestCents)) { bestCents = cents; best = name; }
+  }
+  return { name: best, cents: bestCents };
+}
+
+/* ── STATE ──────────────────────────────────────────────────── */
+let audioCtx = null;
+let analyserNode = null;
+let filterNode = null;
+let micStream = null;
+let micSourceNode = null;
+let activeOsc = null;     // currently playing oscillator
+let activeOscGain = null;
+let activeOscString = -1; // which string is playing reference tone (-1 = none)
+
+let isRunning = false;    // mic is active
+let rafId = null;
+
+// String target frequencies (can be nudged per-string)
+let stringFreqs = [];     // [string0..5], string0 = thinnest (E4)
+let stringNotes = [];     // display names
+
+// Smoothing buffer for pitch
+const SMOOTH_WINDOW = 8;
+let pitchBuffer = [];
+let smoothedCents = 0;    // for needle
+let displayCents = 0;     // damped display value
+
+// Sleep timer
+const SLEEP_TIMEOUT_MS = 3 * 60 * 1000; // 3 minutes
+let sleepTimer = null;
+let isSleeping = false;
+
+// Auto-mute: if input detected while reference playing
+const AUTOMUTE_FREQ_THRESHOLD = 60; // Hz — min frequency to count as signal
+
+/* ── DOM REFS ───────────────────────────────────────────────── */
+const activateBtn   = document.getElementById('activateBtn');
+const tuningSelect  = document.getElementById('tuningSelect');
+const waveSelect    = document.getElementById('waveSelect');
+const headstock     = document.getElementById('headstock');
+const detectedNote  = document.getElementById('detectedNote');
+const centsReadout  = document.getElementById('centsReadout');
+const freqReadout   = document.getElementById('freqReadout');
+const needleGroup   = document.getElementById('needleGroup');
+const statusDot     = document.getElementById('statusDot');
+const statusText    = document.getElementById('statusText');
+const micError      = document.getElementById('micError');
+const sleepOverlay  = document.getElementById('sleepOverlay');
+
+/* ── BUILD HEADSTOCK UI ─────────────────────────────────────── */
+function buildHeadstock() {
+  headstock.innerHTML = '';
+  // Strings displayed top-to-bottom: thinnest (1=E4) first (inline headstock style)
+  stringNotes.forEach((note, i) => {
+    const freq = stringFreqs[i];
+    const strNum = i + 1;
+
+    const row = document.createElement('div');
+    row.className = 'peg-row';
+
+    const downBtn = document.createElement('button');
+    downBtn.className = 'nudge-btn';
+    downBtn.setAttribute('aria-label', `Tune string ${strNum} flat`);
+    downBtn.textContent = '▼';
+    downBtn.dataset.string = i;
+    downBtn.dataset.dir = 'down';
+    downBtn.addEventListener('click', onNudge);
+
+    const peg = document.createElement('button');
+    peg.className = 'peg';
+    peg.dataset.string = strNum;
+    peg.id = `peg-${i}`;
+    peg.setAttribute('aria-label', `String ${strNum}: ${note}, ${freq.toFixed(1)} Hz. Tap to play reference tone.`);
+    peg.innerHTML = `
+      <span class="peg-string-num">${strNum}</span>
+      <span class="peg-note" id="peg-note-${i}">${note}</span>
+      <span class="peg-hz" id="peg-hz-${i}">${freq.toFixed(1)} Hz</span>
+      <div class="peg-bar-wrap"><div class="peg-bar" id="peg-bar-${i}"></div></div>
+    `;
+    peg.addEventListener('click', () => onPegClick(i));
+
+    const upBtn = document.createElement('button');
+    upBtn.className = 'nudge-btn';
+    upBtn.setAttribute('aria-label', `Tune string ${strNum} sharp`);
+    upBtn.textContent = '▲';
+    upBtn.dataset.string = i;
+    upBtn.dataset.dir = 'up';
+    upBtn.addEventListener('click', onNudge);
+
+    row.appendChild(downBtn);
+    row.appendChild(peg);
+    row.appendChild(upBtn);
+    headstock.appendChild(row);
+  });
+}
+
+/* ── LOAD TUNING ────────────────────────────────────────────── */
+function loadTuning(key) {
+  const t = TUNINGS[key];
+  // Reverse: index 0 = thinnest string (highest pitch), index 5 = lowest
+  const notesHighToLow = [...t.notes].reverse();
+  stringNotes = notesHighToLow;
+  stringFreqs = notesHighToLow.map(n => NOTE_FREQ[n] || 440);
+  buildHeadstock();
+}
+
+tuningSelect.addEventListener('change', () => {
+  loadTuning(tuningSelect.value);
+  resetActivity();
+});
+
+/* ── PEG CLICK — play reference tone ───────────────────────── */
+function onPegClick(i) {
+  resetActivity();
+
+  // Guard: AudioContext must be created on user gesture
+  if (!audioCtx) {
+    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  }
+  if (audioCtx.state === 'suspended') audioCtx.resume();
+
+  // Toggle: if same string is playing, stop it
+  if (activeOscString === i) {
+    stopOscillator();
+    return;
+  }
+
+  stopOscillator();
+
+  const freq = stringFreqs[i];
+  const waveType = waveSelect.value;
+
+  const osc = audioCtx.createOscillator();
+  const gain = audioCtx.createGain();
+  osc.type = waveType;
+  osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+
+  gain.gain.setValueAtTime(0, audioCtx.currentTime);
+  gain.gain.linearRampToValueAtTime(0.35, audioCtx.currentTime + 0.04); // fade in
+
+  osc.connect(gain);
+  gain.connect(audioCtx.destination);
+  osc.start();
+
+  activeOsc = osc;
+  activeOscGain = gain;
+  activeOscString = i;
+
+  setPegState(i, 'playing');
+  setStatus('active', `Playing ${stringNotes[i]} reference tone`);
+}
+
+function stopOscillator(fade = true) {
+  if (!activeOsc) return;
+  const osc = activeOsc;
+  const gain = activeOscGain;
+  const prevString = activeOscString;
+
+  if (fade && audioCtx) {
+    const now = audioCtx.currentTime;
+    gain.gain.cancelScheduledValues(now);
+    gain.gain.setValueAtTime(gain.gain.value, now);
+    gain.gain.linearRampToValueAtTime(0, now + 0.08);
+    setTimeout(() => { try { osc.stop(); } catch(e){} }, 100);
+  } else {
+    try { osc.stop(); } catch(e){}
+  }
+
+  activeOsc = null;
+  activeOscGain = null;
+  activeOscString = -1;
+
+  if (prevString >= 0) setPegState(prevString, 'idle');
+  if (isRunning) setStatus('active', 'Listening…');
+}
+
+/* ── NUDGE BUTTONS ──────────────────────────────────────────── */
+function onNudge(e) {
+  resetActivity();
+  const i = parseInt(e.currentTarget.dataset.string, 10);
+  const dir = e.currentTarget.dataset.dir;
+  const step = dir === 'up' ? 1 : -1;
+  // Shift by 1 cent
+  stringFreqs[i] *= Math.pow(2, step / 1200);
+  // Update display
+  const pegHz = document.getElementById(`peg-hz-${i}`);
+  if (pegHz) pegHz.textContent = stringFreqs[i].toFixed(1) + ' Hz';
+  // Update playing tone if it's this string
+  if (activeOscString === i && activeOsc) {
+    activeOsc.frequency.setValueAtTime(stringFreqs[i], audioCtx.currentTime);
+  }
+}
+
+/* ── ACTIVATE / DEACTIVATE MIC ──────────────────────────────── */
+activateBtn.addEventListener('click', async () => {
+  resetActivity();
+  micError.classList.remove('visible');
+
+  if (isRunning) {
+    // Deactivate
+    deactivateMic();
+    activateBtn.classList.remove('active');
+    activateBtn.textContent = '⬤ Activate Tuner';
+    setStatus('idle', 'Tap activate to begin');
+    return;
+  }
+
+  // Initialise AudioContext on user gesture
+  if (!audioCtx) {
+    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  }
+  try {
+    await audioCtx.resume();
+  } catch(e) {}
+
+  // Request mic
+  try {
+    micStream = await navigator.mediaDevices.getUserMedia({
+      audio: { echoCancellation: false, noiseSuppression: false, autoGainControl: false }
+    });
+  } catch (err) {
+    micError.classList.add('visible');
+    setStatus('error', 'Mic access denied');
+    return;
+  }
+
+  // Build audio chain
+  micSourceNode = audioCtx.createMediaStreamSource(micStream);
+
+  filterNode = audioCtx.createBiquadFilter();
+  filterNode.type = 'lowpass';
+  filterNode.frequency.value = 380; // roll off above 380 Hz to isolate fundamental
+  filterNode.Q.value = 1;
+
+  analyserNode = audioCtx.createAnalyser();
+  analyserNode.fftSize = 4096;       // large window for low-freq resolution
+  analyserNode.smoothingTimeConstant = 0;
+
+  micSourceNode.connect(filterNode);
+  filterNode.connect(analyserNode);
+  // Note: analyser NOT connected to destination — no audio feedback
+
+  isRunning = true;
+  activateBtn.classList.add('active');
+  activateBtn.textContent = '■ Deactivate Tuner';
+  setStatus('active', 'Listening…');
+
+  startDetectionLoop();
+  resetSleepTimer();
+});
+
+function deactivateMic() {
+  isRunning = false;
+  stopDetectionLoop();
+  stopOscillator(false);
+
+  if (micStream) { micStream.getTracks().forEach(t => t.stop()); micStream = null; }
+  if (micSourceNode) { try { micSourceNode.disconnect(); } catch(e){} micSourceNode = null; }
+  if (filterNode)    { try { filterNode.disconnect(); }    catch(e){} filterNode = null; }
+  if (analyserNode)  { try { analyserNode.disconnect(); }  catch(e){} analyserNode = null; }
+
+  clearAllPegStates();
+  detectedNote.textContent = '—';
+  detectedNote.className = 'detected-note';
+  centsReadout.textContent = '— ¢';
+  centsReadout.className = 'cents-readout';
+  freqReadout.textContent = '— Hz detected';
+  setNeedle(0);
+}
+
+/* ── PITCH DETECTION LOOP ───────────────────────────────────── */
+function startDetectionLoop() {
+  const buf = new Float32Array(analyserNode.fftSize);
+
+  function tick() {
+    if (!isRunning) return;
+    rafId = requestAnimationFrame(tick);
+
+    analyserNode.getFloatTimeDomainData(buf);
+
+    // RMS to check signal level
+    let rms = 0;
+    for (let k = 0; k < buf.length; k++) rms += buf[k] * buf[k];
+    rms = Math.sqrt(rms / buf.length);
+
+    if (rms < 0.008) {
+      // Too quiet
+      updateMeterIdle();
+      return;
+    }
+
+    const freq = autocorrelate(buf, audioCtx.sampleRate);
+    if (freq < 50 || freq > 1500) { updateMeterIdle(); return; }
+
+    // Auto-mute reference tone if input detected
+    if (activeOsc && freq > AUTOMUTE_FREQ_THRESHOLD) {
+      stopOscillator(true);
+    }
+
+    // Smooth pitch
+    pitchBuffer.push(freq);
+    if (pitchBuffer.length > SMOOTH_WINDOW) pitchBuffer.shift();
+    const avgFreq = pitchBuffer.reduce((a,b) => a+b, 0) / pitchBuffer.length;
+
+    // Find nearest target string
+    let nearestStr = 0, nearestCents = Infinity;
+    stringFreqs.forEach((sf, idx) => {
+      const c = 1200 * Math.log2(avgFreq / sf);
+      if (Math.abs(c) < Math.abs(nearestCents)) { nearestCents = c; nearestStr = idx; }
+    });
+
+    const { name: noteName, cents } = nearestNote(avgFreq);
+
+    // Damped cents display
+    const targetCents = nearestCents;
+    displayCents += (targetCents - displayCents) * 0.25;
+
+    updateMeter(avgFreq, noteName, nearestStr, displayCents);
+    resetSleepTimer();
+  }
+
+  tick();
+}
+
+function stopDetectionLoop() {
+  if (rafId) { cancelAnimationFrame(rafId); rafId = null; }
+}
+
+/* ── AUTOCORRELATION PITCH DETECTION ───────────────────────────
+   Finds the lag with highest autocorrelation to get fundamental */
+function autocorrelate(buf, sampleRate) {
+  const SIZE = buf.length;
+  const MAX_SAMPLES = Math.floor(SIZE / 2);
+  let bestOffset = -1;
+  let bestCorrelation = 0;
+  let rms = 0;
+
+  for (let i = 0; i < SIZE; i++) rms += buf[i] * buf[i];
+  rms = Math.sqrt(rms / SIZE);
+  if (rms < 0.005) return -1;
+
+  let lastCorrelation = 1;
+  let foundGoodCorrelation = false;
+
+  for (let offset = 0; offset < MAX_SAMPLES; offset++) {
+    let correlation = 0;
+    for (let i = 0; i < MAX_SAMPLES; i++) {
+      correlation += Math.abs(buf[i] - buf[i + offset]);
+    }
+    correlation = 1 - correlation / MAX_SAMPLES;
+
+    if (correlation > 0.9 && correlation > lastCorrelation) {
+      foundGoodCorrelation = true;
+      if (correlation > bestCorrelation) {
+        bestCorrelation = correlation;
+        bestOffset = offset;
+      }
+    } else if (foundGoodCorrelation) {
+      // Parabolic interpolation for precision
+      const shift = (bestOffset > 1)
+        ? (correlation - (offset > 1 ? 0 : lastCorrelation)) / (2 * (2 * bestCorrelation - lastCorrelation - correlation)) : 0;
+      return sampleRate / (bestOffset + shift);
+    }
+    lastCorrelation = correlation;
+  }
+
+  return bestOffset > -1 ? sampleRate / bestOffset : -1;
+}
+
+/* ── METER UPDATE ───────────────────────────────────────────── */
+const IN_TUNE_THRESHOLD = 5; // cents
+const LISTEN_THRESHOLD = 30; // cents — how close to "activate" peg glow
+
+function updateMeter(freq, noteName, nearestStr, cents) {
+  freqReadout.textContent = `${freq.toFixed(1)} Hz detected`;
+
+  const absC = Math.abs(cents);
+  let tuneState = absC <= IN_TUNE_THRESHOLD ? 'in-tune' : cents > 0 ? 'sharp' : 'flat';
+
+  // Display closest guitar note (just letter + octave, no octave for brevity)
+  detectedNote.textContent = noteName.replace(/\d/g, '');
+  detectedNote.className = 'detected-note ' + tuneState;
+
+  // Cents readout
+  const sign = cents > 0 ? '+' : '';
+  centsReadout.textContent = `${sign}${Math.round(cents)} ¢`;
+  centsReadout.className = 'cents-readout ' + tuneState;
+
+  // Needle: map ±100 cents to ±60°
+  const angleDeg = Math.max(-60, Math.min(60, (cents / 100) * 60));
+  setNeedle(angleDeg);
+
+  // Needle color
+  const needleLine = document.getElementById('needleLine');
+  if (needleLine) {
+    if (tuneState === 'in-tune') {
+      needleLine.setAttribute('stroke', 'var(--green)');
+      needleGroup.querySelector('circle').setAttribute('fill', 'var(--green)');
+    } else if (tuneState === 'sharp') {
+      needleLine.setAttribute('stroke', 'var(--pink)');
+      needleGroup.querySelector('circle').setAttribute('fill', 'var(--pink)');
+    } else {
+      needleLine.setAttribute('stroke', 'var(--gold)');
+      needleGroup.querySelector('circle').setAttribute('fill', 'var(--gold)');
+    }
+  }
+
+  // Peg states
+  clearAllPegStates(true); // clear listening states only
+
+  // Activate peg glow if within threshold and not playing reference
+  if (absC < 60 && activeOscString < 0) {
+    const peg = document.getElementById(`peg-${nearestStr}`);
+    if (peg) {
+      if (tuneState === 'in-tune') {
+        peg.classList.add('in-tune');
+      } else {
+        peg.classList.add('listening');
+      }
+    }
+    updatePegBar(nearestStr, cents);
+  }
+}
+
+function updateMeterIdle() {
+  freqReadout.textContent = '— Hz detected';
+  // Let needle drift back toward center
+  displayCents += (0 - displayCents) * 0.1;
+  if (Math.abs(displayCents) > 0.5) setNeedle((displayCents / 100) * 60);
+  clearAllPegStates(true);
+}
+
+function setNeedle(angleDeg) {
+  needleGroup.style.transform = `rotate(${angleDeg}deg)`;
+  needleGroup.style.transformOrigin = '120px 120px';
+}
+
+function updatePegBar(strIdx, cents) {
+  const bar = document.getElementById(`peg-bar-${strIdx}`);
+  if (!bar) return;
+  // Map cents to bar: center = in-tune, left of center = flat, right = sharp
+  const pct = 50 + (Math.max(-50, Math.min(50, cents / 2)));
+  const absC = Math.abs(cents);
+  bar.style.width = '50%';
+  bar.style.transform = `translateX(${(pct - 50) * 2}%)`;
+  bar.style.background = absC <= IN_TUNE_THRESHOLD ? 'var(--green)' :
+                         cents > 0 ? 'var(--pink)' : 'var(--gold)';
+}
+
+/* ── PEG STATE HELPERS ─────────────────────────────────────── */
+function setPegState(i, state) {
+  const peg = document.getElementById(`peg-${i}`);
+  if (!peg) return;
+  peg.classList.remove('listening', 'playing', 'in-tune');
+  if (state !== 'idle') peg.classList.add(state);
+}
+
+function clearAllPegStates(listeningOnly = false) {
+  for (let i = 0; i < stringFreqs.length; i++) {
+    const peg = document.getElementById(`peg-${i}`);
+    if (!peg) continue;
+    peg.classList.remove('listening', 'in-tune');
+    if (!listeningOnly) peg.classList.remove('playing');
+    // Reset bar
+    const bar = document.getElementById(`peg-bar-${i}`);
+    if (bar) { bar.style.width = '50%'; bar.style.transform = 'translateX(0)'; bar.style.background = 'var(--dim)'; }
+  }
+}
+
+/* ── STATUS BAR ─────────────────────────────────────────────── */
+function setStatus(state, msg) {
+  statusText.textContent = msg;
+  statusDot.className = 'status-dot';
+  if (state === 'active') statusDot.classList.add('active');
+  if (state === 'error')  statusDot.classList.add('error');
+}
+
+/* ── SLEEP / AUTO-SLEEP ──────────────────────────────────────── */
+function resetSleepTimer() {
+  if (isSleeping) wakeUp();
+  clearTimeout(sleepTimer);
+  if (isRunning) {
+    sleepTimer = setTimeout(goToSleep, SLEEP_TIMEOUT_MS);
+  }
+}
+
+function goToSleep() {
+  if (!isRunning) return;
+  isSleeping = true;
+  stopOscillator(true);
+  // Suspend AudioContext to save battery
+  if (audioCtx && audioCtx.state === 'running') audioCtx.suspend();
+  // Stop mic stream
+  if (micStream) micStream.getTracks().forEach(t => t.stop());
+  isRunning = false;
+  sleepOverlay.classList.add('visible');
+  setStatus('idle', 'Sleeping — tap to wake');
+  activateBtn.classList.remove('active');
+  activateBtn.textContent = '⬤ Activate Tuner';
+}
+
+function wakeUp() {
+  isSleeping = false;
+  sleepOverlay.classList.remove('visible');
+}
+
+sleepOverlay.addEventListener('click', () => {
+  wakeUp();
+  resetActivity();
+});
+
+function resetActivity() {
+  if (isSleeping) wakeUp();
+  clearTimeout(sleepTimer);
+  if (isRunning) sleepTimer = setTimeout(goToSleep, SLEEP_TIMEOUT_MS);
+}
+
+// Any user interaction resets inactivity timer
+['click','touchstart','keydown'].forEach(evt => {
+  document.addEventListener(evt, resetActivity, { passive: true });
+});
+
+/* ── WAVEFORM CHANGE ─────────────────────────────────────────── */
+waveSelect.addEventListener('change', () => {
+  resetActivity();
+  if (activeOsc) {
+    activeOsc.type = waveSelect.value;
+  }
+});
+
+/* ── INIT ────────────────────────────────────────────────────── */
+loadTuning('standard');
+setStatus('idle', 'Tap activate to begin');
+</script>
+</body>
+</html>
