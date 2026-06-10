@@ -7,9 +7,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=VT323&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
-
 <style>
-/* ── INHERIT SITE DESIGN TOKENS ─────────────────────────────── */
+/* ── DESIGN TOKENS ──────────────────────────────────────────── */
 :root {
   --bg:      #0a0a12;
   --surface: #0d0d1a;
@@ -21,16 +20,8 @@
   --text:    #e0d8f0;
   --muted:   #9988aa;
   --dim:     #443355;
-
-  /* String colours — one per string, top-to-bottom */
-  --s1: #ff4444;   /* E6 — high red    */
-  --s2: #ff9933;   /* B   — orange     */
-  --s3: #ffd700;   /* G   — gold       */
-  --s4: #00ff88;   /* D   — green      */
-  --s5: #00f5ff;   /* A   — cyan       */
-  --s6: #b06aff;   /* E2  — purple     */
-
-  --needle-range: 120deg; /* full deflection, ±60° */
+  --s1: #ff4444; --s2: #ff9933; --s3: #ffd700;
+  --s4: #00ff88; --s5: #00f5ff; --s6: #b06aff;
 }
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -43,394 +34,400 @@ body {
   overflow-x: hidden;
 }
 
-/* CRT scanline overlay (matches site's body::before) */
 body::before {
   content: '';
-  position: fixed;
-  inset: 0;
-  background: repeating-linear-gradient(
-    0deg,
-    transparent,
-    transparent 3px,
-    rgba(0,245,255,0.012) 3px,
-    rgba(0,245,255,0.012) 4px
-  );
-  pointer-events: none;
-  z-index: 900;
+  position: fixed; inset: 0;
+  background: repeating-linear-gradient(0deg, transparent, transparent 3px,
+    rgba(0,245,255,0.012) 3px, rgba(0,245,255,0.012) 4px);
+  pointer-events: none; z-index: 900;
 }
 
-/* ── LAYOUT SHELL ───────────────────────────────────────────── */
+/* ── SHELL ──────────────────────────────────────────────────── */
 .tuner-shell {
   max-width: 480px;
   margin: 0 auto;
   padding: 0 0 40px;
   display: flex;
   flex-direction: column;
-  gap: 0;
 }
 
 /* ── HEADER ─────────────────────────────────────────────────── */
 .tuner-header {
-  padding: 22px 24px 16px;
+  padding: 20px 24px 14px;
   border-bottom: 2px solid var(--cyan);
   display: flex;
   align-items: baseline;
   justify-content: space-between;
   gap: 12px;
 }
-
 .tuner-title {
   font-family: 'VT323', monospace;
-  font-size: 42px;
-  color: var(--cyan);
-  letter-spacing: 4px;
-  line-height: 1;
+  font-size: 42px; color: var(--cyan);
+  letter-spacing: 4px; line-height: 1;
   text-shadow: 0 0 20px rgba(0,245,255,0.5);
 }
-
 .tuner-subtitle {
-  font-size: 9px;
-  color: var(--muted);
-  letter-spacing: 3px;
-  text-transform: uppercase;
-  text-align: right;
-  line-height: 1.6;
+  font-size: 9px; color: var(--muted);
+  letter-spacing: 3px; text-transform: uppercase;
+  text-align: right; line-height: 1.6;
 }
 
 /* ── CONTROL PANEL ──────────────────────────────────────────── */
 .control-panel {
-  padding: 16px 20px;
+  padding: 12px 20px;
   background: var(--surface);
   border-bottom: 1px solid #ffffff0d;
   display: flex;
   flex-wrap: wrap;
-  gap: 14px;
+  gap: 10px;
   align-items: flex-end;
 }
-
 .ctrl-group {
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-  flex: 1;
-  min-width: 120px;
+  display: flex; flex-direction: column;
+  gap: 4px; flex: 1; min-width: 110px;
 }
-
 .ctrl-group label {
-  font-size: 8px;
-  color: var(--cyan);
-  letter-spacing: 3px;
-  text-transform: uppercase;
+  font-size: 8px; color: var(--cyan);
+  letter-spacing: 3px; text-transform: uppercase;
 }
-
 .ctrl-select {
-  background: #06060f;
-  color: var(--text);
+  background: #06060f; color: var(--text);
   border: 1px solid var(--dim);
   font-family: 'Space Mono', monospace;
-  font-size: 10px;
-  letter-spacing: 1px;
-  padding: 7px 10px;
-  outline: none;
-  cursor: pointer;
+  font-size: 10px; letter-spacing: 1px;
+  padding: 6px 28px 6px 10px;
+  outline: none; cursor: pointer;
   transition: border-color 0.2s;
-  appearance: none;
-  -webkit-appearance: none;
+  appearance: none; -webkit-appearance: none;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%239988aa'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
   background-position: right 10px center;
-  padding-right: 28px;
+}
+.ctrl-select:hover, .ctrl-select:focus { border-color: var(--cyan); }
+
+/* A4 number input */
+.ctrl-number {
+  background: #06060f; color: var(--text);
+  border: 1px solid var(--dim);
+  font-family: 'Space Mono', monospace;
+  font-size: 10px; letter-spacing: 1px;
+  padding: 6px 8px;
+  outline: none; width: 100%;
+  transition: border-color 0.2s;
+  -moz-appearance: textfield;
+}
+.ctrl-number::-webkit-outer-spin-button,
+.ctrl-number::-webkit-inner-spin-button { -webkit-appearance: none; }
+.ctrl-number:hover, .ctrl-number:focus { border-color: var(--cyan); }
+
+/* ── MODE TOGGLE ROW ────────────────────────────────────────── */
+.mode-row {
+  padding: 8px 20px;
+  display: flex;
+  gap: 8px;
+  background: var(--surface);
+  border-bottom: 1px solid #ffffff0d;
+  flex-wrap: wrap;
+}
+.mode-btn {
+  flex: 1; min-width: 80px;
+  padding: 7px 10px;
+  background: #06060f;
+  border: 1px solid var(--dim);
+  color: var(--muted);
+  font-family: 'Space Mono', monospace;
+  font-size: 9px; letter-spacing: 2px;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.mode-btn.active {
+  border-color: var(--cyan);
+  color: var(--cyan);
+  background: rgba(0,245,255,0.06);
+  text-shadow: 0 0 8px rgba(0,245,255,0.5);
 }
 
-.ctrl-select:hover, .ctrl-select:focus { border-color: var(--cyan); }
+/* ── STATUS STRIP ───────────────────────────────────────────── */
+.status-strip {
+  margin: 8px 20px 0;
+  padding: 7px 14px;
+  background: var(--surface);
+  border: 1px solid #ffffff0d;
+  font-size: 9px; color: var(--dim);
+  letter-spacing: 2px; text-transform: uppercase;
+  display: flex; align-items: center; gap: 8px;
+}
+.status-dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--dim); flex-shrink: 0;
+  transition: background 0.3s, box-shadow 0.3s;
+}
+.status-dot.active {
+  background: var(--green);
+  box-shadow: 0 0 8px rgba(0,255,136,0.6);
+  animation: dot-pulse 1.5s ease-in-out infinite;
+}
+.status-dot.error { background: var(--pink); box-shadow: 0 0 8px rgba(255,45,120,0.6); }
+@keyframes dot-pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+
+/* ── MIC ERROR ──────────────────────────────────────────────── */
+.mic-error {
+  margin: 10px 20px 0;
+  padding: 10px 14px;
+  border: 1px solid var(--pink);
+  background: rgba(255,45,120,0.06);
+  font-size: 10px; color: var(--pink);
+  letter-spacing: 1px; line-height: 1.7;
+  display: none;
+}
+.mic-error.visible { display: block; }
 
 /* ── METER SECTION ──────────────────────────────────────────── */
 .meter-section {
-  padding: 20px 20px 20px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+  padding: 18px 20px 18px;
+  display: flex; flex-direction: column;
+  align-items: center; gap: 8px;
+  position: relative;
+}
+
+/* Detected note */
+.detected-note {
+  font-family: 'VT323', monospace;
+  font-size: 64px; color: var(--text);
+  letter-spacing: 4px; line-height: 1;
+  text-shadow: 0 0 12px rgba(255,255,255,0.15);
+  transition: color 0.2s, text-shadow 0.2s;
+  min-height: 64px; text-align: center;
+}
+.detected-note.in-tune { color: var(--green); text-shadow: 0 0 24px rgba(0,255,136,0.7); }
+.detected-note.sharp   { color: var(--pink);  text-shadow: 0 0 24px rgba(255,45,120,0.7); }
+.detected-note.flat    { color: var(--gold);  text-shadow: 0 0 24px rgba(255,215,0,0.7); }
+
+/* ── NEEDLE METER ───────────────────────────────────────────── */
+.dial-wrap {
+  position: relative; width: 240px; height: 130px;
+  overflow: visible;
+}
+.dial-wrap.hidden { display: none; }
+.dial-svg { width: 100%; height: 100%; overflow: visible; }
+.needle-group {
+  transform-origin: 120px 120px;
+  transition: transform 0.18s cubic-bezier(0.25,0.46,0.45,0.94);
+}
+
+/* ── STROBE METER ───────────────────────────────────────────── */
+.strobe-wrap {
+  width: 240px; height: 130px;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
   gap: 10px;
   position: relative;
 }
-
-/* Detected note readout */
-.detected-note {
-  font-family: 'VT323', monospace;
-  font-size: 64px;
-  color: var(--text);
-  letter-spacing: 4px;
-  line-height: 1;
-  text-shadow: 0 0 12px rgba(255,255,255,0.15);
-  transition: color 0.2s, text-shadow 0.2s;
-  min-height: 64px;
-  text-align: center;
-}
-
-.detected-note.in-tune   { color: var(--green); text-shadow: 0 0 24px rgba(0,255,136,0.7); }
-.detected-note.sharp     { color: var(--pink);  text-shadow: 0 0 24px rgba(255,45,120,0.7); }
-.detected-note.flat      { color: var(--gold);  text-shadow: 0 0 24px rgba(255,215,0,0.7); }
-
-/* Dial / VU Meter */
-.dial-wrap {
+.strobe-wrap.hidden { display: none; }
+.strobe-disc-outer {
+  width: 110px; height: 110px;
+  border-radius: 50%;
+  background: #06060f;
+  border: 2px solid var(--dim);
   position: relative;
-  width: 240px;
-  height: 130px;
-  overflow: visible;
+  overflow: hidden;
+  display: flex; align-items: center; justify-content: center;
+}
+.strobe-disc {
+  width: 100%; height: 100%;
+  border-radius: 50%;
+  position: absolute;
+  /* Stripes painted via JS canvas */
+}
+canvas#strobeCanvas {
+  position: absolute; inset: 0;
+  border-radius: 50%;
+}
+.strobe-label {
+  font-size: 9px; color: var(--dim);
+  letter-spacing: 2px; text-transform: uppercase;
 }
 
-.dial-svg {
-  width: 100%;
-  height: 100%;
-  overflow: visible;
+/* ── CONFIDENCE BAR ─────────────────────────────────────────── */
+.confidence-wrap {
+  width: 100%; max-width: 240px;
+  display: flex; flex-direction: column; gap: 3px;
+}
+.confidence-label {
+  font-size: 8px; color: var(--dim);
+  letter-spacing: 2px; text-transform: uppercase;
+  display: flex; justify-content: space-between;
+}
+.confidence-track {
+  height: 4px; background: #0d0d1a;
+  border: 1px solid #ffffff0d;
+  position: relative; overflow: hidden;
+}
+.confidence-fill {
+  height: 100%; width: 0%;
+  background: var(--dim);
+  transition: width 0.1s, background 0.2s;
 }
 
-/* Needle */
-.needle-group {
-  transform-origin: 120px 120px; /* pivot at arc center */
-  transition: transform 0.18s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+/* ── STABILITY LOCK ─────────────────────────────────────────── */
+.stability-wrap {
+  display: flex; align-items: center; gap: 8px;
+}
+.lock-icon {
+  font-size: 14px;
+  opacity: 0.25;
+  transition: opacity 0.3s, filter 0.3s;
+  filter: none;
+}
+.lock-icon.locked {
+  opacity: 1;
+  filter: drop-shadow(0 0 6px var(--green));
+  color: var(--green);
+}
+.stability-bar-track {
+  flex: 1; height: 3px;
+  background: #0d0d1a;
+  border: 1px solid #ffffff0d;
+  overflow: hidden; max-width: 140px;
+}
+.stability-bar-fill {
+  height: 100%; width: 0%;
+  background: var(--dim);
+  transition: width 0.15s, background 0.3s;
 }
 
+/* ── READOUTS ───────────────────────────────────────────────── */
 .cents-readout {
   font-family: 'VT323', monospace;
-  font-size: 20px;
-  letter-spacing: 2px;
-  color: var(--muted);
-  text-align: center;
-  min-height: 24px;
-  transition: color 0.2s;
+  font-size: 20px; letter-spacing: 2px;
+  color: var(--muted); text-align: center;
+  min-height: 24px; transition: color 0.2s;
 }
-
 .cents-readout.in-tune { color: var(--green); }
 .cents-readout.sharp   { color: var(--pink); }
 .cents-readout.flat    { color: var(--gold); }
-
-/* Freq debug line */
 .freq-readout {
-  font-size: 9px;
-  color: var(--dim);
-  letter-spacing: 2px;
-  text-transform: uppercase;
+  font-size: 9px; color: var(--dim);
+  letter-spacing: 2px; text-transform: uppercase;
   min-height: 14px;
 }
 
 /* ── ACTIVATE BUTTON ────────────────────────────────────────── */
 .activate-btn {
-  margin: 16px 0 0;
-  padding: 14px;
+  margin: 14px 0 0; padding: 13px;
   background: transparent;
   border: 1px solid var(--cyan);
   color: var(--cyan);
   font-family: 'Space Mono', monospace;
-  font-size: 11px;
-  letter-spacing: 3px;
+  font-size: 11px; letter-spacing: 3px;
   text-transform: uppercase;
-  cursor: pointer;
-  width: 100%;
+  cursor: pointer; width: 100%;
   transition: background 0.2s, box-shadow 0.2s, color 0.2s;
   text-shadow: 0 0 8px rgba(0,245,255,0.5);
 }
-
 .activate-btn:hover {
   background: rgba(0,245,255,0.06);
   box-shadow: 0 0 16px rgba(0,245,255,0.25);
 }
-
 .activate-btn.active {
   background: rgba(255,45,120,0.06);
-  border-color: var(--pink);
-  color: var(--pink);
+  border-color: var(--pink); color: var(--pink);
   text-shadow: 0 0 8px rgba(255,45,120,0.5);
 }
 
-/* ── HEADSTOCK / PEG SECTION ────────────────────────────────── */
+/* ── HEADSTOCK WRAP ─────────────────────────────────────────── */
 .headstock-label {
-  padding: 20px 20px 10px;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  font-size: 9px;
-  color: var(--cyan);
-  letter-spacing: 3px;
-  text-transform: uppercase;
+  padding: 18px 20px 10px;
+  display: flex; align-items: center; gap: 10px;
+  font-size: 9px; color: var(--cyan);
+  letter-spacing: 3px; text-transform: uppercase;
 }
-
 .headstock-label::after {
-  content: '';
-  flex: 1;
-  height: 1px;
-  background: #00f5ff33;
+  content: ''; flex: 1; height: 1px; background: #00f5ff33;
 }
+.headstock { padding: 0 20px; display: flex; flex-direction: column; gap: 9px; }
 
-/* 6 pegs in a column — inline headstock layout */
-.headstock {
-  padding: 0 20px;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-/* Individual peg row */
+/* ── PEG ROW ────────────────────────────────────────────────── */
 .peg-row {
   display: grid;
   grid-template-columns: 44px 1fr 44px;
-  gap: 8px;
-  align-items: center;
+  gap: 7px; align-items: center;
 }
-
-/* Down/Up nudge buttons */
 .nudge-btn {
-  width: 44px;
-  height: 44px;
+  width: 44px; height: 44px;
   background: #06060f;
-  border: 1px solid var(--dim);
-  color: var(--muted);
-  font-size: 18px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: background 0.15s, border-color 0.15s, color 0.15s;
-  flex-shrink: 0;
-  touch-action: manipulation;
+  border: 1px solid var(--dim); color: var(--muted);
+  font-size: 16px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: background 0.12s, border-color 0.12s, color 0.12s;
+  flex-shrink: 0; touch-action: manipulation;
+  -webkit-user-select: none; user-select: none;
 }
-
-.nudge-btn:active {
+.nudge-btn:active, .nudge-btn.nudging {
   background: rgba(0,245,255,0.08);
-  border-color: var(--cyan);
-  color: var(--cyan);
+  border-color: var(--cyan); color: var(--cyan);
 }
-
-/* The peg button itself */
 .peg {
-  position: relative;
-  background: var(--surface);
+  position: relative; background: var(--surface);
   border: 1px solid var(--dim);
-  padding: 12px 16px;
+  padding: 10px 14px;
   cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px;
-  touch-action: manipulation;
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 8px; touch-action: manipulation;
   transition: background 0.15s, border-color 0.2s, box-shadow 0.2s;
-  min-height: 64px;
+  min-height: 60px;
 }
-
-/* String number badge */
 .peg-string-num {
-  font-size: 9px;
-  color: var(--dim);
-  letter-spacing: 1px;
-  min-width: 14px;
+  font-size: 9px; color: var(--dim);
+  letter-spacing: 1px; min-width: 14px;
 }
-
-/* Note name — large tap target */
 .peg-note {
   font-family: 'VT323', monospace;
-  font-size: 40px;
-  line-height: 1;
-  letter-spacing: 2px;
-  flex: 1;
-  text-align: center;
+  font-size: 38px; line-height: 1; letter-spacing: 2px;
+  flex: 1; text-align: center;
   transition: color 0.2s, text-shadow 0.2s;
 }
-
-/* Hz readout inside peg */
 .peg-hz {
-  font-size: 9px;
-  color: var(--dim);
-  letter-spacing: 1px;
-  text-align: right;
-  min-width: 52px;
-  transition: color 0.2s;
+  font-size: 9px; color: var(--dim);
+  letter-spacing: 1px; text-align: right;
+  min-width: 52px; transition: color 0.2s;
 }
-
-/* Mini bar showing tuning deviation inside peg */
 .peg-bar-wrap {
-  position: absolute;
-  bottom: 0; left: 0; right: 0;
-  height: 3px;
-  background: transparent;
-  overflow: hidden;
+  position: absolute; bottom: 0; left: 0; right: 0;
+  height: 3px; background: transparent; overflow: hidden;
 }
-
 .peg-bar {
-  height: 100%;
-  width: 50%;
-  background: var(--dim);
+  height: 100%; width: 50%; background: var(--dim);
   transform-origin: center;
-  transition: width 0.15s, background 0.15s, transform 0.15s;
+  transition: width 0.12s, background 0.12s, transform 0.12s;
 }
 
-/* ── PEG STATES (per-string colour vars injected inline) ─────── */
-
-/* Idle — default */
-/* Active Listening — mic detecting this string */
-.peg.listening {
-  background: rgba(0,0,0,0.4);
-  animation: peg-listen-pulse 1.4s ease-in-out infinite;
-}
-
+/* ── PEG STATES ─────────────────────────────────────────────── */
+.peg.listening { background: rgba(0,0,0,0.4); animation: peg-listen-pulse 1.4s ease-in-out infinite; }
 @keyframes peg-listen-pulse {
-  0%, 100% { box-shadow: 0 0 0 rgba(255,255,255,0); }
-  50%       { box-shadow: 0 0 14px var(--peg-color, var(--cyan)); }
+  0%,100%{ box-shadow: 0 0 0 rgba(255,255,255,0); }
+  50%    { box-shadow: 0 0 14px var(--peg-color, var(--cyan)); }
 }
-
-.peg.listening .peg-note {
-  color: var(--peg-color, var(--cyan));
-  text-shadow: 0 0 12px var(--peg-color, var(--cyan));
-}
-
-.peg.listening .peg-hz {
-  color: var(--peg-color, var(--cyan));
-}
-
-/* Reference tone playing */
-.peg.playing {
-  animation: peg-play-pulse 0.8s ease-in-out infinite;
-  background: rgba(0,0,0,0.5);
-}
-
+.peg.listening .peg-note { color: var(--peg-color, var(--cyan)); text-shadow: 0 0 12px var(--peg-color, var(--cyan)); }
+.peg.listening .peg-hz   { color: var(--peg-color, var(--cyan)); }
+.peg.playing { animation: peg-play-pulse 0.8s ease-in-out infinite; background: rgba(0,0,0,0.5); border-color: var(--peg-color, var(--cyan)); }
 @keyframes peg-play-pulse {
-  0%, 100% { box-shadow: 0 0 6px var(--peg-color, var(--cyan)), inset 0 0 8px rgba(0,0,0,0.3); }
-  50%       { box-shadow: 0 0 22px var(--peg-color, var(--cyan)), inset 0 0 14px rgba(0,0,0,0.2); }
+  0%,100%{ box-shadow: 0 0 6px var(--peg-color, var(--cyan)); }
+  50%    { box-shadow: 0 0 22px var(--peg-color, var(--cyan)); }
 }
+.peg.playing .peg-note { color: var(--peg-color, var(--cyan)); text-shadow: 0 0 16px var(--peg-color, var(--cyan)); animation: peg-note-breathe 0.8s ease-in-out infinite; }
+@keyframes peg-note-breathe { 0%,100%{opacity:1} 50%{opacity:0.65} }
+.peg.in-tune { box-shadow: 0 0 20px rgba(0,255,136,0.5) !important; border-color: var(--green) !important; animation: none !important; }
+.peg.in-tune .peg-note { color: var(--green) !important; text-shadow: 0 0 18px rgba(0,255,136,0.8) !important; animation: none !important; }
 
-.peg.playing .peg-note {
-  color: var(--peg-color, var(--cyan));
-  text-shadow: 0 0 16px var(--peg-color, var(--cyan));
-  animation: peg-note-breathe 0.8s ease-in-out infinite;
-}
-
-@keyframes peg-note-breathe {
-  0%, 100% { opacity: 1; }
-  50%       { opacity: 0.7; }
-}
-
-.peg.playing { border-color: var(--peg-color, var(--cyan)); }
-
-/* In-tune highlight */
-.peg.in-tune {
-  box-shadow: 0 0 20px rgba(0,255,136,0.5) !important;
-  border-color: var(--green) !important;
-  animation: none !important;
-}
-
-.peg.in-tune .peg-note {
-  color: var(--green) !important;
-  text-shadow: 0 0 18px rgba(0,255,136,0.8) !important;
-  animation: none !important;
-}
-
-/* ── STRING COLOUR ASSIGNMENT ───────────────────────────────── */
+/* String colour vars */
 .peg[data-string="1"] { --peg-color: var(--s1); }
 .peg[data-string="2"] { --peg-color: var(--s2); }
 .peg[data-string="3"] { --peg-color: var(--s3); }
 .peg[data-string="4"] { --peg-color: var(--s4); }
 .peg[data-string="5"] { --peg-color: var(--s5); }
 .peg[data-string="6"] { --peg-color: var(--s6); }
-
 .peg[data-string="1"] .peg-string-num { color: var(--s1); }
 .peg[data-string="2"] .peg-string-num { color: var(--s2); }
 .peg[data-string="3"] .peg-string-num { color: var(--s3); }
@@ -440,184 +437,80 @@ body::before {
 
 /* ── SLEEP OVERLAY ──────────────────────────────────────────── */
 .sleep-overlay {
-  position: fixed;
-  inset: 0;
+  position: fixed; inset: 0;
   background: rgba(10,10,18,0.94);
   z-index: 800;
-  display: none;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 18px;
-  cursor: pointer;
+  display: none; flex-direction: column;
+  align-items: center; justify-content: center;
+  gap: 16px; cursor: pointer;
   backdrop-filter: blur(4px);
 }
-
 .sleep-overlay.visible { display: flex; }
-
-.sleep-icon {
-  font-family: 'VT323', monospace;
-  font-size: 72px;
-  color: var(--dim);
-  letter-spacing: 4px;
-  text-shadow: 0 0 18px rgba(68,51,85,0.8);
-  animation: blink 2s step-end infinite;
-}
-
-@keyframes blink { 50% { opacity: 0; } }
-
-.sleep-label {
-  font-size: 10px;
-  color: var(--muted);
-  letter-spacing: 4px;
-  text-transform: uppercase;
-}
-
-/* ── MIC ERROR BANNER ───────────────────────────────────────── */
-.mic-error {
-  margin: 12px 20px 0;
-  padding: 12px 16px;
-  border: 1px solid var(--pink);
-  background: rgba(255,45,120,0.06);
-  font-size: 10px;
-  color: var(--pink);
-  letter-spacing: 1px;
-  line-height: 1.7;
-  display: none;
-}
-
-.mic-error.visible { display: block; }
-
-/* ── STATUS STRIP ────────────────────────────────────────────── */
-.status-strip {
-  margin: 10px 20px 0;
-  padding: 8px 14px;
-  background: var(--surface);
-  border: 1px solid #ffffff0d;
-  font-size: 9px;
-  color: var(--dim);
-  letter-spacing: 2px;
-  text-transform: uppercase;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.status-dot {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: var(--dim);
-  flex-shrink: 0;
-  transition: background 0.3s, box-shadow 0.3s;
-}
-
-.status-dot.active {
-  background: var(--green);
-  box-shadow: 0 0 8px rgba(0,255,136,0.6);
-  animation: dot-pulse 1.5s ease-in-out infinite;
-}
-
-@keyframes dot-pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.4; }
-}
-
-.status-dot.error { background: var(--pink); box-shadow: 0 0 8px rgba(255,45,120,0.6); animation: none; }
+.sleep-icon { font-family:'VT323',monospace; font-size:72px; color:var(--dim); letter-spacing:4px; animation: blink 2s step-end infinite; }
+.sleep-label { font-size:10px; color:var(--muted); letter-spacing:4px; text-transform:uppercase; }
+@keyframes blink { 50%{opacity:0} }
 
 /* ── FOOTER ─────────────────────────────────────────────────── */
 .tuner-footer {
-  margin-top: 28px;
-  padding: 14px 24px;
+  margin-top: 24px; padding: 12px 24px;
   border-top: 1px solid #00f5ff22;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  background: #07070f;
-  font-size: 9px;
-  color: var(--dim);
-  letter-spacing: 2px;
-  text-transform: uppercase;
+  display: flex; justify-content: space-between; align-items: center;
+  background: #07070f; flex-wrap: wrap; gap: 6px;
+  font-size: 9px; color: var(--dim);
+  letter-spacing: 2px; text-transform: uppercase;
 }
+.blink { animation: blink 1.2s step-end infinite; }
 
 /* ── DESKTOP LAYOUT ─────────────────────────────────────────── */
 @media (min-width: 800px) {
-  body { padding: 32px 24px 48px; }
+  body { padding: 28px 24px 48px; }
 
   .tuner-shell {
-    max-width: 960px;
+    max-width: 980px;
     display: grid;
     grid-template-columns: 1fr 380px;
-    grid-template-rows: auto auto auto auto 1fr auto;
     grid-template-areas:
       "header   header"
       "controls controls"
+      "modes    modes"
       "error    error"
       "status   status"
       "meter    strings"
       "footer   footer";
-    gap: 0;
   }
 
-  .tuner-header  { grid-area: header; }
-  .control-panel { grid-area: controls; }
-  .mic-error     { grid-area: error; }
-  .status-strip  { grid-area: status; }
-  .meter-section { grid-area: meter; border-right: 1px solid #ffffff0d; padding: 32px 40px; }
-  .headstock-wrap { grid-area: strings; }
-  .tuner-footer  { grid-area: footer; }
+  .tuner-header   { grid-area: header; }
+  .control-panel  { grid-area: controls; }
+  .mode-row       { grid-area: modes; }
+  .mic-error      { grid-area: error; margin: 8px 20px 0; }
+  .status-strip   { grid-area: status; }
+  .meter-section  { grid-area: meter; border-right: 1px solid #ffffff0d; padding: 28px 40px 28px; justify-content: center; }
+  .headstock-wrap { grid-area: strings; display: flex; flex-direction: column; background: var(--surface); }
+  .tuner-footer   { grid-area: footer; }
 
-  /* Meter gets more vertical room, dial scales up */
-  .meter-section {
-    justify-content: center;
-    padding-top: 36px;
-  }
+  .tuner-title    { font-size: 60px; }
+  .detected-note  { font-size: 96px; min-height: 96px; }
+  .dial-wrap      { width: 320px; height: 174px; }
+  .strobe-wrap    { width: 320px; height: 174px; }
+  .strobe-disc-outer { width: 140px; height: 140px; }
+  .cents-readout  { font-size: 26px; }
+  .freq-readout   { font-size: 11px; }
+  .confidence-wrap { max-width: 320px; }
 
-  .detected-note { font-size: 96px; min-height: 96px; }
+  .headstock-label { padding: 22px 24px 10px; border-bottom: 1px solid #ffffff08; }
+  .headstock { padding: 14px 20px; gap: 8px; flex: 1; }
+  .peg { min-height: 56px; }
+  .peg-note { font-size: 34px; }
 
-  .dial-wrap { width: 340px; height: 185px; }
-
-  .cents-readout { font-size: 28px; }
-  .freq-readout  { font-size: 11px; }
-
-  /* Right column: strings panel */
-  .headstock-wrap {
-    display: flex;
-    flex-direction: column;
-    background: var(--surface);
-  }
-
-  .headstock-label {
-    padding: 24px 24px 12px;
-    border-bottom: 1px solid #ffffff08;
-    margin-bottom: 0;
-  }
-
-  .headstock {
-    padding: 16px 20px;
-    gap: 8px;
-    flex: 1;
-  }
-
-  /* Slightly more generous peg sizing on desktop */
-  .peg { min-height: 58px; }
-  .peg-note { font-size: 36px; }
-
-  /* Activate button is now inside .meter-section — full width within that column */
-  .activate-btn {
-    margin: 16px 0 0;
-    width: 100%;
-  }
-
-  .tuner-title { font-size: 64px; }
+  .activate-btn { margin: 16px 0 0; width: 100%; }
 }
 
 @media (min-width: 1100px) {
   .tuner-shell { max-width: 1080px; grid-template-columns: 1fr 420px; }
-  .dial-wrap   { width: 380px; height: 206px; }
+  .dial-wrap   { width: 360px; height: 195px; }
+  .strobe-wrap { width: 360px; height: 195px; }
 }
 
-/* Reduced motion */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation: none !important; transition: none !important; }
 }
@@ -625,19 +518,16 @@ body::before {
 </head>
 <body>
 
-<!-- ── SLEEP OVERLAY ─────────────────────────────────────────── -->
 <div class="sleep-overlay" id="sleepOverlay" role="dialog" aria-label="Tuner sleeping">
   <div class="sleep-icon">ZZZ</div>
   <div class="sleep-label">Tap to wake up</div>
 </div>
 
-<!-- ── MAIN SHELL ────────────────────────────────────────────── -->
 <main class="tuner-shell">
 
-  <!-- Header -->
   <header class="tuner-header">
     <div class="tuner-title">TUNER</div>
-    <div class="tuner-subtitle">Carl William Music<br>Web Audio API v2</div>
+    <div class="tuner-subtitle">Carl William Music<br>Web Audio API v3</div>
   </header>
 
   <!-- Control Panel -->
@@ -659,15 +549,25 @@ body::before {
         <option value="sawtooth">Sawtooth</option>
       </select>
     </div>
+    <div class="ctrl-group" style="min-width:90px;max-width:130px;">
+      <label for="a4Input">A4 Ref (Hz)</label>
+      <input class="ctrl-number" type="number" id="a4Input"
+             min="430" max="450" step="1" value="440">
+    </div>
   </div>
 
-  <!-- Mic Error -->
+  <!-- Mode Toggle Row -->
+  <div class="mode-row">
+    <button class="mode-btn active" id="btnNeedle">◈ Needle</button>
+    <button class="mode-btn" id="btnStrobe">⦿ Strobe</button>
+    <button class="mode-btn active" id="btnChromatic" data-active="false">𝄞 Chromatic</button>
+  </div>
+
   <div class="mic-error" id="micError">
     ⚠ Microphone access denied or unavailable.<br>
     Grant mic permission in your browser settings and tap Activate Tuner again.
   </div>
 
-  <!-- Status strip -->
   <div class="status-strip">
     <div class="status-dot" id="statusDot"></div>
     <span id="statusText">Tap activate to begin</span>
@@ -675,26 +575,16 @@ body::before {
 
   <!-- Meter Section -->
   <div class="meter-section">
+
     <div class="detected-note" id="detectedNote">—</div>
 
-    <!-- Dial meter (SVG) -->
-    <div class="dial-wrap" aria-hidden="true">
-      <svg class="dial-svg" id="dialSvg" viewBox="0 0 240 130" xmlns="http://www.w3.org/2000/svg">
-        <!-- Arc track: flat=left, sharp=right, in-tune=center -->
-        <!-- Background arc -->
-        <path d="M 20 120 A 100 100 0 0 1 220 120"
-              fill="none" stroke="#1a1a2e" stroke-width="18" stroke-linecap="round"/>
-        <!-- Flat zone (left) -->
-        <path d="M 20 120 A 100 100 0 0 1 80 35"
-              fill="none" stroke="rgba(255,215,0,0.25)" stroke-width="18" stroke-linecap="round"/>
-        <!-- In-tune zone (center) -->
-        <path d="M 108 20.5 A 100 100 0 0 1 132 20.5"
-              fill="none" stroke="rgba(0,255,136,0.35)" stroke-width="20" stroke-linecap="round"/>
-        <!-- Sharp zone (right) -->
-        <path d="M 160 35 A 100 100 0 0 1 220 120"
-              fill="none" stroke="rgba(255,45,120,0.25)" stroke-width="18" stroke-linecap="round"/>
-
-        <!-- Tick marks -->
+    <!-- NEEDLE meter -->
+    <div class="dial-wrap" id="dialWrap" aria-hidden="true">
+      <svg class="dial-svg" viewBox="0 0 240 130" xmlns="http://www.w3.org/2000/svg">
+        <path d="M 20 120 A 100 100 0 0 1 220 120" fill="none" stroke="#1a1a2e" stroke-width="18" stroke-linecap="round"/>
+        <path d="M 20 120 A 100 100 0 0 1 80 35"   fill="none" stroke="rgba(255,215,0,0.22)"  stroke-width="18" stroke-linecap="round"/>
+        <path d="M 108 20.5 A 100 100 0 0 1 132 20.5" fill="none" stroke="rgba(0,255,136,0.35)" stroke-width="20" stroke-linecap="round"/>
+        <path d="M 160 35 A 100 100 0 0 1 220 120" fill="none" stroke="rgba(255,45,120,0.22)"  stroke-width="18" stroke-linecap="round"/>
         <g stroke="#443355" stroke-width="1">
           <line x1="120" y1="20" x2="120" y2="10" transform="rotate(-60 120 120)"/>
           <line x1="120" y1="20" x2="120" y2="10" transform="rotate(-30 120 120)"/>
@@ -702,46 +592,58 @@ body::before {
           <line x1="120" y1="20" x2="120" y2="10" transform="rotate(30 120 120)"/>
           <line x1="120" y1="20" x2="120" y2="10" transform="rotate(60 120 120)"/>
         </g>
-        <!-- Center tick (in-tune) — brighter -->
         <line x1="120" y1="22" x2="120" y2="8" stroke="rgba(0,255,136,0.6)" stroke-width="2"/>
-
-        <!-- Labels -->
-        <text x="16" y="116" font-family="Space Mono,monospace" font-size="8" fill="#ffd700" letter-spacing="0">♭</text>
-        <text x="114" y="11" font-family="Space Mono,monospace" font-size="8" fill="rgba(0,255,136,0.7)" text-anchor="middle">✓</text>
-        <text x="222" y="116" font-family="Space Mono,monospace" font-size="8" fill="#ff2d78">#</text>
-
-        <!-- Needle -->
-        <g class="needle-group" id="needleGroup">
-          <!-- Needle shaft -->
-          <line x1="120" y1="120" x2="120" y2="26"
-                stroke="var(--cyan)" stroke-width="2" stroke-linecap="round"
-                id="needleLine"/>
-          <!-- Needle tip glow -->
-          <circle cx="120" cy="26" r="3" fill="var(--cyan)" opacity="0.9"
-                  style="filter: drop-shadow(0 0 4px var(--cyan))"/>
-          <!-- Pivot -->
-          <circle cx="120" cy="120" r="5" fill="#0d0d1a" stroke="var(--cyan)" stroke-width="1.5"/>
-          <circle cx="120" cy="120" r="2" fill="var(--cyan)"/>
+        <text x="16"  y="116" font-family="Space Mono,monospace" font-size="9" fill="#ffd700">♭</text>
+        <text x="114" y="11"  font-family="Space Mono,monospace" font-size="8" fill="rgba(0,255,136,0.7)" text-anchor="middle">✓</text>
+        <text x="222" y="116" font-family="Space Mono,monospace" font-size="9" fill="#ff2d78">#</text>
+        <g id="needleGroup" style="transform-origin:120px 120px">
+          <line id="needleLine" x1="120" y1="120" x2="120" y2="26" stroke="var(--cyan)" stroke-width="2.5" stroke-linecap="round"/>
+          <circle cx="120" cy="26" r="3.5" fill="var(--cyan)" style="filter:drop-shadow(0 0 4px var(--cyan))"/>
+          <circle cx="120" cy="120" r="5.5" fill="#0d0d1a" stroke="var(--cyan)" stroke-width="1.5"/>
+          <circle cx="120" cy="120" r="2.5" fill="var(--cyan)"/>
         </g>
       </svg>
     </div>
 
-    <div class="cents-readout" id="centsReadout">— ¢</div>
-    <div class="freq-readout" id="freqReadout">— Hz detected</div>
+    <!-- STROBE meter -->
+    <div class="strobe-wrap hidden" id="strobeWrap" aria-hidden="true">
+      <div class="strobe-disc-outer">
+        <canvas id="strobeCanvas" width="200" height="200"></canvas>
+      </div>
+      <div class="strobe-label" id="strobeLabel">— strobe —</div>
+    </div>
 
-    <!-- Activate button lives inside the meter column -->
+    <!-- Confidence bar -->
+    <div class="confidence-wrap">
+      <div class="confidence-label">
+        <span>Signal confidence</span>
+        <span id="confPct">0%</span>
+      </div>
+      <div class="confidence-track">
+        <div class="confidence-fill" id="confFill"></div>
+      </div>
+    </div>
+
+    <!-- Stability lock -->
+    <div class="stability-wrap">
+      <span class="lock-icon" id="lockIcon">🔒</span>
+      <div class="stability-bar-track">
+        <div class="stability-bar-fill" id="stabilityFill"></div>
+      </div>
+    </div>
+
+    <div class="cents-readout" id="centsReadout">— ¢</div>
+    <div class="freq-readout"  id="freqReadout">— Hz detected</div>
+
     <button class="activate-btn" id="activateBtn">⬤ Activate Tuner</button>
   </div>
 
-  <!-- Strings (right column on desktop) -->
+  <!-- Strings panel -->
   <div class="headstock-wrap">
     <div class="headstock-label">Strings</div>
-    <div class="headstock" id="headstock">
-      <!-- Pegs injected by JS -->
-    </div>
+    <div class="headstock" id="headstock"></div>
   </div>
 
-  <!-- Footer -->
   <footer class="tuner-footer">
     <span>Carl William Music</span>
     <span class="blink">■</span>
@@ -751,288 +653,365 @@ body::before {
 </main>
 
 <script>
-/* ================================================================
-   CARL WILLIAM MUSIC — GUITAR TUNER
-   Web Audio API + Autocorrelation pitch detection
-   ================================================================ */
-
 'use strict';
 
-/* ── TUNING PRESETS ─────────────────────────────────────────── */
-const TUNINGS = {
-  standard: { label: 'Standard',    notes: ['E2','A2','D3','G3','B3','E4'] },
-  dropd:    { label: 'Drop D',      notes: ['D2','A2','D3','G3','B3','E4'] },
-  dadgad:   { label: 'DADGAD',      notes: ['D2','A2','D3','G3','A3','D4'] },
-  halfdown: { label: 'Half-Step ↓', notes: ['Eb2','Ab2','Db3','Gb3','Bb3','Eb4'] },
-};
-// Correct MIDI mapping: C4 = midi 60, A4 = midi 69 = 440 Hz
-// E2 = midi 40 ≈ 82 Hz, A2 = 45 ≈ 110 Hz, D3 = 50 ≈ 147 Hz,
-// G3 = 55 ≈ 196 Hz, B3 = 59 ≈ 247 Hz, E4 = 64 ≈ 330 Hz  ✓
+/* ================================================================
+   CARL WILLIAM MUSIC — GUITAR TUNER  v3
+   New in this version:
+     • Chromatic mode (any note, not just the 6 strings)
+     • A4 reference pitch adjustment (430–450 Hz)
+     • Stability lock indicator (0.5s stable before lighting)
+     • Signal confidence bar (autocorrelation score)
+     • Strobe disc mode (freezes when in-tune)
+     • Haptic feedback on in-tune (navigator.vibrate)
+     • Hold-to-accelerate nudge buttons
+     • Auto-mute / auto-sleep / desktop two-column layout
+   ================================================================ */
 
-/* ── NOTE FREQUENCY TABLE ─────────────────────────────────────
-   Equal temperament, A4 = 440 Hz                              */
-const NOTE_FREQ = (() => {
+/* ── TUNINGS ────────────────────────────────────────────────── */
+const TUNINGS = {
+  standard: { notes: ['E2','A2','D3','G3','B3','E4'] },
+  dropd:    { notes: ['D2','A2','D3','G3','B3','E4'] },
+  dadgad:   { notes: ['D2','A2','D3','G3','A3','D4'] },
+  halfdown: { notes: ['Eb2','Ab2','Db3','Gb3','Bb3','Eb4'] },
+};
+
+/* ── NOTE FREQUENCY TABLE ───────────────────────────────────── */
+// Rebuilt whenever A4 reference changes
+let A4_REF = 440;
+let NOTE_FREQ = {};  // "C4" → Hz
+let NOTE_LIST = [];  // [{name, freq}] sorted by freq, all notes C0–B7
+
+function buildNoteTable() {
   const notes = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
-  const map = {};
+  const aliases = {Eb:'D#',Ab:'G#',Db:'C#',Gb:'F#',Bb:'A#'};
+  NOTE_FREQ = {};
+  NOTE_LIST = [];
   for (let oct = 0; oct <= 7; oct++) {
     notes.forEach((n, i) => {
-      // Standard MIDI: C4=60, A4=69=440Hz → midi = (oct+1)*12 + noteIndex
+      // Standard MIDI: C4=60, A4=69
       const midi = (oct + 1) * 12 + i;
-      map[n + oct] = 440 * Math.pow(2, (midi - 69) / 12);
+      const freq = A4_REF * Math.pow(2, (midi - 69) / 12);
+      NOTE_FREQ[n + oct] = freq;
+      NOTE_LIST.push({ name: n + oct, freq });
     });
   }
-  // Aliases: Eb=D#, Ab=G#, Db=C#, Gb=F#, Bb=A#
-  const aliases = {Eb:'D#', Ab:'G#', Db:'C#', Gb:'F#', Bb:'A#'};
+  // Aliases
   Object.entries(aliases).forEach(([alias, real]) => {
-    for (let o = 0; o <= 7; o++) map[alias + o] = map[real + o];
+    for (let o = 0; o <= 7; o++) NOTE_FREQ[alias + o] = NOTE_FREQ[real + o];
   });
-  return map;
-})();
+  NOTE_LIST.sort((a, b) => a.freq - b.freq);
+}
+buildNoteTable();
 
-/* Nearest note from frequency */
 function nearestNote(freq) {
-  let best = null, bestCents = Infinity;
-  for (const [name, f] of Object.entries(NOTE_FREQ)) {
-    const cents = 1200 * Math.log2(freq / f);
-    if (Math.abs(cents) < Math.abs(bestCents)) { bestCents = cents; best = name; }
+  // Binary-search NOTE_LIST for fastest nearest-note lookup
+  let lo = 0, hi = NOTE_LIST.length - 1;
+  while (lo < hi) {
+    const mid = (lo + hi) >> 1;
+    if (NOTE_LIST[mid].freq < freq) lo = mid + 1; else hi = mid;
   }
-  return { name: best, cents: bestCents };
+  const candidates = [lo - 1, lo, lo + 1].filter(i => i >= 0 && i < NOTE_LIST.length);
+  let best = candidates[0];
+  candidates.forEach(i => {
+    if (Math.abs(1200 * Math.log2(freq / NOTE_LIST[i].freq)) <
+        Math.abs(1200 * Math.log2(freq / NOTE_LIST[best].freq))) best = i;
+  });
+  const { name, freq: f } = NOTE_LIST[best];
+  return { name, cents: 1200 * Math.log2(freq / f) };
 }
 
 /* ── STATE ──────────────────────────────────────────────────── */
-let audioCtx = null;
-let analyserNode = null;
-let filterNode = null;
-let micStream = null;
-let micSourceNode = null;
-let activeOsc = null;     // currently playing oscillator
-let activeOscGain = null;
-let activeOscString = -1; // which string is playing reference tone (-1 = none)
+let audioCtx = null, analyserNode = null, filterNode = null;
+let micStream = null, micSourceNode = null;
+let activeOsc = null, activeOscGain = null, activeOscString = -1;
+let isRunning = false, rafId = null;
 
-let isRunning = false;    // mic is active
-let rafId = null;
+let stringFreqs = [], stringNotes = [];
 
-// String target frequencies (can be nudged per-string)
-let stringFreqs = [];     // [string0..5], string0 = thinnest (E4)
-let stringNotes = [];     // display names
+// Display mode
+let displayMode = 'needle'; // 'needle' | 'strobe'
+let chromaticMode = false;
 
-// Smoothing buffer for pitch
+// Smoothing
 const SMOOTH_WINDOW = 8;
 let pitchBuffer = [];
-let smoothedCents = 0;    // for needle
-let displayCents = 0;     // damped display value
+let displayCents = 0;      // lerp-damped for visual
 
-// Sleep timer
-const SLEEP_TIMEOUT_MS = 3 * 60 * 1000; // 3 minutes
-let sleepTimer = null;
-let isSleeping = false;
+// Stability lock: note must be within ±IN_TUNE_THRESHOLD for STABLE_FRAMES consecutive frames
+const IN_TUNE_THRESHOLD = 5;   // cents
+const STABLE_FRAMES_NEEDED = 15; // ~0.5s at 30fps
+let stableFrameCount = 0;
+let lastLockedState = false;
 
-// Auto-mute: if input detected while reference playing
-const AUTOMUTE_FREQ_THRESHOLD = 60; // Hz — min frequency to count as signal
+// Haptic: only fire once per in-tune event, not every frame
+let hapticFired = false;
 
-/* ── DOM REFS ───────────────────────────────────────────────── */
-const activateBtn   = document.getElementById('activateBtn');
-const tuningSelect  = document.getElementById('tuningSelect');
-const waveSelect    = document.getElementById('waveSelect');
-const headstock     = document.getElementById('headstock');
-const detectedNote  = document.getElementById('detectedNote');
-const centsReadout  = document.getElementById('centsReadout');
-const freqReadout   = document.getElementById('freqReadout');
-const needleGroup   = document.getElementById('needleGroup');
-const statusDot     = document.getElementById('statusDot');
-const statusText    = document.getElementById('statusText');
-const micError      = document.getElementById('micError');
-const sleepOverlay  = document.getElementById('sleepOverlay');
+// Sleep
+const SLEEP_TIMEOUT_MS = 3 * 60 * 1000;
+let sleepTimer = null, isSleeping = false;
 
-/* ── BUILD HEADSTOCK UI ─────────────────────────────────────── */
+const AUTOMUTE_THRESHOLD = 60; // Hz
+
+/* ── DOM ────────────────────────────────────────────────────── */
+const activateBtn  = document.getElementById('activateBtn');
+const tuningSelect = document.getElementById('tuningSelect');
+const waveSelect   = document.getElementById('waveSelect');
+const a4Input      = document.getElementById('a4Input');
+const headstock    = document.getElementById('headstock');
+const detectedNote = document.getElementById('detectedNote');
+const centsReadout = document.getElementById('centsReadout');
+const freqReadout  = document.getElementById('freqReadout');
+const needleGroup  = document.getElementById('needleGroup');
+const needleLine   = document.getElementById('needleLine');
+const dialWrap     = document.getElementById('dialWrap');
+const strobeWrap   = document.getElementById('strobeWrap');
+const strobeLabel  = document.getElementById('strobeLabel');
+const strobeCanvas = document.getElementById('strobeCanvas');
+const confFill     = document.getElementById('confFill');
+const confPct      = document.getElementById('confPct');
+const stabilityFill= document.getElementById('stabilityFill');
+const lockIcon     = document.getElementById('lockIcon');
+const statusDot    = document.getElementById('statusDot');
+const statusText   = document.getElementById('statusText');
+const micError     = document.getElementById('micError');
+const sleepOverlay = document.getElementById('sleepOverlay');
+const btnNeedle    = document.getElementById('btnNeedle');
+const btnStrobe    = document.getElementById('btnStrobe');
+const btnChromatic = document.getElementById('btnChromatic');
+
+/* ── STROBE ENGINE ──────────────────────────────────────────── */
+// The strobe disc has alternating black/white sectors.
+// We rotate it at a rate proportional to cents deviation.
+// At 0 cents it appears stationary.
+const STROBE_SECTORS = 24;
+let strobeAngle = 0;
+let strobeLastTime = null;
+const strobeCtx = strobeCanvas.getContext('2d');
+
+function drawStrobeDisc(angle, tuneState) {
+  const W = strobeCanvas.width, H = strobeCanvas.height;
+  const cx = W / 2, cy = H / 2, r = W / 2 - 2;
+  strobeCtx.clearRect(0, 0, W, H);
+
+  const sectorAngle = (Math.PI * 2) / STROBE_SECTORS;
+  const colors = {
+    'in-tune': ['#00ff88', '#003322'],
+    'sharp':   ['#ff2d78', '#1a0010'],
+    'flat':    ['#ffd700', '#1a1100'],
+    'idle':    ['#443355', '#0d0d1a'],
+  };
+  const [bright, dark] = colors[tuneState] || colors.idle;
+
+  for (let s = 0; s < STROBE_SECTORS; s++) {
+    const start = angle + s * sectorAngle;
+    const end   = start + sectorAngle * 0.92; // slight gap
+    strobeCtx.beginPath();
+    strobeCtx.moveTo(cx, cy);
+    strobeCtx.arc(cx, cy, r, start, end);
+    strobeCtx.closePath();
+    strobeCtx.fillStyle = s % 2 === 0 ? bright : dark;
+    strobeCtx.fill();
+  }
+
+  // Center dot
+  strobeCtx.beginPath();
+  strobeCtx.arc(cx, cy, 8, 0, Math.PI * 2);
+  strobeCtx.fillStyle = '#0d0d1a';
+  strobeCtx.fill();
+  strobeCtx.strokeStyle = bright;
+  strobeCtx.lineWidth = 1.5;
+  strobeCtx.stroke();
+}
+
+function updateStrobe(cents, tuneState, timestamp) {
+  if (strobeLastTime === null) { strobeLastTime = timestamp; }
+  const dt = Math.min((timestamp - strobeLastTime) / 1000, 0.1); // cap at 100ms
+  strobeLastTime = timestamp;
+
+  // Rotation speed ∝ cents deviation. At ±50¢ → ~2 rev/s. At 0¢ → stationary.
+  // Direction: sharp = clockwise (+), flat = counter (-)
+  const radsPerSec = (cents / 50) * (Math.PI * 2) * 2;
+  strobeAngle += radsPerSec * dt;
+
+  const label = tuneState === 'in-tune' ? '✓ LOCKED' :
+                tuneState === 'sharp'   ? '▶ SHARP'  :
+                tuneState === 'flat'    ? '◀ FLAT'   : '—';
+  strobeLabel.textContent = label;
+  strobeLabel.style.color = tuneState === 'in-tune' ? 'var(--green)' :
+                            tuneState === 'sharp'   ? 'var(--pink)'  :
+                            tuneState === 'flat'    ? 'var(--gold)'  : 'var(--dim)';
+
+  drawStrobeDisc(strobeAngle, tuneState);
+}
+
+/* ── HEADSTOCK UI ───────────────────────────────────────────── */
 function buildHeadstock() {
   headstock.innerHTML = '';
-  // Strings displayed top-to-bottom: thinnest (1=E4) first (inline headstock style)
   stringNotes.forEach((note, i) => {
-    const freq = stringFreqs[i];
-    const strNum = i + 1;
-
     const row = document.createElement('div');
     row.className = 'peg-row';
 
-    const downBtn = document.createElement('button');
-    downBtn.className = 'nudge-btn';
-    downBtn.setAttribute('aria-label', `Tune string ${strNum} flat`);
-    downBtn.textContent = '▼';
-    downBtn.dataset.string = i;
-    downBtn.dataset.dir = 'down';
-    attachNudgeListeners(downBtn, i, 'down');
+    const dn = document.createElement('button');
+    dn.className = 'nudge-btn'; dn.textContent = '▼';
+    dn.setAttribute('aria-label', `String ${i+1} flatter`);
+    attachNudge(dn, i, 'down');
 
     const peg = document.createElement('button');
-    peg.className = 'peg';
-    peg.dataset.string = strNum;
-    peg.id = `peg-${i}`;
-    peg.setAttribute('aria-label', `String ${strNum}: ${note}, ${freq.toFixed(1)} Hz. Tap to play reference tone.`);
+    peg.className = 'peg'; peg.id = `peg-${i}`;
+    peg.dataset.string = i + 1;
     peg.innerHTML = `
-      <span class="peg-string-num">${strNum}</span>
+      <span class="peg-string-num">${i+1}</span>
       <span class="peg-note" id="peg-note-${i}">${note}</span>
-      <span class="peg-hz" id="peg-hz-${i}">${freq.toFixed(1)} Hz</span>
-      <div class="peg-bar-wrap"><div class="peg-bar" id="peg-bar-${i}"></div></div>
-    `;
+      <span class="peg-hz"   id="peg-hz-${i}">${stringFreqs[i].toFixed(1)} Hz</span>
+      <div class="peg-bar-wrap"><div class="peg-bar" id="peg-bar-${i}"></div></div>`;
     peg.addEventListener('click', () => onPegClick(i));
 
-    const upBtn = document.createElement('button');
-    upBtn.className = 'nudge-btn';
-    upBtn.setAttribute('aria-label', `Tune string ${strNum} sharp`);
-    upBtn.textContent = '▲';
-    upBtn.dataset.string = i;
-    upBtn.dataset.dir = 'up';
-    attachNudgeListeners(upBtn, i, 'up');
+    const up = document.createElement('button');
+    up.className = 'nudge-btn'; up.textContent = '▲';
+    up.setAttribute('aria-label', `String ${i+1} sharper`);
+    attachNudge(up, i, 'up');
 
-    row.appendChild(downBtn);
-    row.appendChild(peg);
-    row.appendChild(upBtn);
+    row.append(dn, peg, up);
     headstock.appendChild(row);
   });
 }
 
+/* ── NUDGE: HOLD TO ACCELERATE ─────────────────────────────── */
+const nudgeTimers = {};
+
+function applyNudge(i, dir) {
+  stringFreqs[i] *= Math.pow(2, (dir === 'up' ? 1 : -1) / 1200);
+  const el = document.getElementById(`peg-hz-${i}`);
+  if (el) el.textContent = stringFreqs[i].toFixed(1) + ' Hz';
+  if (activeOscString === i && activeOsc && audioCtx)
+    activeOsc.frequency.setValueAtTime(stringFreqs[i], audioCtx.currentTime);
+}
+
+function attachNudge(btn, i, dir) {
+  const id = `${i}-${dir}`;
+  btn._nudgeId = id;
+
+  btn.addEventListener('pointerdown', e => {
+    e.preventDefault();
+    btn.setPointerCapture(e.pointerId);
+    btn.classList.add('nudging');
+    resetActivity();
+    applyNudge(i, dir);
+    let step = 0;
+    const go = () => {
+      const delay = step < 5 ? 200 : step < 15 ? 100 : step < 30 ? 60 : 40;
+      nudgeTimers[id] = setTimeout(() => {
+        if (!nudgeTimers[id]) return;
+        applyNudge(i, dir); step++; go();
+      }, delay);
+    };
+    go();
+  });
+
+  const stop = () => {
+    btn.classList.remove('nudging');
+    clearTimeout(nudgeTimers[id]);
+    nudgeTimers[id] = null;
+  };
+  btn.addEventListener('pointerup',     stop);
+  btn.addEventListener('pointercancel', stop);
+  btn.addEventListener('pointerleave',  stop);
+}
+
 /* ── LOAD TUNING ────────────────────────────────────────────── */
 function loadTuning(key) {
-  const t = TUNINGS[key];
-  // Reverse: index 0 = thinnest string (highest pitch), index 5 = lowest
-  const notesHighToLow = [...t.notes].reverse();
+  const notesHighToLow = [...TUNINGS[key].notes].reverse();
   stringNotes = notesHighToLow;
   stringFreqs = notesHighToLow.map(n => NOTE_FREQ[n] || 440);
   buildHeadstock();
 }
 
-tuningSelect.addEventListener('change', () => {
-  loadTuning(tuningSelect.value);
+tuningSelect.addEventListener('change', () => { loadTuning(tuningSelect.value); resetActivity(); });
+
+/* ── A4 REFERENCE PITCH ─────────────────────────────────────── */
+a4Input.addEventListener('change', () => {
+  const v = parseInt(a4Input.value, 10);
+  if (v >= 430 && v <= 450) {
+    A4_REF = v;
+    buildNoteTable();
+    loadTuning(tuningSelect.value); // rebuild string freqs with new A4
+    resetActivity();
+  }
+});
+
+/* ── DISPLAY MODE TOGGLES ───────────────────────────────────── */
+btnNeedle.addEventListener('click', () => {
+  displayMode = 'needle';
+  dialWrap.classList.remove('hidden');
+  strobeWrap.classList.add('hidden');
+  btnNeedle.classList.add('active');
+  btnStrobe.classList.remove('active');
+  strobeLastTime = null;
   resetActivity();
 });
 
-/* ── PEG CLICK — play reference tone ───────────────────────── */
+btnStrobe.addEventListener('click', () => {
+  displayMode = 'strobe';
+  dialWrap.classList.add('hidden');
+  strobeWrap.classList.remove('hidden');
+  btnStrobe.classList.add('active');
+  btnNeedle.classList.remove('active');
+  strobeLastTime = null;
+  resetActivity();
+});
+
+btnChromatic.addEventListener('click', () => {
+  chromaticMode = !chromaticMode;
+  btnChromatic.classList.toggle('active', chromaticMode);
+  btnChromatic.style.borderColor = chromaticMode ? 'var(--gold)' : '';
+  btnChromatic.style.color       = chromaticMode ? 'var(--gold)' : '';
+  resetActivity();
+});
+
+/* ── PEG CLICK ──────────────────────────────────────────────── */
 function onPegClick(i) {
   resetActivity();
-
-  // Guard: AudioContext must be created on user gesture
-  if (!audioCtx) {
-    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-  }
+  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
   if (audioCtx.state === 'suspended') audioCtx.resume();
 
-  // Toggle: if same string is playing, stop it
-  if (activeOscString === i) {
-    stopOscillator();
-    return;
-  }
-
+  if (activeOscString === i) { stopOscillator(); return; }
   stopOscillator();
 
-  const freq = stringFreqs[i];
-  const waveType = waveSelect.value;
-
-  const osc = audioCtx.createOscillator();
+  const osc  = audioCtx.createOscillator();
   const gain = audioCtx.createGain();
-  osc.type = waveType;
-  osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
-
+  osc.type = waveSelect.value;
+  osc.frequency.setValueAtTime(stringFreqs[i], audioCtx.currentTime);
   gain.gain.setValueAtTime(0, audioCtx.currentTime);
-  gain.gain.linearRampToValueAtTime(0.35, audioCtx.currentTime + 0.04); // fade in
+  gain.gain.linearRampToValueAtTime(0.35, audioCtx.currentTime + 0.04);
+  osc.connect(gain); gain.connect(audioCtx.destination); osc.start();
 
-  osc.connect(gain);
-  gain.connect(audioCtx.destination);
-  osc.start();
-
-  activeOsc = osc;
-  activeOscGain = gain;
-  activeOscString = i;
-
+  activeOsc = osc; activeOscGain = gain; activeOscString = i;
   setPegState(i, 'playing');
-  setStatus('active', `Playing ${stringNotes[i]} reference tone`);
+  setStatus('active', `Playing ${stringNotes[i]} reference`);
 }
 
 function stopOscillator(fade = true) {
   if (!activeOsc) return;
-  const osc = activeOsc;
-  const gain = activeOscGain;
-  const prevString = activeOscString;
-
+  const osc = activeOsc, gain = activeOscGain, prev = activeOscString;
   if (fade && audioCtx) {
     const now = audioCtx.currentTime;
     gain.gain.cancelScheduledValues(now);
     gain.gain.setValueAtTime(gain.gain.value, now);
     gain.gain.linearRampToValueAtTime(0, now + 0.08);
-    setTimeout(() => { try { osc.stop(); } catch(e){} }, 100);
-  } else {
-    try { osc.stop(); } catch(e){}
-  }
-
-  activeOsc = null;
-  activeOscGain = null;
-  activeOscString = -1;
-
-  if (prevString >= 0) setPegState(prevString, 'idle');
+    setTimeout(() => { try { osc.stop(); } catch(e){} }, 110);
+  } else { try { osc.stop(); } catch(e){} }
+  activeOsc = null; activeOscGain = null; activeOscString = -1;
+  if (prev >= 0) setPegState(prev, 'idle');
   if (isRunning) setStatus('active', 'Listening…');
 }
 
-/* ── NUDGE BUTTONS — hold to accelerate ────────────────────── */
-// Each button gets pointerdown → starts repeat interval that speeds up
-const nudgeState = {}; // keyed by element
-
-function applyNudge(i, dir) {
-  const step = dir === 'up' ? 1 : -1;
-  stringFreqs[i] *= Math.pow(2, step / 1200);
-  const pegHz = document.getElementById(`peg-hz-${i}`);
-  if (pegHz) pegHz.textContent = stringFreqs[i].toFixed(1) + ' Hz';
-  if (activeOscString === i && activeOsc) {
-    activeOsc.frequency.setValueAtTime(stringFreqs[i], audioCtx.currentTime);
-  }
-}
-
-function startNudge(el, i, dir) {
-  resetActivity();
-  applyNudge(i, dir); // immediate first step
-
-  let stepCount = 0;
-  // Start slow (200ms), accelerate every 5 steps down to 40ms
-  function scheduleNext() {
-    const delay = stepCount < 5  ? 200 :
-                  stepCount < 15 ? 100 :
-                  stepCount < 30 ? 60  : 40;
-    nudgeState[el._nudgeId] = setTimeout(() => {
-      if (!nudgeState[el._nudgeId]) return;
-      applyNudge(i, dir);
-      stepCount++;
-      scheduleNext();
-    }, delay);
-  }
-  scheduleNext();
-}
-
-function stopNudge(el) {
-  if (nudgeState[el._nudgeId]) {
-    clearTimeout(nudgeState[el._nudgeId]);
-    nudgeState[el._nudgeId] = null;
-  }
-}
-
-function onNudge(e) { /* kept for compatibility — not used directly */ }
-
-function attachNudgeListeners(btn, i, dir) {
-  btn._nudgeId = `${i}-${dir}`;
-  btn.addEventListener('pointerdown', (e) => {
-    e.preventDefault(); // prevent ghost click on touch
-    btn.setPointerCapture(e.pointerId);
-    startNudge(btn, i, dir);
-  });
-  btn.addEventListener('pointerup',    () => stopNudge(btn));
-  btn.addEventListener('pointercancel',() => stopNudge(btn));
-  btn.addEventListener('pointerleave', () => stopNudge(btn));
-}
-
-/* ── ACTIVATE / DEACTIVATE MIC ──────────────────────────────── */
+/* ── ACTIVATE MIC ───────────────────────────────────────────── */
 activateBtn.addEventListener('click', async () => {
   resetActivity();
   micError.classList.remove('visible');
 
   if (isRunning) {
-    // Deactivate
     deactivateMic();
     activateBtn.classList.remove('active');
     activateBtn.textContent = '⬤ Activate Tuner';
@@ -1040,292 +1019,293 @@ activateBtn.addEventListener('click', async () => {
     return;
   }
 
-  // Initialise AudioContext on user gesture
-  if (!audioCtx) {
-    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-  }
-  try {
-    await audioCtx.resume();
-  } catch(e) {}
+  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  try { await audioCtx.resume(); } catch(e){}
 
-  // Request mic
   try {
     micStream = await navigator.mediaDevices.getUserMedia({
       audio: { echoCancellation: false, noiseSuppression: false, autoGainControl: false }
     });
-  } catch (err) {
+  } catch(err) {
     micError.classList.add('visible');
     setStatus('error', 'Mic access denied');
     return;
   }
 
-  // Build audio chain
   micSourceNode = audioCtx.createMediaStreamSource(micStream);
-
   filterNode = audioCtx.createBiquadFilter();
   filterNode.type = 'lowpass';
-  filterNode.frequency.value = 380; // roll off above 380 Hz to isolate fundamental
+  filterNode.frequency.value = 400;
   filterNode.Q.value = 1;
-
   analyserNode = audioCtx.createAnalyser();
-  analyserNode.fftSize = 4096;       // large window for low-freq resolution
+  analyserNode.fftSize = 4096;
   analyserNode.smoothingTimeConstant = 0;
-
   micSourceNode.connect(filterNode);
   filterNode.connect(analyserNode);
-  // Note: analyser NOT connected to destination — no audio feedback
+  // Not connected to destination — no feedback
 
   isRunning = true;
   activateBtn.classList.add('active');
   activateBtn.textContent = '■ Deactivate Tuner';
   setStatus('active', 'Listening…');
-
-  startDetectionLoop();
+  startLoop();
   resetSleepTimer();
 });
 
 function deactivateMic() {
   isRunning = false;
-  stopDetectionLoop();
+  stopLoop();
   stopOscillator(false);
-
-  if (micStream) { micStream.getTracks().forEach(t => t.stop()); micStream = null; }
+  if (micStream)     { micStream.getTracks().forEach(t => t.stop()); micStream = null; }
   if (micSourceNode) { try { micSourceNode.disconnect(); } catch(e){} micSourceNode = null; }
   if (filterNode)    { try { filterNode.disconnect(); }    catch(e){} filterNode = null; }
   if (analyserNode)  { try { analyserNode.disconnect(); }  catch(e){} analyserNode = null; }
-
   clearAllPegStates();
-  detectedNote.textContent = '—';
-  detectedNote.className = 'detected-note';
-  centsReadout.textContent = '— ¢';
-  centsReadout.className = 'cents-readout';
-  freqReadout.textContent = '— Hz detected';
-  setNeedle(0);
+  detectedNote.textContent = '—'; detectedNote.className = 'detected-note';
+  centsReadout.textContent = '— ¢'; centsReadout.className = 'cents-readout';
+  freqReadout.textContent  = '— Hz detected';
+  setNeedle(0); setConfidence(0); setStability(0, false);
+  drawStrobeDisc(0, 'idle');
+  pitchBuffer = []; displayCents = 0; stableFrameCount = 0; hapticFired = false;
 }
 
-/* ── PITCH DETECTION LOOP ───────────────────────────────────── */
-function startDetectionLoop() {
+/* ── DETECTION LOOP ─────────────────────────────────────────── */
+function startLoop() {
   const buf = new Float32Array(analyserNode.fftSize);
 
-  function tick() {
+  function tick(timestamp) {
     if (!isRunning) return;
     rafId = requestAnimationFrame(tick);
-
     analyserNode.getFloatTimeDomainData(buf);
 
-    // RMS to check signal level
+    // RMS gate
     let rms = 0;
     for (let k = 0; k < buf.length; k++) rms += buf[k] * buf[k];
     rms = Math.sqrt(rms / buf.length);
 
-    if (rms < 0.008) {
-      // Too quiet
-      updateMeterIdle();
-      return;
-    }
+    if (rms < 0.008) { tickIdle(timestamp); return; }
 
-    const freq = autocorrelate(buf, audioCtx.sampleRate);
-    if (freq < 50 || freq > 1500) { updateMeterIdle(); return; }
+    const { freq, confidence } = autocorrelate(buf, audioCtx.sampleRate);
+    if (freq < 50 || freq > 1500) { tickIdle(timestamp); return; }
 
-    // Auto-mute reference tone if input detected
-    if (activeOsc && freq > AUTOMUTE_FREQ_THRESHOLD) {
-      stopOscillator(true);
-    }
+    // Confidence bar
+    setConfidence(confidence);
+
+    // Auto-mute reference tone when strumming
+    if (activeOsc && freq > AUTOMUTE_THRESHOLD) stopOscillator(true);
 
     // Smooth pitch
     pitchBuffer.push(freq);
     if (pitchBuffer.length > SMOOTH_WINDOW) pitchBuffer.shift();
-    const avgFreq = pitchBuffer.reduce((a,b) => a+b, 0) / pitchBuffer.length;
+    const avgFreq = pitchBuffer.reduce((a,b)=>a+b,0) / pitchBuffer.length;
 
-    // Find nearest target string
-    let nearestStr = 0, nearestCents = Infinity;
-    stringFreqs.forEach((sf, idx) => {
-      const c = 1200 * Math.log2(avgFreq / sf);
-      if (Math.abs(c) < Math.abs(nearestCents)) { nearestCents = c; nearestStr = idx; }
-    });
+    // Cents vs target
+    let targetCents, nearestStr = -1, noteName;
 
-    const { name: noteName, cents } = nearestNote(avgFreq);
+    if (chromaticMode) {
+      // In chromatic mode: find nearest semitone in all of equal temperament
+      const r = nearestNote(avgFreq);
+      noteName   = r.name;
+      targetCents = r.cents;
+      // Also highlight nearest string if close enough
+      let bestStr = 0, bestDist = Infinity;
+      stringFreqs.forEach((sf, idx) => {
+        const d = Math.abs(1200 * Math.log2(avgFreq / sf));
+        if (d < bestDist) { bestDist = d; bestStr = idx; }
+      });
+      nearestStr = bestDist < 60 ? bestStr : -1;
+    } else {
+      // Guitar mode: only compare against the 6 target strings
+      let bestDist = Infinity;
+      stringFreqs.forEach((sf, idx) => {
+        const c = 1200 * Math.log2(avgFreq / sf);
+        if (Math.abs(c) < bestDist) { bestDist = Math.abs(c); nearestStr = idx; targetCents = c; }
+      });
+      noteName = nearestNote(avgFreq).name;
+    }
 
-    // Damped cents display
-    const targetCents = nearestCents;
+    // Lerp displayCents toward target
     displayCents += (targetCents - displayCents) * 0.25;
 
-    updateMeter(avgFreq, noteName, nearestStr, displayCents);
+    const absC = Math.abs(displayCents);
+    const tuneState = absC <= IN_TUNE_THRESHOLD ? 'in-tune' : displayCents > 0 ? 'sharp' : 'flat';
+
+    // Stability counter
+    if (tuneState === 'in-tune') {
+      stableFrameCount = Math.min(stableFrameCount + 1, STABLE_FRAMES_NEEDED);
+    } else {
+      stableFrameCount = Math.max(stableFrameCount - 2, 0);
+    }
+    const isLocked = stableFrameCount >= STABLE_FRAMES_NEEDED;
+
+    // Haptic on first lock
+    if (isLocked && !lastLockedState && !hapticFired) {
+      hapticFired = true;
+      if (navigator.vibrate) navigator.vibrate(60);
+    }
+    if (!isLocked) hapticFired = false;
+    lastLockedState = isLocked;
+
+    setStability(stableFrameCount / STABLE_FRAMES_NEEDED, isLocked);
+    updateDisplay(avgFreq, noteName, nearestStr, displayCents, tuneState, timestamp);
     resetSleepTimer();
   }
 
-  tick();
+  rafId = requestAnimationFrame(tick);
 }
 
-function stopDetectionLoop() {
+function tickIdle(timestamp) {
+  displayCents += (0 - displayCents) * 0.08;
+  stableFrameCount = Math.max(stableFrameCount - 1, 0);
+  const isLocked = stableFrameCount >= STABLE_FRAMES_NEEDED;
+  setStability(stableFrameCount / STABLE_FRAMES_NEEDED, isLocked);
+  setConfidence(0);
+  freqReadout.textContent = '— Hz detected';
+  clearAllPegStates(true);
+  if (Math.abs(displayCents) > 0.3) {
+    setNeedle((displayCents / 100) * 60);
+    if (displayMode === 'strobe') updateStrobe(displayCents, 'idle', timestamp);
+  }
+}
+
+function stopLoop() {
   if (rafId) { cancelAnimationFrame(rafId); rafId = null; }
 }
 
-/* ── AUTOCORRELATION PITCH DETECTION ───────────────────────────
-   Finds the lag with highest autocorrelation to get fundamental */
+/* ── AUTOCORRELATION ────────────────────────────────────────── */
+// Returns { freq, confidence } where confidence is 0..1
 function autocorrelate(buf, sampleRate) {
   const SIZE = buf.length;
-  const MAX_SAMPLES = Math.floor(SIZE / 2);
-  let bestOffset = -1;
-  let bestCorrelation = 0;
-  let rms = 0;
+  const MAX  = Math.floor(SIZE / 2);
 
+  let rms = 0;
   for (let i = 0; i < SIZE; i++) rms += buf[i] * buf[i];
   rms = Math.sqrt(rms / SIZE);
-  if (rms < 0.005) return -1;
+  if (rms < 0.005) return { freq: -1, confidence: 0 };
 
-  let lastCorrelation = 1;
-  let foundGoodCorrelation = false;
+  let lastCorr = 1, bestCorr = 0, bestOffset = -1;
+  let foundGood = false;
 
-  for (let offset = 0; offset < MAX_SAMPLES; offset++) {
-    let correlation = 0;
-    for (let i = 0; i < MAX_SAMPLES; i++) {
-      correlation += Math.abs(buf[i] - buf[i + offset]);
+  for (let offset = 0; offset < MAX; offset++) {
+    let corr = 0;
+    for (let i = 0; i < MAX; i++) corr += Math.abs(buf[i] - buf[i + offset]);
+    corr = 1 - corr / MAX;
+
+    if (corr > 0.9 && corr > lastCorr) {
+      foundGood = true;
+      if (corr > bestCorr) { bestCorr = corr; bestOffset = offset; }
+    } else if (foundGood) {
+      const shift = bestOffset > 1
+        ? (corr - lastCorr) / (2 * (2 * bestCorr - lastCorr - corr))
+        : 0;
+      return { freq: sampleRate / (bestOffset + shift), confidence: bestCorr };
     }
-    correlation = 1 - correlation / MAX_SAMPLES;
-
-    if (correlation > 0.9 && correlation > lastCorrelation) {
-      foundGoodCorrelation = true;
-      if (correlation > bestCorrelation) {
-        bestCorrelation = correlation;
-        bestOffset = offset;
-      }
-    } else if (foundGoodCorrelation) {
-      // Parabolic interpolation for precision
-      const shift = (bestOffset > 1)
-        ? (correlation - (offset > 1 ? 0 : lastCorrelation)) / (2 * (2 * bestCorrelation - lastCorrelation - correlation)) : 0;
-      return sampleRate / (bestOffset + shift);
-    }
-    lastCorrelation = correlation;
+    lastCorr = corr;
   }
-
-  return bestOffset > -1 ? sampleRate / bestOffset : -1;
+  return bestOffset > -1
+    ? { freq: sampleRate / bestOffset, confidence: bestCorr }
+    : { freq: -1, confidence: 0 };
 }
 
-/* ── METER UPDATE ───────────────────────────────────────────── */
-const IN_TUNE_THRESHOLD = 5; // cents
-const LISTEN_THRESHOLD = 30; // cents — how close to "activate" peg glow
+/* ── DISPLAY UPDATE ─────────────────────────────────────────── */
+function updateDisplay(freq, noteName, nearestStr, cents, tuneState, timestamp) {
+  freqReadout.textContent = `${freq.toFixed(1)} Hz  ·  A4 = ${A4_REF} Hz`;
 
-function updateMeter(freq, noteName, nearestStr, cents) {
-  freqReadout.textContent = `${freq.toFixed(1)} Hz detected`;
+  // Strip octave number for the big display
+  detectedNote.textContent = noteName.replace(/\d/g,'');
+  detectedNote.className   = 'detected-note ' + tuneState;
 
-  const absC = Math.abs(cents);
-  let tuneState = absC <= IN_TUNE_THRESHOLD ? 'in-tune' : cents > 0 ? 'sharp' : 'flat';
-
-  // Display closest guitar note (just letter + octave, no octave for brevity)
-  detectedNote.textContent = noteName.replace(/\d/g, '');
-  detectedNote.className = 'detected-note ' + tuneState;
-
-  // Cents readout
   const sign = cents > 0 ? '+' : '';
   centsReadout.textContent = `${sign}${Math.round(cents)} ¢`;
-  centsReadout.className = 'cents-readout ' + tuneState;
+  centsReadout.className   = 'cents-readout ' + tuneState;
 
-  // Needle: map ±100 cents to ±60°
   const angleDeg = Math.max(-60, Math.min(60, (cents / 100) * 60));
-  setNeedle(angleDeg);
 
-  // Needle color
-  const needleLine = document.getElementById('needleLine');
-  if (needleLine) {
-    if (tuneState === 'in-tune') {
-      needleLine.setAttribute('stroke', 'var(--green)');
-      needleGroup.querySelector('circle').setAttribute('fill', 'var(--green)');
-    } else if (tuneState === 'sharp') {
-      needleLine.setAttribute('stroke', 'var(--pink)');
-      needleGroup.querySelector('circle').setAttribute('fill', 'var(--pink)');
-    } else {
-      needleLine.setAttribute('stroke', 'var(--gold)');
-      needleGroup.querySelector('circle').setAttribute('fill', 'var(--gold)');
-    }
+  if (displayMode === 'needle') {
+    setNeedle(angleDeg);
+    const col = tuneState === 'in-tune' ? 'var(--green)' :
+                tuneState === 'sharp'   ? 'var(--pink)'  : 'var(--gold)';
+    needleLine.setAttribute('stroke', col);
+    needleGroup.querySelectorAll('circle')[0].setAttribute('fill', col);
+  } else {
+    updateStrobe(cents, tuneState, timestamp);
   }
 
-  // Peg states
-  clearAllPegStates(true); // clear listening states only
-
-  // Activate peg glow if within threshold and not playing reference
-  if (absC < 60 && activeOscString < 0) {
+  // Peg highlights
+  clearAllPegStates(true);
+  if (nearestStr >= 0 && activeOscString < 0) {
     const peg = document.getElementById(`peg-${nearestStr}`);
-    if (peg) {
-      if (tuneState === 'in-tune') {
-        peg.classList.add('in-tune');
-      } else {
-        peg.classList.add('listening');
-      }
-    }
+    if (peg) peg.classList.add(tuneState === 'in-tune' ? 'in-tune' : 'listening');
     updatePegBar(nearestStr, cents);
   }
 }
 
-function updateMeterIdle() {
-  freqReadout.textContent = '— Hz detected';
-  // Let needle drift back toward center
-  displayCents += (0 - displayCents) * 0.1;
-  if (Math.abs(displayCents) > 0.5) setNeedle((displayCents / 100) * 60);
-  clearAllPegStates(true);
-}
-
-function setNeedle(angleDeg) {
-  needleGroup.style.transform = `rotate(${angleDeg}deg)`;
+function setNeedle(deg) {
+  needleGroup.style.transform = `rotate(${deg}deg)`;
   needleGroup.style.transformOrigin = '120px 120px';
 }
 
-function updatePegBar(strIdx, cents) {
-  const bar = document.getElementById(`peg-bar-${strIdx}`);
+function setConfidence(v) {
+  // v is 0..1 (autocorrelation score, typically 0.9–1.0 for clean signal)
+  // Remap 0.9–1.0 → 0–100% for readability
+  const pct = Math.max(0, Math.min(100, (v - 0.88) / 0.12 * 100));
+  confFill.style.width = pct + '%';
+  confFill.style.background = pct > 70 ? 'var(--green)' : pct > 35 ? 'var(--gold)' : 'var(--pink)';
+  confPct.textContent = Math.round(pct) + '%';
+}
+
+function setStability(ratio, locked) {
+  stabilityFill.style.width = (ratio * 100) + '%';
+  stabilityFill.style.background = locked ? 'var(--green)' : 'var(--muted)';
+  lockIcon.classList.toggle('locked', locked);
+}
+
+function updatePegBar(idx, cents) {
+  const bar = document.getElementById(`peg-bar-${idx}`);
   if (!bar) return;
-  // Map cents to bar: center = in-tune, left of center = flat, right = sharp
-  const pct = 50 + (Math.max(-50, Math.min(50, cents / 2)));
-  const absC = Math.abs(cents);
-  bar.style.width = '50%';
-  bar.style.transform = `translateX(${(pct - 50) * 2}%)`;
-  bar.style.background = absC <= IN_TUNE_THRESHOLD ? 'var(--green)' :
+  const offset = Math.max(-50, Math.min(50, cents / 2));
+  bar.style.transform  = `translateX(${offset * 2}%)`;
+  bar.style.background = Math.abs(cents) <= IN_TUNE_THRESHOLD ? 'var(--green)' :
                          cents > 0 ? 'var(--pink)' : 'var(--gold)';
 }
 
-/* ── PEG STATE HELPERS ─────────────────────────────────────── */
+/* ── PEG STATE HELPERS ──────────────────────────────────────── */
 function setPegState(i, state) {
-  const peg = document.getElementById(`peg-${i}`);
-  if (!peg) return;
-  peg.classList.remove('listening', 'playing', 'in-tune');
-  if (state !== 'idle') peg.classList.add(state);
+  const p = document.getElementById(`peg-${i}`);
+  if (!p) return;
+  p.classList.remove('listening','playing','in-tune');
+  if (state !== 'idle') p.classList.add(state);
 }
 
 function clearAllPegStates(listeningOnly = false) {
   for (let i = 0; i < stringFreqs.length; i++) {
-    const peg = document.getElementById(`peg-${i}`);
-    if (!peg) continue;
-    peg.classList.remove('listening', 'in-tune');
-    if (!listeningOnly) peg.classList.remove('playing');
-    // Reset bar
+    const p = document.getElementById(`peg-${i}`);
+    if (!p) continue;
+    p.classList.remove('listening','in-tune');
+    if (!listeningOnly) p.classList.remove('playing');
     const bar = document.getElementById(`peg-bar-${i}`);
-    if (bar) { bar.style.width = '50%'; bar.style.transform = 'translateX(0)'; bar.style.background = 'var(--dim)'; }
+    if (bar) { bar.style.transform = 'translateX(0)'; bar.style.background = 'var(--dim)'; }
   }
 }
 
-/* ── STATUS BAR ─────────────────────────────────────────────── */
+/* ── STATUS ─────────────────────────────────────────────────── */
 function setStatus(state, msg) {
   statusText.textContent = msg;
-  statusDot.className = 'status-dot';
-  if (state === 'active') statusDot.classList.add('active');
-  if (state === 'error')  statusDot.classList.add('error');
+  statusDot.className = 'status-dot' + (state === 'active' ? ' active' : state === 'error' ? ' error' : '');
 }
 
-/* ── SLEEP / AUTO-SLEEP ──────────────────────────────────────── */
+/* ── SLEEP ──────────────────────────────────────────────────── */
 function resetSleepTimer() {
   if (isSleeping) wakeUp();
   clearTimeout(sleepTimer);
-  if (isRunning) {
-    sleepTimer = setTimeout(goToSleep, SLEEP_TIMEOUT_MS);
-  }
+  if (isRunning) sleepTimer = setTimeout(goToSleep, SLEEP_TIMEOUT_MS);
 }
 
 function goToSleep() {
   if (!isRunning) return;
   isSleeping = true;
   stopOscillator(true);
-  // Suspend AudioContext to save battery
   if (audioCtx && audioCtx.state === 'running') audioCtx.suspend();
-  // Stop mic stream
   if (micStream) micStream.getTracks().forEach(t => t.stop());
   isRunning = false;
   sleepOverlay.classList.add('visible');
@@ -1339,10 +1319,7 @@ function wakeUp() {
   sleepOverlay.classList.remove('visible');
 }
 
-sleepOverlay.addEventListener('click', () => {
-  wakeUp();
-  resetActivity();
-});
+sleepOverlay.addEventListener('click', () => { wakeUp(); resetActivity(); });
 
 function resetActivity() {
   if (isSleeping) wakeUp();
@@ -1350,20 +1327,22 @@ function resetActivity() {
   if (isRunning) sleepTimer = setTimeout(goToSleep, SLEEP_TIMEOUT_MS);
 }
 
-// Any user interaction resets inactivity timer
-['click','touchstart','keydown'].forEach(evt => {
-  document.addEventListener(evt, resetActivity, { passive: true });
-});
+['click','touchstart','keydown'].forEach(e =>
+  document.addEventListener(e, resetActivity, { passive: true }));
 
-/* ── WAVEFORM CHANGE ─────────────────────────────────────────── */
+/* ── WAVEFORM CHANGE ────────────────────────────────────────── */
 waveSelect.addEventListener('change', () => {
   resetActivity();
-  if (activeOsc) {
-    activeOsc.type = waveSelect.value;
-  }
+  if (activeOsc) activeOsc.type = waveSelect.value;
 });
 
-/* ── INIT ────────────────────────────────────────────────────── */
+/* ── INIT ───────────────────────────────────────────────────── */
+// Draw idle strobe
+drawStrobeDisc(0, 'idle');
+
+// Chromatic off by default — button styled accordingly
+btnChromatic.classList.remove('active');
+
 loadTuning('standard');
 setStatus('idle', 'Tap activate to begin');
 </script>
