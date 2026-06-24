@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Oblique Strategies</title>
+
+  <!-- ── FONTS ───────────────────────────────────────────────────── -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=VT323&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+
+  <style>
+    /* ── COLOR PALETTE (from main_3_.css) ──────────────────────── */
+    :root {
+      --bg:      #0a0a12;
+      --surface: #0d0d1a;
+      --pink:    #ff2d78;
+      --cyan:    #00f5ff;
+      --gold:    #ffd700;
+      --purple:  #b06aff;
+      --green:   #99cc77;
+      --text:    #e0d8f0;
+      --muted:   #9988aa;
+      --dim:     #443355;
+    }
+
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Space Mono', monospace;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 60px 24px 80px;
+    }
+
+    /* ── CRT SCANLINE OVERLAY (from main_3_.css) ────────────────── */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background: repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 3px,
+        rgba(0,245,255,0.015) 3px,
+        rgba(0,245,255,0.015) 4px
+      );
+      pointer-events: none;
+      z-index: 999;
+    }
+
+    /* ── PAGE WRAPPER ───────────────────────────────────────────── */
+    .page-wrapper {
+      width: 100%;
+      max-width: 680px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 48px;
+    }
+
+    /* ── HEADER / TITLE ─────────────────────────────────────────── */
+    .page-title {
+      font-family: 'VT323', monospace;
+      font-size: clamp(48px, 10vw, 80px);
+      color: var(--purple);
+      letter-spacing: 6px;
+      text-shadow: 3px 3px 0 #3d0080, 0 0 40px #b06aff55;
+      animation: breathe-purple 3s ease-in-out infinite;
+      text-align: center;
+    }
+
+    @keyframes breathe-purple {
+      0%, 100% { text-shadow: 3px 3px 0 #3d0080, 0 0 20px #b06aff33, 0 0 40px #b06aff22; }
+      50%       { text-shadow: 3px 3px 0 #3d0080, 0 0 30px #b06affaa, 0 0 60px #b06aff55, 0 0 80px #b06aff22; }
+    }
+
+    .page-subtitle {
+      font-size: 10px;
+      color: var(--cyan);
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      margin-top: 6px;
+      opacity: 0.8;
+      text-align: center;
+    }
+
+    /* ── INTRO COPY ─────────────────────────────────────────────── */
+    .intro {
+      text-align: center;
+      max-width: 520px;
+    }
+
+    .intro p {
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.9;
+      letter-spacing: 0.5px;
+    }
+
+    .intro p strong {
+      color: var(--cyan);
+      font-weight: 700;
+    }
+
+    /* ── CARD ───────────────────────────────────────────────────── */
+    .card-wrap {
+      width: 100%;
+      max-width: 460px;
+      position: relative;
+    }
+
+    /* Glowing top border accent */
+    .card-wrap::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--purple), var(--cyan), transparent);
+      z-index: 1;
+    }
+
+    .strategy-card {
+      background: var(--surface);
+      border: 1px solid #b06aff44;
+      padding: 52px 40px;
+      min-height: 180px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      position: relative;
+    }
+
+    .strategy-text {
+      font-family: 'VT323', monospace;
+      font-size: clamp(28px, 5vw, 42px);
+      color: var(--text);
+      line-height: 1.3;
+      letter-spacing: 1px;
+      /* Fade-in animation applied via JS */
+      opacity: 1;
+      transition: opacity 0.35s ease;
+    }
+
+    .strategy-text.fading {
+      opacity: 0;
+    }
+
+    /* Corner flourishes */
+    .card-corner {
+      position: absolute;
+      width: 14px;
+      height: 14px;
+      border-color: var(--purple);
+      border-style: solid;
+      opacity: 0.5;
+    }
+    .card-corner.tl { top: 8px; left: 8px;  border-width: 1px 0 0 1px; }
+    .card-corner.tr { top: 8px; right: 8px; border-width: 1px 1px 0 0; }
+    .card-corner.bl { bottom: 8px; left: 8px;  border-width: 0 0 1px 1px; }
+    .card-corner.br { bottom: 8px; right: 8px; border-width: 0 1px 1px 0; }
+
+    /* ── BUTTON ─────────────────────────────────────────────────── */
+    .btn-draw {
+      font-family: 'VT323', monospace;
+      font-size: 22px;
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      color: var(--bg);
+      background: var(--purple);
+      border: none;
+      padding: 12px 40px;
+      cursor: pointer;
+      position: relative;
+      transition: background 0.2s, box-shadow 0.2s, transform 0.1s;
+      box-shadow: 0 4px 0 #3d0080, 0 0 20px #b06aff44;
+      clip-path: polygon(6px 0%, 100% 0%, calc(100% - 6px) 100%, 0% 100%);
+    }
+
+    .btn-draw:hover {
+      background: var(--cyan);
+      color: var(--bg);
+      box-shadow: 0 4px 0 #007a80, 0 0 28px #00f5ffaa;
+    }
+
+    .btn-draw:active {
+      transform: translateY(3px);
+      box-shadow: 0 1px 0 #3d0080, 0 0 12px #b06aff44;
+    }
+
+    /* ── SECTION DIVIDER ────────────────────────────────────────── */
+    .section-divider {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin: 12px 0 0;
+    }
+
+    .section-divider::before,
+    .section-divider::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: #b06aff22;
+    }
+
+    .section-divider span {
+      font-size: 9px;
+      color: var(--purple);
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      opacity: 0.7;
+      white-space: nowrap;
+    }
+
+    /* ── HISTORY SECTION ────────────────────────────────────────── */
+    .history-section {
+      width: 100%;
+      border: 1px solid #b06aff22;
+      background: var(--surface);
+      padding: 32px 36px;
+      position: relative;
+    }
+
+    .history-section::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, #b06aff44, transparent);
+    }
+
+    .history-label {
+      font-size: 10px;
+      color: var(--purple);
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .history-label::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: #b06aff33;
+    }
+
+    .history-section h2 {
+      font-family: 'VT323', monospace;
+      font-size: 32px;
+      color: var(--text);
+      letter-spacing: 3px;
+      margin-bottom: 18px;
+    }
+
+    .history-section p {
+      font-size: 11px;
+      color: var(--muted);
+      line-height: 1.95;
+      letter-spacing: 0.3px;
+      margin-bottom: 14px;
+    }
+
+    .history-section p:last-child {
+      margin-bottom: 0;
+    }
+
+    .history-section em {
+      color: var(--cyan);
+      font-style: italic;
+    }
+
+    .history-section strong {
+      color: var(--text);
+      font-weight: 700;
+    }
+
+    /* ── COUNTER ────────────────────────────────────────────────── */
+    .card-counter {
+      font-size: 10px;
+      color: var(--dim);
+      letter-spacing: 2px;
+      text-align: center;
+      margin-top: -12px;
+    }
+
+    /* ── RESPONSIVE ─────────────────────────────────────────────── */
+    @media (max-width: 560px) {
+      body { padding: 40px 16px 60px; }
+      .history-section { padding: 24px 20px; }
+      .strategy-card { padding: 40px 24px; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="page-wrapper">
+
+    <!-- ── TITLE ─────────────────────────────────────────────────── -->
+    <div style="text-align:center;">
+      <div class="page-title">OBLIQUE STRATEGIES</div>
+      <div class="page-subtitle">Over one hundred worthwhile dilemmas — Brian Eno &amp; Peter Schmidt</div>
+    </div>
+
+    <!-- ── INTRO ──────────────────────────────────────────────────── -->
+    <div class="intro">
+      <p>
+        When facing a creative block, draw a card and <strong>trust its instruction blindly.</strong>
+        Let it reframe your perspective — the constraint is the point.
+      </p>
+    </div>
+
+    <!-- ── CARD ───────────────────────────────────────────────────── -->
+    <div class="card-wrap">
+      <div class="strategy-card">
+        <div class="card-corner tl"></div>
+        <div class="card-corner tr"></div>
+        <div class="card-corner bl"></div>
+        <div class="card-corner br"></div>
+        <div id="strategy-text" class="strategy-text">
+          Draw a card.
+        </div>
+      </div>
+    </div>
+
+    <!-- ── COUNTER ────────────────────────────────────────────────── -->
+    <div class="card-counter" id="card-counter">&nbsp;</div>
+
+    <!-- ── BUTTON ─────────────────────────────────────────────────── -->
+    <button class="btn-draw" onclick="drawStrategy()">[ Next Card ]</button>
+
+    <!-- ── SECTION DIVIDER ────────────────────────────────────────── -->
+    <div class="section-divider">
+      <span>History &amp; Method</span>
+    </div>
+
+    <!-- ── HISTORY ────────────────────────────────────────────────── -->
+    <div class="history-section">
+      <div class="history-label">Origin</div>
+      <h2>What Are Oblique Strategies?</h2>
+
+      <p>
+        <strong>Oblique Strategies</strong> is a set of cards created by musician and producer
+        <strong>Brian Eno</strong> and artist <strong>Peter Schmidt</strong>, first published in 1975.
+        Each card carries a short, often cryptic instruction — an aphorism, a question, or a constraint
+        designed to dislodge the creative mind from habitual thinking when a project has stalled.
+      </p>
+
+      <p>
+        The deck grew from two parallel but independent practices. Schmidt had been collecting
+        similar maxims on cards as part of his own painting discipline throughout the early 1970s.
+        Eno, working in recording studios and finding that deadline pressure caused musicians to
+        retreat to safe, predictable choices, was developing his own parallel set of prompts.
+        When the two discovered the overlap in their methods, they formalized it as a printed deck.
+      </p>
+
+      <p>
+        The first edition of <em>113 cards</em> was a limited print run. Subsequent editions followed
+        in 1978, 1979, and 2001, each revised slightly, with some cards retired and new ones added.
+        The title itself is the method: approach the problem <em>obliquely</em>, from an unexpected angle,
+        rather than head-on. A card might instruct you to <em>"Honor thy error as a hidden intention"</em>
+        or simply <em>"Work at a different speed."</em> The apparent absurdity is deliberate;
+        it forces the brain out of problem-solving mode and into lateral association.
+      </p>
+
+      <p>
+        Eno deployed the deck extensively in his production work throughout the late 1970s and 1980s.
+        Sessions for David Bowie's <em>Heroes</em> and <em>Lodger</em>, Talking Heads'
+        <em>Fear of Music</em> and <em>Remain in Light</em>, and Devo's <em>Q: Are We Not Men?</em>
+        all reportedly involved the cards at moments of creative friction. Eno would draw a card and
+        apply it literally to whatever the band was working on, sometimes to the musicians' frustration,
+        always to productive effect.
+      </p>
+
+      <p>
+        The underlying philosophy draws on <strong>cybernetics</strong> and <strong>systems theory</strong>:
+        the idea that a system under stress benefits from a random perturbation to escape a local minimum.
+        Creativity, like any complex system, can get trapped in loops. The cards act as a stochastic
+        signal, noise introduced intentionally to break the loop. Whether or not you follow the
+        instruction literally matters less than the interruption it creates in your current mental model.
+      </p>
+
+      <p>
+        Today the method is taught in music production programs, design schools, and creative writing
+        courses worldwide. The cards remain in print, and the approach has inspired countless
+        analogous toolkits across disciplines. Their core insight holds: <em>the constraint you
+        didn't choose is often the most liberating one.</em>
+      </p>
+    </div>
+
+  </div><!-- /.page-wrapper -->
+
+  <!-- ── SCRIPT ─────────────────────────────────────────────────── -->
+  <script>
+    /* ── All 113 strategies (Brian Eno & Peter Schmidt) ── */
+    const strategies = [
+      "Abandon normal instruments",
+      "Accept advice",
+      "Accretion",
+      "A line has two sides",
+      "Allow an easement (an easement is the abandonment of a stricture)",
+      "Always first steps",
+      "Always give yourself credit for having more than personality",
+      "Are there sections? Consider transitions",
+      "Ask people to work against their better judgement",
+      "Ask your body",
+      "Assemble some of the instruments in a group and treat the group",
+      "Balance the consistency principle with the inconsistency principle",
+      "Be dirty",
+      "Breathe more strongly",
+      "Cascades",
+      "Change instrument roles",
+      "Change nothing and continue with immaculate consistency",
+      "Children's voices - speaking - singing",
+      "Cluster analysis",
+      "Consider different fading systems",
+      "Consult other sources - promi-singly - unpromisingly",
+      "Convert a melodic element into a rhythmic element",
+      "Courage!",
+      "Cut a vital connection",
+      "Decorate, decorate",
+      "Define an area as 'safe' and use it as an anchor",
+      "Destroy - nothing - the most important thing",
+      "Discard an axiom",
+      "Disconnected action",
+      "Discover the recipes you are using and abandon them",
+      "Distorting time",
+      "Do nothing for as long as possible",
+      "Don't be afraid of things because they're easy to do",
+      "Don't be frightened of cliches",
+      "Don't be frightened to display your talents",
+      "Don't break the silence",
+      "Don't stress one thing more than another",
+      "Do something boring",
+      "Do the washing up",
+      "Do the words need changing?",
+      "Do we need holes?",
+      "Emphasize differences",
+      "Emphasize repetitions",
+      "Emphasize the flaws",
+      "Faced with a choice, do both",
+      "Feed the recording back out of the medium",
+      "Fill every beat with something",
+      "Get your neck massaged",
+      "Ghost echoes",
+      "Give way to your worst impulse",
+      "Go slowly all the way round the outside",
+      "Honor thy error as a hidden intention",
+      "How would you have done it?",
+      "Humanize something free of error",
+      "Imagine the music as a moving chain or caterpillar",
+      "Imagine the music as a set of disconnected events",
+      "Infinitesimal gradations",
+      "Intentions - credibility of - nobility of - humility of",
+      "Into the impossible",
+      "Is it finished?",
+      "Is there something missing?",
+      "Is the tuning appropriate?",
+      "Just carry on",
+      "Left channel, right channel, center channel",
+      "Listen in total darkness, or in a very large room, very quietly",
+      "Listen to the quiet voice",
+      "Look at a very small object, look at its centre",
+      "Look at the order in which you do things",
+      "Look closely at the most embarrassing details and amplify them",
+      "Lowest common denominator",
+      "Make an exhaustive list of everything you might do and do the last thing on the list",
+      "Make a sudden, destructive unpredictable action; incorporate",
+      "Mechanicalize something idiosyncratic",
+      "Mute and continue",
+      "Only one element of each kind",
+      "(Organic) machinery",
+      "Overtly resist change",
+      "Put in earplugs",
+      "Remember . . . those quiet evenings",
+      "Remove ambiguities and convert to specifics",
+      "Remove specifics and convert to ambiguities",
+      "Repetition is a form of change",
+      "Reverse",
+      "Short circuit (example: a man eating peas with the idea that they will improve his virility)",
+      "Shut the door and listen from outside",
+      "Simple subtraction",
+      "Spectrum analysis",
+      "Take a break",
+      "Take away the elements in order of apparent non-importance",
+      "Tape your mouth",
+      "The inconsistency principle",
+      "The tape is now the music",
+      "Think of the radio",
+      "Tidy up",
+      "Towards the insignificant",
+      "Trust in the you of now",
+      "Turn it upside down",
+      "Twist the spine",
+      "Use an old idea",
+      "Use an unacceptable color",
+      "Use fewer notes",
+      "Use filters",
+      "Use 'unqualified' people",
+      "Water",
+      "What are you really thinking about just now? Incorporate",
+      "What is the reality of the situation?",
+      "What mistakes did you make last time?",
+      "What would your closest friend do?",
+      "What wouldn't you do?",
+      "Work at a different speed",
+      "You are an engineer",
+      "You can only make one dot at a time",
+      "You don't need to be an individual",
+      "Your mistake was a hidden intention"
+    ];
+
+    let lastIndex = -1;
+    let drawCount = 0;
+
+    function drawStrategy() {
+      const textEl = document.getElementById('strategy-text');
+      const counterEl = document.getElementById('card-counter');
+
+      /* Pick a new random card (never repeat consecutively) */
+      let index;
+      do {
+        index = Math.floor(Math.random() * strategies.length);
+      } while (index === lastIndex);
+      lastIndex = index;
+      drawCount++;
+
+      /* Fade out → update → fade in */
+      textEl.classList.add('fading');
+      setTimeout(() => {
+        textEl.textContent = strategies[index];
+        counterEl.textContent = `card ${drawCount} drawn`;
+        textEl.classList.remove('fading');
+      }, 350);
+    }
+  </script>
+
+</body>
+</html>
