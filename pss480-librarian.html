@@ -2,10 +2,16 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <title>PORTASOUND // PSS-480 SYSEX LIBRARIAN</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=VT323&display=swap" rel="stylesheet">
+<!-- Stage-hardened: no external font CDN. Runs fully offline once loaded; falls back to
+     the system monospace stack below (Courier New / monospace) with zero network dependency. -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="PSS-480 Librarian">
+<meta name="theme-color" content="#0a0a12">
+<link id="manifestLink" rel="manifest">
 <style>
 /* ============================================================
    PORTASOUND JS :: CYBERPUNK / SYNTHWAVE TERMINAL THEME
@@ -413,12 +419,185 @@ footer a{ color:var(--purple); }
   margin-left:8px;
   vertical-align:middle;
 }
+
+/* ============================================================
+   STAGE HARDENING + VOICE DESIGNER
+   ============================================================ */
+
+/* ---- send confirmation flash (screen-edge glow, peripheral-visible) ---- */
+.flash-pulse{
+  pointer-events:none;
+  position:fixed; inset:0; z-index:10000;
+  box-shadow:inset 0 0 0px 0px var(--cyan);
+  opacity:0;
+}
+.flash-pulse.active{
+  animation:flashPulse .38s ease-out;
+}
+@keyframes flashPulse{
+  0%{ box-shadow:inset 0 0 60px 10px var(--cyan); opacity:1; }
+  100%{ box-shadow:inset 0 0 0px 0px var(--cyan); opacity:0; }
+}
+
+/* ---- orientation lock toggle ---- */
+.orient-lock-wrap{ display:flex; align-items:center; gap:8px; }
+.orient-lock-switch{
+  width:38px; height:20px;
+  background:var(--bg-input);
+  border:1px solid var(--cyan-dim);
+  position:relative;
+  cursor:pointer;
+  flex:0 0 auto;
+}
+.orient-lock-switch .knob-dot{
+  position:absolute; top:1px; left:1px;
+  width:16px; height:16px;
+  background:var(--text-dim);
+  transition:left .12s ease, background .12s ease;
+}
+.orient-lock-switch.on{ border-color:var(--amber); box-shadow:0 0 6px var(--amber-dim, #4a3200); }
+.orient-lock-switch.on .knob-dot{ left:19px; background:var(--amber); box-shadow:0 0 6px var(--amber); }
+.orient-lock-label{ font-size:10px; letter-spacing:1px; color:var(--text-dim); text-transform:uppercase; }
+
+/* ---- big stage buttons (undo/redo, randomize/mutate) ---- */
+.stage-toolbar{ display:flex; gap:14px; flex-wrap:wrap; margin-top:14px; align-items:center; }
+.btn-stage{
+  font-size:14px;
+  padding:16px 20px;
+  min-height:56px;
+  min-width:88px;
+}
+.btn-stage.icon-only{ min-width:64px; font-size:20px; padding:14px 18px; }
+.mutate-strength{ display:flex; align-items:center; gap:8px; font-size:10px; color:var(--text-dim); letter-spacing:1px; text-transform:uppercase; }
+.mutate-strength input[type=range]{ width:90px; }
+
+/* ---- archetype pad grid ---- */
+.archetype-grid{
+  display:grid;
+  grid-template-columns:repeat(3, 1fr);
+  gap:14px;
+}
+@media (min-width:761px) and (max-width:1200px){ .archetype-grid{ grid-template-columns:repeat(4,1fr); } }
+@media (min-width:1201px){ .archetype-grid{ grid-template-columns:repeat(6,1fr); } }
+.archetype-pad{
+  background:var(--bg-panel-raised);
+  border:1px solid var(--border);
+  padding:14px 10px;
+  min-height:64px;
+  cursor:pointer;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:4px;
+  text-align:center;
+  box-shadow:3px 3px 0 rgba(0,0,0,0.5);
+  transition:box-shadow .1s ease, transform .1s ease, border-color .1s ease;
+  -webkit-tap-highlight-color:transparent;
+  user-select:none;
+}
+.archetype-pad:hover{ border-color:var(--purple); box-shadow:3px 3px 0 var(--purple-dim); }
+.archetype-pad:active{ transform:translate(1px,1px); }
+.archetype-pad.active{
+  border-color:var(--pink);
+  background:linear-gradient(160deg, var(--bg-panel-raised), #1a0c14);
+  box-shadow:0 0 10px var(--pink-dim), 0 0 0 1px var(--pink), 3px 3px 0 var(--cyan);
+}
+.archetype-pad .arch-num{ font-family:var(--font-pixel); font-size:12px; color:var(--text-dim); letter-spacing:1px; }
+.archetype-pad.active .arch-num{ color:var(--pink); }
+.archetype-pad .arch-name{ font-size:12px; color:var(--text); letter-spacing:.5px; }
+.archetype-pad .arch-hint{ font-size:9px; color:var(--text-dim); text-transform:uppercase; letter-spacing:1px; }
+.archetype-pad.active .arch-hint{ color:var(--cyan); }
+
+/* ---- macro knobs ---- */
+.knob-row{
+  display:grid;
+  grid-template-columns:repeat(auto-fit, minmax(120px, 1fr));
+  gap:18px;
+}
+.knob-widget{
+  display:flex; flex-direction:column; align-items:center; gap:8px;
+  padding:10px;
+  background:var(--bg-panel-raised);
+  border:1px solid var(--border);
+}
+.knob-face-wrap{
+  position:relative;
+  width:88px; height:88px;
+  -webkit-tap-highlight-color:transparent;
+  touch-action:none;
+}
+.knob-face{
+  position:absolute; inset:0;
+  border-radius:50%;
+  background:radial-gradient(circle at 35% 30%, #1c1c30, var(--bg-input) 70%);
+  border:2px solid var(--purple);
+  box-shadow:0 0 10px var(--purple-dim), inset 0 0 8px rgba(0,0,0,0.6);
+  cursor:grab;
+}
+.knob-face:active{ cursor:grabbing; }
+.knob-indicator{
+  position:absolute;
+  top:6px; left:50%;
+  width:4px; height:34px;
+  background:var(--cyan);
+  box-shadow:0 0 6px var(--cyan);
+  transform-origin:2px 38px;
+  margin-left:-2px;
+}
+.knob-tap-zone{
+  position:absolute; left:8px; right:8px;
+  height:36px;
+  cursor:pointer;
+}
+.knob-tap-up{ top:8px; }
+.knob-tap-down{ bottom:8px; }
+.knob-label{ font-size:10px; letter-spacing:1px; text-transform:uppercase; color:var(--text-dim); }
+.knob-value{ font-family:var(--font-pixel); font-size:18px; color:var(--cyan); text-shadow:0 0 4px var(--cyan-dim); }
+.knob-widget.off .knob-value{ color:var(--text-dim); text-shadow:none; }
+
+/* ---- Voice Designer panel layout: desktop = calm 3-col arrangement ---- */
+.voice-designer-body{
+  display:grid;
+  grid-template-columns:1fr;
+  gap:20px;
+}
+@media (min-width:1051px){
+  .voice-designer-body{ grid-template-columns:2fr 1fr; align-items:start; }
+}
+
+/* ============================================================
+   ORIENTATION-DRIVEN STAGE LAYOUT
+   (driven by JS-applied body classes .layout-portrait / .layout-landscape
+    so the manual orientation lock can override auto-detection cleanly)
+   ============================================================ */
+body.layout-portrait .shell{
+  display:flex;
+  flex-direction:column;
+}
+/* Reorder panels for one-handed thumb reach: connection status glanced at top,
+   Voice Designer (stage controls) promoted directly beneath it, bank grid
+   and raw param editor pushed down / scrollable since they're desk/setup features. */
+body.layout-portrait .panel[data-title="MIDI I/O"]{ order:1; }
+body.layout-portrait .panel[data-title="VOICE DESIGNER"]{ order:2; }
+body.layout-portrait .panel[data-title="16 PATCH BANKS"]{ order:3; }
+body.layout-portrait .panel[data-title="EDIT BUFFER"]{ order:4; }
+body.layout-portrait footer{ order:5; }
+
+body.layout-portrait .archetype-grid{ grid-template-columns:repeat(3, 1fr); }
+body.layout-portrait .knob-row{ grid-template-columns:repeat(3, 1fr); }
+body.layout-portrait .voice-designer-body{ grid-template-columns:1fr; }
+body.layout-portrait .btn-stage{ flex:1 1 40%; }
+
+body.layout-landscape .archetype-grid{ grid-template-columns:repeat(6, 1fr); }
+body.layout-landscape .knob-row{ grid-template-columns:repeat(5, 1fr); }
 </style>
 </head>
 <body>
 
 <div class="crt-overlay"></div>
 <div class="crt-vignette"></div>
+<div class="flash-pulse" id="flashPulse"></div>
 
 <div class="shell">
 
@@ -429,6 +608,10 @@ footer a{ color:var(--purple); }
     </div>
     <div class="subtitle" style="text-align:right;">
       2-OP FM ENGINE<span class="badge">OFFLINE READY</span>
+      <div class="orient-lock-wrap" style="margin-top:8px; justify-content:flex-end;">
+        <span class="orient-lock-label">Lock Layout</span>
+        <div class="orient-lock-switch" id="orientLockSwitch" title="Freeze the current portrait/landscape layout so incidental tilts mid-set don't rearrange it"><span class="knob-dot"></span></div>
+      </div>
     </div>
   </header>
 
@@ -455,6 +638,31 @@ footer a{ color:var(--purple); }
       <button class="purple" id="btnImport">Import JSON</button>
       <button class="amber" id="btnResetBank">Reset Bank to Default</button>
       <input type="file" id="fileImport" accept="application/json" class="hidden">
+    </div>
+  </div>
+
+  <!-- ================= VOICE DESIGNER ================= -->
+  <div class="panel" data-title="VOICE DESIGNER">
+    <div class="stage-toolbar">
+      <button class="btn-stage icon-only" id="btnUndo" title="Undo">&#8630; UNDO</button>
+      <button class="btn-stage icon-only" id="btnRedo" title="Redo">&#8631; REDO</button>
+      <button class="btn-stage pink" id="btnRandomize">Randomize</button>
+      <button class="btn-stage amber" id="btnMutate">Mutate</button>
+      <div class="mutate-strength">
+        <span>Strength</span>
+        <input type="range" id="mutateStrength" min="5" max="30" step="1" value="12">
+        <span id="mutateStrengthVal">12%</span>
+      </div>
+    </div>
+    <div class="voice-designer-body" style="margin-top:18px;">
+      <div>
+        <h3 style="margin:0 0 10px; font-size:10px; letter-spacing:2px; text-transform:uppercase; color:var(--text-dim);">Archetype</h3>
+        <div class="archetype-grid" id="archetypeGrid"></div>
+      </div>
+      <div>
+        <h3 style="margin:0 0 10px; font-size:10px; letter-spacing:2px; text-transform:uppercase; color:var(--text-dim);">Macro Knobs</h3>
+        <div class="knob-row" id="knobRow"></div>
+      </div>
     </div>
   </div>
 
@@ -562,6 +770,7 @@ function sendSysexPss480(output, values, immediate){
     }
   }
   setLcd((immediate ? '>> SENT ' : '~ SENT ') + bytes.length + ' BYTES :: ' + bytesToHex(bytes));
+  flashSend(); // peripheral confirmation pulse — stage performer may not see/hear the synth react directly
   return bytes;
 }
 
@@ -775,6 +984,12 @@ function buildSlider(param){
     sendSysexDebounced(currentOutput, editValues);
   });
 
+  // committed edit (mouse-up / keyboard-commit) — this is the undo checkpoint,
+  // not the live 'input' handler above which fires on every drag frame
+  input.addEventListener('change', () => {
+    pushHistory();
+  });
+
   // mouse wheel nudges the slider, mirrors original UX
   input.addEventListener('wheel', (e) => {
     e.preventDefault();
@@ -785,6 +1000,7 @@ function buildSlider(param){
     valEl.textContent = v;
     markDirty();
     sendSysexDebounced(currentOutput, editValues);
+    pushHistory(); // each wheel tick is a discrete, atomic commit
   }, { passive:false });
 
   row.appendChild(label);
@@ -820,6 +1036,7 @@ function buildToggle(param){
     btn.textContent = v === 1 ? 'ON' : 'OFF';
     markDirty();
     sendSysexDebounced(currentOutput, editValues);
+    pushHistory();
   });
 
   row.appendChild(labelWrap);
@@ -924,10 +1141,14 @@ function selectBank(idx){
   const bank = banks[idx];
   editValues = (bank.hasData && bank.values) ? bank.values.slice() : defaultValues();
   bank._dirty = false;
+  currentArchetypeId = null;
   refreshEditorUI();
   renderBanks();
+  refreshArchetypeUI();
+  refreshKnobUI();
   // Bank selection transmits INSTANTLY (not debounced) per spec.
   sendSysexPss480(currentOutput, editValues, true);
+  pushHistory();
 }
 
 /* ============================================================
@@ -949,10 +1170,14 @@ document.getElementById('btnResetBank').addEventListener('click', () => {
   bank.hasData = false;
   bank._dirty = false;
   editValues = defaultValues();
+  currentArchetypeId = null;
   persistBanks();
   refreshEditorUI();
   renderBanks();
+  refreshArchetypeUI();
+  refreshKnobUI();
   sendSysexPss480(currentOutput, editValues, true);
+  pushHistory();
   setLcd('BANK ' + (activeBankIndex + 1) + ' RESET TO FACTORY DEFAULTS.');
 });
 
@@ -1005,6 +1230,591 @@ fileImport.addEventListener('change', (e) => {
 });
 
 /* ============================================================
+   11. VOICE DESIGNER: Archetypes + 5 Macro Knobs
+   ------------------------------------------------------------
+   NOTE: exact raw Multiplier/Feedback/envelope numbers below are
+   design-intent placeholders (simple vs. coprime ratios, low vs.
+   high feedback, per the archetype table) — they have not been
+   audited against real PSS-480 hardware and should be tuned by
+   ear before relying on them for a show.
+   ============================================================ */
+
+const KNOB_NAMES = ['brightness','vibrato','tremolo','delay','sustain'];
+
+function ax(min,max){ return {min:min, max:max}; }
+
+const ARCHETYPES = [
+  { id:'bell', name:'Bell', hint:'FM Bell',
+    locked:{1:7,2:7, 3:7,4:2, 21:0,22:0, 6:85, 7:0,8:0,9:2,10:1,11:2,12:2, 13:3,14:4, 23:30,24:30, 17:0,18:0, 32:6,33:6, 36:0},
+    knobBounds:{
+      brightness:{5:ax(15,55), 29:ax(1,4)},
+      vibrato:{30:ax(0,3)},
+      tremolo:{31:ax(0,1)},
+      delay:{34:ax(0,60)},
+      sustain:{19:ax(5,25),20:ax(6,26),25:ax(0,3),26:ax(0,3),27:ax(2,7),28:ax(2,7)},
+    },
+    defaultKnobs:{brightness:40,vibrato:15,tremolo:0,delay:20,sustain:15} },
+
+  { id:'metallic', name:'Metallic / Gong', hint:'Wide Coprime',
+    locked:{1:7,2:7, 3:11,4:3, 21:0,22:2, 6:80, 7:0,8:0,9:2,10:1,11:1,12:1, 13:2,14:3, 23:55,24:55, 17:0,18:0, 32:8,33:8, 36:0},
+    knobBounds:{
+      brightness:{5:ax(25,70), 29:ax(2,6)},
+      vibrato:{30:ax(0,2)},
+      tremolo:{31:ax(0,1)},
+      delay:{34:ax(0,60)},
+      sustain:{19:ax(30,60),20:ax(30,60),25:ax(0,3),26:ax(0,3),27:ax(6,14),28:ax(6,14)},
+    },
+    defaultKnobs:{brightness:50,vibrato:5,tremolo:0,delay:10,sustain:55} },
+
+  { id:'bass', name:'Bass', hint:'1:1 Low',
+    locked:{1:7,2:7, 3:1,4:1, 21:0,22:0, 6:92, 7:0,8:0,9:0,10:0,11:1,12:1, 13:4,14:5, 23:25,24:25, 17:0,18:0, 32:5,33:5, 36:0},
+    knobBounds:{
+      brightness:{5:ax(5,30), 29:ax(0,2)},
+      vibrato:{30:ax(0,2)},
+      tremolo:{31:ax(0,1)},
+      delay:{34:ax(0,50)},
+      sustain:{19:ax(10,25),20:ax(12,28),25:ax(6,12),26:ax(6,12),27:ax(3,8),28:ax(3,8)},
+    },
+    defaultKnobs:{brightness:25,vibrato:0,tremolo:0,delay:15,sustain:35} },
+
+  { id:'subbass', name:'Sub Bass', hint:'1:1 Simplest',
+    locked:{1:7,2:7, 3:1,4:1, 21:0,22:0, 6:96, 7:0,8:0,9:0,10:0,11:0,12:0, 13:22,14:24, 23:20,24:20, 17:0,18:0, 32:4,33:4, 36:0},
+    knobBounds:{
+      brightness:{5:ax(0,10), 29:ax(0,1)},
+      vibrato:{30:ax(0,1)},
+      tremolo:{31:ax(0,1)},
+      delay:{34:ax(0,40)},
+      sustain:{19:ax(45,62),20:ax(45,62),25:ax(11,15),26:ax(11,15),27:ax(5,10),28:ax(5,10)},
+    },
+    defaultKnobs:{brightness:10,vibrato:0,tremolo:0,delay:10,sustain:70} },
+
+  { id:'pluck', name:'Pluck', hint:'1:1 / 1:2 Snap',
+    locked:{1:7,2:7, 3:2,4:1, 21:0,22:0, 6:88, 7:0,8:0,9:0,10:0,11:2,12:2, 13:1,14:2, 23:20,24:20, 17:0,18:0, 32:5,33:5, 36:0},
+    knobBounds:{
+      brightness:{5:ax(20,60), 29:ax(1,4)},
+      vibrato:{30:ax(0,2)},
+      tremolo:{31:ax(0,1)},
+      delay:{34:ax(0,40)},
+      sustain:{19:ax(3,15),20:ax(4,16),25:ax(0,3),26:ax(0,3),27:ax(2,6),28:ax(2,6)},
+    },
+    defaultKnobs:{brightness:45,vibrato:5,tremolo:0,delay:10,sustain:10} },
+
+  { id:'epiano', name:'Electric Piano', hint:'1:1 Percussive',
+    locked:{1:8,2:6, 3:1,4:1, 21:0,22:0, 6:85, 7:0,8:0,9:1,10:0,11:1,12:1, 13:4,14:5, 23:32,24:32, 17:0,18:0, 32:6,33:6, 36:0},
+    knobBounds:{
+      brightness:{5:ax(20,50), 29:ax(1,3)},
+      vibrato:{30:ax(0,2)},
+      tremolo:{31:ax(0,1)},
+      delay:{34:ax(0,50)},
+      sustain:{19:ax(6,20),20:ax(8,22),25:ax(1,4),26:ax(1,4),27:ax(4,9),28:ax(4,9)},
+    },
+    defaultKnobs:{brightness:35,vibrato:8,tremolo:5,delay:15,sustain:25} },
+
+  { id:'brass', name:'Brass Stab', hint:'1:1 / 2:1',
+    locked:{1:8,2:6, 3:2,4:1, 21:0,22:0, 6:88, 7:0,8:0,9:2,10:1,11:1,12:1, 13:6,14:8, 23:35,24:35, 17:0,18:0, 32:7,33:7, 36:0},
+    knobBounds:{
+      brightness:{5:ax(30,65), 29:ax(1,4)},
+      vibrato:{30:ax(1,5)},
+      tremolo:{31:ax(0,2)},
+      delay:{34:ax(20,110)},
+      sustain:{19:ax(30,50),20:ax(32,52),25:ax(9,14),26:ax(9,14),27:ax(6,11),28:ax(6,11)},
+    },
+    defaultKnobs:{brightness:50,vibrato:25,tremolo:10,delay:70,sustain:60} },
+
+  { id:'reed', name:'Reed', hint:'1:1 / 2:1',
+    locked:{1:8,2:6, 3:1,4:1, 21:0,22:0, 6:86, 7:0,8:0,9:1,10:1,11:1,12:1, 13:12,14:14, 23:40,24:40, 17:0,18:0, 32:7,33:7, 36:0},
+    knobBounds:{
+      brightness:{5:ax(25,55), 29:ax(1,3)},
+      vibrato:{30:ax(1,6)},
+      tremolo:{31:ax(0,2)},
+      delay:{34:ax(0,90)},
+      sustain:{19:ax(35,55),20:ax(37,57),25:ax(10,14),26:ax(10,14),27:ax(6,11),28:ax(6,11)},
+    },
+    defaultKnobs:{brightness:40,vibrato:30,tremolo:10,delay:35,sustain:65} },
+
+  { id:'wind', name:'Wind / Flute', hint:'1:1 Slow',
+    locked:{1:7,2:7, 3:1,4:1, 21:0,22:0, 6:82, 7:0,8:0,9:0,10:0,11:0,12:0, 13:32,14:35, 23:45,24:45, 17:0,18:0, 32:8,33:8, 36:0},
+    knobBounds:{
+      brightness:{5:ax(10,35), 29:ax(0,2)},
+      vibrato:{30:ax(1,6)},
+      tremolo:{31:ax(0,2)},
+      delay:{34:ax(0,90)},
+      sustain:{19:ax(45,60),20:ax(47,62),25:ax(11,15),26:ax(11,15),27:ax(8,13),28:ax(8,13)},
+    },
+    defaultKnobs:{brightness:20,vibrato:35,tremolo:10,delay:40,sustain:75} },
+
+  { id:'organ', name:'Organ / Pad', hint:'1:1 / 2:1 Sine',
+    locked:{1:7,2:7, 3:2,4:1, 21:0,22:0, 6:78, 7:0,8:0,9:0,10:0,11:0,12:0, 13:40,14:42, 23:50,24:50, 17:0,18:0, 32:9,33:9, 36:0},
+    knobBounds:{
+      brightness:{5:ax(0,15), 29:ax(0,1)},
+      vibrato:{30:ax(1,5)},
+      tremolo:{31:ax(0,3)},
+      delay:{34:ax(0,80)},
+      sustain:{19:ax(52,62),20:ax(52,62),25:ax(13,15),26:ax(13,15),27:ax(9,14),28:ax(9,14)},
+    },
+    defaultKnobs:{brightness:10,vibrato:20,tremolo:15,delay:25,sustain:90} },
+
+  { id:'percussion', name:'Percussion Hit', hint:'Coprime',
+    locked:{1:7,2:7, 3:13,4:4, 21:1,22:0, 6:90, 7:0,8:0,9:2,10:2,11:3,12:3, 13:1,14:1, 23:8,24:8, 17:0,18:0, 32:3,33:3, 36:0},
+    knobBounds:{
+      brightness:{5:ax(35,75), 29:ax(2,6)},
+      vibrato:{30:ax(0,1)},
+      tremolo:{31:ax(0,1)},
+      delay:{34:ax(0,20)},
+      sustain:{19:ax(1,8),20:ax(1,8),25:ax(0,1),26:ax(0,1),27:ax(1,3),28:ax(1,3)},
+    },
+    defaultKnobs:{brightness:55,vibrato:0,tremolo:0,delay:0,sustain:5} },
+
+  { id:'static', name:'Static / Noise', hint:'Widest Coprime',
+    locked:{1:7,2:7, 3:15,4:4, 21:2,22:3, 6:75, 7:0,8:0,9:3,10:3,11:3,12:3, 13:1,14:1, 23:15,24:15, 17:0,18:0, 32:2,33:2, 36:0},
+    knobBounds:{
+      brightness:{5:ax(50,90), 29:ax(4,7)},
+      vibrato:{30:ax(0,1)},
+      tremolo:{31:ax(0,2)},
+      delay:{34:ax(0,20)},
+      sustain:{19:ax(30,55),20:ax(30,55),25:ax(4,9),26:ax(4,9),27:ax(1,4),28:ax(1,4)},
+    },
+    defaultKnobs:{brightness:70,vibrato:0,tremolo:10,delay:0,sustain:35} },
+];
+const ARCHETYPE_BY_ID = {};
+ARCHETYPES.forEach(a => ARCHETYPE_BY_ID[a.id] = a);
+
+let currentArchetypeId = null;
+let currentKnobs = { brightness:50, vibrato:0, tremolo:0, delay:0, sustain:50 };
+
+function lerp(min, max, t){ return Math.round(min + (max - min) * t); }
+
+/* Writes currentKnobs -> editValues, respecting the active archetype's
+   per-param bounds. Does not send or push history — caller decides. */
+function applyKnobsToValues(){
+  const arch = ARCHETYPE_BY_ID[currentArchetypeId];
+  if (!arch) return;
+  const b = arch.knobBounds;
+
+  // Brightness: Total Level (Mod) + Feedback move together. Never touches
+  // Carrier Level (idx 6) — that's overall volume, locked separately per archetype.
+  {
+    const t = currentKnobs.brightness / 100;
+    Object.keys(b.brightness).forEach(idxStr => {
+      const idx = parseInt(idxStr, 10);
+      const bounds = b.brightness[idx];
+      editValues[idx] = clamp(lerp(bounds.min, bounds.max, t), 0, PARAMS[idx].range - 1);
+    });
+  }
+
+  // Vibrato: fully off at 0 (not just quiet), else scale Pitch Mod Sensitivity
+  {
+    const kv = currentKnobs.vibrato;
+    const bounds = b.vibrato[30];
+    if (kv <= 0){
+      editValues[35] = 0;
+      editValues[30] = bounds.min;
+    } else {
+      editValues[35] = 1;
+      editValues[30] = clamp(lerp(bounds.min, bounds.max, kv / 100), 0, PARAMS[30].range - 1);
+    }
+  }
+
+  // Tremolo: fully off at 0, else scale Amp Mod Sensitivity + flip both AM-enable flags together
+  {
+    const kv = currentKnobs.tremolo;
+    const bounds = b.tremolo[31];
+    if (kv <= 0){
+      editValues[15] = 0; editValues[16] = 0;
+      editValues[31] = bounds.min;
+    } else {
+      editValues[15] = 1; editValues[16] = 1;
+      editValues[31] = clamp(lerp(bounds.min, bounds.max, kv / 100), 0, PARAMS[31].range - 1);
+    }
+  }
+
+  // Delay: Vibrato Delay Time only — deliberately does not touch Release
+  {
+    const bounds = b.delay[34];
+    editValues[34] = clamp(lerp(bounds.min, bounds.max, currentKnobs.delay / 100), 0, PARAMS[34].range - 1);
+  }
+
+  // Sustain/Hold: one coordinated "plucky ↔ held" axis across 6 params —
+  // never exposed/randomized independently.
+  {
+    const t = currentKnobs.sustain / 100;
+    [19,20,25,26,27,28].forEach(idx => {
+      const bounds = b.sustain[idx];
+      editValues[idx] = clamp(lerp(bounds.min, bounds.max, t), 0, PARAMS[idx].range - 1);
+    });
+  }
+}
+
+function applyArchetypeLocked(arch){
+  Object.keys(arch.locked).forEach(idxStr => {
+    const idx = parseInt(idxStr, 10);
+    editValues[idx] = clamp(arch.locked[idx], 0, PARAMS[idx].range - 1);
+  });
+}
+
+function loadArchetype(id){
+  const arch = ARCHETYPE_BY_ID[id];
+  if (!arch) return;
+  currentArchetypeId = id;
+  applyArchetypeLocked(arch);
+  currentKnobs = Object.assign({}, arch.defaultKnobs);
+  applyKnobsToValues();
+  markDirty();
+  refreshEditorUI();
+  refreshArchetypeUI();
+  refreshKnobUI();
+  sendSysexPss480(currentOutput, editValues, true);
+  pushHistory();
+  setLcd('ARCHETYPE -> ' + arch.name.toUpperCase());
+}
+
+function jitter(val, spread, lo, hi){
+  const delta = Math.round((Math.random() * 2 - 1) * spread);
+  return clamp(val + delta, lo, hi);
+}
+
+/* Tap-already-selected-pad gesture: small randomized nudge within the
+   archetype's own locked ratio/character family — not a full reroll. */
+function rerollArchetype(id){
+  const arch = ARCHETYPE_BY_ID[id];
+  if (!arch) return;
+  applyArchetypeLocked(arch);
+  KNOB_NAMES.forEach(name => {
+    currentKnobs[name] = jitter(currentKnobs[name], 12, 0, 100);
+  });
+  applyKnobsToValues();
+  // small nudge to Sustain Release Rate (idx 32/33) — not identity, not knob-driven
+  const baseSR = arch.locked[32] != null ? arch.locked[32] : editValues[32];
+  const baseSRc = arch.locked[33] != null ? arch.locked[33] : editValues[33];
+  editValues[32] = jitter(baseSR, 2, 0, PARAMS[32].range - 1);
+  editValues[33] = jitter(baseSRc, 2, 0, PARAMS[33].range - 1);
+  markDirty();
+  refreshEditorUI();
+  refreshKnobUI();
+  sendSysexPss480(currentOutput, editValues, true);
+  pushHistory();
+  setLcd('REROLLED VARIANT -> ' + arch.name.toUpperCase());
+}
+
+/* ---- Randomize / Mutate: implemented as automated knob-turning ---- */
+function randomizeKnobs(){
+  if (!currentArchetypeId) { setLcd('SELECT AN ARCHETYPE FIRST.'); return; }
+  KNOB_NAMES.forEach(name => { currentKnobs[name] = Math.round(Math.random() * 100); });
+  applyKnobsToValues();
+  markDirty();
+  refreshEditorUI();
+  refreshKnobUI();
+  sendSysexPss480(currentOutput, editValues, true);
+  pushHistory();
+  setLcd('RANDOMIZED KNOBS.');
+}
+
+function mutateKnobs(strengthPct){
+  if (!currentArchetypeId) { setLcd('SELECT AN ARCHETYPE FIRST.'); return; }
+  KNOB_NAMES.forEach(name => {
+    currentKnobs[name] = jitter(currentKnobs[name], strengthPct, 0, 100);
+  });
+  applyKnobsToValues();
+  markDirty();
+  refreshEditorUI();
+  refreshKnobUI();
+  sendSysexPss480(currentOutput, editValues, true);
+  pushHistory();
+  setLcd('MUTATED (' + strengthPct + '%).');
+}
+
+/* ============================================================
+   12. DOM: Archetype pad grid
+   ============================================================ */
+const archetypeGridEl = document.getElementById('archetypeGrid');
+function renderArchetypePads(){
+  archetypeGridEl.innerHTML = '';
+  ARCHETYPES.forEach((arch, i) => {
+    const pad = document.createElement('div');
+    pad.className = 'archetype-pad' + (arch.id === currentArchetypeId ? ' active' : '');
+    pad.dataset.id = arch.id;
+
+    const num = document.createElement('div');
+    num.className = 'arch-num';
+    num.textContent = (i + 1).toString().padStart(2, '0');
+
+    const name = document.createElement('div');
+    name.className = 'arch-name';
+    name.textContent = arch.name;
+
+    const hint = document.createElement('div');
+    hint.className = 'arch-hint';
+    hint.textContent = arch.id === currentArchetypeId ? 'TAP: REROLL' : arch.hint;
+
+    pad.appendChild(num);
+    pad.appendChild(name);
+    pad.appendChild(hint);
+
+    pad.addEventListener('click', () => {
+      if (arch.id === currentArchetypeId){
+        rerollArchetype(arch.id);
+      } else {
+        loadArchetype(arch.id);
+      }
+    });
+
+    archetypeGridEl.appendChild(pad);
+  });
+}
+function refreshArchetypeUI(){ renderArchetypePads(); }
+
+/* ============================================================
+   13. DOM: Macro knobs (drag-to-adjust + tap-zone stepping)
+   ============================================================ */
+const knobRowEl = document.getElementById('knobRow');
+const KNOB_LABELS = { brightness:'Brightness', vibrato:'Vibrato', tremolo:'Tremolo', delay:'Delay', sustain:'Sustain / Hold' };
+const knobEls = {}; // name -> {widget, indicator, valueEl}
+
+function knobRotationDeg(v){ return -135 + (v / 100) * 270; }
+
+function renderKnobs(){
+  knobRowEl.innerHTML = '';
+  KNOB_NAMES.forEach(name => {
+    const widget = document.createElement('div');
+    widget.className = 'knob-widget';
+
+    const faceWrap = document.createElement('div');
+    faceWrap.className = 'knob-face-wrap';
+
+    const face = document.createElement('div');
+    face.className = 'knob-face';
+    const indicator = document.createElement('div');
+    indicator.className = 'knob-indicator';
+    face.appendChild(indicator);
+
+    const tapUp = document.createElement('div');
+    tapUp.className = 'knob-tap-zone knob-tap-up';
+    tapUp.title = 'Tap: +step';
+    const tapDown = document.createElement('div');
+    tapDown.className = 'knob-tap-zone knob-tap-down';
+    tapDown.title = 'Tap: -step';
+
+    faceWrap.appendChild(face);
+    faceWrap.appendChild(tapUp);
+    faceWrap.appendChild(tapDown);
+
+    const label = document.createElement('div');
+    label.className = 'knob-label';
+    label.textContent = KNOB_LABELS[name];
+
+    const valueEl = document.createElement('div');
+    valueEl.className = 'knob-value';
+
+    widget.appendChild(faceWrap);
+    widget.appendChild(label);
+    widget.appendChild(valueEl);
+
+    const STEP = 8; // coarse tap-zone step, primary stage interaction
+
+    function setKnob(v, commit){
+      if (!currentArchetypeId) return;
+      currentKnobs[name] = clamp(Math.round(v), 0, 100);
+      applyKnobsToValues();
+      markDirty();
+      refreshEditorUI();
+      updateKnobVisual(name);
+      if (commit){
+        sendSysexPss480(currentOutput, editValues, true);
+        pushHistory();
+      } else {
+        sendSysexDebounced(currentOutput, editValues);
+      }
+    }
+
+    tapUp.addEventListener('click', () => setKnob(currentKnobs[name] + STEP, true));
+    tapDown.addEventListener('click', () => setKnob(currentKnobs[name] - STEP, true));
+
+    // drag-to-adjust (vertical drag) — precision option for desk use;
+    // tap zones above remain the primary stage interaction.
+    let dragging = false, dragStartY = 0, dragStartVal = 0;
+    faceWrap.addEventListener('pointerdown', (e) => {
+      if (!currentArchetypeId) return;
+      dragging = true; dragStartY = e.clientY; dragStartVal = currentKnobs[name];
+      faceWrap.setPointerCapture(e.pointerId);
+    });
+    faceWrap.addEventListener('pointermove', (e) => {
+      if (!dragging) return;
+      const deltaY = dragStartY - e.clientY;
+      setKnob(dragStartVal + deltaY * 0.6, false);
+    });
+    function endDrag(){
+      if (!dragging) return;
+      dragging = false;
+      sendSysexPss480(currentOutput, editValues, true);
+      pushHistory();
+    }
+    faceWrap.addEventListener('pointerup', endDrag);
+    faceWrap.addEventListener('pointercancel', endDrag);
+
+    knobEls[name] = { widget, indicator, valueEl };
+    knobRowEl.appendChild(widget);
+  });
+  refreshKnobUI();
+}
+
+function updateKnobVisual(name){
+  const el = knobEls[name];
+  if (!el) return;
+  const v = currentKnobs[name];
+  el.indicator.style.transform = 'rotate(' + knobRotationDeg(v) + 'deg)';
+  el.valueEl.textContent = v;
+  const isOffSwitch = (name === 'vibrato' || name === 'tremolo') && v <= 0;
+  el.widget.classList.toggle('off', isOffSwitch);
+}
+
+function refreshKnobUI(){
+  KNOB_NAMES.forEach(updateKnobVisual);
+}
+
+/* ============================================================
+   14. DOM: Randomize / Mutate / Undo / Redo wiring
+   ============================================================ */
+document.getElementById('btnRandomize').addEventListener('click', randomizeKnobs);
+const mutateStrengthInput = document.getElementById('mutateStrength');
+const mutateStrengthValEl = document.getElementById('mutateStrengthVal');
+mutateStrengthInput.addEventListener('input', () => {
+  mutateStrengthValEl.textContent = mutateStrengthInput.value + '%';
+});
+document.getElementById('btnMutate').addEventListener('click', () => {
+  mutateKnobs(parseInt(mutateStrengthInput.value, 10));
+});
+document.getElementById('btnUndo').addEventListener('click', undo);
+document.getElementById('btnRedo').addEventListener('click', redo);
+
+/* ============================================================
+   15. Undo / Redo history
+   ============================================================ */
+const MAX_HISTORY = 50;
+let historyStack = [];
+let historyPointer = -1;
+let suppressHistory = false;
+
+function pushHistory(){
+  if (suppressHistory) return;
+  historyStack = historyStack.slice(0, historyPointer + 1);
+  historyStack.push(editValues.slice());
+  historyPointer = historyStack.length - 1;
+  if (historyStack.length > MAX_HISTORY){
+    historyStack.shift();
+    historyPointer--;
+  }
+  updateUndoRedoButtons();
+}
+
+function restoreFromHistory(){
+  editValues = historyStack[historyPointer].slice();
+  refreshEditorUI();
+  renderBanks();
+  refreshArchetypeUI();
+  refreshKnobUI();
+  sendSysexPss480(currentOutput, editValues, true);
+}
+
+function undo(){
+  if (historyPointer <= 0) return;
+  suppressHistory = true;
+  historyPointer--;
+  restoreFromHistory();
+  suppressHistory = false;
+  updateUndoRedoButtons();
+  setLcd('UNDO.');
+}
+
+function redo(){
+  if (historyPointer >= historyStack.length - 1) return;
+  suppressHistory = true;
+  historyPointer++;
+  restoreFromHistory();
+  suppressHistory = false;
+  updateUndoRedoButtons();
+  setLcd('REDO.');
+}
+
+function updateUndoRedoButtons(){
+  const u = document.getElementById('btnUndo');
+  const r = document.getElementById('btnRedo');
+  if (u) u.disabled = historyPointer <= 0;
+  if (r) r.disabled = historyPointer >= historyStack.length - 1;
+}
+
+/* ============================================================
+   16. Send confirmation flash (peripheral visual feedback)
+   ============================================================ */
+const flashPulseEl = document.getElementById('flashPulse');
+let flashTimer = null;
+function flashSend(){
+  if (!flashPulseEl) return;
+  flashPulseEl.classList.remove('active');
+  void flashPulseEl.offsetWidth; // force reflow so animation restarts on rapid repeated sends
+  flashPulseEl.classList.add('active');
+  clearTimeout(flashTimer);
+  flashTimer = setTimeout(() => flashPulseEl.classList.remove('active'), 400);
+}
+
+/* ============================================================
+   17. Orientation layout (auto-detect + manual lock)
+   ============================================================ */
+const orientLockSwitchEl = document.getElementById('orientLockSwitch');
+let orientationLocked = false;
+
+function computeOrientationClass(){
+  return (window.matchMedia && window.matchMedia('(orientation: portrait)').matches) ? 'layout-portrait' : 'layout-landscape';
+}
+function applyOrientationClass(){
+  if (orientationLocked) return;
+  document.body.classList.remove('layout-portrait', 'layout-landscape');
+  document.body.classList.add(computeOrientationClass());
+}
+window.addEventListener('resize', applyOrientationClass);
+if (window.screen && window.screen.orientation){
+  window.screen.orientation.addEventListener('change', applyOrientationClass);
+}
+orientLockSwitchEl.addEventListener('click', () => {
+  orientationLocked = !orientationLocked;
+  orientLockSwitchEl.classList.toggle('on', orientationLocked);
+  if (!orientationLocked) applyOrientationClass();
+  setLcd(orientationLocked ? 'LAYOUT LOCKED.' : 'LAYOUT AUTO-DETECT.');
+});
+
+/* ============================================================
+   18. Screen Wake Lock (keep display awake mid-set)
+   ============================================================ */
+let wakeLock = null;
+async function requestWakeLock(){
+  try{
+    if ('wakeLock' in navigator){
+      wakeLock = await navigator.wakeLock.request('screen');
+    }
+  }catch(e){ /* not fatal — e.g. permission denied or unsupported */ }
+}
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'visible') requestWakeLock();
+});
+
+/* ============================================================
+   19. Minimal inline manifest for "Add to Home Screen" / installed use
+   ============================================================ */
+(function setupManifest(){
+  const manifest = {
+    name: 'PortaSound PSS-480 Librarian',
+    short_name: 'PSS-480',
+    display: 'fullscreen',
+    orientation: 'any',
+    start_url: '.',
+    background_color: '#0a0a12',
+    theme_color: '#0a0a12',
+  };
+  const blob = new Blob([JSON.stringify(manifest)], { type: 'application/json' });
+  const link = document.getElementById('manifestLink');
+  if (link) link.href = URL.createObjectURL(blob);
+})();
+
+/* ============================================================
    10. Init
    ============================================================ */
 function init(){
@@ -1013,6 +1823,11 @@ function init(){
   editValues = (banks[0].hasData && banks[0].values) ? banks[0].values.slice() : defaultValues();
   refreshEditorUI();
   renderBanks();
+  renderArchetypePads();
+  renderKnobs();
+  applyOrientationClass();
+  requestWakeLock();
+  pushHistory(); // seed undo baseline so Undo can't go below the starting state
   setLcd('PORTASOUND JS LIBRARIAN READY. CLICK "ENABLE MIDI" TO CONNECT A DEVICE.');
 }
 
