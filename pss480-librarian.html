@@ -1,0 +1,1023 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PORTASOUND // PSS-480 SYSEX LIBRARIAN</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=VT323&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   PORTASOUND JS :: CYBERPUNK / SYNTHWAVE TERMINAL THEME
+   ============================================================ */
+:root{
+  --bg-void:#0a0a12;
+  --bg-panel:#0d0d1a;
+  --bg-panel-raised:#11111f;
+  --bg-input:#080810;
+  --cyan:#00f5ff;
+  --cyan-dim:#0a5c66;
+  --pink:#ff2d78;
+  --pink-dim:#6e1436;
+  --purple:#b06aff;
+  --purple-dim:#3f2566;
+  --green:#39ff6a;
+  --amber:#ffb000;
+  --text:#d8d8ff;
+  --text-dim:#7d7da0;
+  --border:#26263f;
+  --border-glow:#00f5ff55;
+  --font-mono:'Space Mono', 'Courier New', monospace;
+  --font-pixel:'VT323', 'Courier New', monospace;
+}
+
+*{ box-sizing:border-box; }
+
+::selection{ background:var(--pink); color:#000; }
+
+::-webkit-scrollbar{ width:10px; height:10px; }
+::-webkit-scrollbar-track{ background:var(--bg-void); }
+::-webkit-scrollbar-thumb{ background:var(--cyan-dim); border:1px solid var(--cyan); }
+::-webkit-scrollbar-thumb:hover{ background:var(--cyan); }
+* { scrollbar-color: var(--cyan-dim) var(--bg-void); scrollbar-width:thin; }
+
+html,body{
+  margin:0; padding:0;
+  background:var(--bg-void);
+  color:var(--text);
+  font-family:var(--font-mono);
+  min-height:100vh;
+}
+
+/* ---- CRT scanline overlay, persistent & global ---- */
+.crt-overlay{
+  pointer-events:none;
+  position:fixed; inset:0; z-index:9999;
+  background:repeating-linear-gradient(
+    to bottom,
+    rgba(255,255,255,0.035) 0px,
+    rgba(255,255,255,0.035) 1px,
+    transparent 2px,
+    transparent 3px
+  );
+  mix-blend-mode:overlay;
+}
+.crt-vignette{
+  pointer-events:none;
+  position:fixed; inset:0; z-index:9998;
+  background:radial-gradient(ellipse at center, transparent 55%, rgba(0,0,0,0.55) 100%);
+}
+@keyframes flicker{
+  0%,100%{ opacity:1; }
+  92%{ opacity:1; }
+  93%{ opacity:0.92; }
+  94%{ opacity:1; }
+}
+body{ animation:flicker 6s infinite; }
+
+/* ---- Layout shell ---- */
+.shell{
+  max-width:1400px;
+  margin:0 auto;
+  padding:24px 20px 80px;
+}
+
+header.top{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  flex-wrap:wrap;
+  gap:16px;
+  border-bottom:2px solid var(--cyan);
+  box-shadow:0 4px 0 var(--pink-dim);
+  padding-bottom:16px;
+  margin-bottom:24px;
+}
+header.top h1{
+  font-family:var(--font-pixel);
+  font-size:44px;
+  letter-spacing:2px;
+  margin:0;
+  color:var(--cyan);
+  text-shadow:0 0 6px var(--cyan), 0 0 18px var(--cyan-dim), 3px 3px 0 var(--pink);
+}
+header.top h1 span{ color:var(--pink); text-shadow:0 0 6px var(--pink), 0 0 18px var(--pink-dim); }
+header.top .subtitle{
+  font-size:12px;
+  color:var(--text-dim);
+  letter-spacing:3px;
+  text-transform:uppercase;
+  margin-top:2px;
+}
+
+/* ---- panels ---- */
+.panel{
+  background:var(--bg-panel);
+  border:1px solid var(--border);
+  box-shadow:4px 4px 0 rgba(0,0,0,0.6), 0 0 0 1px var(--border-glow) inset;
+  padding:18px;
+  margin-bottom:22px;
+  position:relative;
+}
+.panel::before{
+  content:attr(data-title);
+  position:absolute;
+  top:-12px; left:14px;
+  background:var(--bg-void);
+  padding:0 8px;
+  font-family:var(--font-pixel);
+  font-size:20px;
+  color:var(--purple);
+  letter-spacing:2px;
+  text-shadow:0 0 6px var(--purple);
+}
+
+/* ---- connection bar ---- */
+.conn-bar{ display:flex; align-items:center; gap:20px; flex-wrap:wrap; }
+.status-dot{
+  width:12px; height:12px; border-radius:50%;
+  background:var(--pink);
+  box-shadow:0 0 8px var(--pink), 0 0 2px var(--pink);
+  display:inline-block;
+  animation:pulse-red 1.4s infinite;
+}
+.status-dot.connected{
+  background:var(--green);
+  box-shadow:0 0 8px var(--green), 0 0 2px var(--green);
+  animation:pulse-green 1.4s infinite;
+}
+@keyframes pulse-red{ 0%,100%{opacity:1;} 50%{opacity:0.4;} }
+@keyframes pulse-green{ 0%,100%{opacity:1;} 50%{opacity:0.55;} }
+.status-text{
+  font-size:13px; letter-spacing:1px; text-transform:uppercase;
+  color:var(--text-dim);
+}
+.status-text.connected{ color:var(--green); text-shadow:0 0 4px var(--green); }
+
+select, input[type=text]{
+  background:var(--bg-input);
+  color:var(--cyan);
+  border:1px solid var(--cyan-dim);
+  font-family:var(--font-mono);
+  font-size:13px;
+  padding:7px 10px;
+  outline:none;
+}
+select:focus, input[type=text]:focus{
+  border-color:var(--cyan);
+  box-shadow:0 0 6px var(--cyan-dim);
+}
+
+button{
+  font-family:var(--font-mono);
+  font-weight:700;
+  font-size:12px;
+  letter-spacing:1px;
+  text-transform:uppercase;
+  background:var(--bg-panel-raised);
+  color:var(--cyan);
+  border:1px solid var(--cyan);
+  padding:9px 16px;
+  cursor:pointer;
+  box-shadow:3px 3px 0 var(--cyan-dim);
+  transition:transform .08s ease, box-shadow .08s ease, background .15s ease, color .15s ease;
+}
+button:hover{
+  background:var(--cyan);
+  color:#001217;
+  box-shadow:3px 3px 0 var(--pink);
+}
+button:active{
+  transform:translate(2px,2px);
+  box-shadow:1px 1px 0 var(--pink);
+}
+button.pink{ color:var(--pink); border-color:var(--pink); box-shadow:3px 3px 0 var(--pink-dim); }
+button.pink:hover{ background:var(--pink); color:#1a0009; box-shadow:3px 3px 0 var(--cyan); }
+button.purple{ color:var(--purple); border-color:var(--purple); box-shadow:3px 3px 0 var(--purple-dim); }
+button.purple:hover{ background:var(--purple); color:#0d0016; box-shadow:3px 3px 0 var(--cyan); }
+button.amber{ color:var(--amber); border-color:var(--amber); box-shadow:3px 3px 0 #4a3200; }
+button.amber:hover{ background:var(--amber); color:#1a1000; box-shadow:3px 3px 0 var(--cyan); }
+button:disabled{ opacity:0.35; cursor:not-allowed; box-shadow:none; }
+button:disabled:hover{ background:var(--bg-panel-raised); color:var(--cyan); transform:none; }
+
+.toolbar{ display:flex; gap:10px; flex-wrap:wrap; margin-top:14px; }
+
+/* ---- bank grid (MPC pad style) ---- */
+.bank-grid{
+  display:grid;
+  grid-template-columns:repeat(4, 1fr);
+  gap:12px;
+}
+@media (max-width:760px){ .bank-grid{ grid-template-columns:repeat(2,1fr); } }
+
+.bank-pad{
+  background:var(--bg-panel-raised);
+  border:1px solid var(--border);
+  padding:12px 10px;
+  cursor:pointer;
+  position:relative;
+  min-height:82px;
+  display:flex;
+  flex-direction:column;
+  justify-content:space-between;
+  box-shadow:3px 3px 0 rgba(0,0,0,0.5);
+  transition:box-shadow .1s ease, transform .1s ease, border-color .1s ease;
+}
+.bank-pad:hover{ border-color:var(--purple); box-shadow:3px 3px 0 var(--purple-dim); }
+.bank-pad:active{ transform:translate(1px,1px); }
+.bank-pad.active{
+  border-color:var(--cyan);
+  background:linear-gradient(160deg, var(--bg-panel-raised), #0c1b1f);
+  box-shadow:0 0 10px var(--cyan-dim), 0 0 0 1px var(--cyan), 3px 3px 0 var(--pink);
+}
+.bank-pad .bank-num{
+  font-family:var(--font-pixel);
+  font-size:15px;
+  color:var(--text-dim);
+  letter-spacing:1px;
+}
+.bank-pad.active .bank-num{ color:var(--cyan); }
+.bank-pad .bank-name{
+  font-size:12px;
+  color:var(--text);
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+  cursor:text;
+  border-bottom:1px dashed transparent;
+}
+.bank-pad .bank-name:hover{ border-bottom-color:var(--purple); }
+.bank-pad .bank-name-input{
+  width:100%;
+  background:var(--bg-input);
+  color:var(--amber);
+  border:1px solid var(--amber);
+  font-family:var(--font-mono);
+  font-size:12px;
+  padding:3px 4px;
+}
+.bank-pad .bank-footer{
+  display:flex; align-items:center; justify-content:space-between;
+  margin-top:6px;
+}
+.bank-led{
+  width:8px; height:8px; border-radius:50%;
+  background:#2a2a3a; display:inline-block;
+  border:1px solid #3a3a52;
+}
+.bank-led.saved{ background:var(--green); box-shadow:0 0 6px var(--green); border-color:var(--green); }
+.bank-pad .send-hint{
+  font-size:10px; letter-spacing:1px; color:var(--text-dim); text-transform:uppercase;
+}
+.bank-pad.active .send-hint{ color:var(--pink); text-shadow:0 0 4px var(--pink); }
+
+/* ---- LCD readout ---- */
+.lcd{
+  background:#020402;
+  border:2px solid var(--green);
+  box-shadow:0 0 10px #003300 inset, 0 0 8px #002200;
+  color:var(--green);
+  font-family:var(--font-pixel);
+  font-size:16px;
+  letter-spacing:1px;
+  padding:10px 12px;
+  min-height:24px;
+  word-break:break-all;
+  text-shadow:0 0 4px var(--green);
+  margin-top:12px;
+}
+
+/* ---- param groups ---- */
+.param-groups{
+  display:grid;
+  grid-template-columns:1fr 1fr 1fr;
+  gap:18px;
+}
+@media (max-width:1050px){ .param-groups{ grid-template-columns:1fr; } }
+
+.param-group{
+  background:var(--bg-panel);
+  border:1px solid var(--border);
+  box-shadow:4px 4px 0 rgba(0,0,0,0.55);
+}
+.param-group-head{
+  font-family:var(--font-pixel);
+  font-size:22px;
+  letter-spacing:2px;
+  padding:8px 14px;
+  border-bottom:1px solid var(--border);
+}
+.param-group.global .param-group-head{ color:var(--amber); text-shadow:0 0 6px #6b4a00; background:linear-gradient(90deg, #1a1400, transparent); }
+.param-group.carrier .param-group-head{ color:var(--cyan); text-shadow:0 0 6px var(--cyan-dim); background:linear-gradient(90deg, #001a1c, transparent); }
+.param-group.modulator .param-group-head{ color:var(--pink); text-shadow:0 0 6px var(--pink-dim); background:linear-gradient(90deg, #1a0010, transparent); }
+
+.param-subgroup{ padding:12px 14px 16px; border-bottom:1px dashed var(--border); }
+.param-subgroup:last-child{ border-bottom:none; }
+.param-subgroup h3{
+  margin:0 0 10px;
+  font-family:var(--font-mono);
+  font-size:10px;
+  letter-spacing:2px;
+  text-transform:uppercase;
+  color:var(--text-dim);
+}
+
+.slider-row{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  margin-bottom:10px;
+}
+.slider-row .slabel{
+  flex:0 0 128px;
+  font-size:11px;
+  color:var(--text);
+  overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+  cursor:help;
+}
+.slider-row input[type=range]{
+  flex:1;
+  -webkit-appearance:none;
+  appearance:none;
+  height:4px;
+  background:var(--border);
+  outline:none;
+  position:relative;
+}
+.slider-row input[type=range]::-webkit-slider-thumb{
+  -webkit-appearance:none;
+  width:14px; height:18px;
+  background:var(--cyan);
+  border:1px solid #003a40;
+  box-shadow:0 0 6px var(--cyan);
+  cursor:pointer;
+  margin-top:-1px;
+}
+.param-group.modulator input[type=range]::-webkit-slider-thumb{ background:var(--pink); box-shadow:0 0 6px var(--pink); }
+.param-group.global input[type=range]::-webkit-slider-thumb{ background:var(--amber); box-shadow:0 0 6px var(--amber); }
+.slider-row input[type=range]::-moz-range-thumb{
+  width:14px; height:18px;
+  background:var(--cyan);
+  border:1px solid #003a40;
+  box-shadow:0 0 6px var(--cyan);
+  cursor:pointer;
+}
+.slider-row .sval{
+  flex:0 0 30px;
+  text-align:right;
+  font-size:11px;
+  color:var(--purple);
+}
+
+.button-row{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:8px;
+  margin-bottom:8px;
+  padding:6px 8px;
+  background:var(--bg-panel-raised);
+  border:1px solid var(--border);
+}
+.button-row .blabel{
+  display:flex; align-items:center; gap:8px;
+  font-size:11px;
+  cursor:help;
+}
+.lamp{ width:9px; height:9px; border-radius:50%; background:#2a2a3a; border:1px solid #3a3a52; display:inline-block; }
+.lamp.on{ background:var(--green); box-shadow:0 0 6px var(--green); border-color:var(--green); }
+.toggle-btn{
+  padding:4px 10px;
+  font-size:10px;
+}
+
+/* ---- footer ---- */
+footer{
+  margin-top:30px;
+  text-align:center;
+  font-size:11px;
+  color:var(--text-dim);
+  letter-spacing:1px;
+}
+footer a{ color:var(--purple); }
+
+.hidden{ display:none !important; }
+
+.badge{
+  display:inline-block;
+  font-size:10px;
+  padding:2px 6px;
+  border:1px solid var(--purple);
+  color:var(--purple);
+  letter-spacing:1px;
+  margin-left:8px;
+  vertical-align:middle;
+}
+</style>
+</head>
+<body>
+
+<div class="crt-overlay"></div>
+<div class="crt-vignette"></div>
+
+<div class="shell">
+
+  <header class="top">
+    <div>
+      <h1>PORTA<span>SOUND</span>_JS</h1>
+      <div class="subtitle">SysEx Patch Librarian &amp; Editor // Yamaha PSS-480 · 580 · 680 · 780</div>
+    </div>
+    <div class="subtitle" style="text-align:right;">
+      2-OP FM ENGINE<span class="badge">OFFLINE READY</span>
+    </div>
+  </header>
+
+  <!-- ================= MIDI CONNECTION ================= -->
+  <div class="panel" data-title="MIDI I/O">
+    <div class="conn-bar">
+      <span class="status-dot" id="statusDot"></span>
+      <span class="status-text" id="statusText">MIDI DISCONNECTED</span>
+      <button id="btnEnableMidi">Enable MIDI (SysEx)</button>
+      <label for="outputSelect" style="font-size:11px; color:var(--text-dim); text-transform:uppercase; letter-spacing:1px;">Output Device</label>
+      <select id="outputSelect" disabled>
+        <option value="">-- no devices --</option>
+      </select>
+    </div>
+    <div class="lcd" id="lcdReadout">READY.</div>
+  </div>
+
+  <!-- ================= BANK GRID ================= -->
+  <div class="panel" data-title="16 PATCH BANKS">
+    <div class="bank-grid" id="bankGrid"></div>
+    <div class="toolbar">
+      <button class="pink" id="btnSaveCurrent">Save Current &rarr; Bank</button>
+      <button class="purple" id="btnExport">Export JSON</button>
+      <button class="purple" id="btnImport">Import JSON</button>
+      <button class="amber" id="btnResetBank">Reset Bank to Default</button>
+      <input type="file" id="fileImport" accept="application/json" class="hidden">
+    </div>
+  </div>
+
+  <!-- ================= PARAMETER EDITOR ================= -->
+  <div class="panel" data-title="EDIT BUFFER">
+    <div class="param-groups" id="paramGroups"></div>
+  </div>
+
+  <footer>
+    SysEx implementation adapted from <a href="https://github.com/mmontag/portasound-js" target="_blank" rel="noopener">mmontag/portasound-js</a>.
+    All patch data stored locally in your browser. No network connection required after first load.
+  </footer>
+
+</div>
+
+<script>
+(function(){
+'use strict';
+
+/* ============================================================
+   1. PARAMETER TABLE  (ported 1:1 from portasound-js src/portasound.js)
+   ============================================================ */
+function fineDetuneFn(val){ return ((val - 7 < 0) ? 0b1000 : 0) | Math.abs(val - 7); }
+function levelFn(val){ return 99 - val; }
+function invert16Fn(val){ return 15 - val; }
+function invert64Fn(val){ return 63 - val; }
+
+const PARAMS = [
+  { name:'Voice Bank Number (Program Change target)', shortName:'Bank', range:5,  sysexByte:0,  sysexBit:0, value:0 },
+  { name:'Fine Detune (Modulator)', shortName:'Detune', range:15, sysexByte:1,  sysexBit:4, value:7, valueFn:fineDetuneFn },
+  { name:'Fine Detune (Carrier)',   shortName:'Detune', range:15, sysexByte:2,  sysexBit:4, value:7, valueFn:fineDetuneFn },
+  { name:'Multiplier (Modulator)',  shortName:'Freq',   range:16, sysexByte:1,  sysexBit:0, value:3 },
+  { name:'Multiplier (Carrier)',    shortName:'Freq',   range:16, sysexByte:2,  sysexBit:0, value:1 },
+  { name:'Total Level (Modulator)', shortName:'Level',  range:100,sysexByte:3,  sysexBit:0, value:58, valueFn:levelFn },
+  { name:'Total Level (Carrier)',   shortName:'Level',  range:100,sysexByte:4,  sysexBit:0, value:88, valueFn:levelFn },
+  { name:'Level Key Scaling (Hi) (Modulator)', shortName:'Level (Hi)', range:16, sysexByte:5, sysexBit:4, value:0 },
+  { name:'Level Key Scaling (Lo) (Modulator)', shortName:'Level (Lo)', range:16, sysexByte:5, sysexBit:0, value:0 },
+  { name:'Level Key Scaling (Hi) (Carrier)',   shortName:'Level (Hi)', range:16, sysexByte:6, sysexBit:4, value:0 },
+  { name:'Level Key Scaling (Lo) (Carrier)',   shortName:'Level (Lo)', range:16, sysexByte:6, sysexBit:0, value:0 },
+  { name:'Rate Key Scaling (Modulator)', shortName:'Rate', range:4, sysexByte:7, sysexBit:6, value:0 },
+  { name:'Rate Key Scaling (Carrier)',   shortName:'Rate', range:4, sysexByte:8, sysexBit:6, value:0 },
+  { name:'Attack Rate (Modulator)', shortName:'Attack', range:64, sysexByte:7, sysexBit:0, value:5, valueFn:invert64Fn },
+  { name:'Attack Rate (Carrier)',   shortName:'Attack', range:64, sysexByte:8, sysexBit:0, value:5, valueFn:invert64Fn },
+  { name:'Amplitude Modulation Enable (Modulator)', shortName:'Amp. Mod. Enable', range:2, sysexByte:9,  sysexBit:7, value:0 },
+  { name:'Amplitude Modulation Enable (Carrier)',   shortName:'Amp. Mod. Enable', range:2, sysexByte:10, sysexBit:7, value:0 },
+  { name:'Coarse Detune Enable (Modulator)', shortName:'Coarse Det. Enable', range:2, sysexByte:9,  sysexBit:6, value:0 },
+  { name:'Coarse Detune Enable (Carrier)',   shortName:'Coarse Det. Enable', range:2, sysexByte:10, sysexBit:6, value:0 },
+  { name:'Decay 1 Rate (Modulator)', shortName:'Decay 1', range:64, sysexByte:9,  sysexBit:0, value:40, valueFn:invert64Fn },
+  { name:'Decay 1 Rate (Carrier)',   shortName:'Decay 1', range:64, sysexByte:10, sysexBit:0, value:48, valueFn:invert64Fn },
+  { name:'Sine Table Form (Modulator)', shortName:'Waveform', range:4, sysexByte:11, sysexBit:6, value:0 },
+  { name:'Sine Table Form (Carrier)',   shortName:'Waveform', range:4, sysexByte:12, sysexBit:6, value:0 },
+  { name:'Decay 2 Rate (Modulator)', shortName:'Decay 2', range:64, sysexByte:11, sysexBit:0, value:59, valueFn:invert64Fn },
+  { name:'Decay 2 Rate (Carrier)',   shortName:'Decay 2', range:64, sysexByte:12, sysexBit:0, value:59, valueFn:invert64Fn },
+  { name:'Decay 1 Level (Modulator)', shortName:'Sustain', range:16, sysexByte:13, sysexBit:4, value:3, valueFn:invert16Fn },
+  { name:'Decay 1 Level (Carrier)',   shortName:'Sustain', range:16, sysexByte:14, sysexBit:4, value:3, valueFn:invert16Fn },
+  { name:'Release Rate (Modulator)', shortName:'Release', range:16, sysexByte:13, sysexBit:0, value:5, valueFn:invert16Fn },
+  { name:'Release Rate (Carrier)',   shortName:'Release', range:16, sysexByte:14, sysexBit:0, value:5, valueFn:invert16Fn },
+  { name:'Feedback', shortName:'Feedback', range:8, sysexByte:15, sysexBit:3, value:0 },
+  { name:'Pitch Modulation Sensitivity (Vibrato)', shortName:'Pitch Depth', range:8, sysexByte:16, sysexBit:4, value:4 },
+  { name:'Amplitude Modulation Sensitivity (Tremolo)', shortName:'Level Depth', range:4, sysexByte:16, sysexBit:0, value:2 },
+  { name:'Sustain Release Rate (Modulator)', shortName:'Sustain Release', range:16, sysexByte:20, sysexBit:0, value:9, valueFn:invert16Fn },
+  { name:'Sustain Release Rate (Carrier)',   shortName:'Sustain Release', range:16, sysexByte:21, sysexBit:0, value:9, valueFn:invert16Fn },
+  { name:'Vibrato Delay Time', shortName:'Delay', range:128, sysexByte:22, sysexBit:0, value:63 },
+  { name:'Vibrato Enable', shortName:'Vibrato', range:2, sysexByte:24, sysexBit:7, value:1 },
+  { name:'Sustain Enable', shortName:'Sustain', range:2, sysexByte:24, sysexBit:6, value:0 },
+].map((p,i)=>{ p.idx = i; return p; });
+
+/* ============================================================
+   2. SYSEX BUILD / SEND  (ported 1:1: buildSysexPss480 / sendSysexPss480)
+   ============================================================ */
+function buildSysexPss480(values){
+  const bytes = [0xF0, 0x43, 0x76, 0x00];
+  const data = new Array(33).fill(0);
+  for (let i = 0; i < PARAMS.length; i++){
+    const param = PARAMS[i];
+    const raw = values[i];
+    const value = param.valueFn ? param.valueFn(raw) : raw;
+    data[param.sysexByte] |= (value << param.sysexBit);
+  }
+  for (let i = 0; i < 33; i++){
+    const byte = data[i] || 0;
+    bytes.push((byte >> 4) & 0x0F, byte & 0x0F);
+  }
+  let checksum = 0;
+  for (let i = 4; i < 70; i++) checksum += bytes[i] || 0;
+  checksum = (~(checksum & 0xFF) + 1) & 0x7F;
+  bytes.push(checksum);
+  bytes.push(0xF7);
+  return bytes;
+}
+
+function bytesToHex(bytes){
+  return bytes.map(b => ('0' + (b & 0xFF).toString(16)).slice(-2)).join(' ').toUpperCase();
+}
+
+function sendSysexPss480(output, values, immediate){
+  const bytes = buildSysexPss480(values);
+  if (output){
+    try{
+      output.send(bytes);
+      const bankNum = parseInt(values[0]) || 0;
+      output.send([0xC0, bankNum]); // Program Change forces synth refresh
+    }catch(e){
+      console.error('MIDI send failed:', e);
+    }
+  }
+  setLcd((immediate ? '>> SENT ' : '~ SENT ') + bytes.length + ' BYTES :: ' + bytesToHex(bytes));
+  return bytes;
+}
+
+function debounce(fn, wait){
+  let t;
+  return function(...args){
+    clearTimeout(t);
+    t = setTimeout(() => fn.apply(null, args), wait);
+  };
+}
+const sendSysexDebounced = debounce((output, values) => sendSysexPss480(output, values, false), 500);
+
+/* ============================================================
+   3. UI PARAMETER GROUPING (mirrors PSS480.jsx layout exactly)
+   ============================================================ */
+const LAYOUT = [
+  { key:'global', title:'GLOBAL', cls:'global', subgroups:[
+      { title:'', sliders:[0,29], buttons:[35,36] },
+      { title:'Low Freq Oscillator', sliders:[30,31,34], buttons:[] },
+  ]},
+  { key:'carrier', title:'CARRIER', cls:'carrier', subgroups:[
+      { title:'Oscillator', sliders:[6,4,2,22], buttons:[16,18] },
+      { title:'Envelope', sliders:[14,20,26,24,28,33], buttons:[] },
+      { title:'Key Scaling', sliders:[10,9,12], buttons:[] },
+  ]},
+  { key:'modulator', title:'MODULATOR', cls:'modulator', subgroups:[
+      { title:'Oscillator', sliders:[5,3,1,21], buttons:[15,17] },
+      { title:'Envelope', sliders:[13,19,25,23,27,32], buttons:[] },
+      { title:'Key Scaling', sliders:[8,7,11], buttons:[] },
+  ]},
+];
+
+/* ============================================================
+   4. STATE
+   ============================================================ */
+const STORAGE_BANKS = 'portasoundPss480Banks_v1';
+const STORAGE_OUTPUT = 'portasoundPss480OutputId_v1';
+const NUM_BANKS = 16;
+
+let midiAccess = null;
+let currentOutput = null;
+let banks = [];         // [{name, values:[]|null, hasData:bool}] length 16
+let activeBankIndex = 0;
+let editValues = PARAMS.map(p => p.value);
+
+function defaultValues(){ return PARAMS.map(p => p.value); }
+
+function loadBanks(){
+  try{
+    const raw = localStorage.getItem(STORAGE_BANKS);
+    if (raw){
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed) && parsed.length === NUM_BANKS) { banks = parsed; return; }
+    }
+  }catch(e){ console.warn('Could not parse stored banks, resetting.', e); }
+  banks = [];
+  for (let i = 0; i < NUM_BANKS; i++){
+    banks.push({ name: 'Patch ' + (i+1), values: null, hasData: false });
+  }
+}
+
+function persistBanks(){
+  localStorage.setItem(STORAGE_BANKS, JSON.stringify(banks));
+}
+
+/* ============================================================
+   5. DOM: LCD readout
+   ============================================================ */
+const lcdEl = document.getElementById('lcdReadout');
+function setLcd(text){ lcdEl.textContent = text; }
+
+/* ============================================================
+   6. DOM: MIDI connection panel
+   ============================================================ */
+const statusDot = document.getElementById('statusDot');
+const statusText = document.getElementById('statusText');
+const outputSelect = document.getElementById('outputSelect');
+const btnEnableMidi = document.getElementById('btnEnableMidi');
+
+function setConnected(isConnected, msg){
+  statusDot.classList.toggle('connected', isConnected);
+  statusText.classList.toggle('connected', isConnected);
+  statusText.textContent = msg || (isConnected ? 'MIDI CONNECTED' : 'MIDI DISCONNECTED');
+}
+
+function refreshOutputList(){
+  outputSelect.innerHTML = '';
+  const outputs = midiAccess ? Array.from(midiAccess.outputs.values()) : [];
+  if (outputs.length === 0){
+    const opt = document.createElement('option');
+    opt.value = ''; opt.textContent = '-- no devices --';
+    outputSelect.appendChild(opt);
+    outputSelect.disabled = true;
+    currentOutput = null;
+    return;
+  }
+  outputSelect.disabled = false;
+  outputs.forEach(o => {
+    const opt = document.createElement('option');
+    opt.value = o.id;
+    opt.textContent = o.name || o.id;
+    outputSelect.appendChild(opt);
+  });
+  const stored = localStorage.getItem(STORAGE_OUTPUT);
+  const match = outputs.find(o => o.id === stored);
+  const chosen = match || outputs[0];
+  outputSelect.value = chosen.id;
+  currentOutput = chosen;
+}
+
+outputSelect.addEventListener('change', () => {
+  if (!midiAccess) return;
+  currentOutput = midiAccess.outputs.get(outputSelect.value) || null;
+  localStorage.setItem(STORAGE_OUTPUT, outputSelect.value);
+  setLcd('OUTPUT -> ' + (currentOutput ? (currentOutput.name || currentOutput.id) : 'NONE'));
+});
+
+function onMidiStateChange(){
+  refreshOutputList();
+  setConnected(!!currentOutput, currentOutput ? 'MIDI CONNECTED' : 'NO OUTPUT DEVICE');
+}
+
+btnEnableMidi.addEventListener('click', () => {
+  if (!navigator.requestMIDIAccess){
+    setConnected(false, 'WEB MIDI NOT SUPPORTED');
+    setLcd('ERROR: This browser does not support the Web MIDI API. Try Chrome / Edge / Opera.');
+    return;
+  }
+  navigator.requestMIDIAccess({ sysex: true }).then(access => {
+    midiAccess = access;
+    midiAccess.onstatechange = onMidiStateChange;
+    refreshOutputList();
+    setConnected(!!currentOutput, currentOutput ? 'MIDI CONNECTED' : 'NO OUTPUT DEVICE');
+    setLcd('MIDI ACCESS GRANTED (SYSEX ENABLED).');
+  }).catch(err => {
+    setConnected(false, 'ACCESS DENIED');
+    setLcd('ERROR: MIDI access denied — ' + err.message);
+  });
+});
+
+/* ============================================================
+   7. DOM: Parameter editor build
+   ============================================================ */
+const paramGroupsEl = document.getElementById('paramGroups');
+const sliderInputs = {};  // idx -> {input, valEl}
+const buttonEls = {};     // idx -> {btn, lamp}
+
+function ticksForRange(range){
+  if (range === 100) return 11;
+  if (range === 128) return 9;
+  if (range === 64) return 9;
+  if (range === 32) return 17;
+  if (range > 32) return 8;
+  return range;
+}
+
+function buildParamEditor(){
+  paramGroupsEl.innerHTML = '';
+  LAYOUT.forEach(group => {
+    const groupEl = document.createElement('div');
+    groupEl.className = 'param-group ' + group.cls;
+
+    const head = document.createElement('div');
+    head.className = 'param-group-head';
+    head.textContent = group.title;
+    groupEl.appendChild(head);
+
+    group.subgroups.forEach(sub => {
+      const subEl = document.createElement('div');
+      subEl.className = 'param-subgroup';
+      if (sub.title){
+        const h3 = document.createElement('h3');
+        h3.textContent = sub.title;
+        subEl.appendChild(h3);
+      }
+      sub.sliders.forEach(idx => subEl.appendChild(buildSlider(PARAMS[idx])));
+      sub.buttons.forEach(idx => subEl.appendChild(buildToggle(PARAMS[idx])));
+      groupEl.appendChild(subEl);
+    });
+
+    paramGroupsEl.appendChild(groupEl);
+  });
+}
+
+function buildSlider(param){
+  const row = document.createElement('div');
+  row.className = 'slider-row';
+  row.title = param.name;
+
+  const label = document.createElement('div');
+  label.className = 'slabel';
+  label.textContent = param.shortName;
+  label.title = param.name;
+
+  const input = document.createElement('input');
+  input.type = 'range';
+  input.min = 0;
+  input.max = param.range - 1;
+  input.step = 1;
+  input.value = editValues[param.idx];
+
+  const valEl = document.createElement('div');
+  valEl.className = 'sval';
+  valEl.textContent = editValues[param.idx];
+
+  input.addEventListener('input', () => {
+    const v = clamp(parseInt(input.value, 10), 0, param.range - 1);
+    editValues[param.idx] = v;
+    valEl.textContent = v;
+    markDirty();
+    sendSysexDebounced(currentOutput, editValues);
+  });
+
+  // mouse wheel nudges the slider, mirrors original UX
+  input.addEventListener('wheel', (e) => {
+    e.preventDefault();
+    const delta = param.range > 16 ? Math.floor(e.deltaY / 4) : (e.deltaY > 0 ? 1 : -1);
+    const v = clamp(parseInt(input.value, 10) - delta, 0, param.range - 1);
+    input.value = v;
+    editValues[param.idx] = v;
+    valEl.textContent = v;
+    markDirty();
+    sendSysexDebounced(currentOutput, editValues);
+  }, { passive:false });
+
+  row.appendChild(label);
+  row.appendChild(input);
+  row.appendChild(valEl);
+
+  sliderInputs[param.idx] = { input, valEl };
+  return row;
+}
+
+function buildToggle(param){
+  const row = document.createElement('div');
+  row.className = 'button-row';
+  row.title = param.name;
+
+  const labelWrap = document.createElement('div');
+  labelWrap.className = 'blabel';
+  const lamp = document.createElement('span');
+  lamp.className = 'lamp' + (editValues[param.idx] === 1 ? ' on' : '');
+  const labelText = document.createElement('span');
+  labelText.textContent = param.shortName;
+  labelWrap.appendChild(lamp);
+  labelWrap.appendChild(labelText);
+
+  const btn = document.createElement('button');
+  btn.className = 'toggle-btn';
+  btn.textContent = editValues[param.idx] === 1 ? 'ON' : 'OFF';
+
+  btn.addEventListener('click', () => {
+    const v = editValues[param.idx] === 1 ? 0 : 1;
+    editValues[param.idx] = v;
+    lamp.classList.toggle('on', v === 1);
+    btn.textContent = v === 1 ? 'ON' : 'OFF';
+    markDirty();
+    sendSysexDebounced(currentOutput, editValues);
+  });
+
+  row.appendChild(labelWrap);
+  row.appendChild(btn);
+
+  buttonEls[param.idx] = { btn, lamp };
+  return row;
+}
+
+function clamp(v, lo, hi){ return Math.min(Math.max(v, lo), hi); }
+
+function refreshEditorUI(){
+  PARAMS.forEach(param => {
+    const val = editValues[param.idx];
+    if (sliderInputs[param.idx]){
+      sliderInputs[param.idx].input.value = val;
+      sliderInputs[param.idx].valEl.textContent = val;
+    }
+    if (buttonEls[param.idx]){
+      buttonEls[param.idx].lamp.classList.toggle('on', val === 1);
+      buttonEls[param.idx].btn.textContent = val === 1 ? 'ON' : 'OFF';
+    }
+  });
+}
+
+function markDirty(){
+  banks[activeBankIndex]._dirty = true;
+  renderBanks();
+}
+
+/* ============================================================
+   8. DOM: Bank grid (16-slot MPC-style pad grid)
+   ============================================================ */
+const bankGridEl = document.getElementById('bankGrid');
+
+function renderBanks(){
+  bankGridEl.innerHTML = '';
+  banks.forEach((bank, idx) => {
+    const pad = document.createElement('div');
+    pad.className = 'bank-pad' + (idx === activeBankIndex ? ' active' : '');
+    pad.dataset.idx = idx;
+
+    const num = document.createElement('div');
+    num.className = 'bank-num';
+    num.textContent = 'BANK ' + (idx + 1).toString().padStart(2, '0');
+
+    const name = document.createElement('div');
+    name.className = 'bank-name';
+    name.textContent = bank.name + (bank._dirty && idx === activeBankIndex ? ' *' : '');
+    name.title = 'Double-click to rename';
+    name.addEventListener('dblclick', (e) => {
+      e.stopPropagation();
+      startRename(pad, bank, idx);
+    });
+
+    const footer = document.createElement('div');
+    footer.className = 'bank-footer';
+    const led = document.createElement('span');
+    led.className = 'bank-led' + (bank.hasData ? ' saved' : '');
+    const hint = document.createElement('span');
+    hint.className = 'send-hint';
+    hint.textContent = idx === activeBankIndex ? 'ACTIVE' : 'SEND';
+    footer.appendChild(led);
+    footer.appendChild(hint);
+
+    pad.appendChild(num);
+    pad.appendChild(name);
+    pad.appendChild(footer);
+
+    pad.addEventListener('click', () => selectBank(idx));
+
+    bankGridEl.appendChild(pad);
+  });
+}
+
+function startRename(pad, bank, idx){
+  const nameEl = pad.querySelector('.bank-name');
+  const input = document.createElement('input');
+  input.type = 'text';
+  input.className = 'bank-name-input';
+  input.value = bank.name;
+  pad.replaceChild(input, nameEl);
+  input.focus();
+  input.select();
+
+  function commit(){
+    const v = input.value.trim();
+    bank.name = v || bank.name;
+    persistBanks();
+    renderBanks();
+  }
+  input.addEventListener('blur', commit);
+  input.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') input.blur();
+    if (e.key === 'Escape'){ input.value = bank.name; input.blur(); }
+  });
+  input.addEventListener('click', e => e.stopPropagation());
+}
+
+function selectBank(idx){
+  activeBankIndex = idx;
+  const bank = banks[idx];
+  editValues = (bank.hasData && bank.values) ? bank.values.slice() : defaultValues();
+  bank._dirty = false;
+  refreshEditorUI();
+  renderBanks();
+  // Bank selection transmits INSTANTLY (not debounced) per spec.
+  sendSysexPss480(currentOutput, editValues, true);
+}
+
+/* ============================================================
+   9. Toolbar actions: Save / Export / Import / Reset
+   ============================================================ */
+document.getElementById('btnSaveCurrent').addEventListener('click', () => {
+  const bank = banks[activeBankIndex];
+  bank.values = editValues.slice();
+  bank.hasData = true;
+  bank._dirty = false;
+  persistBanks();
+  renderBanks();
+  setLcd('SAVED CURRENT EDIT BUFFER -> BANK ' + (activeBankIndex + 1) + ' "' + bank.name + '"');
+});
+
+document.getElementById('btnResetBank').addEventListener('click', () => {
+  const bank = banks[activeBankIndex];
+  bank.values = null;
+  bank.hasData = false;
+  bank._dirty = false;
+  editValues = defaultValues();
+  persistBanks();
+  refreshEditorUI();
+  renderBanks();
+  sendSysexPss480(currentOutput, editValues, true);
+  setLcd('BANK ' + (activeBankIndex + 1) + ' RESET TO FACTORY DEFAULTS.');
+});
+
+document.getElementById('btnExport').addEventListener('click', () => {
+  const payload = {
+    format: 'portasound-js-librarian-pss480',
+    version: 1,
+    exportedAt: new Date().toISOString(),
+    banks: banks.map(b => ({ name: b.name, values: b.values, hasData: b.hasData })),
+  };
+  const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'portasound-pss480-patches.json';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  setLcd('EXPORTED 16 BANKS TO JSON FILE.');
+});
+
+const fileImport = document.getElementById('fileImport');
+document.getElementById('btnImport').addEventListener('click', () => fileImport.click());
+fileImport.addEventListener('change', (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    try{
+      const parsed = JSON.parse(reader.result);
+      const incoming = Array.isArray(parsed) ? parsed : parsed.banks;
+      if (!Array.isArray(incoming) || incoming.length !== NUM_BANKS){
+        throw new Error('Expected an array of ' + NUM_BANKS + ' banks.');
+      }
+      banks = incoming.map((b, i) => ({
+        name: (b && b.name) || ('Patch ' + (i+1)),
+        values: (b && Array.isArray(b.values) && b.values.length === PARAMS.length) ? b.values : null,
+        hasData: !!(b && b.hasData && Array.isArray(b.values) && b.values.length === PARAMS.length),
+      }));
+      persistBanks();
+      selectBank(0);
+      setLcd('IMPORTED 16 BANKS FROM JSON FILE.');
+    }catch(err){
+      setLcd('IMPORT ERROR: ' + err.message);
+    }
+    fileImport.value = '';
+  };
+  reader.readAsText(file);
+});
+
+/* ============================================================
+   10. Init
+   ============================================================ */
+function init(){
+  loadBanks();
+  buildParamEditor();
+  editValues = (banks[0].hasData && banks[0].values) ? banks[0].values.slice() : defaultValues();
+  refreshEditorUI();
+  renderBanks();
+  setLcd('PORTASOUND JS LIBRARIAN READY. CLICK "ENABLE MIDI" TO CONNECT A DEVICE.');
+}
+
+init();
+})();
+</script>
+</body>
+</html>
