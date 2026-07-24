@@ -525,16 +525,8 @@ layout: null
     <a class="site-name" href="{{ site.baseurl }}/">CARL WILLIAM MUSIC</a>
     <div class="header-actions">
       <button type="button" class="hw-btn" id="layout-lock-btn" title="Lock layout orientation">Layout Lock</button>
-      <button type="button" class="back-btn" id="back-btn">Back to Gear</button>
     </div>
   </header>
-
-  <nav id="site-nav" aria-label="Editor sections">
-    <button type="button" id="nav-voice"   class="active" data-tab="voice">Voice</button>
-    <button type="button" id="nav-effects" data-tab="effects">Effects</button>
-    <button type="button" id="nav-library" data-tab="library">Library</button>
-    <button type="button" id="nav-midi"    data-tab="midi">MIDI I/O</button>
-  </nav>
 
   <div class="page">
     <div class="left-col">
@@ -1321,13 +1313,6 @@ layout: null
       });
 
       $('layout-lock-btn').addEventListener('click', UI.toggleLayoutLock);
-      $('back-btn').addEventListener('click', function () {
-        if (document.referrer && document.referrer.includes(location.hostname)) {
-          history.back();
-        } else {
-          location.href = '{{ site.baseurl }}/gear.html';
-        }
-      });
 
       $('channel-select').addEventListener('change', function () {
         state.channel = parseInt(this.value, 10);
