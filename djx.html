@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>YAMAHA DJX // XG LIBRARIAN & EDITOR</title>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#0a0a12">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=VT323&display=swap');
+
+  :root {
+    --bg: #0a0a12;
+    --surface: #0d0d1a;
+    --text: #e0d8f0;
+    --muted: #9988aa;
+    --dim: #443355;
+    --pink: #ff2d78;
+    --cyan: #00f5ff;
+    --gold: #ffd700;
+    --purple: #b06aff;
+    --green: #99cc77;
+    --font-mono: 'Space Mono', 'Courier New', monospace;
+    --font-pixel: 'VT323', 'Courier New', monospace;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0; padding: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-mono);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  ::selection { background: var(--pink); color: #000; }
+
+  /* CRT & Visual Effects */
+  body::before {
+    content: " ";
+    pointer-events: none;
+    position: fixed; inset: 0; z-index: 9999;
+    background: repeating-linear-gradient(
+      to bottom,
+      rgba(255,255,255,0.02) 0px,
+      rgba(255,255,255,0.02) 1px,
+      transparent 2px,
+      transparent 3px
+    );
+    mix-blend-mode: overlay;
+  }
+  
+  .glow-cursor {
+    pointer-events: none;
+    position: fixed;
+    width: 300px; height: 300px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(0,245,255,0.05) 0%, transparent 70%);
+    transform: translate(-50%, -50%);
+    z-index: 9998;
+    transition: width 0.2s, height 0.2s;
+  }
+
+  @keyframes flicker {
+    0%,100% { opacity: 1; }
+    92% { opacity: 1; }
+    93% { opacity: 0.94; }
+    94% { opacity: 1; }
+  }
+  body { animation: flicker 6s infinite; }
+
+  @keyframes slideIn {
+    from { transform: translateY(10px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+  }
+
+  /* Navigation */
+  #site-nav {
+    display: flex;
+    overflow-x: auto;
+    background: var(--surface);
+    border-bottom: 2px solid var(--purple);
+    padding: 10px 20px;
+    gap: 15px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+  }
+  
+  .nav-tab {
+    color: var(--muted);
+    font-weight: 700;
+    text-transform: uppercase;
+    cursor: pointer;
+    padding: 5px 10px;
+    transition: color 0.2s, text-shadow 0.2s;
+    white-space: nowrap;
+  }
+  
+  .nav-tab:hover {
+    color: var(--pink);
+    text-shadow: 0 0 8px var(--pink);
+  }
+  
+  .nav-tab.active {
+    color: var(--cyan);
+    border-bottom: 2px solid var(--cyan);
+    text-shadow: 0 0 8px var(--cyan);
+  }
+
+  /* Layout */
+  .page {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    max-width: 1200px;
+    margin: 20px auto;
+    padding: 0 20px;
+    animation: slideIn 0.4s ease-out;
+  }
+
+  @media (max-width: 720px) {
+    .page:not(.locked) {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  /* Panels */
+  .panel {
+    background: var(--surface);
+    border: 1px solid var(--dim);
+    box-shadow: 4px 4px 0 rgba(0,0,0,0.8), inset 0 0 0 1px rgba(0,245,255,0.1);
+    padding: 20px;
+    position: relative;
+    margin-bottom: 20px;
+  }
+
+  .panel-title {
+    position: absolute;
+    top: -12px; left: 15px;
+    background: var(--bg);
+    padding: 0 8px;
+    font-family: var(--font-pixel);
+    font-size: 22px;
+    color: var(--gold);
+    text-shadow: 0 0 5px var(--gold);
+    text-transform: uppercase;
+  }
+
+  /* Controls */
+  select, input[type=text], button {
+    background: var(--bg);
+    color: var(--cyan);
+    border: 1px solid var(--dim);
+    font-family: var(--font-mono);
+    font-size: 13px;
+    padding: 8px 12px;
+    outline: none;
+    transition: all 0.2s;
+  }
+
+  select:focus, input[type=text]:focus {
+    border-color: var(--cyan);
+    box-shadow: 0 0 8px rgba(0,245,255,0.3);
+  }
+
+  button {
+    font-weight: bold;
+    cursor: pointer;
+    text-transform: uppercase;
+    box-shadow: 2px 2px 0 var(--dim);
+  }
+
+  button:hover:not(:disabled) {
+    background: var(--cyan);
+    color: var(--bg);
+    box-shadow: 2px 2px 0 var(--pink);
+  }
+  
+  button:active:not(:disabled) {
+    transform: translate(2px, 2px);
+    box-shadow: none;
+  }
+
+  button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  .slider-row {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 12px;
+  }
+
+  .slabel { flex: 0 0 140px; font-size: 12px; color: var(--muted); }
+  
+  input[type=range] {
+    flex: 1;
+    -webkit-appearance: none;
+    height: 4px;
+    background: var(--dim);
+    outline: none;
+  }
+
+  input[type=range]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 12px; height: 20px;
+    background: var(--pink);
+    box-shadow: 0 0 8px var(--pink);
+    cursor: pointer;
+  }
+
+  .sval { flex: 0 0 35px; text-align: right; color: var(--green); font-size: 13px; }
+
+  /* Utilities */
+  .flex-row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+  .status-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--pink); box-shadow: 0 0 8px var(--pink); }
+  .status-dot.connected { background: var(--green); box-shadow: 0 0 8px var(--green); }
+  
+  #lock-toggle {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--muted);
+    font-size: 12px;
+  }
+</style>
+</head>
+<body>
+
+<div class="glow-cursor" id="cursorGlow"></div>
+
+<nav id="site-nav">
+  <div class="nav-tab active">XG Editor</div>
+  <div class="nav-tab">Librarian</div>
+  <div class="nav-tab">Effect Matrix</div>
+  
+  <div id="lock-toggle">
+    <label>Layout Lock</label>
+    <input type="checkbox" id="layoutLockCb">
+  </div>
+</nav>
+
+<div class="page" id="mainPage">
+  <!-- LEFT COLUMN -->
+  <div class="left-col">
+    
+    <!-- MIDI I/O Panel -->
+    <div class="panel">
+      <div class="panel-title">MIDI I/O CONFIG</div>
+      <div class="flex-row" style="margin-bottom: 15px;">
+        <span class="status-dot" id="midiStatusDot"></span>
+        <span id="midiStatusText" style="color:var(--muted); font-size: 12px;">MIDI DISCONNECTED</span>
+        <button id="btnConnect" style="margin-left: auto;">Init Web MIDI</button>
+      </div>
+      
+      <div class="flex-row" style="margin-bottom: 10px;">
+        <div style="flex:1;">
+          <label style="display:block; font-size: 10px; color:var(--muted); margin-bottom: 4px;">INPUT DEVICE</label>
+          <select id="midiInSelect" style="width:100%;" disabled><option>--</option></select>
+        </div>
+        <div style="flex:1;">
+          <label style="display:block; font-size: 10px; color:var(--muted); margin-bottom: 4px;">OUTPUT DEVICE</label>
+          <select id="midiOutSelect" style="width:100%;" disabled><option>--</option></select>
+        </div>
+      </div>
+      
+      <button id="btnXgInit" style="width:100%; border-color: var(--purple); color: var(--purple);">Send XG System ON</button>
+    </div>
+
+    <!-- Multi-Part Config -->
+    <div class="panel">
+      <div class="panel-title">PART & EFFECTS</div>
+      <div class="flex-row" style="margin-bottom: 15px;">
+        <label style="font-size: 12px;">MIDI Channel:</label>
+        <select id="midiChannel">
+          <option value="0">Part 1 (CH 1)</option>
+          <option value="1">Part 2 (CH 2)</option>
+          <option value="9">Drum Kit (CH 10)</option>
+        </select>
+      </div>
+      
+      <div class="flex-row" style="margin-bottom: 10px;">
+        <div style="flex:1;">
+          <label style="display:block; font-size: 10px; color:var(--muted); margin-bottom: 4px;">REVERB TYPE</label>
+          <select style="width:100%;"><option>Hall 1</option><option>Room</option><option>Stage</option></select>
+        </div>
+        <div style="flex:1;">
+          <label style="display:block; font-size: 10px; color:var(--muted); margin-bottom: 4px;">CHORUS TYPE</label>
+          <select style="width:100%;"><option>Chorus 1</option><option>Flanger</option></select>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- RIGHT COLUMN -->
+  <div class="right-col">
+    <!-- Macro Synthesizer Params -->
+    <div class="panel">
+      <div class="panel-title">VOICE OVERRIDES</div>
+      
+      <div id="macroSliders">
+        <!-- Sliders injected via JS -->
+      </div>
+    </div>
+
+    <!-- Librarian Tools -->
+    <div class="panel">
+      <div class="panel-title">LIBRARIAN (LOCAL)</div>
+      <div class="flex-row">
+        <button id="btnSaveMem">Save to LocalStorage</button>
+        <button id="btnExportSyx">Export .SYX</button>
+        <button id="btnImportSyx">Import .SYX</button>
+      </div>
+      <div style="margin-top: 10px; font-size: 11px; color: var(--dim);">
+        <p>Active Patch: <span id="activePatchName" style="color:var(--text);">Init XG</span></p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function() {
+  'use strict';
+
+  // --- Visual Interactions ---
+  const cursor = document.getElementById('cursorGlow');
+  document.addEventListener('mousemove', (e) => {
+    cursor.style.left = e.clientX + 'px';
+    cursor.style.top = e.clientY + 'px';
+  });
+
+  const layoutLockCb = document.getElementById('layoutLockCb');
+  const mainPage = document.getElementById('mainPage');
+  layoutLockCb.addEventListener('change', (e) => {
+    mainPage.classList.toggle('locked', e.target.checked);
+  });
+
+  // --- MIDI Architecture & Setup ---
+  let midiAccess = null;
+  let activeInput = null;
+  let activeOutput = null;
+
+  const btnConnect = document.getElementById('btnConnect');
+  const midiInSelect = document.getElementById('midiInSelect');
+  const midiOutSelect = document.getElementById('midiOutSelect');
+  const midiStatusDot = document.getElementById('midiStatusDot');
+  const midiStatusText = document.getElementById('midiStatusText');
+
+  function updateMidiStatus() {
+    const connected = !!activeOutput;
+    midiStatusDot.classList.toggle('connected', connected);
+    midiStatusText.textContent = connected ? 'MIDI CONNECTED' : 'MIDI DISCONNECTED';
+    midiStatusText.style.color = connected ? 'var(--green)' : 'var(--muted)';
+  }
+
+  function handleIncomingMidi(message) {
+    // Listen for CC and Sysex to sync UI with hardware
+    const data = message.data;
+    if(data[0] === 0xF0) {
+      console.log('Incoming SysEx:', data);
+    } else if((data[0] & 0xF0) === 0xB0) {
+      // CC Handling (e.g. Filter Cutoff CC 74)
+      const cc = data[1];
+      const val = data[2];
+      const slider = document.querySelector(`input[data-cc="${cc}"]`);
+      if(slider) {
+        slider.value = val;
+        slider.nextElementSibling.textContent = val;
+      }
+    }
+  }
+
+  function populatePorts() {
+    midiInSelect.innerHTML = '<option value="">-- Select Input --</option>';
+    midiOutSelect.innerHTML = '<option value="">-- Select Output --</option>';
+    
+    if(!midiAccess) return;
+
+    for(const input of midiAccess.inputs.values()) {
+      midiInSelect.innerHTML += `<option value="${input.id}">${input.name}</option>`;
+    }
+    
+    for(const output of midiAccess.outputs.values()) {
+      midiOutSelect.innerHTML += `<option value="${output.id}">${output.name}</option>`;
+    }
+
+    midiInSelect.disabled = false;
+    midiOutSelect.disabled = false;
+  }
+
+  btnConnect.addEventListener('click', async () => {
+    try {
+      midiAccess = await navigator.requestMIDIAccess({ sysex: true });
+      populatePorts();
+      
+      midiAccess.onstatechange = populatePorts;
+      btnConnect.textContent = "MIDI Active";
+      btnConnect.disabled = true;
+    } catch (err) {
+      alert("MIDI Access Denied or Unsupported.");
+      console.error(err);
+    }
+  });
+
+  midiInSelect.addEventListener('change', (e) => {
+    if(activeInput) activeInput.onmidimessage = null;
+    if(!e.target.value) return;
+    activeInput = midiAccess.inputs.get(e.target.value);
+    activeInput.onmidimessage = handleIncomingMidi;
+  });
+
+  midiOutSelect.addEventListener('change', (e) => {
+    activeOutput = midiAccess.outputs.get(e.target.value) || null;
+    updateMidiStatus();
+  });
+
+  // --- XG SysEx Functionality ---
+  const btnXgInit = document.getElementById('btnXgInit');
+  btnXgInit.addEventListener('click', () => {
+    if(!activeOutput) return alert('Select an output first!');
+    // XG System ON SysEx packet
+    const sysOn = [0xF0, 0x43, 0x10, 0x4C, 0x00, 0x00, 0x7E, 0x00, 0xF7];
+    activeOutput.send(sysOn);
+    console.log('Sent XG System ON');
+  });
+
+  function sendXgParamChange(paramId, value) {
+    if(!activeOutput) return;
+    const ch = parseInt(document.getElementById('midiChannel').value, 10);
+    // Standard XG Address: 08 nn pp
+    const sysex = [0xF0, 0x43, 0x10, 0x4C, 0x08, ch, paramId, value, 0xF7];
+    activeOutput.send(sysex);
+  }
+
+  // --- Macro Parameters ---
+  const macroParams = [
+    { label: 'Filter Cutoff', paramId: 0x07, cc: 74, default: 64, max: 127 },
+    { label: 'Resonance', paramId: 0x08, cc: 71, default: 64, max: 127 },
+    { label: 'EG Attack', paramId: 0x09, cc: 73, default: 64, max: 127 },
+    { label: 'EG Decay', paramId: 0x0A, cc: 75, default: 64, max: 127 },
+    { label: 'EG Release', paramId: 0x0B, cc: 72, default: 64, max: 127 }
+  ];
+
+  const sliderContainer = document.getElementById('macroSliders');
+  
+  macroParams.forEach(p => {
+    const row = document.createElement('div');
+    row.className = 'slider-row';
+    
+    const label = document.createElement('div');
+    label.className = 'slabel';
+    label.textContent = p.label;
+    
+    const input = document.createElement('input');
+    input.type = 'range';
+    input.min = 0; input.max = p.max; input.value = p.default;
+    input.dataset.param = p.paramId;
+    input.dataset.cc = p.cc;
+    
+    const valDisplay = document.createElement('div');
+    valDisplay.className = 'sval';
+    valDisplay.textContent = p.default;
+    
+    input.addEventListener('input', (e) => {
+      const v = parseInt(e.target.value, 10);
+      valDisplay.textContent = v;
+      sendXgParamChange(p.paramId, v);
+    });
+    
+    row.appendChild(label);
+    row.appendChild(input);
+    row.appendChild(valDisplay);
+    sliderContainer.appendChild(row);
+  });
+
+  // --- Local Librarian ---
+  const STORAGE_KEY = 'djx_xg_librarian_v1';
+  document.getElementById('btnSaveMem').addEventListener('click', () => {
+    const patchState = {};
+    document.querySelectorAll('#macroSliders input').forEach(input => {
+      patchState[input.dataset.param] = input.value;
+    });
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(patchState));
+    alert('Patch saved to LocalStorage!');
+  });
+
+  document.getElementById('btnExportSyx').addEventListener('click', () => {
+    // Generate dummy binary for demonstration of .syx export
+    const dummyBlob = new Blob([new Uint8Array([0xF0, 0x43, 0x10, 0xF7])], { type: 'application/octet-stream' });
+    const url = URL.createObjectURL(dummyBlob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'djx_backup.syx';
+    a.click();
+    URL.revokeObjectURL(url);
+  });
+
+})();
+</script>
+</body>
+</html>
