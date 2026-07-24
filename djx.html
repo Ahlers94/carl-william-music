@@ -64,13 +64,13 @@ layout: null
       height: 100vh;
     }
     body.layout-locked .page {
-      min-height: calc(100vh - 140px);
-      max-height: calc(100vh - 140px);
+      min-height: calc(100vh - 110px);
+      max-height: calc(100vh - 110px);
       overflow: hidden;
     }
     body.layout-locked .left-col {
       overflow-y: auto;
-      max-height: calc(100vh - 140px);
+      max-height: calc(100vh - 110px);
     }
 
     #cursor-glow {
@@ -114,7 +114,7 @@ layout: null
       flex-wrap: wrap;
     }
 
-    .back-btn, .hw-btn {
+    .hw-btn {
       display: inline-flex;
       align-items: center;
       gap: 8px;
@@ -127,20 +127,6 @@ layout: null
       background: none;
       padding: 8px 14px;
       transition: border-color 0.2s, text-shadow 0.2s, background 0.2s;
-    }
-    .back-btn {
-      color: var(--green);
-      text-shadow: 0 0 8px #99cc7766;
-      border-color: #99cc7733;
-    }
-    .back-btn:hover {
-      border-color: #99cc7777;
-      text-shadow: 0 0 14px #99cc77bb;
-      background: #99cc7708;
-    }
-    .back-btn::before { content: '◂'; font-size: 12px; }
-
-    .hw-btn {
       color: var(--gold);
       border-color: #ffd70033;
       text-shadow: 0 0 8px #ffd70044;
@@ -151,65 +137,11 @@ layout: null
       text-shadow: 0 0 12px #ffd700aa;
     }
 
-    /* ── APP NAV ────────────────────────────────────────────── */
-    #site-nav {
-      display: flex;
-      background: #10101e;
-      border-bottom: 1px solid #ffffff15;
-      position: sticky;
-      top: 0;
-      z-index: 10;
-      overflow-x: auto;
-      -webkit-overflow-scrolling: touch;
-      scrollbar-width: none;
-    }
-    #site-nav::-webkit-scrollbar { display: none; }
-
-    #site-nav::after {
-      content: '';
-      position: sticky;
-      right: 0;
-      top: 0;
-      min-width: 48px;
-      height: 100%;
-      background: linear-gradient(to right, transparent, #10101e);
-      pointer-events: none;
-      flex-shrink: 0;
-    }
-
-    #site-nav button {
-      display: block;
-      padding: 12px 24px;
-      font-family: 'Space Mono', monospace;
-      font-size: 11px;
-      letter-spacing: 2px;
-      text-transform: uppercase;
-      color: #9988cc;
-      background: none;
-      border: none;
-      border-right: 1px solid #ffffff0d;
-      border-bottom: 2px solid transparent;
-      cursor: pointer;
-      white-space: nowrap;
-      flex-shrink: 0;
-      transition: color 0.2s, border-bottom-color 0.2s, text-shadow 0.2s;
-    }
-
-    #nav-voice   { color: #ff2d78; text-shadow: 0 0 8px #ff2d7866; }
-    #nav-effects { color: #00f5ff; text-shadow: 0 0 8px #00f5ff66; }
-    #nav-library { color: #b06aff; text-shadow: 0 0 8px #b06aff66; }
-    #nav-midi    { color: #99cc77; text-shadow: 0 0 8px #99cc7766; }
-
-    #nav-voice.active   { color: #ff5599; border-bottom-color: #ff5599; text-shadow: 0 0 12px #ff559988; }
-    #nav-effects.active { color: #33f7ff; border-bottom-color: #33f7ff; text-shadow: 0 0 12px #33f7ff88; }
-    #nav-library.active { color: #cc88ff; border-bottom-color: #cc88ff; text-shadow: 0 0 12px #cc88ff88; }
-    #nav-midi.active    { color: #bbee99; border-bottom-color: #bbee99; text-shadow: 0 0 12px #bbee9988; }
-
     /* ── LAYOUT ─────────────────────────────────────────────── */
     .page {
       display: grid;
       grid-template-columns: 1fr 280px;
-      min-height: calc(100vh - 140px);
+      min-height: calc(100vh - 110px);
     }
     @media (max-width: 720px) {
       .page { grid-template-columns: 1fr; }
@@ -267,11 +199,23 @@ layout: null
       margin-bottom: 24px;
     }
 
-    .panel { display: none; animation: slideIn 0.35s ease forwards; }
-    .panel.active { display: block; }
+    .editor-section {
+      margin-bottom: 32px;
+      animation: slideIn 0.35s ease forwards;
+    }
     @keyframes slideIn {
       from { opacity: 0; transform: translateY(8px); }
       to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .live-badge {
+      font-size: 9px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      padding: 6px 12px;
+      border: 1px solid #ff2d7855;
+      color: var(--pink);
+      text-shadow: 0 0 8px #ff2d7866;
     }
 
     /* ── STATUS & MIDI ──────────────────────────────────────── */
