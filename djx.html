@@ -516,6 +516,166 @@ layout: null
     }
     .blink { animation: blink 1.2s step-end infinite; }
     @keyframes blink { 50% { opacity: 0; } }
+
+    /* ── PART TABS ──────────────────────────────────────────── */
+    .part-tabs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 20px;
+    }
+    .part-tab {
+      font-family: 'Space Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 1px;
+      padding: 7px 10px;
+      border: 1px solid #ffffff18;
+      background: none;
+      color: var(--muted);
+      cursor: pointer;
+      transition: border-color 0.15s, color 0.15s, background 0.15s;
+      min-width: 34px;
+      text-align: center;
+    }
+    .part-tab:hover { border-color: #b06aff55; color: var(--text); }
+    .part-tab.active {
+      color: var(--purple);
+      border-color: var(--purple);
+      background: #b06aff14;
+      text-shadow: 0 0 8px #b06aff66;
+    }
+
+    /* ── MIDI LEARN ─────────────────────────────────────────── */
+    .learn-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 10px;
+    }
+    .learn-btn {
+      font-family: 'Space Mono', monospace;
+      font-size: 8px;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      padding: 5px 9px;
+      border: 1px solid #ff2d7844;
+      background: none;
+      color: var(--pink);
+      cursor: pointer;
+      transition: border-color 0.15s, background 0.15s;
+    }
+    .learn-btn:hover { border-color: #ff2d7888; background: #ff2d780a; }
+    .learn-btn.listening {
+      border-color: var(--gold);
+      color: var(--gold);
+      background: #ffd7000a;
+      animation: pulse-learn 0.9s ease-in-out infinite;
+    }
+    @keyframes pulse-learn {
+      0%, 100% { box-shadow: 0 0 0 0 #ffd70066; }
+      50%      { box-shadow: 0 0 0 5px #ffd70000; }
+    }
+    .midi-badge {
+      font-size: 8px;
+      letter-spacing: 1px;
+      color: var(--dim);
+      border: 1px solid #ffffff14;
+      padding: 5px 7px;
+      cursor: default;
+      background: none;
+      font-family: 'Space Mono', monospace;
+    }
+    .midi-badge.mapped {
+      color: var(--cyan);
+      border-color: #00f5ff33;
+      cursor: pointer;
+    }
+    .midi-badge.mapped:hover {
+      border-color: #00f5ff88;
+      text-shadow: 0 0 6px #00f5ff66;
+    }
+
+    /* ── LFO ────────────────────────────────────────────────── */
+    .lfo-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+    .lfo-field { background: var(--surface); border: 1px solid #ffffff10; border-left: 2px solid var(--gold); padding: 14px; }
+    .lfo-field .field-label { margin-bottom: 8px; }
+    .lfo-readout {
+      font-family: 'VT323', monospace;
+      font-size: 24px;
+      color: var(--gold);
+      text-shadow: 0 0 10px #ffd70044;
+      margin-bottom: 6px;
+      line-height: 1;
+    }
+    .lfo-meter {
+      height: 6px;
+      background: #06060f;
+      border: 1px solid #ffffff10;
+      margin-top: 14px;
+      position: relative;
+      overflow: hidden;
+    }
+    .lfo-meter-fill {
+      position: absolute;
+      top: 0; bottom: 0; left: 50%;
+      width: 2px;
+      background: var(--pink);
+      box-shadow: 0 0 8px #ff2d78aa;
+    }
+    .lfo-status {
+      font-size: 9px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      padding: 6px 12px;
+      border: 1px solid;
+      display: inline-block;
+      margin-bottom: 16px;
+    }
+    .lfo-status.on {
+      color: var(--green);
+      border-color: #99cc7755;
+      text-shadow: 0 0 8px #99cc7766;
+    }
+    .lfo-status.off {
+      color: var(--dim);
+      border-color: #44335588;
+    }
+
+    /* ── MAPPING LIST ───────────────────────────────────────── */
+    .mapping-list {
+      list-style: none;
+      border: 1px solid #ffffff10;
+      margin: 12px 0;
+      max-height: 220px;
+      overflow-y: auto;
+    }
+    .mapping-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 12px;
+      font-size: 10px;
+      border-bottom: 1px solid #ffffff08;
+      gap: 8px;
+    }
+    .mapping-item span.pname { color: var(--text); }
+    .mapping-item span.pcc { color: var(--cyan); letter-spacing: 1px; white-space: nowrap; }
+    .mapping-item button {
+      font-size: 8px;
+      letter-spacing: 1px;
+      padding: 3px 7px;
+      border: 1px solid #ffffff18;
+      background: none;
+      color: var(--muted);
+      cursor: pointer;
+    }
+    .mapping-item button:hover { color: var(--pink); border-color: #ff2d7888; }
+    .mapping-empty { padding: 12px; font-size: 10px; color: var(--dim); }
   </style>
 </head>
 <body>
@@ -538,6 +698,12 @@ layout: null
         <span class="status-pill disconnected" id="status-out">MIDI OUT: DISCONNECTED</span>
       </div>
 
+      <!-- MULTI-PART SELECTOR -->
+      <div class="section-label">XG Multi-Part</div>
+      <div class="part-tabs" id="part-tabs" role="tablist" aria-label="XG part / MIDI channel selector">
+        <!-- populated by JS -->
+      </div>
+
       <!-- VOICE PANEL -->
       <section class="panel active" id="panel-voice" data-panel="voice">
         <div class="section-label">Multi-Part Voice</div>
@@ -555,26 +721,46 @@ layout: null
             <div class="knob-label">Filter Cutoff</div>
             <div class="knob-value" id="val-cutoff">64</div>
             <input type="range" id="knob-cutoff" min="0" max="127" value="64" data-param="cutoff">
+            <div class="learn-row">
+              <button type="button" class="learn-btn" data-param="cutoff">Assign</button>
+              <span class="midi-badge" id="badge-cutoff" data-param="cutoff">—</span>
+            </div>
           </div>
           <div class="knob-block" data-addr="0x19">
             <div class="knob-label">Resonance</div>
             <div class="knob-value" id="val-resonance">64</div>
             <input type="range" id="knob-resonance" min="0" max="127" value="64" data-param="resonance">
+            <div class="learn-row">
+              <button type="button" class="learn-btn" data-param="resonance">Assign</button>
+              <span class="midi-badge" id="badge-resonance" data-param="resonance">—</span>
+            </div>
           </div>
           <div class="knob-block" data-addr="0x1A">
             <div class="knob-label">EG Attack</div>
             <div class="knob-value" id="val-attack">64</div>
             <input type="range" id="knob-attack" min="0" max="127" value="64" data-param="attack">
+            <div class="learn-row">
+              <button type="button" class="learn-btn" data-param="attack">Assign</button>
+              <span class="midi-badge" id="badge-attack" data-param="attack">—</span>
+            </div>
           </div>
           <div class="knob-block" data-addr="0x1B">
             <div class="knob-label">EG Decay</div>
             <div class="knob-value" id="val-decay">64</div>
             <input type="range" id="knob-decay" min="0" max="127" value="64" data-param="decay">
+            <div class="learn-row">
+              <button type="button" class="learn-btn" data-param="decay">Assign</button>
+              <span class="midi-badge" id="badge-decay" data-param="decay">—</span>
+            </div>
           </div>
           <div class="knob-block" data-addr="0x1C">
             <div class="knob-label">EG Release</div>
             <div class="knob-value" id="val-release">64</div>
             <input type="range" id="knob-release" min="0" max="127" value="64" data-param="release">
+            <div class="learn-row">
+              <button type="button" class="learn-btn" data-param="release">Assign</button>
+              <span class="midi-badge" id="badge-release" data-param="release">—</span>
+            </div>
           </div>
         </div>
 
@@ -596,10 +782,18 @@ layout: null
               <div>
                 <label class="field-label" for="reverb-time">Time</label>
                 <input type="range" id="reverb-time" min="0" max="127" value="64">
+                <div class="learn-row">
+                  <button type="button" class="learn-btn" data-param="reverbTime">Assign</button>
+                  <span class="midi-badge" id="badge-reverbTime" data-param="reverbTime">—</span>
+                </div>
               </div>
               <div>
                 <label class="field-label" for="reverb-return">Return</label>
                 <input type="range" id="reverb-return" min="0" max="127" value="64">
+                <div class="learn-row">
+                  <button type="button" class="learn-btn" data-param="reverbReturn">Assign</button>
+                  <span class="midi-badge" id="badge-reverbReturn" data-param="reverbReturn">—</span>
+                </div>
               </div>
             </div>
           </div>
@@ -611,14 +805,26 @@ layout: null
               <div>
                 <label class="field-label" for="chorus-rate">Rate</label>
                 <input type="range" id="chorus-rate" min="0" max="127" value="64">
+                <div class="learn-row">
+                  <button type="button" class="learn-btn" data-param="chorusRate">Assign</button>
+                  <span class="midi-badge" id="badge-chorusRate" data-param="chorusRate">—</span>
+                </div>
               </div>
               <div>
                 <label class="field-label" for="chorus-depth">Depth</label>
                 <input type="range" id="chorus-depth" min="0" max="127" value="64">
+                <div class="learn-row">
+                  <button type="button" class="learn-btn" data-param="chorusDepth">Assign</button>
+                  <span class="midi-badge" id="badge-chorusDepth" data-param="chorusDepth">—</span>
+                </div>
               </div>
               <div>
                 <label class="field-label" for="chorus-return">Return</label>
                 <input type="range" id="chorus-return" min="0" max="127" value="40">
+                <div class="learn-row">
+                  <button type="button" class="learn-btn" data-param="chorusReturn">Assign</button>
+                  <span class="midi-badge" id="badge-chorusReturn" data-param="chorusReturn">—</span>
+                </div>
               </div>
             </div>
           </div>
@@ -630,14 +836,26 @@ layout: null
               <div>
                 <label class="field-label" for="var-param1">Macro 1</label>
                 <input type="range" id="var-param1" min="0" max="127" value="64">
+                <div class="learn-row">
+                  <button type="button" class="learn-btn" data-param="varParam1">Assign</button>
+                  <span class="midi-badge" id="badge-varParam1" data-param="varParam1">—</span>
+                </div>
               </div>
               <div>
                 <label class="field-label" for="var-param2">Macro 2</label>
                 <input type="range" id="var-param2" min="0" max="127" value="64">
+                <div class="learn-row">
+                  <button type="button" class="learn-btn" data-param="varParam2">Assign</button>
+                  <span class="midi-badge" id="badge-varParam2" data-param="varParam2">—</span>
+                </div>
               </div>
               <div>
                 <label class="field-label" for="var-return">Return</label>
                 <input type="range" id="var-return" min="0" max="127" value="0">
+                <div class="learn-row">
+                  <button type="button" class="learn-btn" data-param="varReturn">Assign</button>
+                  <span class="midi-badge" id="badge-varReturn" data-param="varReturn">—</span>
+                </div>
               </div>
             </div>
           </div>
@@ -645,6 +863,56 @@ layout: null
 
         <div class="btn-row">
           <button type="button" class="action-btn primary" id="send-fx-btn">Send Effect Matrix</button>
+        </div>
+      </section>
+
+      <!-- LFO PANEL -->
+      <section class="panel" id="panel-lfo" data-panel="lfo">
+        <div class="section-label">Software LFO</div>
+
+        <span class="lfo-status off" id="lfo-status">LFO Stopped</span>
+
+        <div class="lfo-grid">
+          <div class="lfo-field">
+            <label class="field-label" for="lfo-target">Modulation Target</label>
+            <select id="lfo-target">
+              <option value="">— None —</option>
+              <!-- populated by JS -->
+            </select>
+          </div>
+
+          <div class="lfo-field">
+            <label class="field-label" for="lfo-waveform">Waveform</label>
+            <select id="lfo-waveform">
+              <option value="sine">Sine</option>
+              <option value="triangle">Triangle</option>
+              <option value="square">Square</option>
+              <option value="saw">Sawtooth</option>
+              <option value="random">Random (S&amp;H)</option>
+            </select>
+          </div>
+
+          <div class="lfo-field">
+            <label class="field-label" for="lfo-rate">Rate — <span id="lfo-rate-readout">1.00</span> Hz</label>
+            <input type="range" id="lfo-rate" min="1" max="200" value="20">
+          </div>
+
+          <div class="lfo-field">
+            <label class="field-label" for="lfo-depth">Depth — <span id="lfo-depth-readout">32</span></label>
+            <input type="range" id="lfo-depth" min="0" max="63" value="32">
+            <div class="lfo-meter"><div class="lfo-meter-fill" id="lfo-meter-fill"></div></div>
+          </div>
+        </div>
+
+        <div class="btn-row">
+          <button type="button" class="action-btn primary" id="lfo-start-btn">Start LFO</button>
+          <button type="button" class="action-btn pink" id="lfo-stop-btn">Stop LFO</button>
+        </div>
+
+        <div class="info-box">
+          <strong>How it works.</strong> The LFO runs entirely in the browser and continuously writes
+          new values to the chosen target parameter (centered on its value at start time), dispatching
+          the same XG SysEx / CC message a manual knob turn would produce.
         </div>
       </section>
 
@@ -665,6 +933,17 @@ layout: null
           <button type="button" class="action-btn" id="delete-patch-btn" disabled>Delete</button>
         </div>
         <input type="file" class="hidden-input" id="syx-file-input" accept=".syx,.SYX,application/octet-stream">
+
+        <div class="section-label">JSON Backup Hub</div>
+        <div class="btn-row">
+          <button type="button" class="action-btn gold" id="export-json-btn">Export JSON</button>
+          <button type="button" class="action-btn pink" id="import-json-btn">Import JSON</button>
+        </div>
+        <input type="file" class="hidden-input" id="json-file-input" accept=".json,application/json">
+        <div class="info-box">
+          Exports performance parts, effect settings, saved patches, MIDI Learn mappings, and LFO
+          configuration to a single local <strong>.json</strong> file for backup or transfer between browsers.
+        </div>
 
         <div class="syx-log" id="syx-log">&gt; Ready for SysEx transfer</div>
       </section>
@@ -692,6 +971,17 @@ layout: null
         <div class="info-box">
           <strong>SysEx enabled.</strong> Connect your Yamaha DJX via USB-MIDI or a 5-pin interface.
           Physical knob movements on the hardware will sync back to the editor when the DJX transmits CC or XG parameter-change responses.
+        </div>
+
+        <div class="section-label">MIDI Learn Map</div>
+        <div class="info-box">
+          Click <strong>Assign</strong> next to any voice, effect, or LFO-eligible parameter, then move a
+          knob or fader on your MIDI controller. The incoming CC is bound to that parameter and will
+          continue to drive it (translated into the correct XG SysEx) whenever it's moved.
+        </div>
+        <ul class="mapping-list" id="mapping-list"></ul>
+        <div class="btn-row">
+          <button type="button" class="action-btn" id="clear-mappings-btn">Clear All Mappings</button>
         </div>
       </section>
     </div>
@@ -798,6 +1088,26 @@ layout: null
       variationReturn:[0x02, 0x01, 0x4C]
     };
 
+    /* Registry of every continuous 0-127 parameter that can be bound via   */
+    /* MIDI Learn and/or modulated by the software LFO. 'part' parameters   */
+    /* live per-XG-channel in state.parts[]; 'effect' parameters live in    */
+    /* the global state.effects system-effect block.                       */
+    var ASSIGNABLE_PARAMS = {
+      cutoff:       { label: 'Filter Cutoff',      kind: 'part' },
+      resonance:    { label: 'Resonance',          kind: 'part' },
+      attack:       { label: 'EG Attack',          kind: 'part' },
+      decay:        { label: 'EG Decay',           kind: 'part' },
+      release:      { label: 'EG Release',         kind: 'part' },
+      reverbTime:   { label: 'Reverb Time',        kind: 'effect', sliderId: 'reverb-time' },
+      reverbReturn: { label: 'Reverb Return',      kind: 'effect', sliderId: 'reverb-return' },
+      chorusRate:   { label: 'Chorus Rate',        kind: 'effect', sliderId: 'chorus-rate' },
+      chorusDepth:  { label: 'Chorus Depth',       kind: 'effect', sliderId: 'chorus-depth' },
+      chorusReturn: { label: 'Chorus Return',      kind: 'effect', sliderId: 'chorus-return' },
+      varParam1:    { label: 'Variation Macro 1',  kind: 'effect', sliderId: 'var-param1' },
+      varParam2:    { label: 'Variation Macro 2',  kind: 'effect', sliderId: 'var-param2' },
+      varReturn:    { label: 'Variation Return',   kind: 'effect', sliderId: 'var-return' }
+    };
+
     /* ── STATE ───────────────────────────────────────────────── */
     var state = {
       channel: 1,
@@ -815,7 +1125,22 @@ layout: null
       midiAccess: null,
       midiIn: null,
       midiOut: null,
-      suppressSend: false
+      suppressSend: false,
+
+      /* MIDI Learn: paramId -> { cc: 0-127, channel: 1-16 } */
+      midiMap: {},
+      midiLearn: { active: false, paramId: null },
+
+      /* Software LFO */
+      lfo: {
+        enabled: false,
+        target: '',
+        waveform: 'sine',
+        rate: 1.0,     // Hz
+        depth: 32,     // 0-63, +/- swing applied around baseValue
+        baseValue: 64,
+        phase: 0
+      }
     };
 
     function defaultPart() {
@@ -871,6 +1196,10 @@ layout: null
           if (data.channel) state.channel = data.channel;
           if (data.activeTab) state.activeTab = data.activeTab;
           if (data.layoutLocked) state.layoutLocked = data.layoutLocked;
+          if (data.midiMap) state.midiMap = data.midiMap;
+          if (data.lfo) {
+            Object.assign(state.lfo, data.lfo, { enabled: false, phase: 0 });
+          }
         } catch (e) {
           console.warn('DJX storage load failed', e);
         }
@@ -883,7 +1212,14 @@ layout: null
             patches: state.patches,
             channel: state.channel,
             activeTab: state.activeTab,
-            layoutLocked: state.layoutLocked
+            layoutLocked: state.layoutLocked,
+            midiMap: state.midiMap,
+            lfo: {
+              target: state.lfo.target,
+              waveform: state.lfo.waveform,
+              rate: state.lfo.rate,
+              depth: state.lfo.depth
+            }
           }));
         } catch (e) {
           console.warn('DJX storage save failed', e);
@@ -934,6 +1270,146 @@ layout: null
       }
     };
 
+    /* ── GENERIC PARAMETER DISPATCH ──────────────────────────── */
+    /* Applies a 0-127 value to any entry in ASSIGNABLE_PARAMS, updating    */
+    /* app state + UI and (unless suppressed) transmitting the correct XG   */
+    /* SysEx to hardware. Used by manual MIDI-Learn CC translation and by   */
+    /* the software LFO — i.e. the single "runtime message translation"    */
+    /* path referenced in the dashboard's MIDI Learn info box.             */
+    function applyParamValue(paramId, value, opts) {
+      opts = opts || {};
+      var def = ASSIGNABLE_PARAMS[paramId];
+      if (!def) return;
+      value = Math.max(0, Math.min(127, Math.round(value)));
+
+      if (def.kind === 'part') {
+        UI.setKnob(paramId, value, !!opts.suppressSend);
+      } else {
+        state.effects[paramId] = value;
+        var slider = $(def.sliderId);
+        if (slider) slider.value = value;
+        if (!opts.suppressSend) {
+          var sysKey = paramId === 'varReturn' ? 'variationReturn' : paramId;
+          var msg = XG.sysParamFromKey(sysKey, value);
+          if (msg) MIDI.send(msg);
+        }
+        Storage.save();
+      }
+    }
+
+    /* ── MIDI LEARN ──────────────────────────────────────────── */
+    var MidiLearn = {
+      start: function (paramId) {
+        if (!ASSIGNABLE_PARAMS[paramId]) return;
+        state.midiLearn = { active: true, paramId: paramId };
+        UI.renderLearnButtons();
+        logSyx('Move a MIDI CC control to bind “' + ASSIGNABLE_PARAMS[paramId].label + '”…');
+      },
+      cancel: function () {
+        state.midiLearn = { active: false, paramId: null };
+        UI.renderLearnButtons();
+      },
+      /* Called from the incoming CC handler while listening is active */
+      captureCC: function (cc, channel) {
+        var paramId = state.midiLearn.paramId;
+        if (!paramId) return;
+        state.midiMap[paramId] = { cc: cc, channel: channel };
+        state.midiLearn = { active: false, paramId: null };
+        Storage.save();
+        UI.renderLearnButtons();
+        UI.renderMappingList();
+        logSyx('Bound “' + ASSIGNABLE_PARAMS[paramId].label + '” to CC ' + cc + ' (Ch ' + channel + ')');
+      },
+      /* Reverse lookup: which paramId (if any) is bound to this cc/channel */
+      findParamForCC: function (cc, channel) {
+        var found = null;
+        Object.keys(state.midiMap).forEach(function (paramId) {
+          var m = state.midiMap[paramId];
+          if (m.cc === cc && m.channel === channel) found = paramId;
+        });
+        return found;
+      },
+      clear: function (paramId) {
+        delete state.midiMap[paramId];
+        Storage.save();
+        UI.renderLearnButtons();
+        UI.renderMappingList();
+      },
+      clearAll: function () {
+        state.midiMap = {};
+        Storage.save();
+        UI.renderLearnButtons();
+        UI.renderMappingList();
+        logSyx('All MIDI Learn mappings cleared');
+      }
+    };
+
+    /* ── SOFTWARE LFO ────────────────────────────────────────── */
+    var LFO = {
+      timer: null,
+      lastTick: 0,
+      start: function () {
+        if (LFO.timer) return;
+        var paramId = state.lfo.target;
+        var def = ASSIGNABLE_PARAMS[paramId];
+        if (!def) {
+          logSyx('Select an LFO target parameter first');
+          return;
+        }
+        state.lfo.baseValue = def.kind === 'part'
+          ? state.parts[state.channel - 1][paramId]
+          : state.effects[paramId];
+        state.lfo.phase = 0;
+        state.lfo.enabled = true;
+        LFO.lastTick = (window.performance && performance.now) ? performance.now() : Date.now();
+        LFO.timer = setInterval(LFO.tick, 50);
+        UI.updateLfoUI();
+        logSyx('LFO started → ' + def.label);
+      },
+      stop: function () {
+        if (LFO.timer) {
+          clearInterval(LFO.timer);
+          LFO.timer = null;
+        }
+        state.lfo.enabled = false;
+        UI.updateLfoUI();
+        logSyx('LFO stopped');
+      },
+      waveValue: function (phase, waveform) {
+        switch (waveform) {
+          case 'triangle':
+            return 4 * Math.abs(phase - Math.floor(phase + 0.5)) - 1;
+          case 'square':
+            return phase < 0.5 ? 1 : -1;
+          case 'saw':
+            return 2 * (phase - Math.floor(phase + 0.5));
+          case 'random':
+            if (!LFO._rndPhase || phase < LFO._rndPhase) {
+              LFO._rndVal = Math.random() * 2 - 1;
+            }
+            LFO._rndPhase = phase;
+            return LFO._rndVal || 0;
+          case 'sine':
+          default:
+            return Math.sin(2 * Math.PI * phase);
+        }
+      },
+      tick: function () {
+        var now = (window.performance && performance.now) ? performance.now() : Date.now();
+        var dt = (now - LFO.lastTick) / 1000;
+        LFO.lastTick = now;
+
+        state.lfo.phase += dt * state.lfo.rate;
+        state.lfo.phase -= Math.floor(state.lfo.phase);
+
+        var wave = LFO.waveValue(state.lfo.phase, state.lfo.waveform);
+        var value = state.lfo.baseValue + wave * state.lfo.depth;
+
+        applyParamValue(state.lfo.target, value, { suppressSend: false });
+        UI.updateLfoMeter(wave);
+      }
+    };
+
     /* ── MIDI ENGINE ─────────────────────────────────────────── */
     var MIDI = {
       send: function (bytes) {
@@ -970,9 +1446,27 @@ layout: null
         var status = data[0];
         if (status >= 0xB0 && status <= 0xBF && data.length >= 3) {
           var ch = (status & 0x0F) + 1;
-          if (ch !== state.channel) return;
           var cc = data[1];
           var val = data[2];
+
+          /* 1) MIDI Learn is actively listening — bind this CC and stop */
+          if (state.midiLearn.active) {
+            MidiLearn.captureCC(cc, ch);
+            return;
+          }
+
+          /* 2) A previously learned mapping owns this CC/channel — translate  */
+          /*    the incoming value straight into the correct XG parameter and  */
+          /*    dispatch it (SysEx out), then reflect it in the matching UI    */
+          /*    slider/knob, regardless of which part tab is currently open.   */
+          var mappedParam = MidiLearn.findParamForCC(cc, ch);
+          if (mappedParam) {
+            applyParamValue(mappedParam, val, { suppressSend: false });
+            return;
+          }
+
+          /* 3) Fall back to the fixed voice-knob CC scheme on the active ch. */
+          if (ch !== state.channel) return;
           var param = CC_MAP[cc];
           if (param) UI.setKnob(param, val, true);
           return;
@@ -1114,6 +1608,38 @@ layout: null
         }
         sel.value = state.channel;
       },
+      populatePartTabs: function () {
+        var wrap = $('part-tabs');
+        wrap.innerHTML = '';
+        for (var i = 1; i <= 16; i++) {
+          var btn = document.createElement('button');
+          btn.type = 'button';
+          btn.className = 'part-tab' + (i === state.channel ? ' active' : '');
+          btn.textContent = i;
+          btn.title = i === 1 ? 'Part ' + i + ' (typically Main Voice)' : 'Part ' + i;
+          btn.setAttribute('role', 'tab');
+          btn.setAttribute('aria-selected', i === state.channel ? 'true' : 'false');
+          btn.dataset.channel = i;
+          btn.addEventListener('click', function () {
+            UI.selectChannel(parseInt(this.dataset.channel, 10));
+          });
+          wrap.appendChild(btn);
+        }
+      },
+      selectChannel: function (channel) {
+        state.channel = channel;
+        $('channel-select').value = channel;
+        UI.syncPartTabs();
+        UI.loadChannelUI();
+        Storage.save();
+      },
+      syncPartTabs: function () {
+        document.querySelectorAll('.part-tab').forEach(function (btn) {
+          var active = parseInt(btn.dataset.channel, 10) === state.channel;
+          btn.classList.toggle('active', active);
+          btn.setAttribute('aria-selected', active ? 'true' : 'false');
+        });
+      },
       populateEffectSelects: function () {
         function fill(selId, types, key) {
           var sel = $(selId);
@@ -1204,6 +1730,115 @@ layout: null
         document.body.classList.toggle('layout-locked', state.layoutLocked);
         $('layout-lock-btn').classList.toggle('active', state.layoutLocked);
         Storage.save();
+      },
+
+      /* ── MIDI Learn UI ─────────────────────────────────────── */
+      renderLearnButtons: function () {
+        document.querySelectorAll('.learn-btn').forEach(function (btn) {
+          var paramId = btn.dataset.param;
+          var listening = state.midiLearn.active && state.midiLearn.paramId === paramId;
+          btn.classList.toggle('listening', listening);
+          btn.textContent = listening ? 'Listening…' : 'Assign';
+        });
+        document.querySelectorAll('.midi-badge').forEach(function (badge) {
+          var paramId = badge.dataset.param;
+          var map = state.midiMap[paramId];
+          if (map) {
+            badge.textContent = 'CC ' + map.cc + ' · CH ' + map.channel;
+            badge.classList.add('mapped');
+            badge.title = 'Click to clear this mapping';
+          } else {
+            badge.textContent = '—';
+            badge.classList.remove('mapped');
+            badge.title = '';
+          }
+        });
+      },
+      renderMappingList: function () {
+        var list = $('mapping-list');
+        if (!list) return;
+        list.innerHTML = '';
+        var ids = Object.keys(state.midiMap);
+        if (!ids.length) {
+          var li = document.createElement('li');
+          li.className = 'mapping-empty';
+          li.textContent = 'No CC mappings yet — use an “Assign” button next to a parameter.';
+          list.appendChild(li);
+          return;
+        }
+        ids.forEach(function (paramId) {
+          var def = ASSIGNABLE_PARAMS[paramId];
+          var map = state.midiMap[paramId];
+          if (!def) return;
+          var li = document.createElement('li');
+          li.className = 'mapping-item';
+
+          var name = document.createElement('span');
+          name.className = 'pname';
+          name.textContent = def.label;
+
+          var cc = document.createElement('span');
+          cc.className = 'pcc';
+          cc.textContent = 'CC ' + map.cc + ' · CH ' + map.channel;
+
+          var clearBtn = document.createElement('button');
+          clearBtn.type = 'button';
+          clearBtn.textContent = 'Clear';
+          clearBtn.addEventListener('click', function () { MidiLearn.clear(paramId); });
+
+          var right = document.createElement('div');
+          right.style.display = 'flex';
+          right.style.alignItems = 'center';
+          right.style.gap = '8px';
+          right.appendChild(cc);
+          right.appendChild(clearBtn);
+
+          li.appendChild(name);
+          li.appendChild(right);
+          list.appendChild(li);
+        });
+      },
+
+      /* ── LFO UI ────────────────────────────────────────────── */
+      populateLfoTargets: function () {
+        var sel = $('lfo-target');
+        sel.innerHTML = '<option value="">— None —</option>';
+        Object.keys(ASSIGNABLE_PARAMS).forEach(function (paramId) {
+          var opt = document.createElement('option');
+          opt.value = paramId;
+          opt.textContent = ASSIGNABLE_PARAMS[paramId].label;
+          sel.appendChild(opt);
+        });
+        sel.value = state.lfo.target || '';
+      },
+      loadLfoToDOM: function () {
+        $('lfo-target').value = state.lfo.target || '';
+        $('lfo-waveform').value = state.lfo.waveform;
+        $('lfo-rate').value = Math.round(state.lfo.rate * 20);
+        $('lfo-rate-readout').textContent = state.lfo.rate.toFixed(2);
+        $('lfo-depth').value = state.lfo.depth;
+        $('lfo-depth-readout').textContent = state.lfo.depth;
+        UI.updateLfoUI();
+      },
+      syncLfoFromDOM: function () {
+        state.lfo.target = $('lfo-target').value;
+        state.lfo.waveform = $('lfo-waveform').value;
+        state.lfo.rate = parseInt($('lfo-rate').value, 10) / 20;
+        state.lfo.depth = parseInt($('lfo-depth').value, 10);
+        $('lfo-rate-readout').textContent = state.lfo.rate.toFixed(2);
+        $('lfo-depth-readout').textContent = state.lfo.depth;
+        Storage.save();
+      },
+      updateLfoUI: function () {
+        var statusEl = $('lfo-status');
+        statusEl.textContent = state.lfo.enabled ? 'LFO Running' : 'LFO Stopped';
+        statusEl.className = 'lfo-status ' + (state.lfo.enabled ? 'on' : 'off');
+      },
+      updateLfoMeter: function (wave) {
+        var fill = $('lfo-meter-fill');
+        if (!fill) return;
+        var pct = 50 + (wave * 50);
+        fill.style.left = pct + '%';
       }
     };
 
@@ -1303,6 +1938,61 @@ layout: null
           logSyx('Imported ' + messages.length + ' messages (' + applied + ' XG params applied)');
         };
         reader.readAsArrayBuffer(file);
+      },
+      exportJson: function () {
+        var payload = {
+          formatVersion: 1,
+          exportedAt: Date.now(),
+          channel: state.channel,
+          parts: state.parts,
+          effects: state.effects,
+          patches: state.patches,
+          midiMap: state.midiMap,
+          lfo: {
+            target: state.lfo.target,
+            waveform: state.lfo.waveform,
+            rate: state.lfo.rate,
+            depth: state.lfo.depth
+          }
+        };
+        var blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+        var a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = 'djx-editor-backup-' + Date.now() + '.json';
+        a.click();
+        URL.revokeObjectURL(a.href);
+        logSyx('Exported performance/state backup to JSON');
+      },
+      importJson: function (file) {
+        var reader = new FileReader();
+        reader.onload = function () {
+          var data;
+          try {
+            data = JSON.parse(reader.result);
+          } catch (e) {
+            logSyx('Import failed: invalid JSON file');
+            return;
+          }
+
+          if (Array.isArray(data.parts) && data.parts.length === 16) state.parts = data.parts;
+          if (data.effects) Object.assign(state.effects, data.effects);
+          if (Array.isArray(data.patches)) state.patches = data.patches;
+          if (data.midiMap) state.midiMap = data.midiMap;
+          if (data.lfo) Object.assign(state.lfo, data.lfo, { enabled: false, phase: 0 });
+          if (data.channel) state.channel = data.channel;
+
+          $('channel-select').value = state.channel;
+          UI.syncPartTabs();
+          UI.loadChannelUI();
+          UI.loadEffectsToDOM();
+          UI.renderPatchList();
+          UI.renderLearnButtons();
+          UI.renderMappingList();
+          UI.loadLfoToDOM();
+          Storage.save();
+          logSyx('Imported state from JSON backup');
+        };
+        reader.readAsText(file);
       }
     };
 
@@ -1315,9 +2005,7 @@ layout: null
       $('layout-lock-btn').addEventListener('click', UI.toggleLayoutLock);
 
       $('channel-select').addEventListener('change', function () {
-        state.channel = parseInt(this.value, 10);
-        UI.loadChannelUI();
-        Storage.save();
+        UI.selectChannel(parseInt(this.value, 10));
       });
 
       Object.keys(PART_ADDR).forEach(function (param) {
@@ -1361,6 +2049,44 @@ layout: null
       $('midi-in-select').addEventListener('change', MIDI.bindSelected);
       $('midi-out-select').addEventListener('change', MIDI.bindSelected);
 
+      /* ── MIDI Learn: Assign buttons + click-to-clear badges ─── */
+      document.querySelectorAll('.learn-btn').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          var paramId = btn.dataset.param;
+          if (state.midiLearn.active && state.midiLearn.paramId === paramId) {
+            MidiLearn.cancel();
+          } else {
+            MidiLearn.start(paramId);
+          }
+        });
+      });
+      document.querySelectorAll('.midi-badge').forEach(function (badge) {
+        badge.addEventListener('click', function () {
+          var paramId = badge.dataset.param;
+          if (state.midiMap[paramId]) MidiLearn.clear(paramId);
+        });
+      });
+      $('clear-mappings-btn').addEventListener('click', MidiLearn.clearAll);
+
+      /* ── Software LFO ─────────────────────────────────────────── */
+      $('lfo-target').addEventListener('change', UI.syncLfoFromDOM);
+      $('lfo-waveform').addEventListener('change', UI.syncLfoFromDOM);
+      $('lfo-rate').addEventListener('input', UI.syncLfoFromDOM);
+      $('lfo-depth').addEventListener('input', UI.syncLfoFromDOM);
+      $('lfo-start-btn').addEventListener('click', function () {
+        UI.syncLfoFromDOM();
+        LFO.start();
+      });
+      $('lfo-stop-btn').addEventListener('click', LFO.stop);
+
+      /* ── JSON Export / Import Hub ─────────────────────────────── */
+      $('export-json-btn').addEventListener('click', Library.exportJson);
+      $('import-json-btn').addEventListener('click', function () { $('json-file-input').click(); });
+      $('json-file-input').addEventListener('change', function () {
+        if (this.files && this.files[0]) Library.importJson(this.files[0]);
+        this.value = '';
+      });
+
       var glow = $('cursor-glow');
       if (glow) {
         document.addEventListener('mousemove', function (e) {
@@ -1375,11 +2101,16 @@ layout: null
       initParts();
       Storage.load();
       UI.populateChannelSelect();
+      UI.populatePartTabs();
       UI.populateEffectSelects();
       UI.loadEffectsToDOM();
       UI.loadChannelUI();
       UI.setTab(state.activeTab);
       UI.renderPatchList();
+      UI.renderLearnButtons();
+      UI.renderMappingList();
+      UI.populateLfoTargets();
+      UI.loadLfoToDOM();
       if (state.layoutLocked) {
         document.body.classList.add('layout-locked');
         $('layout-lock-btn').classList.add('active');
