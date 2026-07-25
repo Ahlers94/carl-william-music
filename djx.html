@@ -595,6 +595,64 @@ layout: null
       text-shadow: 0 0 6px #00f5ff66;
     }
 
+    /* ── 16-PART MIXER TABLE ──────────────────────────────────── */
+    .mixer-table-wrap {
+      border: 1px solid #ffffff10;
+      overflow-x: auto;
+      margin-bottom: 24px;
+    }
+    .mixer-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 10px;
+      white-space: nowrap;
+    }
+    .mixer-table th {
+      text-align: left;
+      color: var(--cyan);
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      font-size: 9px;
+      padding: 8px 10px;
+      border-bottom: 1px solid #00f5ff33;
+    }
+    .mixer-table td {
+      padding: 6px 10px;
+      border-bottom: 1px solid #ffffff08;
+    }
+    .mixer-row.active { background: #ff2d780a; }
+    .mixer-ch {
+      color: var(--gold);
+      cursor: pointer;
+      font-family: 'VT323', monospace;
+      font-size: 16px;
+    }
+    .mixer-ch:hover { text-shadow: 0 0 8px #ffd700aa; }
+    .mixer-voice { color: var(--text); max-width: 160px; overflow: hidden; text-overflow: ellipsis; }
+    .mixer-num {
+      width: 52px;
+      background: var(--surface);
+      border: 1px solid #ffffff18;
+      color: var(--text);
+      font-family: 'Space Mono', monospace;
+      font-size: 10px;
+      padding: 4px 6px;
+    }
+    .mixer-mute-btn {
+      font-size: 8px;
+      letter-spacing: 1px;
+      padding: 4px 8px;
+      border: 1px solid #ffffff18;
+      background: none;
+      color: var(--muted);
+      cursor: pointer;
+    }
+    .mixer-mute-btn.active {
+      color: var(--pink);
+      border-color: #ff2d7888;
+      text-shadow: 0 0 8px #ff2d7866;
+    }
+
     /* ── LFO ────────────────────────────────────────────────── */
     .lfo-grid {
       display: grid;
@@ -716,6 +774,48 @@ layout: null
           <button type="button" class="action-btn gold" id="xg-init-btn">XG System On</button>
         </div>
 
+        <div class="section-label">Native DJX Voice</div>
+        <div class="channel-strip">
+          <div style="flex:1; min-width:180px;">
+            <label class="field-label" for="voice-category-select">Category</label>
+            <select id="voice-category-select" aria-label="Voice category"><!-- populated by JS --></select>
+          </div>
+          <div style="flex:2; min-width:220px;">
+            <label class="field-label" for="voice-select">Voice</label>
+            <select id="voice-select" aria-label="Voice"><!-- populated by JS --></select>
+          </div>
+        </div>
+        <div class="info-box">
+          Selecting a voice instantly sends <strong>Bank Select MSB (CC 0)</strong> &rarr;
+          <strong>Bank Select LSB (CC 32)</strong> &rarr; <strong>Program Change</strong> to this
+          part's channel — transcribed from Yamaha's official DJX Panel Voice List (voices #000&ndash;#075
+          verified; more categories to follow).
+        </div>
+
+        <div class="section-label">Channel Mixer</div>
+        <div class="knob-grid" id="mixer-knobs">
+          <div class="knob-block">
+            <div class="knob-label">Volume</div>
+            <div class="knob-value" id="mixval-volume">100</div>
+            <input type="range" id="mix-volume" min="0" max="127" value="100" data-param="volume">
+          </div>
+          <div class="knob-block">
+            <div class="knob-label">Pan</div>
+            <div class="knob-value" id="mixval-pan">64</div>
+            <input type="range" id="mix-pan" min="0" max="127" value="64" data-param="pan">
+          </div>
+          <div class="knob-block">
+            <div class="knob-label">Reverb Send</div>
+            <div class="knob-value" id="mixval-reverbSend">40</div>
+            <input type="range" id="mix-reverbSend" min="0" max="127" value="40" data-param="reverbSend">
+          </div>
+          <div class="knob-block">
+            <div class="knob-label">Chorus Send</div>
+            <div class="knob-value" id="mixval-chorusSend">0</div>
+            <input type="range" id="mix-chorusSend" min="0" max="127" value="0" data-param="chorusSend">
+          </div>
+        </div>
+
         <div class="knob-grid" id="voice-knobs">
           <div class="knob-block" data-addr="0x18">
             <div class="knob-label">Filter Cutoff</div>
@@ -767,6 +867,18 @@ layout: null
         <div class="btn-row">
           <button type="button" class="action-btn primary" id="send-voice-btn">Send Part Params</button>
           <button type="button" class="action-btn pink" id="save-patch-btn">Save to Library</button>
+        </div>
+
+        <div class="section-label">16-Part Mixing Console</div>
+        <div class="mixer-table-wrap">
+          <table class="mixer-table">
+            <thead>
+              <tr>
+                <th>Ch</th><th>Voice</th><th>Vol</th><th>Pan</th><th>Rev</th><th>Cho</th><th></th>
+              </tr>
+            </thead>
+            <tbody id="mixer-table-body"><!-- populated by JS --></tbody>
+          </table>
         </div>
       </section>
 
@@ -994,7 +1106,13 @@ layout: null
         <strong>Part Param Change</strong><br>
         F0 43 10 4C 08 NN AA DD F7<br><br>
         NN = Part 0–15 (Ch 1–16)<br>
-        AA = Address (Cutoff 18h, Res 19h, A/D/R 1A–1Ch)
+        AA = Address (Cutoff 18h, Res 19h, A/D/R 1A–1Ch)<br><br>
+        <strong>Native Voice Select</strong><br>
+        Bn 00 mm (Bank MSB)<br>
+        Bn 20 ll (Bank LSB)<br>
+        Cn pp (Program Change)<br><br>
+        <strong>Mixer CCs</strong><br>
+        Vol=CC7 · Pan=CC10 · Rev=CC91 · Cho=CC93
       </div>
 
       <div class="section-label">MIDI Monitor</div>
@@ -1074,6 +1192,123 @@ layout: null
       { label: '2-Band EQ', msb: 43, lsb: 0 }
     ];
 
+    /* ── NATIVE DJX VOICE CATALOG ────────────────────────────── */
+    /* Source: Yamaha DJX (PSR-D1) Owner's Manual, official "Voice List"      */
+    /* appendix (Panel Voice List, p.104). Bank MSB / Bank LSB / Program      */
+    /* Change values are transcribed verbatim from Yamaha's own data list —   */
+    /* NOT the generic XG map — and Program Change values are sent as-is      */
+    /* (0-127 raw byte) as a Program Change message, per Yamaha's Data List   */
+    /* convention. This first pass covers the DJX's Dance/Lead/Bass/SFX       */
+    /* panel-voice block (voices #000-#075, verified against the manual).    */
+    /* Additional native categories (Keyboard/Organ/Guitar panel voices       */
+    /* #076-#139, the 15 Special Drum Kits #141-#155, and the 128 GM voices   */
+    /* #156-#283) are stubbed as TODO markers below — append them here in     */
+    /* the same {name, msb, lsb, pc} shape as more manual pages are           */
+    /* transcribed, and they'll automatically appear in the dropdown.         */
+    var VOICE_CATALOG = [
+      { category: 'DJX Synth Lead', voices: [
+        { name: 'DJX Synth Lead', msb: 0, lsb: 123, pc: 48 },
+        { name: 'Fuzzline',       msb: 0, lsb: 115, pc: 84 },
+        { name: 'Talkbox',        msb: 0, lsb: 113, pc: 84 },
+        { name: 'Acid Sync',      msb: 0, lsb: 114, pc: 84 },
+        { name: 'Universe',       msb: 0, lsb: 113, pc: 83 },
+        { name: 'Adrenaline',     msb: 0, lsb: 112, pc: 84 },
+        { name: 'Fragile',        msb: 0, lsb: 112, pc: 85 },
+        { name: 'Cut Glass',      msb: 0, lsb: 112, pc: 83 }
+      ]},
+      { category: 'Bass Lead', voices: [
+        { name: 'Killer S',    msb: 0, lsb: 112, pc: 87 },
+        { name: 'Reso-X',      msb: 0, lsb: 118, pc: 87 },
+        { name: 'Choppy',      msb: 0, lsb: 117, pc: 87 },
+        { name: 'PhatMan',     msb: 0, lsb: 113, pc: 87 },
+        { name: 'Organese',    msb: 0, lsb: 114, pc: 87 },
+        { name: 'Happy Vibes', msb: 0, lsb: 115, pc: 87 },
+        { name: 'TriTouch',    msb: 0, lsb: 116, pc: 87 },
+        { name: 'Sync',        msb: 0, lsb: 119, pc: 87 }
+      ]},
+      { category: 'Square Lead', voices: [
+        { name: 'MC-Line',        msb: 0, lsb: 117, pc: 80 },
+        { name: 'Alien',          msb: 0, lsb: 116, pc: 80 },
+        { name: 'Psyche',         msb: 0, lsb: 115, pc: 80 },
+        { name: 'Clanger',        msb: 0, lsb: 114, pc: 80 },
+        { name: 'Square Lead 1',  msb: 0, lsb: 112, pc: 80 },
+        { name: 'Square Lead 2',  msb: 0, lsb: 113, pc: 80 }
+      ]},
+      { category: 'Saw Lead', voices: [
+        { name: 'Break It',          msb: 0, lsb: 122, pc: 81 },
+        { name: 'Scary',             msb: 0, lsb: 117, pc: 81 },
+        { name: 'Move It',           msb: 0, lsb: 120, pc: 81 },
+        { name: 'Robot Lead',        msb: 0, lsb: 119, pc: 81 },
+        { name: 'Fat',               msb: 0, lsb: 116, pc: 81 },
+        { name: 'Seq Ana',           msb: 0, lsb: 115, pc: 81 },
+        { name: 'Stab',              msb: 0, lsb: 118, pc: 81 },
+        { name: 'Pulse Saw',         msb: 0, lsb: 114, pc: 81 },
+        { name: 'Sawtooth Lead 1',   msb: 0, lsb: 112, pc: 81 },
+        { name: 'Sawtooth Lead 2',   msb: 0, lsb: 113, pc: 81 },
+        { name: 'Bedtime',           msb: 0, lsb: 121, pc: 81 }
+      ]},
+      { category: 'Synth Pad', voices: [
+        { name: 'Sequenza',   msb: 0, lsb: 112, pc: 90 },
+        { name: 'Insomnia',   msb: 0, lsb: 112, pc: 94 },
+        { name: 'Wave2001',   msb: 0, lsb: 112, pc: 95 },
+        { name: 'Amber',      msb: 0, lsb: 113, pc: 91 },
+        { name: 'Eerie',      msb: 0, lsb: 112, pc: 89 },
+        { name: 'Trance Pad', msb: 0, lsb: 112, pc: 91 }
+      ]},
+      { category: 'Resonance Bass', voices: [
+        { name: 'Techno Bass', msb: 0, lsb: 113, pc: 38 },
+        { name: "Kickin'B",    msb: 0, lsb: 116, pc: 38 },
+        { name: 'Bassline',    msb: 0, lsb: 114, pc: 38 },
+        { name: 'Nu Floor',    msb: 0, lsb: 117, pc: 38 },
+        { name: 'Fish303',     msb: 0, lsb: 115, pc: 38 },
+        { name: 'No.No.No',    msb: 0, lsb: 118, pc: 38 },
+        { name: 'Nu Swing',    msb: 0, lsb: 119, pc: 38 },
+        { name: 'Synth Bass',  msb: 0, lsb: 112, pc: 38 }
+      ]},
+      { category: 'Analog Bass', voices: [
+        { name: 'Analog Bass', msb: 0, lsb: 112, pc: 39 },
+        { name: 'Dance Bass',  msb: 0, lsb: 113, pc: 39 },
+        { name: 'Snap Bass',   msb: 0, lsb: 114, pc: 39 },
+        { name: 'Old Mini',    msb: 0, lsb: 115, pc: 39 },
+        { name: 'Power Bass',  msb: 0, lsb: 116, pc: 39 },
+        { name: 'Dub Bass',    msb: 0, lsb: 117, pc: 39 },
+        { name: 'Factory',     msb: 0, lsb: 118, pc: 39 },
+        { name: 'Hyper',       msb: 0, lsb: 119, pc: 39 },
+        { name: 'Kidz Bass',   msb: 0, lsb: 120, pc: 39 },
+        { name: 'Techno',      msb: 0, lsb: 121, pc: 39 }
+      ]},
+      { category: 'Bass', voices: [
+        { name: 'Acoustic Bass', msb: 0, lsb: 112, pc: 32 },
+        { name: 'Finger Bass',   msb: 0, lsb: 112, pc: 33 },
+        { name: 'Pick Bass',     msb: 0, lsb: 112, pc: 34 },
+        { name: 'Fretless Bass', msb: 0, lsb: 112, pc: 35 },
+        { name: 'Slap Bass',     msb: 0, lsb: 112, pc: 36 }
+      ]},
+      { category: 'Scratch', voices: [
+        { name: 'Scratch',   msb: 0, lsb: 112, pc: 120 },
+        { name: 'Killer DJ', msb: 0, lsb: 113, pc: 120 }
+      ]},
+      { category: 'SFX', voices: [
+        { name: 'FMTB 1',      msb: 0, lsb: 123, pc: 16 },
+        { name: 'BLJ Trill',   msb: 0, lsb: 123, pc: 17 },
+        { name: 'Omen-FX',     msb: 0, lsb: 123, pc: 18 },
+        { name: 'Rave Pipe 1', msb: 0, lsb: 123, pc: 19 },
+        { name: 'Rave Pipe 2', msb: 0, lsb: 123, pc: 20 },
+        { name: 'FMTB 2',      msb: 0, lsb: 123, pc: 21 },
+        { name: 'GtrChord',    msb: 0, lsb: 123, pc: 22 },
+        { name: 'HiquiTB',     msb: 0, lsb: 123, pc: 23 },
+        { name: 'Reverse',     msb: 0, lsb: 123, pc: 24 },
+        { name: 'Signal',      msb: 0, lsb: 123, pc: 25 },
+        { name: 'Aah',         msb: 0, lsb: 123, pc: 26 },
+        { name: 'Turntable',   msb: 0, lsb: 112, pc: 126 }
+      ]}
+      /* TODO — append remaining native categories here as they're verified: */
+      /* Keyboard/Organ/Guitar/Orchestral panel voices (#076-#139), the 15    */
+      /* Special Drum Kits (#141-#155), and the 128 GM voices (#156-#283).    */
+    ];
+
+    var PART_CC = { volume: 7, pan: 10, reverbSend: 91, chorusSend: 93 };
+
     var SYS_FX_ADDR = {
       reverbType:     [0x02, 0x01, 0x00],
       reverbTime:     [0x02, 0x01, 0x02],
@@ -1144,7 +1379,13 @@ layout: null
     };
 
     function defaultPart() {
-      return { cutoff: 64, resonance: 64, attack: 64, decay: 64, release: 64 };
+      var v = VOICE_CATALOG[0].voices[0];
+      return {
+        cutoff: 64, resonance: 64, attack: 64, decay: 64, release: 64,
+        volume: 100, pan: 64, reverbSend: 40, chorusSend: 0, mute: false,
+        voiceCategory: 0, voiceIndex: 0,
+        bankMSB: v.msb, bankLSB: v.lsb, program: v.pc, voiceName: v.name
+      };
     }
 
     function initParts() {
@@ -1428,6 +1669,18 @@ layout: null
         });
         return ok;
       },
+      /* Native DJX voice select: Bank MSB (CC0) -> Bank LSB (CC32) -> Program Change */
+      sendVoiceSelect: function (channel, bankMSB, bankLSB, programNumber) {
+        var ok = true;
+        if (!MIDI.send([0xB0 | (channel & 0x0F), 0, bankMSB & 0x7F])) ok = false;
+        if (!MIDI.send([0xB0 | (channel & 0x0F), 32, bankLSB & 0x7F])) ok = false;
+        if (!MIDI.send([0xC0 | (channel & 0x0F), programNumber & 0x7F])) ok = false;
+        return ok;
+      },
+      /* Generic Control Change on a given (0-indexed) channel */
+      sendCC: function (channel, cc, value) {
+        return MIDI.send([0xB0 | (channel & 0x0F), cc & 0x7F, value & 0x7F]);
+      },
       sendEffects: function () {
         var ok = true;
         Object.keys(SYS_FX_ADDR).forEach(function (key) {
@@ -1465,7 +1718,20 @@ layout: null
             return;
           }
 
-          /* 3) Fall back to the fixed voice-knob CC scheme on the active ch. */
+          /* 3) Mixer CCs (Volume/Pan/Reverb/Chorus Send) update that part's   */
+          /*    stored state regardless of which tab is open, and reflect      */
+          /*    live on the mixer knobs if it's the active channel.            */
+          var mixParam = null;
+          Object.keys(PART_CC).forEach(function (k) { if (PART_CC[k] === cc) mixParam = k; });
+          if (mixParam) {
+            state.parts[ch - 1][mixParam] = val;
+            if (ch === state.channel) UI.setMixerKnob(mixParam, val, true);
+            else UI.renderMixerTable();
+            Storage.save();
+            return;
+          }
+
+          /* 4) Fall back to the fixed voice-knob CC scheme on the active ch. */
           if (ch !== state.channel) return;
           var param = CC_MAP[cc];
           if (param) UI.setKnob(param, val, false);
@@ -1585,6 +1851,145 @@ layout: null
         Object.keys(PART_ADDR).forEach(function (k) {
           UI.setKnob(k, p[k], true);
         });
+        Object.keys(PART_CC).forEach(function (k) {
+          UI.setMixerKnob(k, p[k], true);
+        });
+        UI.loadVoiceSelectUI();
+        UI.renderMixerTable();
+      },
+      /* Channel-level mixer parameters (Volume/Pan/Reverb Send/Chorus Send)  */
+      /* transmit as plain Control Change on the active part's MIDI channel.  */
+      setMixerKnob: function (param, value, fromMidi) {
+        var part = state.parts[state.channel - 1];
+        part[param] = value;
+        var slider = $('mix-' + param);
+        var display = $('mixval-' + param);
+        if (slider) slider.value = value;
+        if (display) display.textContent = value;
+        if (!fromMidi && !state.suppressSend) {
+          MIDI.sendCC(state.channel - 1, PART_CC[param], value);
+        }
+        Storage.save();
+        UI.renderMixerTable();
+      },
+      /* ── Native Voice Browser ─────────────────────────────────── */
+      populateVoiceCategorySelect: function () {
+        var sel = $('voice-category-select');
+        if (!sel) return;
+        sel.innerHTML = '';
+        VOICE_CATALOG.forEach(function (cat, idx) {
+          var opt = document.createElement('option');
+          opt.value = idx;
+          opt.textContent = cat.category;
+          sel.appendChild(opt);
+        });
+      },
+      populateVoiceSelect: function (categoryIndex) {
+        var sel = $('voice-select');
+        if (!sel) return;
+        sel.innerHTML = '';
+        var cat = VOICE_CATALOG[categoryIndex];
+        if (!cat) return;
+        cat.voices.forEach(function (v, idx) {
+          var opt = document.createElement('option');
+          opt.value = idx;
+          opt.textContent = v.name + '  (' + v.msb + '/' + v.lsb + '/' + v.pc + ')';
+          sel.appendChild(opt);
+        });
+      },
+      loadVoiceSelectUI: function () {
+        var p = state.parts[state.channel - 1];
+        var catSel = $('voice-category-select');
+        var voiSel = $('voice-select');
+        if (!catSel || !voiSel) return;
+        catSel.value = p.voiceCategory || 0;
+        UI.populateVoiceSelect(parseInt(catSel.value, 10));
+        voiSel.value = p.voiceIndex || 0;
+      },
+      /* Selecting a voice dispatches the sequential Bank MSB -> Bank LSB ->  */
+      /* Program Change payload immediately to the active part's channel.    */
+      selectVoice: function (categoryIndex, voiceIndex, fromMidi) {
+        var cat = VOICE_CATALOG[categoryIndex];
+        if (!cat) return;
+        var v = cat.voices[voiceIndex];
+        if (!v) return;
+        var part = state.parts[state.channel - 1];
+        part.voiceCategory = categoryIndex;
+        part.voiceIndex = voiceIndex;
+        part.bankMSB = v.msb;
+        part.bankLSB = v.lsb;
+        part.program = v.pc;
+        part.voiceName = v.name;
+        if (!fromMidi && !state.suppressSend) {
+          MIDI.sendVoiceSelect(state.channel - 1, v.msb, v.lsb, v.pc);
+          logSyx('Voice "' + v.name + '" sent to Ch ' + state.channel + ' (MSB ' + v.msb + ' / LSB ' + v.lsb + ' / PC ' + v.pc + ')');
+        }
+        Storage.save();
+        UI.renderMixerTable();
+      },
+      /* ── 16-Part Mixing Console ───────────────────────────────── */
+      renderMixerTable: function () {
+        var body = $('mixer-table-body');
+        if (!body) return;
+        body.innerHTML = '';
+        for (var i = 0; i < 16; i++) {
+          var p = state.parts[i];
+          var tr = document.createElement('tr');
+          tr.className = (i + 1 === state.channel) ? 'mixer-row active' : 'mixer-row';
+
+          var tdCh = document.createElement('td');
+          tdCh.textContent = i + 1;
+          tdCh.className = 'mixer-ch';
+          tdCh.addEventListener('click', function () {
+            UI.selectChannel(parseInt(this.textContent, 10));
+          });
+          tr.appendChild(tdCh);
+
+          var tdVoice = document.createElement('td');
+          tdVoice.className = 'mixer-voice';
+          tdVoice.textContent = p.voiceName || '—';
+          tr.appendChild(tdVoice);
+
+          ['volume', 'pan', 'reverbSend', 'chorusSend'].forEach(function (param) {
+            var td = document.createElement('td');
+            var input = document.createElement('input');
+            input.type = 'number';
+            input.min = 0; input.max = 127;
+            input.value = p[param];
+            input.className = 'mixer-num';
+            input.dataset.channel = i + 1;
+            input.dataset.param = param;
+            input.addEventListener('change', function () {
+              var ch = parseInt(this.dataset.channel, 10);
+              var prm = this.dataset.param;
+              var val = Math.max(0, Math.min(127, parseInt(this.value, 10) || 0));
+              state.parts[ch - 1][prm] = val;
+              MIDI.sendCC(ch - 1, PART_CC[prm], val);
+              if (ch === state.channel) UI.setMixerKnob(prm, val, true);
+              Storage.save();
+            });
+            td.appendChild(input);
+            tr.appendChild(td);
+          });
+
+          var tdMute = document.createElement('td');
+          var muteBtn = document.createElement('button');
+          muteBtn.type = 'button';
+          muteBtn.className = 'mixer-mute-btn' + (p.mute ? ' active' : '');
+          muteBtn.textContent = p.mute ? 'MUTED' : 'Mute';
+          muteBtn.addEventListener('click', function () {
+            var ch = i + 1;
+            var pt = state.parts[ch - 1];
+            pt.mute = !pt.mute;
+            MIDI.sendCC(ch - 1, PART_CC.volume, pt.mute ? 0 : pt.volume);
+            Storage.save();
+            UI.renderMixerTable();
+          });
+          tdMute.appendChild(muteBtn);
+          tr.appendChild(tdMute);
+
+          body.appendChild(tr);
+        }
       },
       updateConnectionStatus: function () {
         var inEl = $('status-in');
@@ -1894,6 +2299,9 @@ layout: null
         UI.loadEffectsToDOM();
         MIDI.sendPartParams(state.channel - 1);
         MIDI.sendEffects();
+        var p = state.parts[state.channel - 1];
+        MIDI.sendVoiceSelect(state.channel - 1, p.bankMSB, p.bankLSB, p.program);
+        Object.keys(PART_CC).forEach(function (k) { MIDI.sendCC(state.channel - 1, PART_CC[k], p[k]); });
         logSyx('Sent "' + patch.name + '" to hardware');
       },
       exportSyx: function () {
@@ -2014,12 +2422,31 @@ layout: null
         });
       });
 
+      $('voice-category-select').addEventListener('change', function () {
+        UI.populateVoiceSelect(parseInt(this.value, 10));
+        UI.selectVoice(parseInt(this.value, 10), 0, false);
+      });
+      $('voice-select').addEventListener('change', function () {
+        var catIdx = parseInt($('voice-category-select').value, 10);
+        UI.selectVoice(catIdx, parseInt(this.value, 10), false);
+      });
+
+      Object.keys(PART_CC).forEach(function (param) {
+        $('mix-' + param).addEventListener('input', function () {
+          UI.setMixerKnob(param, parseInt(this.value, 10), false);
+        });
+      });
+
       $('xg-init-btn').addEventListener('click', function () {
         if (MIDI.sendXGSystemOn()) logSyx('XG System On sent');
       });
 
       $('send-voice-btn').addEventListener('click', function () {
-        if (MIDI.sendPartParams(state.channel - 1)) logSyx('Part params sent for channel ' + state.channel);
+        var ok = MIDI.sendPartParams(state.channel - 1);
+        var p = state.parts[state.channel - 1];
+        MIDI.sendVoiceSelect(state.channel - 1, p.bankMSB, p.bankLSB, p.program);
+        Object.keys(PART_CC).forEach(function (k) { MIDI.sendCC(state.channel - 1, PART_CC[k], p[k]); });
+        if (ok) logSyx('Voice + part params + mixer sent for channel ' + state.channel);
       });
 
       $('send-fx-btn').addEventListener('click', function () {
@@ -2102,6 +2529,7 @@ layout: null
       Storage.load();
       UI.populateChannelSelect();
       UI.populatePartTabs();
+      UI.populateVoiceCategorySelect();
       UI.populateEffectSelects();
       UI.loadEffectsToDOM();
       UI.loadChannelUI();
