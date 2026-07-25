@@ -1468,7 +1468,7 @@ layout: null
           /* 3) Fall back to the fixed voice-knob CC scheme on the active ch. */
           if (ch !== state.channel) return;
           var param = CC_MAP[cc];
-          if (param) UI.setKnob(param, val, true);
+          if (param) UI.setKnob(param, val, false);
           return;
         }
 
