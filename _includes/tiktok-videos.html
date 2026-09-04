@@ -1,0 +1,62 @@
+{% comment %} _includes/tiktok-videos.html — usage: {% include tiktok-videos.html type="covers" title="TikTok Covers" %} {% endcomment %}
+
+{% assign _tt_type = include.type | default: "originals" %}
+{% assign _tt_list = site.data.tiktok[_tt_type] %}
+
+{% if _tt_list and _tt_list.size > 0 %}
+
+  {% if include.title %}
+  <div class="section-label" style="margin-top: 28px;">{{ include.title }}</div>
+  {% endif %}
+
+  {% comment %} ── Featured TikTok ──────────────────────────────────────── {% endcomment %}
+  {% for video in _tt_list %}
+    {% if video.featured == true %}
+    <div class="video-featured">
+      <blockquote class="tiktok-embed"
+        cite="https://www.tiktok.com/@{{ video.username }}/video/{{ video.video_id }}"
+        data-video-id="{{ video.video_id }}"
+        style="max-width: 605px; min-width: 325px; margin: 0 auto;">
+        <section></section>
+      </blockquote>
+    </div>
+    {% if video.title %}<div class="video-caption">&gt; {{ video.title }}</div>{% endif %}
+    {% endif %}
+  {% endfor %}
+
+  {% comment %} ── Count non-featured / detect featured presence ───────────── {% endcomment %}
+  {% assign _tt_more_count   = 0     %}
+  {% assign _tt_has_featured = false %}
+  {% for video in _tt_list %}
+    {% if video.featured == true %}
+      {% assign _tt_has_featured = true %}
+    {% else %}
+      {% assign _tt_more_count = _tt_more_count | plus: 1 %}
+    {% endif %}
+  {% endfor %}
+
+  {% comment %} ── Grid of remaining TikToks ─────────────────────────────── {% endcomment %}
+  {% if _tt_more_count > 0 %}
+    {% if _tt_has_featured %}
+    <div class="section-label" style="margin-top: 28px;">More {{ include.title | default: "TikToks" }}</div>
+    {% endif %}
+    <div class="video-grid">
+      {% for video in _tt_list %}
+        {% unless video.featured == true %}
+        <div class="video-small">
+          <blockquote class="tiktok-embed"
+            cite="https://www.tiktok.com/@{{ video.username }}/video/{{ video.video_id }}"
+            data-video-id="{{ video.video_id }}"
+            style="max-width: 325px; min-width: 250px; margin: 0 auto;">
+            <section></section>
+          </blockquote>
+          {% if video.title %}<div class="video-caption">&gt; {{ video.title }}</div>{% endif %}
+        </div>
+        {% endunless %}
+      {% endfor %}
+    </div>
+  {% endif %}
+
+  <script async src="https://www.tiktok.com/embed.js"></script>
+
+{% endif %}
