@@ -1,3 +1,5 @@
+{% comment %} _includes/originals-videos.html {% endcomment %}
+
 <div class="section-label">Originals</div>
 {% for video in site.data.youtube.originals %}
   {% if video.featured == true %}
@@ -16,7 +18,6 @@
   {% if video.title %}<div class="video-caption">&gt; {{ video.title }}</div>{% endif %}
   {% endif %}
 {% endfor %}
-
 {% assign originals_more_count = 0 %}
 {% for video in site.data.youtube.originals %}
   {% if video.featured != true %}
@@ -44,12 +45,9 @@
   {% endfor %}
 </div>
 {% endif %}
-
 {% assign original_tracks = site.data.soundcloud | where: "type", "original" %}
 {% if original_tracks.size > 0 %}
-
 <div class="section-label" style="margin-top: 40px;">Audio Tracks</div>
-
 {% assign sc_featured = original_tracks | first %}
 <div class="video-featured">
   <iframe
@@ -58,7 +56,6 @@
   </iframe>
 </div>
 <div class="video-caption">&gt; {{ sc_featured.title }}</div>
-
 {% assign sc_rest = original_tracks | shift %}
 {% if sc_rest.size > 0 %}
 <div class="section-label" style="margin-top: 28px;">More Audio</div>
@@ -74,5 +71,7 @@
   {% endfor %}
 </div>
 {% endif %}
-
 {% endif %}
+
+{% comment %} ── TikTok Originals (self-guarded via its own nil/size check) ── {% endcomment %}
+{% include tiktok-videos.html type="originals" title="TikTok Originals" %}
