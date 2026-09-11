@@ -1,0 +1,793 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cut-Up Matrix // Carl William Music</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=VT323&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:      #0a0a12;
+    --surface: #0d0d1a;
+    --panel:   #10101e;
+    --pink:    #ff2d78;
+    --cyan:    #00f5ff;
+    --gold:    #ffd700;
+    --purple:  #b06aff;
+    --green:   #99cc77;
+    --text:    #e0d8f0;
+    --muted:   #9988aa;
+    --dim:     #443355;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body { background: var(--bg); }
+
+  body {
+    color: var(--text);
+    font-family: 'Space Mono', monospace;
+    min-height: 100vh;
+    padding: 40px 20px 90px;
+    position: relative;
+  }
+
+  /* CRT scanline overlay, matching site body::before */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: repeating-linear-gradient(
+      0deg, transparent, transparent 3px,
+      rgba(0,245,255,0.015) 3px, rgba(0,245,255,0.015) 4px
+    );
+    pointer-events: none;
+    z-index: 999;
+  }
+
+  .wrap { max-width: 920px; margin: 0 auto; }
+
+  /* ── HERO ─────────────────────────────────────────────── */
+  header {
+    border-bottom: 2px solid var(--cyan);
+    padding-bottom: 22px;
+    margin-bottom: 28px;
+  }
+
+  .eyebrow {
+    font-size: 10px;
+    color: var(--cyan);
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+
+  h1 {
+    font-family: 'VT323', monospace;
+    font-size: clamp(40px, 8vw, 68px);
+    color: var(--cyan);
+    letter-spacing: 4px;
+    line-height: 1;
+    text-shadow: 3px 3px 0 #003d40, 0 0 30px #00f5ff44;
+  }
+
+  .sub {
+    color: var(--muted);
+    font-size: 12.5px;
+    line-height: 1.7;
+    max-width: 64ch;
+    margin-top: 12px;
+  }
+
+  /* ── PANELS ───────────────────────────────────────────── */
+  section {
+    background: var(--panel);
+    border: 1px solid #ffffff14;
+    border-top: 2px solid var(--cyan);
+    border-radius: 3px;
+    padding: 20px;
+    margin-bottom: 22px;
+  }
+
+  .section-label {
+    font-size: 10px;
+    color: var(--cyan);
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  textarea {
+    width: 100%;
+    min-height: 150px;
+    resize: vertical;
+    background: var(--bg);
+    border: 1px solid var(--dim);
+    border-radius: 3px;
+    color: var(--text);
+    font-family: 'Space Mono', monospace;
+    font-size: 13.5px;
+    line-height: 1.7;
+    padding: 14px;
+    outline: none;
+    transition: border-color 0.2s ease;
+  }
+
+  textarea:focus { border-color: var(--cyan); }
+  textarea::placeholder { color: var(--dim); }
+
+  .hint-line {
+    font-size: 10.5px;
+    color: var(--muted);
+    margin-top: 8px;
+    line-height: 1.6;
+  }
+
+  /* ── CONTROLS ─────────────────────────────────────────── */
+  .controls-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 18px;
+  }
+
+  .granularity {
+    display: flex;
+    gap: 4px;
+    background: var(--bg);
+    border: 1px solid var(--dim);
+    border-radius: 3px;
+    padding: 3px;
+  }
+
+  .gran-btn {
+    background: transparent;
+    border: none;
+    color: var(--muted);
+    font-family: 'Space Mono', monospace;
+    font-size: 10.5px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    padding: 8px 13px;
+    border-radius: 2px;
+    cursor: pointer;
+    transition: color 0.15s ease, background 0.15s ease;
+  }
+
+  .gran-btn:hover { color: var(--text); }
+
+  .gran-btn.active {
+    background: var(--cyan);
+    color: #001318;
+    font-weight: 700;
+  }
+
+  .build-btn {
+    background: var(--purple);
+    color: #17002e;
+    border: none;
+    font-family: 'Space Mono', monospace;
+    font-weight: 700;
+    font-size: 12px;
+    letter-spacing: 1px;
+    padding: 12px 20px;
+    border-radius: 3px;
+    cursor: pointer;
+    box-shadow: 0 3px 0 #5e2e99, 0 4px 8px rgba(0,0,0,0.4);
+    transition: transform 0.05s ease, box-shadow 0.05s ease;
+  }
+
+  .build-btn:active {
+    transform: translateY(3px);
+    box-shadow: 0 0 0 #5e2e99, 0 1px 2px rgba(0,0,0,0.4);
+  }
+
+  /* ── MATRIX GRID ──────────────────────────────────────── */
+  .matrix-scroll {
+    overflow-x: auto;
+    padding-bottom: 6px;
+  }
+
+  .matrix-grid {
+    display: grid;
+    gap: 5px;
+    min-width: min-content;
+  }
+
+  .cell {
+    background: var(--surface);
+    border: 1px solid #ffffff12;
+    border-radius: 2px;
+    padding: 8px 10px;
+    font-size: 12.5px;
+    text-align: center;
+    white-space: nowrap;
+    cursor: pointer;
+    color: var(--text);
+    transition: border-color 0.15s ease, background 0.15s ease, box-shadow 0.15s ease, transform 0.15s ease;
+  }
+
+  .cell:hover {
+    border-color: var(--cyan);
+    box-shadow: 0 0 10px rgba(0,245,255,0.25);
+  }
+
+  .cell.locked {
+    border-color: var(--pink);
+    color: var(--pink);
+    background: rgba(255,45,120,0.08);
+    text-shadow: 0 0 8px rgba(255,45,120,0.5);
+  }
+
+  .cell.empty {
+    color: var(--dim);
+    cursor: default;
+    background: transparent;
+    border-style: dashed;
+  }
+
+  .cell.empty:hover {
+    border-color: #ffffff12;
+    box-shadow: none;
+  }
+
+  .cell.pulse { animation: cellPulse 0.35s ease; }
+
+  @keyframes cellPulse {
+    0% { opacity: 0; transform: translateY(-2px); }
+    100% { opacity: 1; transform: translateY(0); }
+  }
+
+  .matrix-empty-state {
+    color: var(--dim);
+    font-size: 12.5px;
+    padding: 30px 10px;
+    text-align: center;
+  }
+
+  /* ── CUT CONTROLS ─────────────────────────────────────── */
+  .cut-controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 18px;
+    align-items: center;
+  }
+
+  .cut-btn {
+    background: transparent;
+    border: 1px solid;
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    padding: 9px 14px;
+    border-radius: 3px;
+    cursor: pointer;
+    transition: background 0.15s ease, box-shadow 0.15s ease;
+  }
+
+  .cut-btn.horiz {
+    color: var(--purple);
+    border-color: var(--purple);
+  }
+  .cut-btn.horiz:hover {
+    background: rgba(176,106,255,0.1);
+    box-shadow: 0 0 12px rgba(176,106,255,0.3);
+  }
+
+  .cut-btn.vert {
+    color: var(--cyan);
+    border-color: var(--cyan);
+  }
+  .cut-btn.vert:hover {
+    background: rgba(0,245,255,0.1);
+    box-shadow: 0 0 12px rgba(0,245,255,0.3);
+  }
+
+  .cut-btn.master {
+    background: var(--cyan);
+    color: #001318;
+    border-color: var(--cyan);
+    font-weight: 700;
+    box-shadow: 0 3px 0 #007a80, 0 4px 8px rgba(0,0,0,0.4);
+  }
+  .cut-btn.master:active {
+    transform: translateY(3px);
+    box-shadow: 0 0 0 #007a80, 0 1px 2px rgba(0,0,0,0.4);
+  }
+  .cut-btn.master:hover { background: #4dfaff; }
+
+  .cut-btn:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+    box-shadow: none !important;
+    transform: none !important;
+  }
+
+  .matrix-meta {
+    margin-left: auto;
+    font-size: 10.5px;
+    color: var(--muted);
+  }
+  .matrix-meta span { color: var(--gold); font-weight: 700; }
+
+  /* ── ASSEMBLED VERSES ─────────────────────────────────── */
+  .verse-line {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    border: 1px solid #ffffff10;
+    border-radius: 3px;
+    margin-bottom: 6px;
+    background: var(--surface);
+    transition: border-color 0.15s ease;
+  }
+
+  .verse-line:hover { border-color: var(--gold); }
+
+  .verse-text {
+    flex: 1;
+    font-size: 13.5px;
+    line-height: 1.6;
+  }
+
+  .keep-btn {
+    background: transparent;
+    border: 1px solid var(--gold);
+    color: var(--gold);
+    font-size: 10px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    padding: 6px 10px;
+    border-radius: 2px;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background 0.15s ease, box-shadow 0.15s ease;
+  }
+
+  .keep-btn:hover {
+    background: rgba(255,215,0,0.12);
+    box-shadow: 0 0 10px rgba(255,215,0,0.3);
+  }
+
+  .keep-btn.kept {
+    background: var(--gold);
+    color: #241c00;
+    font-weight: 700;
+  }
+
+  /* ── SAVED VERSES ─────────────────────────────────────── */
+  section.saved { border-top-color: var(--gold); }
+  section.saved .section-label { color: var(--gold); }
+
+  .saved-list { min-height: 40px; }
+
+  .saved-empty {
+    color: var(--dim);
+    font-size: 12px;
+    padding: 10px 0;
+  }
+
+  .saved-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 0;
+    border-bottom: 1px solid #ffffff0d;
+    font-size: 13px;
+  }
+  .saved-item:last-child { border-bottom: none; }
+
+  .saved-item .num {
+    color: var(--gold);
+    font-size: 11px;
+    flex-shrink: 0;
+    width: 20px;
+  }
+
+  .saved-item .remove-btn {
+    background: transparent;
+    border: none;
+    color: var(--muted);
+    cursor: pointer;
+    font-size: 13px;
+    margin-left: auto;
+    padding: 2px 6px;
+  }
+  .saved-item .remove-btn:hover { color: var(--pink); }
+
+  .saved-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 14px;
+  }
+
+  .ghost-btn {
+    background: transparent;
+    border: 1px solid var(--dim);
+    color: var(--text);
+    font-family: 'Space Mono', monospace;
+    font-size: 10.5px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    padding: 8px 14px;
+    border-radius: 3px;
+    cursor: pointer;
+    transition: border-color 0.15s ease, color 0.15s ease;
+  }
+  .ghost-btn:hover { border-color: var(--gold); color: var(--gold); }
+
+  footer {
+    text-align: center;
+    color: var(--dim);
+    font-size: 10.5px;
+    margin-top: 10px;
+    letter-spacing: 0.5px;
+  }
+
+  @media (max-width: 560px) {
+    .controls-row { flex-direction: column; align-items: stretch; }
+    .build-btn { width: 100%; }
+    .cut-controls { flex-direction: column; align-items: stretch; }
+    .matrix-meta { margin-left: 0; }
+    .verse-line { flex-direction: column; align-items: stretch; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="eyebrow">Instruments // Text Engine</div>
+    <h1>CUT-UP MATRIX</h1>
+    <div class="sub">Paste 15–25 lines of source text — one sentence per line. Each line becomes a row, split into cells across shared columns. Slice horizontally through a row, vertically through a column, or both at once, and let words from unrelated lines collide at the same position. Click a cell to pin it. Star the lines that land.</div>
+  </header>
+
+  <section>
+    <div class="section-label">Source Lines</div>
+    <textarea id="inputText" placeholder="One line per sentence, roughly 15–25 lines.
+
+e.g.
+The city hums under a dead neon sky
+She counted coins like they were confessions
+Static bleeds through the radio at 3am
+..."></textarea>
+    <div class="hint-line">Each row is cut independently into cells — pick how below.</div>
+
+    <div class="controls-row">
+      <div class="granularity" role="group" aria-label="Cell granularity">
+        <button class="gran-btn active" data-mode="words">words</button>
+        <button class="gran-btn" data-mode="phrases">phrases</button>
+        <button class="gran-btn" data-mode="sentences">sentences</button>
+      </div>
+      <button class="build-btn" id="buildBtn">Build Matrix ▸</button>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-label">Matrix</div>
+    <div class="matrix-scroll">
+      <div id="matrixGrid" class="matrix-grid">
+        <div class="matrix-empty-state">build a matrix from your source lines above</div>
+      </div>
+    </div>
+
+    <div class="cut-controls">
+      <button class="cut-btn horiz" id="cutHorizBtn" disabled>↔ Cut Horizontal</button>
+      <button class="cut-btn vert" id="cutVertBtn" disabled>↕ Cut Vertical</button>
+      <button class="cut-btn master" id="cutMasterBtn" disabled>⟡ Cut It Up</button>
+      <div class="matrix-meta">cells: <span id="cellCount">0</span> &nbsp;·&nbsp; locked: <span id="lockCount">0</span></div>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-label">Assembled Verses</div>
+    <div id="versesList">
+      <div class="matrix-empty-state">verses read off the matrix will appear here</div>
+    </div>
+  </section>
+
+  <section class="saved">
+    <div class="section-label">★ Saved Verses</div>
+    <div id="savedList" class="saved-list">
+      <div class="saved-empty">nothing kept yet — star a line above when something lands</div>
+    </div>
+    <div class="saved-actions">
+      <button class="ghost-btn" id="copySavedBtn">Copy all saved</button>
+      <button class="ghost-btn" id="clearSavedBtn">Clear saved</button>
+    </div>
+  </section>
+
+  <footer>after Burroughs &amp; Gysin — Verbasizer-style matrix, via Bowie</footer>
+</div>
+
+<script>
+(function () {
+  const inputText = document.getElementById('inputText');
+  const buildBtn = document.getElementById('buildBtn');
+  const matrixGrid = document.getElementById('matrixGrid');
+  const cutHorizBtn = document.getElementById('cutHorizBtn');
+  const cutVertBtn = document.getElementById('cutVertBtn');
+  const cutMasterBtn = document.getElementById('cutMasterBtn');
+  const cellCountEl = document.getElementById('cellCount');
+  const lockCountEl = document.getElementById('lockCount');
+  const versesList = document.getElementById('versesList');
+  const savedList = document.getElementById('savedList');
+  const copySavedBtn = document.getElementById('copySavedBtn');
+  const clearSavedBtn = document.getElementById('clearSavedBtn');
+  const granBtns = document.querySelectorAll('.gran-btn');
+
+  let mode = 'words';
+  let grid = [];      // grid[row][col] = { text, locked, empty }
+  let cols = 0;
+  let saved = [];      // array of strings
+
+  granBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      granBtns.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      mode = btn.dataset.mode;
+    });
+  });
+
+  function splitLine(line, mode) {
+    const cleaned = line.trim();
+    if (!cleaned) return [];
+    if (mode === 'words') {
+      return cleaned.split(/\s+/).filter(Boolean);
+    }
+    if (mode === 'phrases') {
+      return cleaned
+        .split(/(?<=[,;:])\s+|(?<=\s)[-–—]\s+/)
+        .map(s => s.trim())
+        .filter(Boolean);
+    }
+    if (mode === 'sentences') {
+      const matches = cleaned.match(/[^.!?]+[.!?]*/g) || [];
+      return matches.map(s => s.trim()).filter(Boolean);
+    }
+    return [];
+  }
+
+  function shuffleArray(arr) {
+    for (let i = arr.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    return arr;
+  }
+
+  function buildMatrix() {
+    const lines = inputText.value.split('\n').map(l => l.trim()).filter(Boolean);
+    if (lines.length === 0) {
+      matrixGrid.innerHTML = '<div class="matrix-empty-state">paste some source lines first</div>';
+      grid = [];
+      setCutButtonsEnabled(false);
+      renderVerses();
+      updateMeta();
+      return;
+    }
+
+    const rows = lines.map(line => splitLine(line, mode));
+    cols = Math.max(...rows.map(r => r.length), 1);
+
+    grid = rows.map(cells => {
+      const row = cells.map(text => ({ text, locked: false, empty: false }));
+      while (row.length < cols) row.push({ text: '', locked: false, empty: true });
+      return row;
+    });
+
+    renderGrid();
+    renderVerses();
+    setCutButtonsEnabled(true);
+  }
+
+  function setCutButtonsEnabled(enabled) {
+    cutHorizBtn.disabled = !enabled;
+    cutVertBtn.disabled = !enabled;
+    cutMasterBtn.disabled = !enabled;
+  }
+
+  function renderGrid() {
+    matrixGrid.style.gridTemplateColumns = `repeat(${cols}, minmax(70px, 1fr))`;
+    matrixGrid.innerHTML = '';
+
+    grid.forEach((row, r) => {
+      row.forEach((cell, c) => {
+        const div = document.createElement('div');
+        div.className = 'cell pulse' + (cell.empty ? ' empty' : '') + (cell.locked ? ' locked' : '');
+        div.textContent = cell.empty ? '·' : cell.text;
+        div.dataset.row = r;
+        div.dataset.col = c;
+        if (!cell.empty) {
+          div.title = cell.locked ? 'Click to unlock' : 'Click to lock in place';
+          div.addEventListener('click', () => toggleLock(r, c));
+        }
+        matrixGrid.appendChild(div);
+      });
+    });
+
+    requestAnimationFrame(() => {
+      document.querySelectorAll('.cell').forEach(el => el.classList.remove('pulse'));
+    });
+
+    updateMeta();
+  }
+
+  function toggleLock(r, c) {
+    const cell = grid[r][c];
+    cell.locked = !cell.locked;
+    const el = matrixGrid.querySelector(`[data-row="${r}"][data-col="${c}"]`);
+    el.classList.toggle('locked', cell.locked);
+    el.title = cell.locked ? 'Click to unlock' : 'Click to lock in place';
+    updateMeta();
+  }
+
+  function updateMeta() {
+    let cellCount = 0, lockCount = 0;
+    grid.forEach(row => row.forEach(cell => {
+      if (!cell.empty) cellCount++;
+      if (cell.locked) lockCount++;
+    }));
+    cellCountEl.textContent = cellCount;
+    lockCountEl.textContent = lockCount;
+  }
+
+  // Cut Horizontal: within each row, shuffle unlocked cells among unlocked column slots
+  function cutHorizontal() {
+    grid.forEach(row => {
+      const unlockedIdx = [];
+      const unlockedVals = [];
+      row.forEach((cell, c) => {
+        if (!cell.locked) {
+          unlockedIdx.push(c);
+          unlockedVals.push({ text: cell.text, empty: cell.empty });
+        }
+      });
+      shuffleArray(unlockedVals);
+      unlockedIdx.forEach((c, i) => {
+        row[c].text = unlockedVals[i].text;
+        row[c].empty = unlockedVals[i].empty;
+      });
+    });
+  }
+
+  // Cut Vertical: within each column, shuffle unlocked cells among unlocked row slots
+  function cutVertical() {
+    for (let c = 0; c < cols; c++) {
+      const unlockedRows = [];
+      const unlockedVals = [];
+      grid.forEach((row, r) => {
+        const cell = row[c];
+        if (!cell.locked) {
+          unlockedRows.push(r);
+          unlockedVals.push({ text: cell.text, empty: cell.empty });
+        }
+      });
+      shuffleArray(unlockedVals);
+      unlockedRows.forEach((r, i) => {
+        grid[r][c].text = unlockedVals[i].text;
+        grid[r][c].empty = unlockedVals[i].empty;
+      });
+    }
+  }
+
+  cutHorizBtn.addEventListener('click', () => {
+    cutHorizontal();
+    renderGrid();
+    renderVerses();
+  });
+
+  cutVertBtn.addEventListener('click', () => {
+    cutVertical();
+    renderGrid();
+    renderVerses();
+  });
+
+  cutMasterBtn.addEventListener('click', () => {
+    cutVertical();
+    cutHorizontal();
+    renderGrid();
+    renderVerses();
+  });
+
+  buildBtn.addEventListener('click', buildMatrix);
+
+  function renderVerses() {
+    if (grid.length === 0) {
+      versesList.innerHTML = '<div class="matrix-empty-state">verses read off the matrix will appear here</div>';
+      return;
+    }
+
+    versesList.innerHTML = '';
+    grid.forEach((row, r) => {
+      const text = row.filter(c => !c.empty && c.text).map(c => c.text).join(' ');
+      if (!text) return;
+
+      const line = document.createElement('div');
+      line.className = 'verse-line';
+
+      const span = document.createElement('div');
+      span.className = 'verse-text';
+      span.textContent = text;
+
+      const keepBtn = document.createElement('button');
+      keepBtn.className = 'keep-btn';
+      keepBtn.textContent = '☆ Keep';
+      keepBtn.addEventListener('click', () => {
+        saved.push(text);
+        keepBtn.textContent = '★ Kept';
+        keepBtn.classList.add('kept');
+        renderSaved();
+      });
+
+      line.appendChild(span);
+      line.appendChild(keepBtn);
+      versesList.appendChild(line);
+    });
+  }
+
+  function renderSaved() {
+    if (saved.length === 0) {
+      savedList.innerHTML = '<div class="saved-empty">nothing kept yet — star a line above when something lands</div>';
+      return;
+    }
+
+    savedList.innerHTML = '';
+    saved.forEach((text, i) => {
+      const item = document.createElement('div');
+      item.className = 'saved-item';
+
+      const num = document.createElement('div');
+      num.className = 'num';
+      num.textContent = String(i + 1).padStart(2, '0');
+
+      const span = document.createElement('div');
+      span.style.flex = '1';
+      span.textContent = text;
+
+      const removeBtn = document.createElement('button');
+      removeBtn.className = 'remove-btn';
+      removeBtn.textContent = '✕';
+      removeBtn.addEventListener('click', () => {
+        saved.splice(i, 1);
+        renderSaved();
+      });
+
+      item.appendChild(num);
+      item.appendChild(span);
+      item.appendChild(removeBtn);
+      savedList.appendChild(item);
+    });
+  }
+
+  copySavedBtn.addEventListener('click', async () => {
+    if (saved.length === 0) return;
+    try {
+      await navigator.clipboard.writeText(saved.join('\n'));
+      const original = copySavedBtn.textContent;
+      copySavedBtn.textContent = 'Copied ✓';
+      setTimeout(() => { copySavedBtn.textContent = original; }, 1400);
+    } catch (e) {
+      const original = copySavedBtn.textContent;
+      copySavedBtn.textContent = 'Copy failed';
+      setTimeout(() => { copySavedBtn.textContent = original; }, 1400);
+    }
+  });
+
+  clearSavedBtn.addEventListener('click', () => {
+    saved = [];
+    renderSaved();
+  });
+})();
+</script>
+</body>
+</html>
